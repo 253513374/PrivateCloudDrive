@@ -4,6 +4,11 @@ public static class PrivateCloudDriveSettings
 {
     private const string Prefix = "PrivateCloudDrive";
 
-    //Add your own setting names here. Example:
-    //public const string MySetting1 = Prefix + ".MySetting1";
+    public static class FileCenter
+    {
+        private const string FileCenterPrefix = Prefix + ".FileCenter";
+
+        public const string StorageRootPath = FileCenterPrefix + ".StorageRootPath";
+        public const string MaxUploadFileSizeInBytes = FileCenterPrefix + ".MaxUploadFileSizeInBytes";
+    }
 }

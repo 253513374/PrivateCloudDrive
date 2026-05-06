@@ -1,4 +1,5 @@
 ﻿using Volo.Abp.Account;
+using PrivateCloudDrive.FileCenter;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.Modularity;
@@ -17,7 +18,8 @@ namespace PrivateCloudDrive;
     typeof(AbpPermissionManagementApplicationContractsModule),
     typeof(AbpSettingManagementApplicationContractsModule),
     typeof(AbpTenantManagementApplicationContractsModule),
-    typeof(AbpObjectExtendingModule)
+    typeof(AbpObjectExtendingModule),
+    typeof(PrivateCloudDriveFileCenterApplicationContractsModule)
 )]
 public class PrivateCloudDriveApplicationContractsModule : AbpModule
 {

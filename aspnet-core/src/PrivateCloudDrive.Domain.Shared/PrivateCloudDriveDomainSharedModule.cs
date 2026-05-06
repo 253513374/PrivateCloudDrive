@@ -1,3 +1,4 @@
+using PrivateCloudDrive.FileCenter;
 using PrivateCloudDrive.Localization;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
@@ -23,7 +24,8 @@ namespace PrivateCloudDrive;
     typeof(AbpOpenIddictDomainSharedModule),
     typeof(AbpPermissionManagementDomainSharedModule),
     typeof(AbpSettingManagementDomainSharedModule),
-    typeof(AbpTenantManagementDomainSharedModule)    
+    typeof(AbpTenantManagementDomainSharedModule),
+    typeof(PrivateCloudDriveFileCenterDomainSharedModule)
     )]
 public class PrivateCloudDriveDomainSharedModule : AbpModule
 {

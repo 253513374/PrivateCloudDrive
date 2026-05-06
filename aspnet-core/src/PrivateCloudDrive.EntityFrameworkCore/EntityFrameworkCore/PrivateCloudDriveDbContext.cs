@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PrivateCloudDrive.FileCenter;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.Data;
@@ -75,6 +76,8 @@ public class PrivateCloudDriveDbContext :
         builder.ConfigureTenantManagement();
 
         /* Configure your own tables/entities inside here */
+
+        builder.ConfigureFileCenter();
 
         //builder.Entity<YourEntity>(b =>
         //{

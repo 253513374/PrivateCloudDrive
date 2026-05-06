@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PrivateCloudDrive.FileCenter;
 using PrivateCloudDrive.MultiTenancy;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
@@ -28,7 +29,8 @@ namespace PrivateCloudDrive;
     typeof(AbpPermissionManagementDomainIdentityModule),
     typeof(AbpSettingManagementDomainModule),
     typeof(AbpTenantManagementDomainModule),
-    typeof(AbpEmailingModule)
+    typeof(AbpEmailingModule),
+    typeof(PrivateCloudDriveFileCenterDomainModule)
 )]
 public class PrivateCloudDriveDomainModule : AbpModule
 {

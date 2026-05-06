@@ -6,7 +6,8 @@ public class PrivateCloudDriveSettingDefinitionProvider : SettingDefinitionProvi
 {
     public override void Define(ISettingDefinitionContext context)
     {
-        //Define your own settings here. Example:
-        //context.Add(new SettingDefinition(PrivateCloudDriveSettings.MySetting1));
+        context.Add(
+            new SettingDefinition(PrivateCloudDriveSettings.FileCenter.StorageRootPath, "App_Data/FileCenter"),
+            new SettingDefinition(PrivateCloudDriveSettings.FileCenter.MaxUploadFileSizeInBytes, "104857600"));
     }
 }

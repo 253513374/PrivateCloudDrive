@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PrivateCloudDrive.EntityFrameworkCore;
+using PrivateCloudDrive.Menus;
 using PrivateCloudDrive.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
@@ -27,6 +28,7 @@ using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.Swashbuckle;
+using Volo.Abp.UI.Navigation;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
 
@@ -66,6 +68,7 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         ConfigureAuthentication(context);
         ConfigureBundles();
         ConfigureUrls(configuration);
+        ConfigureNavigation();
         ConfigureConventionalControllers();
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
@@ -104,6 +107,14 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
 
             options.Applications["Angular"].RootUrl = configuration["App:ClientUrl"];
             options.Applications["Angular"].Urls[AccountUrlNames.PasswordReset] = "account/reset-password";
+        });
+    }
+
+    private void ConfigureNavigation()
+    {
+        Configure<AbpNavigationOptions>(options =>
+        {
+            options.MenuContributors.Add(new PrivateCloudDriveMenuContributor());
         });
     }
 

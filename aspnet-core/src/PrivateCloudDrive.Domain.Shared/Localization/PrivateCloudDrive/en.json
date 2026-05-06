@@ -3,6 +3,15 @@
   "texts": {
     "AppName": "PrivateCloudDrive",
     "Menu:Home": "Home",
+    "Menu:FileCenter": "File Center",
+    "Permission:PrivateCloudDrive": "Private Cloud Drive",
+    "Permission:FileCenter": "File Center",
+    "Permission:FileCenter.View": "View files",
+    "Permission:FileCenter.Upload": "Upload files",
+    "Permission:FileCenter.Download": "Download files",
+    "Permission:FileCenter.Delete": "Delete files",
+    "Permission:FileCenter.Share": "Share files",
+    "Permission:FileCenter.Manage": "Manage file center",
     "Welcome": "Welcome",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information, visit abp.io."
   }

@@ -7,6 +7,7 @@ using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
 using Microsoft.Extensions.DependencyInjection;
+using PrivateCloudDrive.FileCenter;
 
 namespace PrivateCloudDrive;
 
@@ -18,7 +19,8 @@ namespace PrivateCloudDrive;
     typeof(AbpPermissionManagementApplicationModule),
     typeof(AbpTenantManagementApplicationModule),
     typeof(AbpFeatureManagementApplicationModule),
-    typeof(AbpSettingManagementApplicationModule)
+    typeof(AbpSettingManagementApplicationModule),
+    typeof(PrivateCloudDriveFileCenterApplicationModule)
     )]
 public class PrivateCloudDriveApplicationModule : AbpModule
 {

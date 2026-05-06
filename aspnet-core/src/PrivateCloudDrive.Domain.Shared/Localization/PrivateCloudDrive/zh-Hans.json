@@ -3,6 +3,15 @@
   "texts": {
     "AppName": "PrivateCloudDrive",
     "Menu:Home": "首页",
+    "Menu:FileCenter": "文件中心",
+    "Permission:PrivateCloudDrive": "私有云盘",
+    "Permission:FileCenter": "文件中心",
+    "Permission:FileCenter.View": "查看文件",
+    "Permission:FileCenter.Upload": "上传文件",
+    "Permission:FileCenter.Download": "下载文件",
+    "Permission:FileCenter.Delete": "删除文件",
+    "Permission:FileCenter.Share": "分享文件",
+    "Permission:FileCenter.Manage": "管理文件中心",
     "Welcome": "欢迎",
     "LongWelcomeMessage": "欢迎使用本应用程序。这是一个基于 ABP 框架的启动项目。更多信息，请访问 abp.io。"
   }
