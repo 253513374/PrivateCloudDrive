@@ -1,0 +1,35 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PrivateCloudDrive.Application.Contracts/PrivateCloudDrive.Application.Contracts.csproj" />
+    <Project Path="src/PrivateCloudDrive.Application/PrivateCloudDrive.Application.csproj" />
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <Project Path="src/PrivateCloudDrive.DbMigrator/PrivateCloudDrive.DbMigrator.csproj" />
+    <Project Path="src/PrivateCloudDrive.Domain.Shared/PrivateCloudDrive.Domain.Shared.csproj" />
+    <Project Path="src/PrivateCloudDrive.Domain/PrivateCloudDrive.Domain.csproj" />
+    <Project Path="src/PrivateCloudDrive.EntityFrameworkCore/PrivateCloudDrive.EntityFrameworkCore.csproj" />
+    <Project Path="src/PrivateCloudDrive.HttpApi.Client/PrivateCloudDrive.HttpApi.Client.csproj" />
+    
+    <Project Path="src/PrivateCloudDrive.HttpApi.Host/PrivateCloudDrive.HttpApi.Host.csproj" />
+    <Project Path="src/PrivateCloudDrive.HttpApi/PrivateCloudDrive.HttpApi.csproj" />
+    
+    
+    
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/PrivateCloudDrive.Application.Tests/PrivateCloudDrive.Application.Tests.csproj" />
+    <Project Path="test/PrivateCloudDrive.Domain.Tests/PrivateCloudDrive.Domain.Tests.csproj" />
+    <Project Path="test/PrivateCloudDrive.EntityFrameworkCore.Tests/PrivateCloudDrive.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="test/PrivateCloudDrive.HttpApi.Client.ConsoleTestApp/PrivateCloudDrive.HttpApi.Client.ConsoleTestApp.csproj" />
+    
+    <Project Path="test/PrivateCloudDrive.TestBase/PrivateCloudDrive.TestBase.csproj" />
+    
+  </Folder>
+</Solution>

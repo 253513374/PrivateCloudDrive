@@ -1,0 +1,59 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+
+# IDE and user files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.sln.docstates
+*.DotSettings.user
+
+# Logs and test output
+[Ll]ogs/
+[Ll]og/
+*.log
+[Tt]est[Rr]esult*/
+[Tt]est[Rr]esults/
+coverage/
+
+# Client/package generated files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# .NET generated artifacts
+artifacts/
+project.lock.json
+*.cache
+*.tmp
+*.pdb
+*.ilk
+
+# MAUI/mobile packaging outputs
+*.apk
+*.aab
+*.ipa
+*.appx
+*.msix
+*.msixbundle
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Local certificate/private key files
+*.pfx
+*.pem
+*.key

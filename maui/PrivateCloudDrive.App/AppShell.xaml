@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="PrivateCloudDrive.App.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:PrivateCloudDrive.App.Views"
+    FlyoutBehavior="Disabled"
+    Title="PrivateCloudDrive">
+
+    <ShellContent
+        Title="Start"
+        ContentTemplate="{DataTemplate views:StartupPage}"
+        Route="startup" />
+
+    <ShellContent
+        Title="Sign In"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="login" />
+
+    <ShellContent
+        Title="Files"
+        ContentTemplate="{DataTemplate views:FilesPage}"
+        Route="files" />
+
+</Shell>

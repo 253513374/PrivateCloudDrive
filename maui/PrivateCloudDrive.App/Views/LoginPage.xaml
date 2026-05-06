@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrivateCloudDrive.App.Views.LoginPage"
+             Title="Sign In"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light=#F7F9FC, Dark=#111827}">
+    <ScrollView>
+        <Grid Padding="24" RowDefinitions="*,Auto,*" MinimumHeightRequest="640">
+            <VerticalStackLayout Grid.Row="1" Spacing="18">
+                <Label Text="PrivateCloudDrive"
+                       FontAttributes="Bold"
+                       FontSize="30"
+                       TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}" />
+                <Label Text="{Binding ApiBaseUrl}"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+
+                <Border Padding="18"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}"
+                        Stroke="{AppThemeBinding Light=#E5EAF0, Dark=#374151}"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="14">
+                        <Entry x:Name="UserNameEntry"
+                               Placeholder="admin"
+                               Text="admin"
+                               Keyboard="Email"
+                               ReturnType="Next" />
+                        <Entry x:Name="PasswordEntry"
+                               Placeholder="Password"
+                               Text="1q2w3E*"
+                               IsPassword="True"
+                               ReturnType="Done" />
+                        <Button x:Name="SignInButton"
+                                Text="Sign in"
+                                BackgroundColor="#1F7A5C"
+                                TextColor="White"
+                                Clicked="OnSignInClicked" />
+                        <Label x:Name="ValidationLabel"
+                               IsVisible="False"
+                               TextColor="#B42318"
+                               FontSize="13" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrivateCloudDrive.App.Views.StartupPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light=#F7F9FC, Dark=#111827}">
+    <Grid Padding="28" RowDefinitions="*,Auto,*">
+        <VerticalStackLayout Grid.Row="1" Spacing="18" HorizontalOptions="Center">
+            <Border HeightRequest="72"
+                    WidthRequest="72"
+                    BackgroundColor="#1F7A5C"
+                    StrokeThickness="0"
+                    HorizontalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="18" />
+                </Border.StrokeShape>
+                <Label Text="PCD"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       FontSize="20"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+            <Label Text="PrivateCloudDrive"
+                   FontAttributes="Bold"
+                   FontSize="28"
+                   TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}"
+                   HorizontalTextAlignment="Center" />
+            <ActivityIndicator IsRunning="True"
+                               Color="#1F7A5C"
+                               HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

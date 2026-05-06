@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
+             x:Class="PrivateCloudDrive.App.Views.FilesPage"
+             Title="Files"
+             BackgroundColor="{AppThemeBinding Light=#F7F9FC, Dark=#111827}">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Logout" Clicked="OnLogoutClicked" />
+    </ContentPage.ToolbarItems>
+
+    <Grid Padding="18" RowDefinitions="Auto,*" RowSpacing="16">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Files"
+                       FontAttributes="Bold"
+                       FontSize="28"
+                       TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}" />
+                <Label Text="{Binding ApiBaseUrl}"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+            </VerticalStackLayout>
+            <Button x:Name="RefreshButton"
+                    Grid.Column="1"
+                    Text="Refresh"
+                    BackgroundColor="#1F7A5C"
+                    TextColor="White"
+                    VerticalOptions="Center"
+                    Clicked="OnRefreshClicked" />
+        </Grid>
+
+        <CollectionView x:Name="FilesCollectionView"
+                        Grid.Row="1"
+                        ItemsSource="{Binding Items}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="No files"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:CloudDriveItem">
+                    <Grid Padding="0,0,0,10">
+                        <Border Padding="14"
+                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}"
+                                Stroke="{AppThemeBinding Light=#E5EAF0, Dark=#374151}"
+                                StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12">
+                                <Border HeightRequest="44"
+                                        WidthRequest="44"
+                                        BackgroundColor="{AppThemeBinding Light=#E7F4EF, Dark=#12382D}"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+                                    <Label Text="{Binding Badge}"
+                                           FontAttributes="Bold"
+                                           FontSize="11"
+                                           TextColor="#1F7A5C"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}"
+                                           FontAttributes="Bold"
+                                           FontSize="16"
+                                           TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}" />
+                                    <Label Text="{Binding Kind}"
+                                           FontSize="13"
+                                           TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2"
+                                                     Spacing="3"
+                                                     HorizontalOptions="End"
+                                                     VerticalOptions="Center">
+                                    <Label Text="{Binding Size}"
+                                           FontSize="13"
+                                           HorizontalTextAlignment="End"
+                                           TextColor="{AppThemeBinding Light=#3F4A59, Dark=#E5E7EB}" />
+                                    <Label Text="{Binding ModifiedAt}"
+                                           FontSize="12"
+                                           HorizontalTextAlignment="End"
+                                           TextColor="{AppThemeBinding Light=#7A8796, Dark=#9CA3AF}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
