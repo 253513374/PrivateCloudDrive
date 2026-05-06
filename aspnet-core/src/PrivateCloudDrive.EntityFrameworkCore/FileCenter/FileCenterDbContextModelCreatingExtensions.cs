@@ -31,5 +31,20 @@ public static class FileCenterDbContextModelCreatingExtensions
                 .IsUnique()
                 .HasFilter("\"IsDeleted\" = false AND \"ParentId\" IS NULL");
         });
+
+        builder.Entity<BlobObject>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "BlobObjects", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(blob => blob.OwnerId).IsRequired();
+            b.Property(blob => blob.BlobName).IsRequired().HasMaxLength(BlobObjectConsts.MaxBlobNameLength);
+            b.Property(blob => blob.FileName).IsRequired().HasMaxLength(BlobObjectConsts.MaxFileNameLength);
+            b.Property(blob => blob.ContentType).HasMaxLength(BlobObjectConsts.MaxContentTypeLength);
+            b.Property(blob => blob.Hash).HasMaxLength(BlobObjectConsts.MaxHashLength);
+
+            b.HasIndex(blob => blob.BlobName).IsUnique();
+            b.HasIndex(blob => new { blob.TenantId, blob.OwnerId });
+        });
     }
 }
