@@ -12,6 +12,12 @@
     "Permission:FileCenter.Delete": "Delete files",
     "Permission:FileCenter.Share": "Share files",
     "Permission:FileCenter.Manage": "Manage file center",
+    "PrivateCloudDrive:FileCenter:000001": "Folders cannot have file size.",
+    "PrivateCloudDrive:FileCenter:000002": "A file or folder with the same name already exists in this folder.",
+    "PrivateCloudDrive:FileCenter:000003": "The file or folder was not found.",
+    "PrivateCloudDrive:FileCenter:000004": "The parent folder was not found.",
+    "PrivateCloudDrive:FileCenter:000005": "A folder cannot be moved into itself or its child folder.",
+    "PrivateCloudDrive:FileCenter:000006": "Only folders can be managed by this operation.",
     "Welcome": "Welcome",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information, visit abp.io."
   }

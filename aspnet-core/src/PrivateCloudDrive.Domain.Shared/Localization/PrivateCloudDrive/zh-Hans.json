@@ -12,6 +12,12 @@
     "Permission:FileCenter.Delete": "删除文件",
     "Permission:FileCenter.Share": "分享文件",
     "Permission:FileCenter.Manage": "管理文件中心",
+    "PrivateCloudDrive:FileCenter:000001": "文件夹不能包含文件大小。",
+    "PrivateCloudDrive:FileCenter:000002": "当前目录下已存在同名文件或文件夹。",
+    "PrivateCloudDrive:FileCenter:000003": "文件或文件夹不存在。",
+    "PrivateCloudDrive:FileCenter:000004": "父文件夹不存在。",
+    "PrivateCloudDrive:FileCenter:000005": "不能将文件夹移动到自身或自身子目录。",
+    "PrivateCloudDrive:FileCenter:000006": "此操作只能管理文件夹。",
     "Welcome": "欢迎",
     "LongWelcomeMessage": "欢迎使用本应用程序。这是一个基于 ABP 框架的启动项目。更多信息，请访问 abp.io。"
   }
