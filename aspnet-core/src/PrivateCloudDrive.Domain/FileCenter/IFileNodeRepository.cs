@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Volo.Abp.Domain.Repositories;
+
+namespace PrivateCloudDrive.FileCenter;
+
+public interface IFileNodeRepository : IRepository<FileNode, Guid>
+{
+    Task<FileNode?> FindByNameAsync(
+        Guid ownerId,
+        Guid? parentId,
+        string name,
+        Guid? tenantId = null,
+        bool includeDeleted = false,
+        CancellationToken cancellationToken = default);
+
+    Task<List<FileNode>> GetChildrenAsync(
+        Guid ownerId,
+        Guid? parentId,
+        int skipCount,
+        int maxResultCount,
+        Guid? tenantId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<long> GetChildrenCountAsync(
+        Guid ownerId,
+        Guid? parentId,
+        Guid? tenantId = null,
+        CancellationToken cancellationToken = default);
+}

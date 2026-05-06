@@ -46,6 +46,7 @@ public class PrivateCloudDriveEntityFrameworkCoreModule : AbpModule
                 /* Remove "includeAllEntities: true" to create
                  * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
+            options.AddRepository<FileNode, EfCoreFileNodeRepository>();
         });
 
         Configure<AbpDbContextOptions>(options =>

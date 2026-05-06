@@ -25,6 +25,7 @@ public class PrivateCloudDriveDbContext :
     ITenantManagementDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
+    public DbSet<FileNode> FileNodes { get; set; }
 
     #region Entities from the modules
 
