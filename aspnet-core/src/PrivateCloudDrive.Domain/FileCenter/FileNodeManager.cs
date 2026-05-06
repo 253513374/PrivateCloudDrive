@@ -19,8 +19,7 @@ public class FileNodeManager : FileCenterDomainService
         Guid? parentId,
         string name)
     {
-        await EnsureParentFolderExistsAsync(tenantId, ownerId, parentId);
-        await EnsureNameNotExistsAsync(tenantId, ownerId, parentId, name);
+        await EnsureCanCreateAsync(tenantId, ownerId, parentId, name);
 
         return FileNode.CreateFolder(
             GuidGenerator.Create(),
@@ -28,6 +27,38 @@ public class FileNodeManager : FileCenterDomainService
             ownerId,
             parentId,
             name);
+    }
+
+    public virtual async Task<FileNode> CreateFileAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        Guid? parentId,
+        string name,
+        long size,
+        string? contentType,
+        string blobName)
+    {
+        await EnsureCanCreateAsync(tenantId, ownerId, parentId, name);
+
+        return FileNode.CreateFile(
+            GuidGenerator.Create(),
+            tenantId,
+            ownerId,
+            parentId,
+            name,
+            size,
+            contentType,
+            blobName);
+    }
+
+    public virtual async Task EnsureCanCreateAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        Guid? parentId,
+        string name)
+    {
+        await EnsureParentFolderExistsAsync(tenantId, ownerId, parentId);
+        await EnsureNameNotExistsAsync(tenantId, ownerId, parentId, name);
     }
 
     public virtual async Task RenameAsync(

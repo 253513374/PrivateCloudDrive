@@ -10,5 +10,6 @@ public static class PrivateCloudDriveSettings
 
         public const string StorageRootPath = FileCenterPrefix + ".StorageRootPath";
         public const string MaxUploadFileSizeInBytes = FileCenterPrefix + ".MaxUploadFileSizeInBytes";
+        public const string UserStorageQuotaInBytes = FileCenterPrefix + ".UserStorageQuotaInBytes";
     }
 }

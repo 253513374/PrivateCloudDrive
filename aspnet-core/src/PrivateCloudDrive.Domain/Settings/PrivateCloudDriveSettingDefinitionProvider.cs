@@ -8,6 +8,7 @@ public class PrivateCloudDriveSettingDefinitionProvider : SettingDefinitionProvi
     {
         context.Add(
             new SettingDefinition(PrivateCloudDriveSettings.FileCenter.StorageRootPath, "App_Data/FileCenter"),
-            new SettingDefinition(PrivateCloudDriveSettings.FileCenter.MaxUploadFileSizeInBytes, "104857600"));
+            new SettingDefinition(PrivateCloudDriveSettings.FileCenter.MaxUploadFileSizeInBytes, "104857600"),
+            new SettingDefinition(PrivateCloudDriveSettings.FileCenter.UserStorageQuotaInBytes, "10737418240"));
     }
 }

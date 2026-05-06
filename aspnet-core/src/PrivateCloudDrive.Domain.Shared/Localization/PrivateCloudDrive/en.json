@@ -18,6 +18,9 @@
     "PrivateCloudDrive:FileCenter:000004": "The parent folder was not found.",
     "PrivateCloudDrive:FileCenter:000005": "A folder cannot be moved into itself or its child folder.",
     "PrivateCloudDrive:FileCenter:000006": "Only folders can be managed by this operation.",
+    "PrivateCloudDrive:FileCenter:000007": "The file name is invalid.",
+    "PrivateCloudDrive:FileCenter:000008": "The file exceeds the maximum allowed upload size.",
+    "PrivateCloudDrive:FileCenter:000009": "The user storage quota has been exceeded.",
     "Welcome": "Welcome",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information, visit abp.io."
   }

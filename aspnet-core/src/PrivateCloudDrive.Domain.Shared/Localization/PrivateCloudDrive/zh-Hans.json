@@ -18,6 +18,9 @@
     "PrivateCloudDrive:FileCenter:000004": "父文件夹不存在。",
     "PrivateCloudDrive:FileCenter:000005": "不能将文件夹移动到自身或自身子目录。",
     "PrivateCloudDrive:FileCenter:000006": "此操作只能管理文件夹。",
+    "PrivateCloudDrive:FileCenter:000007": "文件名无效。",
+    "PrivateCloudDrive:FileCenter:000008": "文件超过允许上传的最大大小。",
+    "PrivateCloudDrive:FileCenter:000009": "用户存储容量已超出限制。",
     "Welcome": "欢迎",
     "LongWelcomeMessage": "欢迎使用本应用程序。这是一个基于 ABP 框架的启动项目。更多信息，请访问 abp.io。"
   }
