@@ -25,8 +25,13 @@ function Invoke-Docker {
 function Get-ComposeContainerId {
     param([string]$Service)
 
-    $id = (& docker compose ps -q $Service).Trim()
-    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($id)) {
+    $output = & docker compose ps -a -q $Service
+    if ($LASTEXITCODE -ne 0 -or $null -eq $output) {
+        return $null
+    }
+
+    $id = ($output | Select-Object -First 1).ToString().Trim()
+    if ([string]::IsNullOrWhiteSpace($id)) {
         return $null
     }
 
@@ -156,10 +161,15 @@ Wait-Condition "media-worker" {
 
 Write-Step "Checking Swagger endpoint"
 $swaggerUrl = "$($PublicUrl.TrimEnd('/'))/swagger/index.html"
-$response = Invoke-WebRequest -UseBasicParsing -Uri $swaggerUrl -TimeoutSec 30
-if ($response.StatusCode -ne 200) {
-    throw "Swagger returned HTTP $($response.StatusCode)."
-}
+Wait-Condition "swagger" {
+    try {
+        $response = Invoke-WebRequest -UseBasicParsing -Uri $swaggerUrl -TimeoutSec 30
+        return $response.StatusCode -eq 200
+    }
+    catch {
+        return $false
+    }
+} $TimeoutSeconds
 
 Write-Host "Swagger is available at $swaggerUrl."
 Write-Host "Docker stack verification completed."
