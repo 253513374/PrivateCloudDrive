@@ -18,7 +18,7 @@
 | 阶段 2：上传下载 | 已完成 | `011d13d`, `d20a927`, `75a4138` | BlobObject 本地存储、小文件上传、文件下载、HTTP Range、分片上传 | 2026-05-07：`dotnet build .\PrivateCloudDrive.slnx` 成功；`dotnet test .\PrivateCloudDrive.slnx --no-build` 通过 34 个后端集成测试 |
 | 阶段 3：媒体处理 | 已完成 | `75a4138` | MediaAsset 实体、上传后创建媒体任务、图片缩略图、视频封面和元数据处理基础、缩略图访问 API | 2026-05-07：后端构建成功；媒体处理相关集成测试包含图片、视频、缩略图和永久删除清理场景 |
 | 阶段 4：MAUI App 核心 | 已完成 | `8dfd5a6` | OpenIddict 登录接入、Token 安全保存和刷新、真实文件列表、文件夹导航、新建文件夹、当前目录上传、图片预览、MediaElement 视频播放 | 2026-05-07：后端构建和测试通过；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0` 成功；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android` 成功 |
-| 阶段 5：分享、标签、部署完善 | 未开始 | 无 | 分享链接、标签收藏、完整 Docker Compose 部署 | 未验证 |
+| 阶段 5：分享、标签、部署完善 | 已完成 | `bb654ee` | 分享链接、公开访问与密码校验、标签管理、收藏筛选、完整 Docker Compose 私有部署和部署文档 | 2026-05-07：后端构建成功；`dotnet test .\PrivateCloudDrive.slnx --no-build` 通过 37 个后端集成测试；`docker compose config` 校验通过 |
 | 阶段 6：质量收尾 | 未开始 | 无 | 测试补齐、README 和使用文档 | 未验证 |
 
 ## 最近验证记录
@@ -30,7 +30,10 @@
   - 结果：成功，0 个警告，0 个错误。
 - `dotnet test .\PrivateCloudDrive.slnx --no-build`
   - 工作目录：`aspnet-core`
-  - 结果：`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 34 个测试；其它测试项目当前没有可发现测试。
+  - 结果：`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 37 个测试；其它测试项目当前没有可发现测试。
+- `docker compose config`
+  - 工作目录：仓库根目录
+  - 结果：成功展开 Compose 配置，包含 PostgreSQL、Redis、DbMigrator、API、媒体 Worker 和可选 MinIO profile。
 - `dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0`
   - 工作目录：`maui/PrivateCloudDrive.App`
   - 结果：成功，0 个警告，0 个错误。
@@ -40,5 +43,5 @@
 
 ## 下一步
 
-- 阶段 5 进入分享链接、标签收藏和完整 Docker Compose 私有部署。
-- 后续阶段完成后必须先验证对应构建/测试，再提交 Git 并更新本进度文档。
+- 阶段 6 进入质量收尾：补齐 README、运行说明、测试边界说明和最终验收清单。
+- 后续阶段完成后必须先验证对应构建/测试，再提交 Git，并单独更新本进度文档。
