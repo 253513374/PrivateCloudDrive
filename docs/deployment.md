@@ -23,10 +23,10 @@ The `db-migrator` service runs before the API and applies database migrations pl
 
 ## Persistent Data
 
-- PostgreSQL data: `privateclouddrive_postgres_data`
-- Redis data: `privateclouddrive_redis_data`
-- FileCenter blobs, upload temp files, thumbnails, and video covers: `privateclouddrive_storage`
-- Optional MinIO data: `privateclouddrive_minio_data`
+- PostgreSQL data: `privateclouddrive_stack_postgres_data`
+- Redis data: `privateclouddrive_stack_redis_data`
+- FileCenter blobs, upload temp files, thumbnails, and video covers: `privateclouddrive_stack_storage`
+- Optional MinIO data: `privateclouddrive_stack_minio_data`
 
 ## Media Processing
 
@@ -85,3 +85,5 @@ docker compose up -d --build
 ```
 
 The Compose file uses `postgres:17-alpine` and `redis:7-alpine` because they are stable Alpine images and are enough for the current PostgreSQL and Redis requirements.
+
+The full stack uses `privateclouddrive_stack_*` volumes so it does not reuse the development-only PostgreSQL volume from `docker-compose.postgres.yml`.

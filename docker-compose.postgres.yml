@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - privateclouddrive_postgres_data:/var/lib/postgresql/data
+      - privateclouddrive_dev_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root -d PrivateCloudDrive"]
       interval: 5s
@@ -17,4 +17,4 @@ services:
       retries: 20
 
 volumes:
-  privateclouddrive_postgres_data:
+  privateclouddrive_dev_postgres_data:

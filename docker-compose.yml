@@ -8,7 +8,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - privateclouddrive_postgres_data:/var/lib/postgresql/data
+      - privateclouddrive_stack_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-privateclouddrive} -d ${POSTGRES_DB:-PrivateCloudDrive}"]
       interval: 5s
@@ -20,7 +20,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - privateclouddrive_redis_data:/data
+      - privateclouddrive_stack_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -68,7 +68,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - privateclouddrive_storage:/app/storage
+      - privateclouddrive_stack_storage:/app/storage
     depends_on:
       db-migrator:
         condition: service_completed_successfully
@@ -95,7 +95,7 @@ services:
       BackgroundJobs__IsJobExecutionEnabled: "true"
       StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
     volumes:
-      - privateclouddrive_storage:/app/storage
+      - privateclouddrive_stack_storage:/app/storage
     depends_on:
       db-migrator:
         condition: service_completed_successfully
@@ -115,10 +115,10 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - privateclouddrive_minio_data:/data
+      - privateclouddrive_stack_minio_data:/data
 
 volumes:
-  privateclouddrive_postgres_data:
-  privateclouddrive_redis_data:
-  privateclouddrive_storage:
-  privateclouddrive_minio_data:
+  privateclouddrive_stack_postgres_data:
+  privateclouddrive_stack_redis_data:
+  privateclouddrive_stack_storage:
+  privateclouddrive_stack_minio_data:
