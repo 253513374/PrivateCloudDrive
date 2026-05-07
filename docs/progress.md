@@ -17,7 +17,7 @@
 | 阶段 1：后端文件核心 | 已完成 | `216b8a4`, `ad3ac95`, `540853b` | FileCenter 模块结构、FileNode 实体、文件夹管理 API | 后续 `dotnet build .\PrivateCloudDrive.slnx` 和后端测试持续通过 |
 | 阶段 2：上传下载 | 已完成 | `011d13d`, `d20a927`, `75a4138` | BlobObject 本地存储、小文件上传、文件下载、HTTP Range、分片上传 | 2026-05-07：`dotnet build .\PrivateCloudDrive.slnx` 成功；`dotnet test .\PrivateCloudDrive.slnx --no-build` 通过 34 个后端集成测试 |
 | 阶段 3：媒体处理 | 已完成 | `75a4138` | MediaAsset 实体、上传后创建媒体任务、图片缩略图、视频封面和元数据处理基础、缩略图访问 API | 2026-05-07：后端构建成功；媒体处理相关集成测试包含图片、视频、缩略图和永久删除清理场景 |
-| 阶段 4：MAUI App 核心 | 进行中 | 未提交 | 登录接入、真实文件列表、上传、媒体预览已有本地改动 | 2026-05-07：`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0` 成功；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android` 成功；尚未完成阶段验收 |
+| 阶段 4：MAUI App 核心 | 已完成 | `8dfd5a6` | OpenIddict 登录接入、Token 安全保存和刷新、真实文件列表、文件夹导航、新建文件夹、当前目录上传、图片预览、MediaElement 视频播放 | 2026-05-07：后端构建和测试通过；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0` 成功；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android` 成功 |
 | 阶段 5：分享、标签、部署完善 | 未开始 | 无 | 分享链接、标签收藏、完整 Docker Compose 部署 | 未验证 |
 | 阶段 6：质量收尾 | 未开始 | 无 | 测试补齐、README 和使用文档 | 未验证 |
 
@@ -40,5 +40,5 @@
 
 ## 下一步
 
-- 阶段 4 仍需完成 MAUI 文件夹导航、媒体播放体验、错误状态和真实后端登录联调。
-- 阶段 4 完成后必须先验证 MAUI Windows/Android 构建，再提交 Git 并更新本进度文档。
+- 阶段 5 进入分享链接、标签收藏和完整 Docker Compose 私有部署。
+- 后续阶段完成后必须先验证对应构建/测试，再提交 Git 并更新本进度文档。
