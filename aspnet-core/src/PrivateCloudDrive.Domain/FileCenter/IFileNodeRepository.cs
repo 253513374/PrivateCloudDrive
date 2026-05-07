@@ -30,12 +30,16 @@ public interface IFileNodeRepository : IRepository<FileNode, Guid>
         int maxResultCount,
         Guid? tenantId = null,
         bool includeDeleted = false,
+        Guid? tagId = null,
+        bool? isFavorite = null,
         CancellationToken cancellationToken = default);
 
     Task<long> GetChildrenCountAsync(
         Guid ownerId,
         Guid? parentId,
         Guid? tenantId = null,
+        Guid? tagId = null,
+        bool? isFavorite = null,
         CancellationToken cancellationToken = default);
 
     Task<List<FileNode>> GetDeletedRootsAsync(

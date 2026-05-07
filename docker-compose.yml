@@ -1,0 +1,124 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-PrivateCloudDrive}
+      POSTGRES_USER: ${POSTGRES_USER:-privateclouddrive}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-privateclouddrive}
+    ports:
+      - "5432:5432"
+    volumes:
+      - privateclouddrive_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-privateclouddrive} -d ${POSTGRES_DB:-PrivateCloudDrive}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - privateclouddrive_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  db-migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["dotnet", "/app/migrator/PrivateCloudDrive.DbMigrator.dll"]
+    entrypoint: []
+    environment:
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-PrivateCloudDrive};Username=${POSTGRES_USER:-privateclouddrive};Password=${POSTGRES_PASSWORD:-privateclouddrive};"
+      Redis__Configuration: "redis:6379"
+      StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+      OpenIddict__Applications__PrivateCloudDrive_Swagger__RootUrl: ${PUBLIC_URL:-http://localhost:8080}
+      OpenIddict__Applications__PrivateCloudDrive_App__RedirectUri: "privateclouddrive://callback"
+      OpenIddict__Applications__PrivateCloudDrive_App__PostLogoutRedirectUri: "privateclouddrive://callback"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-PrivateCloudDrive};Username=${POSTGRES_USER:-privateclouddrive};Password=${POSTGRES_PASSWORD:-privateclouddrive};"
+      Redis__Configuration: "redis:6379"
+      App__SelfUrl: ${PUBLIC_URL:-http://localhost:8080}
+      App__CorsOrigins: ${PUBLIC_URL:-http://localhost:8080}
+      AuthServer__Authority: ${PUBLIC_URL:-http://localhost:8080}
+      AuthServer__RequireHttpsMetadata: "false"
+      FileCenter__StorageRootPath: ${FILECENTER_STORAGE_PATH:-/app/storage}
+      FileCenter__MediaProcessing__FfprobePath: "ffprobe"
+      FileCenter__MediaProcessing__FfmpegPath: "ffmpeg"
+      FileCenter__MediaProcessing__VideoThumbnailWidth: "320"
+      BackgroundJobs__IsJobExecutionEnabled: "false"
+      StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+    ports:
+      - "8080:8080"
+    volumes:
+      - privateclouddrive_storage:/app/storage
+    depends_on:
+      db-migrator:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  media-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-PrivateCloudDrive};Username=${POSTGRES_USER:-privateclouddrive};Password=${POSTGRES_PASSWORD:-privateclouddrive};"
+      Redis__Configuration: "redis:6379"
+      AuthServer__Authority: ${PUBLIC_URL:-http://localhost:8080}
+      AuthServer__RequireHttpsMetadata: "false"
+      FileCenter__StorageRootPath: ${FILECENTER_STORAGE_PATH:-/app/storage}
+      FileCenter__MediaProcessing__FfprobePath: "ffprobe"
+      FileCenter__MediaProcessing__FfmpegPath: "ffmpeg"
+      FileCenter__MediaProcessing__VideoThumbnailWidth: "320"
+      BackgroundJobs__IsJobExecutionEnabled: "true"
+      StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+    volumes:
+      - privateclouddrive_storage:/app/storage
+    depends_on:
+      db-migrator:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  minio:
+    image: minio/minio:latest
+    profiles: ["minio"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-privateclouddrive}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-privateclouddrive}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - privateclouddrive_minio_data:/data
+
+volumes:
+  privateclouddrive_postgres_data:
+  privateclouddrive_redis_data:
+  privateclouddrive_storage:
+  privateclouddrive_minio_data:

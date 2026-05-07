@@ -1,0 +1,15 @@
+.git
+.vs
+.vscode
+**/bin
+**/obj
+**/Logs
+**/artifacts
+maui
+storage
+node_modules
+*.user
+*.suo
+.env
+.env.*
+!.env.example

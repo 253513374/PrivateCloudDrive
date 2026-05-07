@@ -93,15 +93,13 @@ public class EfCoreFileNodeRepository
         int maxResultCount,
         Guid? tenantId = null,
         bool includeDeleted = false,
+        Guid? tagId = null,
+        bool? isFavorite = null,
         CancellationToken cancellationToken = default)
     {
         async Task<List<FileNode>> QueryAsync()
         {
-            return await (await GetQueryableAsync())
-                .Where(node =>
-                    node.TenantId == tenantId &&
-                    node.OwnerId == ownerId &&
-                    node.ParentId == parentId)
+            return await (await CreateChildrenQueryAsync(ownerId, parentId, tenantId, tagId, isFavorite))
                 .OrderBy(node => node.NodeType)
                 .ThenBy(node => node.NormalizedName)
                 .Skip(skipCount)
@@ -124,15 +122,46 @@ public class EfCoreFileNodeRepository
         Guid ownerId,
         Guid? parentId,
         Guid? tenantId = null,
+        Guid? tagId = null,
+        bool? isFavorite = null,
         CancellationToken cancellationToken = default)
     {
-        return await (await GetQueryableAsync())
-            .LongCountAsync(
-                node =>
-                    node.TenantId == tenantId &&
+        return await (await CreateChildrenQueryAsync(ownerId, parentId, tenantId, tagId, isFavorite))
+            .LongCountAsync(GetCancellationToken(cancellationToken));
+    }
+
+    private async Task<IQueryable<FileNode>> CreateChildrenQueryAsync(
+        Guid ownerId,
+        Guid? parentId,
+        Guid? tenantId,
+        Guid? tagId,
+        bool? isFavorite)
+    {
+        var queryable = (await GetQueryableAsync())
+            .Where(node =>
+                node.TenantId == tenantId &&
                 node.OwnerId == ownerId &&
-                node.ParentId == parentId,
-                GetCancellationToken(cancellationToken));
+                node.ParentId == parentId);
+
+        if (isFavorite.HasValue)
+        {
+            queryable = queryable.Where(node => node.IsFavorite == isFavorite.Value);
+        }
+
+        if (tagId.HasValue)
+        {
+            var dbContext = await GetDbContextAsync();
+            var taggedNodeIds = dbContext.FileNodeTags
+                .Where(nodeTag =>
+                    nodeTag.TenantId == tenantId &&
+                    nodeTag.OwnerId == ownerId &&
+                    nodeTag.TagId == tagId.Value)
+                .Select(nodeTag => nodeTag.FileNodeId);
+
+            queryable = queryable.Where(node => taggedNodeIds.Contains(node.Id));
+        }
+
+        return queryable;
     }
 
     public async Task<List<FileNode>> GetDeletedRootsAsync(

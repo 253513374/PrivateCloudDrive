@@ -23,6 +23,8 @@ public class FileNodeDto : EntityDto<Guid>
 
     public string? BlobName { get; set; }
 
+    public bool IsFavorite { get; set; }
+
     public DateTime CreationTime { get; set; }
 
     public DateTime? LastModificationTime { get; set; }

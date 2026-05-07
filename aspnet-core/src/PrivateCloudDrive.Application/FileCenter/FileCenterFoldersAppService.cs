@@ -63,13 +63,20 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
             await _fileNodeManager.GetOwnerFolderAsync(CurrentTenant.Id, ownerId, input.ParentId.Value);
         }
 
-        var totalCount = await _fileNodeRepository.GetChildrenCountAsync(ownerId, input.ParentId, CurrentTenant.Id);
+        var totalCount = await _fileNodeRepository.GetChildrenCountAsync(
+            ownerId,
+            input.ParentId,
+            CurrentTenant.Id,
+            input.TagId,
+            input.IsFavorite);
         var items = await _fileNodeRepository.GetChildrenAsync(
             ownerId,
             input.ParentId,
             input.SkipCount,
             input.MaxResultCount,
-            CurrentTenant.Id);
+            CurrentTenant.Id,
+            tagId: input.TagId,
+            isFavorite: input.IsFavorite);
 
         return new PagedResultDto<FileNodeDto>(
             totalCount,
@@ -274,6 +281,7 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
             Size = node.Size,
             ContentType = node.ContentType,
             BlobName = node.BlobName,
+            IsFavorite = node.IsFavorite,
             CreationTime = node.CreationTime,
             LastModificationTime = node.LastModificationTime
         };

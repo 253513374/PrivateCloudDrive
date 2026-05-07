@@ -172,7 +172,7 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
                          mergedPath,
                          FileMode.Open,
                          FileAccess.Read,
-                         FileShare.Read,
+                         System.IO.FileShare.Read,
                          StreamBufferSize,
                          FileOptions.Asynchronous | FileOptions.SequentialScan))
         {
@@ -355,7 +355,7 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
             chunkPath,
             FileMode.Create,
             FileAccess.Write,
-            FileShare.None,
+            System.IO.FileShare.None,
             StreamBufferSize,
             FileOptions.Asynchronous | FileOptions.SequentialScan);
 
@@ -379,7 +379,7 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
             mergedPath,
             FileMode.Create,
             FileAccess.Write,
-            FileShare.None,
+            System.IO.FileShare.None,
             StreamBufferSize,
             FileOptions.Asynchronous | FileOptions.SequentialScan);
 
@@ -399,7 +399,7 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
                 chunkPath,
                 FileMode.Open,
                 FileAccess.Read,
-                FileShare.Read,
+                System.IO.FileShare.Read,
                 StreamBufferSize,
                 FileOptions.Asynchronous | FileOptions.SequentialScan);
 
@@ -512,6 +512,7 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
             Size = node.Size,
             ContentType = node.ContentType,
             BlobName = node.BlobName,
+            IsFavorite = node.IsFavorite,
             CreationTime = node.CreationTime,
             LastModificationTime = node.LastModificationTime
         };

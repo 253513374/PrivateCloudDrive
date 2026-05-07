@@ -21,6 +21,7 @@ public class PrivateCloudDrivePermissionDefinitionProvider : PermissionDefinitio
         fileCenter.AddChild(PrivateCloudDrivePermissions.FileCenter.Download, L("Permission:FileCenter.Download"));
         fileCenter.AddChild(PrivateCloudDrivePermissions.FileCenter.Delete, L("Permission:FileCenter.Delete"));
         fileCenter.AddChild(PrivateCloudDrivePermissions.FileCenter.Share, L("Permission:FileCenter.Share"));
+        fileCenter.AddChild(PrivateCloudDrivePermissions.FileCenter.Tags, L("Permission:FileCenter.Tags"));
         fileCenter.AddChild(PrivateCloudDrivePermissions.FileCenter.Manage, L("Permission:FileCenter.Manage"));
     }
 

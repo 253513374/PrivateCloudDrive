@@ -22,8 +22,10 @@ public static class FileCenterDbContextModelCreatingExtensions
             b.Property(node => node.NormalizedName).IsRequired().HasMaxLength(FileNodeConsts.MaxNormalizedNameLength);
             b.Property(node => node.ContentType).HasMaxLength(FileNodeConsts.MaxContentTypeLength);
             b.Property(node => node.BlobName).HasMaxLength(FileNodeConsts.MaxBlobNameLength);
+            b.Property(node => node.IsFavorite).IsRequired();
 
             b.HasIndex(node => new { node.TenantId, node.OwnerId, node.ParentId });
+            b.HasIndex(node => new { node.TenantId, node.OwnerId, node.IsFavorite });
             b.HasIndex(node => new { node.OwnerId, node.ParentId, node.NormalizedName })
                 .IsUnique()
                 .HasFilter("\"IsDeleted\" = false AND \"ParentId\" IS NOT NULL");
@@ -82,6 +84,52 @@ public static class FileCenterDbContextModelCreatingExtensions
             b.HasIndex(asset => asset.FileNodeId).IsUnique();
             b.HasIndex(asset => new { asset.TenantId, asset.OwnerId, asset.MediaType });
             b.HasIndex(asset => asset.ProcessStatus);
+        });
+
+        builder.Entity<FileShare>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "FileShares", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(share => share.OwnerId).IsRequired();
+            b.Property(share => share.FileNodeId).IsRequired();
+            b.Property(share => share.Token).IsRequired().HasMaxLength(FileShareConsts.MaxTokenLength);
+            b.Property(share => share.PasswordSalt).HasMaxLength(FileShareConsts.MaxPasswordSaltLength);
+            b.Property(share => share.PasswordHash).HasMaxLength(FileShareConsts.MaxPasswordHashLength);
+            b.Property(share => share.AllowDownload).IsRequired();
+            b.Property(share => share.VisitCount).IsRequired();
+            b.Property(share => share.IsEnabled).IsRequired();
+
+            b.HasIndex(share => share.Token).IsUnique();
+            b.HasIndex(share => new { share.TenantId, share.OwnerId, share.FileNodeId });
+            b.HasIndex(share => share.ExpirationTime);
+        });
+
+        builder.Entity<FileTag>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "FileTags", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(tag => tag.OwnerId).IsRequired();
+            b.Property(tag => tag.Name).IsRequired().HasMaxLength(FileTagConsts.MaxNameLength);
+            b.Property(tag => tag.NormalizedName).IsRequired().HasMaxLength(FileTagConsts.MaxNormalizedNameLength);
+            b.Property(tag => tag.Color).HasMaxLength(FileTagConsts.MaxColorLength);
+
+            b.HasIndex(tag => new { tag.TenantId, tag.OwnerId, tag.NormalizedName }).IsUnique();
+        });
+
+        builder.Entity<FileNodeTag>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "FileNodeTags", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(nodeTag => nodeTag.OwnerId).IsRequired();
+            b.Property(nodeTag => nodeTag.FileNodeId).IsRequired();
+            b.Property(nodeTag => nodeTag.TagId).IsRequired();
+
+            b.HasIndex(nodeTag => new { nodeTag.TenantId, nodeTag.OwnerId, nodeTag.FileNodeId, nodeTag.TagId })
+                .IsUnique();
+            b.HasIndex(nodeTag => new { nodeTag.TenantId, nodeTag.OwnerId, nodeTag.TagId });
         });
     }
 }

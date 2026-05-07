@@ -12,6 +12,7 @@ public static class PrivateCloudDrivePermissions
         public const string Download = Default + ".Download";
         public const string Delete = Default + ".Delete";
         public const string Share = Default + ".Share";
+        public const string Tags = Default + ".Tags";
         public const string Manage = Default + ".Manage";
     }
 }

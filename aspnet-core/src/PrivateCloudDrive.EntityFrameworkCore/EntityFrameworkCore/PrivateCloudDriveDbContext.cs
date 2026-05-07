@@ -29,6 +29,9 @@ public class PrivateCloudDriveDbContext :
     public DbSet<BlobObject> BlobObjects { get; set; }
     public DbSet<UploadSession> UploadSessions { get; set; }
     public DbSet<MediaAsset> MediaAssets { get; set; }
+    public DbSet<FileShare> FileShares { get; set; }
+    public DbSet<FileTag> FileTags { get; set; }
+    public DbSet<FileNodeTag> FileNodeTags { get; set; }
 
     #region Entities from the modules
 

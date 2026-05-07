@@ -26,6 +26,8 @@ public class FileNode : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public string? BlobName { get; private set; }
 
+    public bool IsFavorite { get; private set; }
+
     protected FileNode()
     {
     }
@@ -84,6 +86,11 @@ public class FileNode : FullAuditedAggregateRoot<Guid>, IMultiTenant
         IsDeleted = false;
         DeleterId = null;
         DeletionTime = null;
+    }
+
+    public void SetFavorite(bool isFavorite)
+    {
+        IsFavorite = isFavorite;
     }
 
     public void SetFileMetadata(long size, string? contentType = null, string? blobName = null)

@@ -195,6 +195,7 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
             Size = node.Size,
             ContentType = node.ContentType,
             BlobName = node.BlobName,
+            IsFavorite = node.IsFavorite,
             CreationTime = node.CreationTime,
             LastModificationTime = node.LastModificationTime
         };

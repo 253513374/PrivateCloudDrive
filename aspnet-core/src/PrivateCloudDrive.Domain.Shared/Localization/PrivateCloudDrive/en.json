@@ -11,6 +11,7 @@
     "Permission:FileCenter.Download": "Download files",
     "Permission:FileCenter.Delete": "Delete files",
     "Permission:FileCenter.Share": "Share files",
+    "Permission:FileCenter.Tags": "Manage file tags",
     "Permission:FileCenter.Manage": "Manage file center",
     "PrivateCloudDrive:FileCenter:000001": "Folders cannot have file size.",
     "PrivateCloudDrive:FileCenter:000002": "A file or folder with the same name already exists in this folder.",

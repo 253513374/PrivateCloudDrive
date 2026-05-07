@@ -22,4 +22,11 @@ public static class PrivateCloudDriveDomainErrorCodes
     public const string FileCenterUploadSessionIncomplete = "PrivateCloudDrive:FileCenter:000017";
     public const string FileCenterUploadSessionHashMismatch = "PrivateCloudDrive:FileCenter:000018";
     public const string FileCenterThumbnailNotFound = "PrivateCloudDrive:FileCenter:000019";
+    public const string FileCenterShareNotFound = "PrivateCloudDrive:FileCenter:000020";
+    public const string FileCenterShareExpired = "PrivateCloudDrive:FileCenter:000021";
+    public const string FileCenterSharePasswordRequired = "PrivateCloudDrive:FileCenter:000022";
+    public const string FileCenterSharePasswordInvalid = "PrivateCloudDrive:FileCenter:000023";
+    public const string FileCenterShareDownloadDisabled = "PrivateCloudDrive:FileCenter:000024";
+    public const string FileCenterTagAlreadyExists = "PrivateCloudDrive:FileCenter:000025";
+    public const string FileCenterTagNotFound = "PrivateCloudDrive:FileCenter:000026";
 }

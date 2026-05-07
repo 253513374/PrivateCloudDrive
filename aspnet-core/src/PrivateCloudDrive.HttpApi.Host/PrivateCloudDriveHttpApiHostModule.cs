@@ -24,6 +24,8 @@ using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
+using Volo.Abp.BackgroundJobs;
+using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.Security.Claims;
@@ -43,6 +45,7 @@ namespace PrivateCloudDrive;
     typeof(AbpAspNetCoreMvcUiLeptonXLiteThemeModule),
     typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
+    typeof(AbpCachingStackExchangeRedisModule),
     typeof(AbpSwashbuckleModule)
 )]
 public class PrivateCloudDriveHttpApiHostModule : AbpModule
@@ -72,6 +75,7 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         ConfigureConventionalControllers();
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
+        ConfigureBackgroundJobs(configuration);
         ConfigureSwaggerServices(context, configuration);
     }
 
@@ -147,6 +151,18 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
             options.ConventionalControllers.Create(typeof(PrivateCloudDriveApplicationModule).Assembly);
+        });
+    }
+
+    private void ConfigureBackgroundJobs(IConfiguration configuration)
+    {
+        Configure<AbpBackgroundJobOptions>(options =>
+        {
+            var configuredValue = configuration.GetValue<bool?>("BackgroundJobs:IsJobExecutionEnabled");
+            if (configuredValue.HasValue)
+            {
+                options.IsJobExecutionEnabled = configuredValue.Value;
+            }
         });
     }
 
