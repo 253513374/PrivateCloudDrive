@@ -75,3 +75,13 @@ After startup, confirm:
 - `db-migrator` completed successfully.
 - `api` exposes `http://localhost:8080/swagger`.
 - `media-worker` stays running and handles background media jobs.
+
+## Troubleshooting
+
+If Docker Desktop cannot pull images from Docker Hub or Microsoft Container Registry, configure the Docker Desktop HTTPS proxy first, then rerun:
+
+```powershell
+docker compose up -d --build
+```
+
+The Compose file uses `postgres:17-alpine` and `redis:7-alpine` because they are stable Alpine images and are enough for the current PostgreSQL and Redis requirements.
