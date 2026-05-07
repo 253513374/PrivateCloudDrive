@@ -20,15 +20,19 @@ public sealed class MockCloudDriveApiClient
         return Task.CompletedTask;
     }
 
-    public Task<IReadOnlyList<CloudDriveItem>> GetRootItemsAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<CloudDriveItem>> GetItemsAsync(
+        Guid? parentId,
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default)
     {
         IReadOnlyList<CloudDriveItem> items =
         [
-            new("Photos", "Folder", "12 items", "Today", "DIR"),
-            new("Videos", "Folder", "5 items", "Yesterday", "DIR"),
-            new("Contracts.pdf", "PDF", "1.8 MB", "May 4", "PDF"),
-            new("Family-trip.jpg", "Image", "4.2 MB", "May 2", "IMG"),
-            new("Backup.zip", "Archive", "860 MB", "Apr 28", "ZIP")
+            new(Guid.NewGuid(), parentId, "Photos", "Folder", "12 items", "Today", "DIR", null),
+            new(Guid.NewGuid(), parentId, "Videos", "Folder", "5 items", "Yesterday", "DIR", null),
+            new(Guid.NewGuid(), parentId, "Contracts.pdf", "PDF", "1.8 MB", "May 4", "PDF", "application/pdf"),
+            new(Guid.NewGuid(), parentId, "Family-trip.jpg", "Image", "4.2 MB", "May 2", "IMG", "image/jpeg"),
+            new(Guid.NewGuid(), parentId, "Backup.zip", "Archive", "860 MB", "Apr 28", "ZIP", "application/zip")
         ];
 
         return Task.FromResult(items);

@@ -15,6 +15,9 @@
                 <Label Text="{Binding ApiBaseUrl}"
                        FontSize="13"
                        TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+                <Label Text="{Binding ClientId}"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
 
                 <Border Padding="18"
                         BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}"
@@ -24,18 +27,8 @@
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="14">
-                        <Entry x:Name="UserNameEntry"
-                               Placeholder="admin"
-                               Text="admin"
-                               Keyboard="Email"
-                               ReturnType="Next" />
-                        <Entry x:Name="PasswordEntry"
-                               Placeholder="Password"
-                               Text="1q2w3E*"
-                               IsPassword="True"
-                               ReturnType="Done" />
                         <Button x:Name="SignInButton"
-                                Text="Sign in"
+                                Text="Sign in with server"
                                 BackgroundColor="#1F7A5C"
                                 TextColor="White"
                                 Clicked="OnSignInClicked" />

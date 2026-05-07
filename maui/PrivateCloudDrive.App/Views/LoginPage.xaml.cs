@@ -4,9 +4,10 @@ namespace PrivateCloudDrive.App.Views;
 
 public partial class LoginPage : ContentPage
 {
-    private readonly MockCloudDriveApiClient _apiClient = new();
+    private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
 
     public string ApiBaseUrl => AppSettings.ApiBaseUrl;
+    public string ClientId => AppSettings.OAuthClientId;
 
     public LoginPage()
     {
@@ -21,15 +22,13 @@ public partial class LoginPage : ContentPage
 
         try
         {
-            var signedIn = await _apiClient.SignInAsync(UserNameEntry.Text ?? string.Empty, PasswordEntry.Text ?? string.Empty);
-            if (!signedIn)
-            {
-                ValidationLabel.Text = "Enter a user name and password.";
-                ValidationLabel.IsVisible = true;
-                return;
-            }
-
+            await _authService.SignInAsync();
             await Shell.Current.GoToAsync("//files", true);
+        }
+        catch (Exception exception)
+        {
+            ValidationLabel.Text = exception.Message;
+            ValidationLabel.IsVisible = true;
         }
         finally
         {

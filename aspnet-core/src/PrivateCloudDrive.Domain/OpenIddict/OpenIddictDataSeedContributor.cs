@@ -102,6 +102,30 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 clientUri: swaggerRootUrl
             );
         }
+
+        var appClientId = configurationSection["PrivateCloudDrive_App:ClientId"];
+        if (!appClientId.IsNullOrWhiteSpace())
+        {
+            var appRedirectUri = configurationSection["PrivateCloudDrive_App:RedirectUri"];
+            var appPostLogoutRedirectUri = configurationSection["PrivateCloudDrive_App:PostLogoutRedirectUri"];
+            var appScopes = commonScopes.Concat(new[] { "openid", "offline_access" }).ToList();
+
+            await CreateApplicationAsync(
+                name: appClientId!,
+                type: OpenIddictConstants.ClientTypes.Public,
+                consentType: OpenIddictConstants.ConsentTypes.Implicit,
+                displayName: "PrivateCloudDrive MAUI App",
+                secret: null,
+                grantTypes: new List<string>
+                {
+                    OpenIddictConstants.GrantTypes.AuthorizationCode,
+                    OpenIddictConstants.GrantTypes.RefreshToken
+                },
+                scopes: appScopes,
+                redirectUri: appRedirectUri,
+                postLogoutRedirectUri: appPostLogoutRedirectUri
+            );
+        }
     }
 
     private async Task CreateApplicationAsync(
@@ -300,7 +324,8 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             return;
         }
 
-        if (!HasSameRedirectUris(client, application))
+        if (!HasSameRedirectUris(client, application) ||
+            !HasSamePostLogoutRedirectUris(client, application))
         {
             client.RedirectUris = JsonSerializer.Serialize(application.RedirectUris.Select(q => q.ToString().TrimEnd('/')));
             client.PostLogoutRedirectUris = JsonSerializer.Serialize(application.PostLogoutRedirectUris.Select(q => q.ToString().TrimEnd('/')));
@@ -318,6 +343,11 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
     private bool HasSameRedirectUris(OpenIddictApplication existingClient, AbpApplicationDescriptor application)
     {
         return existingClient.RedirectUris == JsonSerializer.Serialize(application.RedirectUris.Select(q => q.ToString().TrimEnd('/')));
+    }
+
+    private bool HasSamePostLogoutRedirectUris(OpenIddictApplication existingClient, AbpApplicationDescriptor application)
+    {
+        return existingClient.PostLogoutRedirectUris == JsonSerializer.Serialize(application.PostLogoutRedirectUris.Select(q => q.ToString().TrimEnd('/')));
     }
 
     private bool HasSameScopes(OpenIddictApplication existingClient, AbpApplicationDescriptor application)

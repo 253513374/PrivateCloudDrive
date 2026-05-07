@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using CommunityToolkit.Maui;
+using PrivateCloudDrive.App.Services;
+
 namespace PrivateCloudDrive.App;
 
 public static class MauiProgram
@@ -9,6 +12,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+			.UseMauiCommunityToolkitMediaElement(isAndroidForegroundServiceEnabled: false)
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -19,6 +23,12 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+		builder.Services.AddSingleton<IAuthService, OpenIddictAuthService>();
+		builder.Services.AddSingleton<ICloudDriveApiClient, CloudDriveApiClient>();
+
+		var app = builder.Build();
+		AppServices.Initialize(app.Services);
+
+		return app;
 	}
 }

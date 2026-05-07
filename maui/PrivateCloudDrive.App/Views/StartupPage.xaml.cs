@@ -4,7 +4,7 @@ namespace PrivateCloudDrive.App.Views;
 
 public partial class StartupPage : ContentPage
 {
-    private readonly MockCloudDriveApiClient _apiClient = new();
+    private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
     private bool _navigated;
 
     public StartupPage()
@@ -23,6 +23,7 @@ public partial class StartupPage : ContentPage
 
         _navigated = true;
         await Task.Delay(350);
-        await Shell.Current.GoToAsync(_apiClient.IsSignedIn ? "//files" : "//login", true);
+        var isSignedIn = await _authService.IsSignedInAsync();
+        await Shell.Current.GoToAsync(isSignedIn ? "//files" : "//login", true);
     }
 }
