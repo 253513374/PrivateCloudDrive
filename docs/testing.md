@@ -42,6 +42,12 @@ Docker Compose 配置验证：
 docker compose config
 ```
 
+Docker Compose 栈预检查：
+
+```powershell
+.\scripts\verify-docker-stack.ps1 -PreflightOnly
+```
+
 ## 当前边界
 
 - 自动化测试主要集中在后端应用层、领域层和 EF Core 集成测试；MAUI 端目前以构建验证为主。

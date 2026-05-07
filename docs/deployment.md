@@ -69,6 +69,18 @@ Before first deployment, run:
 docker compose config
 ```
 
+For a full preflight check:
+
+```powershell
+.\scripts\verify-docker-stack.ps1 -PreflightOnly
+```
+
+After Docker can pull the required base images, run the full stack verification:
+
+```powershell
+.\scripts\verify-docker-stack.ps1
+```
+
 After startup, confirm:
 
 - `postgres` and `redis` are healthy.

@@ -97,4 +97,10 @@ Compose 配置：
 docker compose config
 ```
 
+Docker 栈预检查：
+
+```powershell
+.\scripts\verify-docker-stack.ps1 -PreflightOnly
+```
+
 更多测试覆盖说明见 `docs/testing.md`。
