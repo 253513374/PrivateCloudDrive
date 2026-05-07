@@ -15,8 +15,8 @@
 | --- | --- | --- | --- | --- |
 | 阶段 0：项目初始化 | 已完成 | `e8b050a` | ABP 后端骨架、MAUI App 骨架、基础 Docker PostgreSQL 配置 | 历史提交已包含项目骨架；后续阶段构建持续验证通过 |
 | 阶段 1：后端文件核心 | 已完成 | `216b8a4`, `ad3ac95`, `540853b` | FileCenter 模块结构、FileNode 实体、文件夹管理 API | 后续 `dotnet build .\PrivateCloudDrive.slnx` 和后端测试持续通过 |
-| 阶段 2：上传下载 | 已完成 | `011d13d`, `d20a927`, 本阶段后端提交 | BlobObject 本地存储、小文件上传、文件下载、HTTP Range、分片上传 | 2026-05-07：`dotnet build .\PrivateCloudDrive.slnx` 成功；`dotnet test .\PrivateCloudDrive.slnx --no-build` 通过 34 个后端集成测试 |
-| 阶段 3：媒体处理 | 已完成 | 本阶段后端提交 | MediaAsset 实体、上传后创建媒体任务、图片缩略图、视频封面和元数据处理基础、缩略图访问 API | 2026-05-07：后端构建成功；媒体处理相关集成测试包含图片、视频、缩略图和永久删除清理场景 |
+| 阶段 2：上传下载 | 已完成 | `011d13d`, `d20a927`, `75a4138` | BlobObject 本地存储、小文件上传、文件下载、HTTP Range、分片上传 | 2026-05-07：`dotnet build .\PrivateCloudDrive.slnx` 成功；`dotnet test .\PrivateCloudDrive.slnx --no-build` 通过 34 个后端集成测试 |
+| 阶段 3：媒体处理 | 已完成 | `75a4138` | MediaAsset 实体、上传后创建媒体任务、图片缩略图、视频封面和元数据处理基础、缩略图访问 API | 2026-05-07：后端构建成功；媒体处理相关集成测试包含图片、视频、缩略图和永久删除清理场景 |
 | 阶段 4：MAUI App 核心 | 进行中 | 未提交 | 登录接入、真实文件列表、上传、媒体预览已有本地改动 | 2026-05-07：`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0` 成功；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android` 成功；尚未完成阶段验收 |
 | 阶段 5：分享、标签、部署完善 | 未开始 | 无 | 分享链接、标签收藏、完整 Docker Compose 部署 | 未验证 |
 | 阶段 6：质量收尾 | 未开始 | 无 | 测试补齐、README 和使用文档 | 未验证 |
