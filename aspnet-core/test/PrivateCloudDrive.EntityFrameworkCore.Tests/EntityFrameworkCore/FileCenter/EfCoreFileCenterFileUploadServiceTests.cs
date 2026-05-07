@@ -179,6 +179,45 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
     }
 
     [Fact]
+    public async Task Should_Reject_When_User_Storage_Quota_Is_Exceeded()
+    {
+        const long defaultQuota = 10L * 1024 * 1024 * 1024;
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("quota overflow");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await WithUnitOfWorkAsync(async () =>
+            {
+                await _blobObjectRepository.InsertAsync(
+                    PrivateCloudDrive.FileCenter.BlobObject.Create(
+                        Guid.NewGuid(),
+                        tenantId: null,
+                        ownerId: userId,
+                        blobName: "quota/full.bin",
+                        fileName: "full.bin",
+                        size: defaultQuota,
+                        contentType: "application/octet-stream"),
+                    autoSave: true);
+            });
+
+            await using var stream = new MemoryStream(content);
+
+            var exception = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _fileUploadService.UploadSmallFileAsync(
+                    parentId: null,
+                    fileName: "overflow.bin",
+                    contentType: "application/octet-stream",
+                    stream,
+                    content.Length);
+            });
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterStorageQuotaExceeded);
+        });
+    }
+
+    [Fact]
     public async Task Should_Reject_Duplicate_File_Name_In_Folder()
     {
         var userId = Guid.NewGuid();
