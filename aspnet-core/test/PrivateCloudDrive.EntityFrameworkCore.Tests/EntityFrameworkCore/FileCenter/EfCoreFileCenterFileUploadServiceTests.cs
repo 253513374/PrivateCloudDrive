@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Shouldly;
 using Volo.Abp;
+using Volo.Abp.BlobStoring;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Security.Claims;
 using Xunit;
@@ -18,6 +20,8 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
     private readonly PrivateCloudDrive.FileCenter.IFileCenterFileUploadService _fileUploadService;
     private readonly PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService _foldersAppService;
     private readonly IRepository<PrivateCloudDrive.FileCenter.BlobObject, Guid> _blobObjectRepository;
+    private readonly IBlobContainer<PrivateCloudDrive.FileCenter.FileCenterBlobContainer> _blobContainer;
+    private readonly IDataFilter<ISoftDelete> _softDeleteFilter;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
     public EfCoreFileCenterFileUploadServiceTests()
@@ -25,6 +29,8 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
         _fileUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileUploadService>();
         _foldersAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService>();
         _blobObjectRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.BlobObject, Guid>>();
+        _blobContainer = GetRequiredService<IBlobContainer<PrivateCloudDrive.FileCenter.FileCenterBlobContainer>>();
+        _softDeleteFilter = GetRequiredService<IDataFilter<ISoftDelete>>();
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
@@ -71,6 +77,80 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
             blobObject.OwnerId.ShouldBe(userId);
             blobObject.FileName.ShouldBe("note.txt");
             blobObject.Size.ShouldBe(content.Length);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Delete_File_To_Recycle_Bin()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("deleted text");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await using var stream = new MemoryStream(content);
+            var fileNode = await _fileUploadService.UploadSmallFileAsync(
+                parentId: null,
+                fileName: "deleted.txt",
+                contentType: "text/plain",
+                stream,
+                content.Length);
+
+            await _fileUploadService.DeleteAsync(fileNode.Id);
+
+            var activeList = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            activeList.Items.ShouldNotContain(item => item.Id == fileNode.Id);
+
+            var deletedList = await _foldersAppService.GetDeletedListAsync(
+                new Volo.Abp.Application.Dtos.PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            deletedList.Items.Single(item => item.Id == fileNode.Id).Name.ShouldBe("deleted.txt");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Release_Blob_When_File_Is_Permanently_Deleted()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("permanently deleted text");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await using var stream = new MemoryStream(content);
+            var fileNode = await _fileUploadService.UploadSmallFileAsync(
+                parentId: null,
+                fileName: "purged.txt",
+                contentType: "text/plain",
+                stream,
+                content.Length);
+
+            var blobName = fileNode.BlobName!;
+            (await _blobContainer.ExistsAsync(blobName)).ShouldBeTrue();
+
+            await _fileUploadService.DeleteAsync(fileNode.Id);
+            await _foldersAppService.PermanentDeleteAsync(fileNode.Id);
+
+            (await _blobContainer.ExistsAsync(blobName)).ShouldBeFalse();
+
+            var remainingBlobObjects = await WithUnitOfWorkAsync(async () =>
+            {
+                using (_softDeleteFilter.Disable())
+                {
+                    return await _blobObjectRepository.GetListAsync(blob => blob.BlobName == blobName);
+                }
+            });
+
+            remainingBlobObjects.Count.ShouldBe(0);
         });
     }
 

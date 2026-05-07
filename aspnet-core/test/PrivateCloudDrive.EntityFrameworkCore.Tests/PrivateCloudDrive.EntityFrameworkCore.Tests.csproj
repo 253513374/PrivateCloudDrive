@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PrivateCloudDrive.EntityFrameworkCore\PrivateCloudDrive.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\PrivateCloudDrive.HttpApi\PrivateCloudDrive.HttpApi.csproj" />
     <ProjectReference Include="..\PrivateCloudDrive.Application.Tests\PrivateCloudDrive.Application.Tests.csproj" />
     <PackageReference Include="Volo.Abp.EntityFrameworkCore.Sqlite" Version="10.3.0" />
   </ItemGroup>

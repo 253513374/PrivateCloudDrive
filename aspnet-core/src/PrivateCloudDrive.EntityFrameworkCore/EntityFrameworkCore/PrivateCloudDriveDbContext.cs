@@ -27,6 +27,8 @@ public class PrivateCloudDriveDbContext :
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
     public DbSet<FileNode> FileNodes { get; set; }
     public DbSet<BlobObject> BlobObjects { get; set; }
+    public DbSet<UploadSession> UploadSessions { get; set; }
+    public DbSet<MediaAsset> MediaAssets { get; set; }
 
     #region Entities from the modules
 

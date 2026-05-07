@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
 
@@ -140,6 +141,45 @@ public class FileNodeManager : FileCenterDomainService
         await _fileNodeRepository.DeleteAsync(node);
     }
 
+    public virtual async Task RestoreTreeAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        FileNode node)
+    {
+        EnsureOwnerNode(tenantId, ownerId, node);
+
+        if (!node.IsDeleted)
+        {
+            return;
+        }
+
+        await EnsureCanRestoreAsync(tenantId, ownerId, node);
+        await RestoreTreeCoreAsync(tenantId, ownerId, node);
+    }
+
+    public virtual async Task PermanentDeleteTreeAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        FileNode node)
+    {
+        EnsureOwnerNode(tenantId, ownerId, node);
+
+        var children = await _fileNodeRepository.GetChildrenAsync(
+            ownerId,
+            node.Id,
+            skipCount: 0,
+            maxResultCount: int.MaxValue,
+            tenantId,
+            includeDeleted: true);
+
+        foreach (var child in children)
+        {
+            await PermanentDeleteTreeAsync(tenantId, ownerId, child);
+        }
+
+        await _fileNodeRepository.DeleteByIdDirectAsync(node.Id);
+    }
+
     public virtual async Task<FileNode> GetOwnerFolderAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -156,6 +196,95 @@ public class FileNodeManager : FileCenterDomainService
         EnsureFolderNode(node);
 
         return node;
+    }
+
+    public virtual async Task<FileNode> GetOwnerFileAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        Guid id)
+    {
+        var node = await _fileNodeRepository.FindAsync(id);
+
+        if (node == null || node.TenantId != tenantId || node.OwnerId != ownerId)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound)
+                .WithData("Id", id);
+        }
+
+        EnsureFileNode(node);
+
+        return node;
+    }
+
+    public virtual async Task<FileNode> GetOwnerDeletedNodeAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        Guid id)
+    {
+        var node = await _fileNodeRepository.FindByIdAsync(id, ownerId, tenantId, includeDeleted: true);
+
+        if (node == null || !node.IsDeleted)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound)
+                .WithData("Id", id);
+        }
+
+        return node;
+    }
+
+    private async Task RestoreTreeCoreAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        FileNode node)
+    {
+        node.Restore();
+        await _fileNodeRepository.UpdateAsync(node);
+
+        var children = await _fileNodeRepository.GetChildrenAsync(
+            ownerId,
+            node.Id,
+            skipCount: 0,
+            maxResultCount: int.MaxValue,
+            tenantId,
+            includeDeleted: true);
+
+        foreach (var child in children.Where(child => child.IsDeleted))
+        {
+            await RestoreTreeCoreAsync(tenantId, ownerId, child);
+        }
+    }
+
+    private async Task EnsureCanRestoreAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        FileNode node)
+    {
+        if (node.ParentId.HasValue)
+        {
+            var parent = await _fileNodeRepository.FindByIdAsync(
+                node.ParentId.Value,
+                ownerId,
+                tenantId,
+                includeDeleted: true);
+
+            if (parent == null || parent.IsDeleted)
+            {
+                throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterParentFolderNotFound)
+                    .WithData("ParentId", node.ParentId);
+            }
+        }
+
+        var existingNode = await _fileNodeRepository.FindByNameAsync(
+            ownerId,
+            node.ParentId,
+            node.Name,
+            tenantId);
+
+        if (existingNode != null && existingNode.Id != node.Id)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterNodeAlreadyExists)
+                .WithData("Name", node.Name);
+        }
     }
 
     private async Task EnsureCanMoveAsync(
@@ -247,6 +376,15 @@ public class FileNodeManager : FileCenterDomainService
         if (node.NodeType != FileNodeType.Folder)
         {
             throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterOnlyFolderCanBeManaged)
+                .WithData("Id", node.Id);
+        }
+    }
+
+    private static void EnsureFileNode(FileNode node)
+    {
+        if (node.NodeType != FileNodeType.File)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterOnlyFileCanBeDownloaded)
                 .WithData("Id", node.Id);
         }
     }

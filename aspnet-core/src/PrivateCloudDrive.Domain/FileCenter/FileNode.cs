@@ -79,6 +79,13 @@ public class FileNode : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ParentId = parentId;
     }
 
+    public void Restore()
+    {
+        IsDeleted = false;
+        DeleterId = null;
+        DeletionTime = null;
+    }
+
     public void SetFileMetadata(long size, string? contentType = null, string? blobName = null)
     {
         if (size < 0)

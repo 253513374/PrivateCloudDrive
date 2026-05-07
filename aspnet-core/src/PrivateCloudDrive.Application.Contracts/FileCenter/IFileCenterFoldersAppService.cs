@@ -11,9 +11,15 @@ public interface IFileCenterFoldersAppService : IApplicationService
 
     Task<PagedResultDto<FileNodeDto>> GetListAsync(GetFolderChildrenInput input);
 
+    Task<PagedResultDto<FileNodeDto>> GetDeletedListAsync(PagedResultRequestDto input);
+
     Task<FileNodeDto> RenameAsync(Guid id, RenameFileNodeInput input);
 
     Task<FileNodeDto> MoveAsync(Guid id, MoveFileNodeInput input);
 
     Task DeleteAsync(Guid id);
+
+    Task<FileNodeDto> RestoreAsync(Guid id);
+
+    Task PermanentDeleteAsync(Guid id);
 }

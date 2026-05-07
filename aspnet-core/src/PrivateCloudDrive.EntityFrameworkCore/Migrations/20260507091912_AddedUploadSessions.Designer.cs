@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PrivateCloudDrive.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PrivateCloudDrive.Migrations
 {
     [DbContext(typeof(PrivateCloudDriveDbContext))]
-    partial class PrivateCloudDriveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507091912_AddedUploadSessions")]
+    partial class AddedUploadSessions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,110 +206,6 @@ namespace PrivateCloudDrive.Migrations
                     b.HasIndex("TenantId", "OwnerId", "ParentId");
 
                     b.ToTable("AppFileCenterFileNodes", (string)null);
-                });
-
-            modelBuilder.Entity("PrivateCloudDrive.FileCenter.MediaAsset", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Codec")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<long?>("DurationMilliseconds")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<Guid>("FileNodeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Height")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<int>("MediaType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("PreviewBlobObjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ProcessError")
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
-
-                    b.Property<int>("ProcessStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("TakenAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("TenantId");
-
-                    b.Property<Guid?>("ThumbnailBlobObjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Width")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FileNodeId")
-                        .IsUnique();
-
-                    b.HasIndex("ProcessStatus");
-
-                    b.HasIndex("TenantId", "OwnerId", "MediaType");
-
-                    b.ToTable("AppFileCenterMediaAssets", (string)null);
                 });
 
             modelBuilder.Entity("PrivateCloudDrive.FileCenter.UploadSession", b =>

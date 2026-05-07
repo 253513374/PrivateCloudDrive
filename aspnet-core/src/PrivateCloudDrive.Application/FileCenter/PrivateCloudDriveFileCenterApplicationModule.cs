@@ -18,6 +18,9 @@ public class PrivateCloudDriveFileCenterApplicationModule : AbpModule
         var configuration = context.Services.GetConfiguration();
         var storageRootPath = FileCenterBlobStoragePath.GetFullPath(configuration);
 
+        Configure<FileCenterMediaProcessingOptions>(
+            configuration.GetSection("FileCenter:MediaProcessing"));
+
         Configure<AbpBlobStoringOptions>(options =>
         {
             options.Containers.Configure<FileCenterBlobContainer>(container =>

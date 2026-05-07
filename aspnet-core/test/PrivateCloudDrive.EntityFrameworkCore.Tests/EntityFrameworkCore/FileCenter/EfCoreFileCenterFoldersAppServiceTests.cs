@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Shouldly;
 using Volo.Abp;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Security.Claims;
 using Xunit;
 
@@ -95,6 +96,97 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
                 });
 
             afterDelete.TotalCount.ShouldBe(0);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Restore_And_Permanently_Delete_Folder_Tree()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var root = await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Archive" });
+            var child = await _foldersAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFolderInput
+                {
+                    ParentId = root.Id,
+                    Name = "Child"
+                });
+
+            await _foldersAppService.DeleteAsync(root.Id);
+
+            var deletedList = await _foldersAppService.GetDeletedListAsync(
+                new PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            deletedList.TotalCount.ShouldBe(1);
+            deletedList.Items.Single().Id.ShouldBe(root.Id);
+            deletedList.Items.ShouldNotContain(item => item.Id == child.Id);
+
+            var restored = await _foldersAppService.RestoreAsync(root.Id);
+            restored.Id.ShouldBe(root.Id);
+
+            var rootList = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            rootList.Items.Single(item => item.Id == root.Id).Name.ShouldBe("Archive");
+
+            var childList = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    ParentId = root.Id,
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            childList.TotalCount.ShouldBe(1);
+            childList.Items.Single().Id.ShouldBe(child.Id);
+
+            await _foldersAppService.DeleteAsync(root.Id);
+            await _foldersAppService.PermanentDeleteAsync(root.Id);
+
+            var afterPermanentDelete = await _foldersAppService.GetDeletedListAsync(
+                new PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            afterPermanentDelete.TotalCount.ShouldBe(0);
+
+            await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.RestoreAsync(root.Id);
+            });
+        });
+    }
+
+    [Fact]
+    public async Task Should_Reject_Restore_When_Active_Name_Already_Exists()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var deleted = await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Archive" });
+
+            await _foldersAppService.DeleteAsync(deleted.Id);
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Archive" });
+
+            var exception = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.RestoreAsync(deleted.Id);
+            });
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeAlreadyExists);
         });
     }
 

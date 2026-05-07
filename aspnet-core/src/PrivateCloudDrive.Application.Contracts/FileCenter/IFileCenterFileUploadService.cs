@@ -14,4 +14,8 @@ public interface IFileCenterFileUploadService
         Stream stream,
         long size,
         CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

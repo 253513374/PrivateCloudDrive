@@ -46,5 +46,42 @@ public static class FileCenterDbContextModelCreatingExtensions
             b.HasIndex(blob => blob.BlobName).IsUnique();
             b.HasIndex(blob => new { blob.TenantId, blob.OwnerId });
         });
+
+        builder.Entity<UploadSession>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "UploadSessions", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(session => session.OwnerId).IsRequired();
+            b.Property(session => session.FileName).IsRequired().HasMaxLength(UploadSessionConsts.MaxFileNameLength);
+            b.Property(session => session.NormalizedFileName).IsRequired().HasMaxLength(UploadSessionConsts.MaxNormalizedFileNameLength);
+            b.Property(session => session.ContentType).HasMaxLength(UploadSessionConsts.MaxContentTypeLength);
+            b.Property(session => session.Sha256).HasMaxLength(UploadSessionConsts.MaxSha256Length);
+            b.Property(session => session.UploadedChunksJson)
+                .IsRequired()
+                .HasMaxLength(UploadSessionConsts.MaxUploadedChunksJsonLength);
+            b.Property(session => session.Status).IsRequired();
+
+            b.HasIndex(session => new { session.TenantId, session.OwnerId, session.Status });
+            b.HasIndex(session => new { session.OwnerId, session.ParentId, session.NormalizedFileName });
+            b.HasIndex(session => session.ExpirationTime);
+        });
+
+        builder.Entity<MediaAsset>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "MediaAssets", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(asset => asset.OwnerId).IsRequired();
+            b.Property(asset => asset.FileNodeId).IsRequired();
+            b.Property(asset => asset.MediaType).IsRequired();
+            b.Property(asset => asset.Codec).HasMaxLength(MediaAssetConsts.MaxCodecLength);
+            b.Property(asset => asset.ProcessStatus).IsRequired();
+            b.Property(asset => asset.ProcessError).HasMaxLength(MediaAssetConsts.MaxProcessErrorLength);
+
+            b.HasIndex(asset => asset.FileNodeId).IsUnique();
+            b.HasIndex(asset => new { asset.TenantId, asset.OwnerId, asset.MediaType });
+            b.HasIndex(asset => asset.ProcessStatus);
+        });
     }
 }

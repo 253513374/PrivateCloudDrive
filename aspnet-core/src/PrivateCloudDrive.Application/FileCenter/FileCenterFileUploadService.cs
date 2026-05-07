@@ -30,6 +30,7 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
     private readonly IFileNodeRepository _fileNodeRepository;
     private readonly IRepository<BlobObject, Guid> _blobObjectRepository;
     private readonly FileNodeManager _fileNodeManager;
+    private readonly IFileCenterMediaAssetService _mediaAssetService;
 
     public FileCenterFileUploadService(
         ICurrentUser currentUser,
@@ -39,7 +40,8 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
         IFileCenterBlobStorageService blobStorageService,
         IFileNodeRepository fileNodeRepository,
         IRepository<BlobObject, Guid> blobObjectRepository,
-        FileNodeManager fileNodeManager)
+        FileNodeManager fileNodeManager,
+        IFileCenterMediaAssetService mediaAssetService)
     {
         _currentUser = currentUser;
         _currentTenant = currentTenant;
@@ -49,6 +51,7 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
         _fileNodeRepository = fileNodeRepository;
         _blobObjectRepository = blobObjectRepository;
         _fileNodeManager = fileNodeManager;
+        _mediaAssetService = mediaAssetService;
     }
 
     [UnitOfWork]
@@ -84,8 +87,20 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
             blobObject.BlobName);
 
         await _fileNodeRepository.InsertAsync(fileNode, autoSave: true, cancellationToken);
+        await _mediaAssetService.CreatePendingAssetAsync(fileNode);
 
         return ToDto(fileNode);
+    }
+
+    [UnitOfWork]
+    public virtual async Task DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var ownerId = GetOwnerId();
+        var fileNode = await _fileNodeManager.GetOwnerFileAsync(_currentTenant.Id, ownerId, id);
+
+        await _fileNodeRepository.DeleteAsync(fileNode, autoSave: true, cancellationToken);
     }
 
     private Guid GetOwnerId()

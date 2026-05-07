@@ -1,0 +1,44 @@
+# 开发进度记录
+
+本文档用于记录每个阶段的完成状态、对应提交和验证证据。阶段完成后必须更新本文件，并随阶段提交一起进入 Git 历史。
+
+## 阶段完成规则
+
+- 只有满足 `docs/codex-development-plan.md` 中对应阶段验收项，并完成构建或测试验证，才可以标记为已完成。
+- 每完成一个阶段必须提交 Git。
+- 进度记录必须包含完成范围、验证命令、验证结果和遗留事项。
+- 进行中的代码不能标记为阶段完成。
+
+## 阶段状态
+
+| 阶段 | 状态 | 对应提交 | 完成范围 | 验证证据 |
+| --- | --- | --- | --- | --- |
+| 阶段 0：项目初始化 | 已完成 | `e8b050a` | ABP 后端骨架、MAUI App 骨架、基础 Docker PostgreSQL 配置 | 历史提交已包含项目骨架；后续阶段构建持续验证通过 |
+| 阶段 1：后端文件核心 | 已完成 | `216b8a4`, `ad3ac95`, `540853b` | FileCenter 模块结构、FileNode 实体、文件夹管理 API | 后续 `dotnet build .\PrivateCloudDrive.slnx` 和后端测试持续通过 |
+| 阶段 2：上传下载 | 已完成 | `011d13d`, `d20a927`, 本阶段后端提交 | BlobObject 本地存储、小文件上传、文件下载、HTTP Range、分片上传 | 2026-05-07：`dotnet build .\PrivateCloudDrive.slnx` 成功；`dotnet test .\PrivateCloudDrive.slnx --no-build` 通过 34 个后端集成测试 |
+| 阶段 3：媒体处理 | 已完成 | 本阶段后端提交 | MediaAsset 实体、上传后创建媒体任务、图片缩略图、视频封面和元数据处理基础、缩略图访问 API | 2026-05-07：后端构建成功；媒体处理相关集成测试包含图片、视频、缩略图和永久删除清理场景 |
+| 阶段 4：MAUI App 核心 | 进行中 | 未提交 | 登录接入、真实文件列表、上传、媒体预览已有本地改动 | 2026-05-07：`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0` 成功；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android` 成功；尚未完成阶段验收 |
+| 阶段 5：分享、标签、部署完善 | 未开始 | 无 | 分享链接、标签收藏、完整 Docker Compose 部署 | 未验证 |
+| 阶段 6：质量收尾 | 未开始 | 无 | 测试补齐、README 和使用文档 | 未验证 |
+
+## 最近验证记录
+
+### 2026-05-07
+
+- `dotnet build .\PrivateCloudDrive.slnx`
+  - 工作目录：`aspnet-core`
+  - 结果：成功，0 个警告，0 个错误。
+- `dotnet test .\PrivateCloudDrive.slnx --no-build`
+  - 工作目录：`aspnet-core`
+  - 结果：`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 34 个测试；其它测试项目当前没有可发现测试。
+- `dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0`
+  - 工作目录：`maui/PrivateCloudDrive.App`
+  - 结果：成功，0 个警告，0 个错误。
+- `dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android`
+  - 工作目录：`maui/PrivateCloudDrive.App`
+  - 结果：成功，0 个警告，0 个错误。
+
+## 下一步
+
+- 阶段 4 仍需完成 MAUI 文件夹导航、媒体播放体验、错误状态和真实后端登录联调。
+- 阶段 4 完成后必须先验证 MAUI Windows/Android 构建，再提交 Git 并更新本进度文档。

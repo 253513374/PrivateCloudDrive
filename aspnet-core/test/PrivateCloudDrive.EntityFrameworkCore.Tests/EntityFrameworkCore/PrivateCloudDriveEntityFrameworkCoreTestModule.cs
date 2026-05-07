@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using PrivateCloudDrive.EntityFrameworkCore.FileCenter;
+using PrivateCloudDrive.FileCenter;
 using Volo.Abp;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Sqlite;
@@ -41,6 +44,8 @@ public class PrivateCloudDriveEntityFrameworkCoreTestModule : AbpModule
             options.IsDynamicSettingStoreEnabled = false;
         });
         context.Services.AddAlwaysDisableUnitOfWorkTransaction();
+        context.Services.Replace(
+            ServiceDescriptor.Transient<IFileCenterVideoProcessor, TestFileCenterVideoProcessor>());
 
         ConfigureInMemorySqlite(context.Services);
     }
