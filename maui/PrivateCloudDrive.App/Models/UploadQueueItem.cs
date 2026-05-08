@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Maui.Storage;
+using PrivateCloudDrive.App.Localization;
 
 namespace PrivateCloudDrive.App.Models;
 
@@ -77,14 +78,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
         }
     }
 
-    public string StatusText => Status switch
-    {
-        UploadQueueStatus.Waiting => "Waiting",
-        UploadQueueStatus.Uploading => "Uploading",
-        UploadQueueStatus.Completed => "Completed",
-        UploadQueueStatus.Failed => "Failed",
-        _ => "Unknown"
-    };
+    public string StatusText => AppText.UploadStatus(Status);
 
     public string ProgressText => Status == UploadQueueStatus.Completed
         ? "100%"

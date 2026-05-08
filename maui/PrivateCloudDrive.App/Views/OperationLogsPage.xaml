@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.OperationLogsPage"
-             Title="Operation Logs">
+             Title="{x:Static loc:AppText.OperationLogs}">
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
             <VerticalStackLayout Spacing="4">
-                <Label Text="Operation Logs" Style="{StaticResource PageTitleLabel}" />
+                <Label Text="{x:Static loc:AppText.OperationLogs}" Style="{StaticResource PageTitleLabel}" />
                 <Label Text="{Binding ApiBaseUrl}" Style="{StaticResource MetaLabel}" />
             </VerticalStackLayout>
             <Button x:Name="RefreshButton"
                     Grid.Column="1"
-                    Text="Refresh"
+                    Text="{x:Static loc:AppText.Refresh}"
                     TextColor="White"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
@@ -40,7 +41,7 @@
                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button x:Name="LogsRetryButton"
                         Grid.Column="2"
-                        Text="Retry"
+                        Text="{x:Static loc:AppText.Retry}"
                         IsVisible="False"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryClicked" />
@@ -57,10 +58,10 @@
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="No logs found"
+                        <Label Text="{x:Static loc:AppText.NoLogsFound}"
                                Style="{StaticResource SectionTitleLabel}"
                                HorizontalTextAlignment="Center" />
-                        <Label Text="Refresh after account or file activity."
+                        <Label Text="{x:Static loc:AppText.LogsEmptyHelp}"
                                Style="{StaticResource MetaLabel}"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>

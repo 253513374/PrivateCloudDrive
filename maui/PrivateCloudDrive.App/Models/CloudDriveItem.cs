@@ -1,3 +1,5 @@
+using PrivateCloudDrive.App.Localization;
+
 namespace PrivateCloudDrive.App.Models;
 
 public sealed record CloudDriveItem(
@@ -18,4 +20,6 @@ public sealed record CloudDriveItem(
     public bool IsVideo => Kind == "Video";
 
     public bool CanPreview => IsImage || IsVideo;
+
+    public string DisplayKind => AppText.FileKind(Kind);
 }

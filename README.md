@@ -60,15 +60,27 @@ https://localhost:44343/swagger
 
 ## MAUI 客户端
 
-客户端 API 地址在 `maui/PrivateCloudDrive.App/Services/AppSettings.cs` 中：
+MVP 内测版客户端默认连接本地 Docker Compose API：
 
 ```csharp
-public const string ApiBaseUrl = "https://localhost:44343";
+public static string ApiBaseUrl
+{
+    get
+    {
+#if ANDROID
+        return "http://10.0.2.2:8080";
+#else
+        return "http://localhost:8080";
+#endif
+    }
+}
 public const string OAuthClientId = "PrivateCloudDrive_App";
 public const string OAuthRedirectUri = "privateclouddrive://callback";
 ```
 
-移动设备或 Android 模拟器访问本机后端时，通常需要把 `ApiBaseUrl` 改成设备可访问的局域网地址，并同步更新 DbMigrator 中 `PrivateCloudDrive_App` 的 RedirectUri 配置后重新运行迁移种子。
+Windows 客户端使用 `http://localhost:8080`，Android 模拟器使用 `http://10.0.2.2:8080`。真实手机内测时，需要把 `ApiBaseUrl` 改成设备可访问的局域网地址；如果回调 URI 发生变化，再同步更新 DbMigrator 中 `PrivateCloudDrive_App` 的 RedirectUri 配置并重新运行迁移种子。
+
+当前底部导航保留 Files、Photos、Videos、Uploads、Settings。MVP 回收站入口在 Settings 页中进入，微信登录仍是 V1 可选能力；默认平台实现不可用时不会显示微信登录或绑定入口。
 
 常用构建命令：
 

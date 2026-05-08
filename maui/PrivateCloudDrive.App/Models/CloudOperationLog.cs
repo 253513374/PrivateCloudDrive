@@ -1,3 +1,5 @@
+using PrivateCloudDrive.App.Localization;
+
 namespace PrivateCloudDrive.App.Models;
 
 public sealed record CloudOperationLog(
@@ -14,10 +16,10 @@ public sealed record CloudOperationLog(
     public string DisplayTime => Time.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
 
     public string DisplayUser => string.IsNullOrWhiteSpace(UserName)
-        ? "Unknown user"
+        ? AppText.UnknownUser
         : UserName;
 
     public string DisplayStatus => HttpStatusCode.HasValue
-        ? $"{Result} · HTTP {HttpStatusCode.Value}"
+        ? $"{Result} HTTP {HttpStatusCode.Value}"
         : Result;
 }

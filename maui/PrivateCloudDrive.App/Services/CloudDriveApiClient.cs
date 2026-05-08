@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Maui.Storage;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 
 namespace PrivateCloudDrive.App.Services;
@@ -721,7 +722,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             node.Name,
             kind,
             isFolder ? "--" : FormatSize(node.Size),
-            FormatDate(node.LastModificationTime ?? node.CreationTime),
+            AppText.FormatDate(node.LastModificationTime ?? node.CreationTime),
             badge,
             node.ContentType,
             node.IsFavorite);
@@ -801,15 +802,6 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return unitIndex == 0
             ? $"{size} {units[unitIndex]}"
             : $"{value:0.##} {units[unitIndex]}";
-    }
-
-    private static string FormatDate(DateTime dateTime)
-    {
-        var localTime = dateTime.Kind == DateTimeKind.Utc
-            ? dateTime.ToLocalTime()
-            : dateTime;
-
-        return localTime.ToString("MMM d");
     }
 
     private static string GetApiError(string responseText)

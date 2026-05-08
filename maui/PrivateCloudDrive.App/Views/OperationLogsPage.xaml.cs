@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
 
@@ -37,7 +38,7 @@ public partial class OperationLogsPage : ContentPage
     private async Task LoadLogsAsync()
     {
         RefreshButton.IsEnabled = false;
-        SetLoadingState("Loading operation logs...");
+        SetLoadingState(AppText.LoadingOperationLogs);
 
         try
         {
@@ -54,7 +55,7 @@ public partial class OperationLogsPage : ContentPage
         catch (Exception exception)
         {
             Logs.Clear();
-            SetErrorState($"Unable to load operation logs. {exception.Message}");
+            SetErrorState(AppText.Format(nameof(AppText.UnableToLoadOperationLogs), exception.Message));
         }
         finally
         {

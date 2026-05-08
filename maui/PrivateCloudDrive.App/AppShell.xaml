@@ -3,48 +3,44 @@
     x:Class="PrivateCloudDrive.App.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
     xmlns:views="clr-namespace:PrivateCloudDrive.App.Views"
     FlyoutBehavior="Disabled"
     Title="PrivateCloudDrive">
 
     <ShellContent
-        Title="Start"
+        Title="{x:Static loc:AppText.Start}"
         ContentTemplate="{DataTemplate views:StartupPage}"
         Route="startup" />
 
     <ShellContent
-        Title="Sign In"
+        Title="{x:Static loc:AppText.SignIn}"
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="login" />
 
     <TabBar Route="main">
         <ShellContent
-            Title="Files"
+            Title="{x:Static loc:AppText.Files}"
             ContentTemplate="{DataTemplate views:FilesPage}"
             Route="files" />
 
         <ShellContent
-            Title="Photos"
+            Title="{x:Static loc:AppText.Photos}"
             ContentTemplate="{DataTemplate views:PhotosPage}"
             Route="photos" />
 
         <ShellContent
-            Title="Videos"
+            Title="{x:Static loc:AppText.Videos}"
             ContentTemplate="{DataTemplate views:VideosPage}"
             Route="videos" />
 
         <ShellContent
-            Title="Uploads"
+            Title="{x:Static loc:AppText.Uploads}"
             ContentTemplate="{DataTemplate views:UploadsPage}"
             Route="uploads" />
 
         <ShellContent
-            Title="Trash"
-            ContentTemplate="{DataTemplate views:TrashPage}"
-            Route="trash" />
-
-        <ShellContent
-            Title="Settings"
+            Title="{x:Static loc:AppText.Settings}"
             ContentTemplate="{DataTemplate views:SettingsPage}"
             Route="settings" />
     </TabBar>

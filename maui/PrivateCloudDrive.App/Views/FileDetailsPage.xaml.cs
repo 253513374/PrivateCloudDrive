@@ -1,4 +1,5 @@
 using Microsoft.Maui.ApplicationModel.DataTransfer;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
@@ -44,7 +45,7 @@ public partial class FileDetailsPage : ContentPage
         get => _fileKind;
         set
         {
-            _fileKind = value;
+            _fileKind = AppText.FileKind(value);
             OnPropertyChanged();
         }
     }
@@ -80,12 +81,12 @@ public partial class FileDetailsPage : ContentPage
     }
 
     public string FavoriteStateText => _isFavorite
-        ? "Favorited"
-        : "Not favorited";
+        ? AppText.Favorited
+        : AppText.NotFavorited;
 
     public string FavoriteButtonText => _isFavorite
-        ? "Remove favorite"
-        : "Add favorite";
+        ? AppText.RemoveFavorite
+        : AppText.AddFavorite;
 
     public FileDetailsPage()
     {
@@ -103,7 +104,7 @@ public partial class FileDetailsPage : ContentPage
             return;
         }
 
-        SetErrorState("File details are unavailable because the selected item id is invalid.");
+        SetErrorState(AppText.InvalidFileDetails);
     }
 
     private async void OnBackClicked(object? sender, EventArgs e)
@@ -115,7 +116,7 @@ public partial class FileDetailsPage : ContentPage
     {
         if (!TryGetFileId(out var fileId))
         {
-            SetErrorState("File details are unavailable because the selected item id is invalid.");
+            SetErrorState(AppText.InvalidFileDetails);
             return;
         }
 
@@ -132,15 +133,15 @@ public partial class FileDetailsPage : ContentPage
     {
         if (!TryGetFileId(out var fileId))
         {
-            SetErrorState("File details are unavailable because the selected item id is invalid.");
+            SetErrorState(AppText.InvalidFileDetails);
             return;
         }
 
         var tagName = await DisplayPromptAsync(
-            "Add tag",
-            "Tag name",
-            accept: "Add",
-            cancel: "Cancel",
+            AppText.AddTag,
+            AppText.TagName,
+            accept: AppText.Add,
+            cancel: AppText.Cancel,
             maxLength: 64,
             keyboard: Keyboard.Text);
 
@@ -158,7 +159,7 @@ public partial class FileDetailsPage : ContentPage
 
             tag ??= await _apiClient.CreateTagAsync(normalizedName, "#2F6FED");
             await _apiClient.AddTagToItemAsync(fileId, tag.Id);
-            ActionStateLabel.Text = $"Tag added: {tag.Name}";
+            ActionStateLabel.Text = AppText.Format(nameof(AppText.TagAdded), tag.Name);
         });
     }
 
@@ -166,15 +167,15 @@ public partial class FileDetailsPage : ContentPage
     {
         if (!TryGetFileId(out var fileId))
         {
-            SetErrorState("File details are unavailable because the selected item id is invalid.");
+            SetErrorState(AppText.InvalidFileDetails);
             return;
         }
 
         var daysText = await DisplayPromptAsync(
-            "Share expiration",
-            "Days",
-            accept: "Next",
-            cancel: "Cancel",
+            AppText.ShareExpiration,
+            AppText.Days,
+            accept: AppText.Next,
+            cancel: AppText.Cancel,
             initialValue: "7",
             maxLength: 4,
             keyboard: Keyboard.Numeric);
@@ -186,15 +187,15 @@ public partial class FileDetailsPage : ContentPage
 
         if (!TryCreateExpiration(daysText, out var expirationTime))
         {
-            await DisplayAlertAsync("Share not created", "Expiration days must be empty or greater than zero.", "OK");
+            await DisplayAlertAsync(AppText.ShareNotCreated, AppText.ExpirationDaysInvalid, "OK");
             return;
         }
 
         var password = await DisplayPromptAsync(
-            "Share password",
-            "Optional password",
-            accept: "Create",
-            cancel: "Cancel",
+            AppText.SharePassword,
+            AppText.OptionalPassword,
+            accept: AppText.Create,
+            cancel: AppText.Cancel,
             maxLength: 128,
             keyboard: Keyboard.Text);
 
@@ -214,8 +215,8 @@ public partial class FileDetailsPage : ContentPage
             var link = $"{AppSettings.ApiBaseUrl.TrimEnd('/')}/api/public/shares/{share.Token}";
             await Clipboard.Default.SetTextAsync(link);
             ActionStateLabel.Text = share.RequiresPassword
-                ? "Share link copied. Password required."
-                : "Share link copied.";
+                ? AppText.Get(nameof(AppText.ShareLinkCopiedPasswordRequired))
+                : AppText.Get(nameof(AppText.ShareLinkCopied));
         });
     }
 

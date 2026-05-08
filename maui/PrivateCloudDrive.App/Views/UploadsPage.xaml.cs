@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Collections.Specialized;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
 
@@ -74,7 +75,7 @@ public partial class UploadsPage : ContentPage
         var completed = UploadItems.Count(item => item.Status == UploadQueueStatus.Completed);
 
         QueueStateLabel.Text = UploadItems.Count == 0
-            ? "Upload queue is empty."
-            : $"{uploading} uploading, {waiting} waiting, {failed} failed, {completed} completed.";
+            ? AppText.UploadQueueEmpty
+            : AppText.Format(nameof(AppText.UploadQueueSummary), uploading, waiting, failed, completed);
     }
 }

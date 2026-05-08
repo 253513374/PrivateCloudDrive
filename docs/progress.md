@@ -19,13 +19,41 @@
 | 阶段 3：媒体处理 | 已完成 | `75a4138` | MediaAsset 实体、上传后创建媒体任务、图片缩略图、视频封面和元数据处理基础、缩略图访问 API | 2026-05-07：后端构建成功；媒体处理相关集成测试包含图片、视频、缩略图和永久删除清理场景 |
 | 阶段 4：MAUI App 核心 | 已完成 | `8dfd5a6` | OpenIddict 登录接入、Token 安全保存和刷新、真实文件列表、文件夹导航、新建文件夹、当前目录上传、图片预览、MediaElement 视频播放 | 2026-05-07：后端构建和测试通过；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0` 成功；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android` 成功 |
 | 阶段 5：MVP Core 回收站、部署与质量收尾 | 已完成 | `de2c6f9` | 任务 5.1 回收站 API 与 App 入口已实现；Docker Compose、README、部署说明和测试说明已完成收尾复核；本地运行时 `App_Data` 已加入忽略规则并随阶段收尾提交 | 2026-05-08：预提交刷新验证中，后端 build 成功；后端测试通过 60 个 EF 集成测试；MAUI Windows/Android 构建成功；`docker compose config` 复验通过 |
-| 阶段 6：MVP Core 产品体验与账号密码认证深化 | 进行中 | `de2c6f9`, `bce5e4e` | 任务 6.1 MAUI 设计系统、任务 6.2 MVP Core 页面状态、任务 6.3 账号密码登录/Refresh Token/撤销端点、任务 6.4 移动端认证审计和账号/IP 双维度登录失败限流已落地并提交；任务 6.5 真实设备手动验收清单和执行记录模板已补充，真实设备执行尚未完成 | 2026-05-08：后端 build 成功；后端测试通过 63 个 EF 集成测试；临时 API 验证 password grant、refresh_token、revocation、mobile auth audit 和 password rate limit；MAUI Windows/Android 构建成功；`docs/testing.md` 已追加移动端验收清单和结果记录模板 |
+| 阶段 6：MVP Core 产品体验与账号密码认证深化 | 进行中 | `de2c6f9`, `bce5e4e` | 任务 6.1 MAUI 设计系统、任务 6.2 MVP Core 页面状态、任务 6.3 账号密码登录/Refresh Token/撤销端点、任务 6.4 移动端认证审计和账号/IP 双维度登录失败限流已落地并提交；MVP 内测版已对齐本地化文案、Compose API 地址和 Settings 回收站入口；任务 6.5 真实设备手动验收清单和执行记录模板已补充，真实设备执行尚未完成 | 2026-05-08：后端 build 成功；后端测试通过 63 个 EF 集成测试；临时 API 验证 password grant、refresh_token、revocation、mobile auth audit、password rate limit 和 Compose 小文件上传/Range/回收站链路；MAUI Windows/Android 构建成功；`docs/testing.md` 已追加移动端验收清单和结果记录模板 |
 | 阶段 7：V1 分享、标签、收藏与操作日志 | 已完成 | `bb654ee`, `4f4f6a1`, `158cbc3`, `de2c6f9` | 分享链接、公开访问与密码校验、管理员管理所有分享、标签管理、收藏筛选、图片/视频媒体库、操作日志查询后端与 HTTP 入口已实现；MAUI 文件详情、图片页、视频页和操作日志页已接入对应入口并随收尾提交 | 2026-05-08：后端测试通过 60 个 EF 集成测试；临时 API 已验证 `/api/operation-logs`、分享/标签/收藏、`/api/file-center/media/images`、`/api/file-center/media/videos` 和 `/api/file-center/shares/all`；MAUI Windows/Android 构建通过 |
 | 阶段 8：V1 微信登录可选接入 | 进行中 | `de2c6f9` | 后端 WeChat 配置、`WechatUserBinding`、绑定/解绑接口、绑定票据、OpenIddict 自定义 grant、审计记录和 MAUI 登录/设置页入口骨架已实现并提交；`WechatUserBinding` PostgreSQL Host/Tenant 唯一索引已加固；首次绑定已有账号和已绑定微信登录均对齐 Identity lockout；登录、绑定和解绑已接入分布式缓存限流；解绑审计已覆盖无绑定场景；真实 WeChat SDK 原生授权仍待 AppId/AppSecret 与平台审核后接入 | 2026-05-08：后端 build 通过；EF 集成测试通过 60 个；DbMigrator 已应用 `AddedWechatUserBindings` 与 `FixedWechatUserBindingUniqueIndexes`；临时 API 探针验证 WeChat disabled、password grant 和 custom grant fail-closed；MAUI Windows/Android 目标框架构建通过 |
 
 ## 最近验证记录
 
 ### 2026-05-08
+
+- MVP Core 内测收口
+  - MAUI：新增 `AppText` 本地化文本入口，登录、文件、上传、详情、媒体、回收站、设置和操作日志页面改用统一中文/英文文案；Windows 默认 API 地址为 `http://localhost:8080`，Android 模拟器默认 API 地址为 `http://10.0.2.2:8080`；Android 开发构建允许 cleartext 访问本地 Compose API。
+  - 导航：底部导航保留 Files、Photos、Videos、Uploads、Settings；Trash 改为从 Settings 页进入，符合 MVP 内测收口计划。
+  - 文档：README、部署说明和测试说明已明确本地 Compose API 地址、Settings 进入 Trash、真实设备需改为局域网地址，以及 WeChat 仍为 V1 可选能力。
+  - `dotnet build .\PrivateCloudDrive.slnx`
+    - 工作目录：`aspnet-core`
+    - 结果：成功，0 个警告，0 个错误。
+  - `dotnet test .\PrivateCloudDrive.slnx`
+    - 工作目录：`aspnet-core`
+    - 结果：`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 63 个测试；其它测试项目当前没有可发现测试。
+  - `dotnet build .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64`
+    - 工作目录：仓库根目录
+    - 结果：成功，0 个警告，0 个错误。
+  - `dotnet build .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android`
+    - 工作目录：仓库根目录
+    - 结果：成功，0 个警告，0 个错误。
+  - `docker compose config`
+    - 工作目录：仓库根目录
+    - 结果：成功展开 Compose 配置，包含 PostgreSQL、Redis、DbMigrator、API、media-worker 和 `privateclouddrive_stack_storage` 持久化 volume。
+  - `.\scripts\verify-docker-stack.ps1`
+    - 工作目录：仓库根目录
+    - 结果：Docker CLI/Compose 正常；必需镜像存在；PostgreSQL 和 Redis healthy；DbMigrator exited 0；API 与 media-worker running；Swagger `http://localhost:8080/swagger/index.html` 返回 200。
+  - Compose API MVP 探针
+    - 覆盖：password grant、refresh_token grant、根目录列表、小文件上传、上传后列表命中、Range 下载、删除到回收站、回收站列表命中、恢复、再次删除并永久清理。
+    - 结果：password grant 200 且有 access/refresh token；refresh grant 200；根目录列表 200；上传 200；Range 下载 206 且返回 8 bytes；删除到回收站 204；恢复 200；永久清理 204。探针输出未记录 access token、refresh token 或密码。
+  - 真实设备/模拟器验收
+    - 结果：未执行交互式 App 验收；`adb` 当前不在 PATH，无法直接驱动 Android 设备或模拟器。仍需按 `docs/testing.md` 阶段 6.5 在真实设备或可用模拟器上回填人工验收记录。
 
 - 阶段 8 V1 微信登录可选接入
   - 后端：新增 `Authentication:WeChat` 配置、`WechatUserBinding` 实体和 EF 迁移、绑定票据缓存、WeChat code 交换服务、绑定/解绑应用服务与 HTTP 控制器、OpenIddict `urn:privateclouddrive:wechat` 自定义 grant。

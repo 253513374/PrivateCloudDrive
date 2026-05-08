@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
 
@@ -42,7 +43,7 @@ public partial class TrashPage : ContentPage
         catch (Exception exception)
         {
             await ShowErrorAsync(
-                $"Unable to restore \"{item.Name}\". {exception.Message} If the original folder already has an item with the same name, rename or remove the active item before retrying.");
+                AppText.Format(nameof(AppText.UnableToRestore), item.Name, exception.Message));
         }
     }
 
@@ -54,10 +55,10 @@ public partial class TrashPage : ContentPage
         }
 
         var confirmed = await DisplayAlertAsync(
-            "Delete forever",
-            $"Permanently delete \"{item.Name}\"? This cannot be undone.",
-            "Delete",
-            "Cancel");
+            AppText.DeleteForever,
+            AppText.Format(nameof(AppText.PermanentlyDeleteQuestion), item.Name),
+            AppText.Delete,
+            AppText.Cancel);
 
         if (!confirmed)
         {
@@ -71,7 +72,7 @@ public partial class TrashPage : ContentPage
         }
         catch (Exception exception)
         {
-            await ShowErrorAsync($"Unable to permanently delete \"{item.Name}\". {exception.Message}");
+            await ShowErrorAsync(AppText.Format(nameof(AppText.UnableToPermanentlyDelete), item.Name, exception.Message));
         }
     }
 
@@ -79,15 +80,15 @@ public partial class TrashPage : ContentPage
     {
         if (TrashItems.Count == 0)
         {
-            await ShowInfoAsync("Trash is already empty.");
+            await ShowInfoAsync(AppText.TrashAlreadyEmpty);
             return;
         }
 
         var confirmed = await DisplayAlertAsync(
-            "Empty trash",
-            "Permanently delete all items in trash? This cannot be undone.",
-            "Empty",
-            "Cancel");
+            AppText.EmptyTrash,
+            AppText.EmptyTrashQuestion,
+            AppText.Empty,
+            AppText.Cancel);
 
         if (!confirmed)
         {
@@ -101,13 +102,13 @@ public partial class TrashPage : ContentPage
         }
         catch (Exception exception)
         {
-            await ShowErrorAsync($"Unable to empty trash. {exception.Message}");
+            await ShowErrorAsync(AppText.Format(nameof(AppText.UnableToEmptyTrash), exception.Message));
         }
     }
 
     private async Task LoadTrashAsync()
     {
-        SetLoadingState("Loading trash...");
+        SetLoadingState(AppText.LoadingTrash);
 
         try
         {

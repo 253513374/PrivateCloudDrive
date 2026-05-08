@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.UploadsPage"
-             Title="Uploads">
+             Title="{x:Static loc:AppText.Uploads}">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Clear Done" Clicked="OnClearCompletedClicked" />
+        <ToolbarItem Text="{x:Static loc:AppText.ClearDone}" Clicked="OnClearCompletedClicked" />
     </ContentPage.ToolbarItems>
 
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
         <VerticalStackLayout Spacing="4">
-            <Label Text="Uploads" Style="{StaticResource PageTitleLabel}" />
-            <Label Text="Active, failed, and completed upload tasks." Style="{StaticResource MetaLabel}" />
+            <Label Text="{x:Static loc:AppText.Uploads}" Style="{StaticResource PageTitleLabel}" />
+            <Label Text="{x:Static loc:AppText.ActiveFailedCompletedUploads}" Style="{StaticResource MetaLabel}" />
         </VerticalStackLayout>
 
         <Border x:Name="QueueStatePanel"
@@ -40,10 +41,10 @@
                     <VerticalStackLayout Spacing="10"
                                          HorizontalOptions="Center"
                                          VerticalOptions="Center">
-                        <Label Text="No upload tasks"
+                        <Label Text="{x:Static loc:AppText.NoUploadTasks}"
                                Style="{StaticResource SectionTitleLabel}"
                                HorizontalTextAlignment="Center" />
-                        <Label Text="Start uploads from Files. Waiting, uploading, failed, and completed tasks will appear here."
+                        <Label Text="{x:Static loc:AppText.NoUploadTasksHelp}"
                                Style="{StaticResource MetaLabel}"
                                HorizontalTextAlignment="Center"
                                MaximumWidthRequest="320"
@@ -98,7 +99,7 @@
                                        TextColor="{StaticResource Danger}" />
 
                                 <Label Grid.Row="3"
-                                       Text="Completed"
+                                       Text="{x:Static loc:AppText.Completed}"
                                        IsVisible="{Binding IsCompleted}"
                                        FontSize="13"
                                        TextColor="{StaticResource Success}" />

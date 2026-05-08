@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
 #if WINDOWS
@@ -12,7 +13,7 @@ public partial class FilesPage : ContentPage
     private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
     private readonly IUploadQueueService _uploadQueueService = AppServices.GetRequiredService<IUploadQueueService>();
-    private readonly List<PathSegment> _path = [new(null, "Files")];
+    private readonly List<PathSegment> _path = [new(null, AppText.Files)];
     private Guid? _currentFolderId;
 
     public ObservableCollection<CloudDriveItem> Items { get; } = [];
@@ -85,7 +86,7 @@ public partial class FilesPage : ContentPage
             if (failedUploads.Count > 0)
             {
                 await DisplayAlertAsync(
-                    "Some uploads failed",
+                    AppText.SomeUploadsFailed,
                     string.Join(Environment.NewLine, failedUploads),
                     "OK");
             }
@@ -96,7 +97,7 @@ public partial class FilesPage : ContentPage
         catch (Exception exception)
         {
             var message = await WriteUploadErrorAsync(exception);
-            await DisplayAlertAsync("Upload failed", message, "OK");
+            await DisplayAlertAsync(AppText.UploadFailed, message, "OK");
         }
         finally
         {
@@ -148,7 +149,7 @@ public partial class FilesPage : ContentPage
     private static async Task<string> WriteUploadErrorAsync(Exception exception)
     {
         var message = string.IsNullOrWhiteSpace(exception.Message)
-            ? $"{exception.GetType().Name}: upload failed before the request reached the server."
+            ? AppText.Format(nameof(AppText.UploadFailedBeforeRequest), exception.GetType().Name)
             : exception.Message;
 
         try
@@ -189,9 +190,9 @@ public partial class FilesPage : ContentPage
                     StructSize = Marshal.SizeOf<OpenFileName>(),
                     File = buffer,
                     MaxFile = BufferCharCount,
-                    Filter = "All files (*.*)\0*.*\0\0",
+                    Filter = $"{AppText.AllFilesFilter}\0*.*\0\0",
                     FilterIndex = 1,
-                    Title = "Select files to upload",
+                    Title = AppText.SelectFilesToUpload,
                     Flags = OfnExplorer | OfnAllowMultiSelect | OfnFileMustExist | OfnPathMustExist | OfnNoChangeDir
                 };
 
@@ -203,7 +204,7 @@ public partial class FilesPage : ContentPage
                         return [];
                     }
 
-                    throw new InvalidOperationException($"Windows file dialog failed with error 0x{error:X}.");
+                    throw new InvalidOperationException(AppText.Format(nameof(AppText.WindowsFileDialogFailed), error.ToString("X")));
                 }
 
                 return ParseSelectedFiles(buffer);
@@ -348,10 +349,10 @@ public partial class FilesPage : ContentPage
     private async void OnNewFolderClicked(object? sender, EventArgs e)
     {
         var name = await DisplayPromptAsync(
-            "New folder",
-            "Folder name",
-            accept: "Create",
-            cancel: "Cancel",
+            AppText.NewFolderLower,
+            AppText.FolderName,
+            accept: AppText.Create,
+            cancel: AppText.Cancel,
             maxLength: 128,
             keyboard: Keyboard.Text);
 
@@ -367,7 +368,7 @@ public partial class FilesPage : ContentPage
         }
         catch (Exception exception)
         {
-            await DisplayAlertAsync("Unable to create folder", exception.Message, "OK");
+            await DisplayAlertAsync(AppText.UnableToCreateFolder, exception.Message, "OK");
         }
     }
 
@@ -379,10 +380,10 @@ public partial class FilesPage : ContentPage
         }
 
         var confirmed = await DisplayAlertAsync(
-            "Move to trash",
-            $"Move \"{item.Name}\" to trash?",
-            "Move",
-            "Cancel");
+            AppText.MoveToTrash,
+            AppText.Format(nameof(AppText.MoveToTrashQuestion), item.Name),
+            AppText.Move,
+            AppText.Cancel);
 
         if (!confirmed)
         {
@@ -396,7 +397,7 @@ public partial class FilesPage : ContentPage
         }
         catch (Exception exception)
         {
-            await DisplayAlertAsync("Unable to delete", exception.Message, "OK");
+            await DisplayAlertAsync(AppText.UnableToDelete, exception.Message, "OK");
         }
     }
 
@@ -420,7 +421,7 @@ public partial class FilesPage : ContentPage
     private async Task LoadItemsAsync()
     {
         RefreshButton.IsEnabled = false;
-        SetFilesLoadingState("Loading files...");
+        SetFilesLoadingState(AppText.LoadingFiles);
 
         try
         {
@@ -437,7 +438,7 @@ public partial class FilesPage : ContentPage
         catch (Exception exception)
         {
             Items.Clear();
-            SetFilesErrorState($"Unable to load files. {exception.Message}");
+            SetFilesErrorState(AppText.Format(nameof(AppText.UnableToLoadFiles), exception.Message));
         }
         finally
         {

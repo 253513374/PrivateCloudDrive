@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              x:Class="PrivateCloudDrive.App.Views.SettingsPage"
-             Title="Settings">
+             Title="{x:Static loc:AppText.Settings}">
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
         <VerticalStackLayout Spacing="4">
-            <Label Text="Settings" Style="{StaticResource PageTitleLabel}" />
-            <Label Text="Account, server, and app preferences." Style="{StaticResource MetaLabel}" />
+            <Label Text="{x:Static loc:AppText.Settings}" Style="{StaticResource PageTitleLabel}" />
+            <Label Text="{x:Static loc:AppText.AccountServerPreferences}" Style="{StaticResource MetaLabel}" />
         </VerticalStackLayout>
 
         <Border x:Name="SettingsStatePanel"
@@ -30,7 +31,7 @@
                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button x:Name="SettingsRetryButton"
                         Grid.Column="2"
-                        Text="Retry"
+                        Text="{x:Static loc:AppText.Retry}"
                         IsVisible="False"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryClicked" />
@@ -44,7 +45,7 @@
                     <RoundRectangle CornerRadius="8" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="Server" Style="{StaticResource SectionTitleLabel}" />
+                    <Label Text="{x:Static loc:AppText.Server}" Style="{StaticResource SectionTitleLabel}" />
                     <Label Text="{Binding ApiBaseUrl}" Style="{StaticResource MetaLabel}" />
                 </VerticalStackLayout>
             </Border>
@@ -55,8 +56,8 @@
                     <RoundRectangle CornerRadius="8" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="Security" Style="{StaticResource SectionTitleLabel}" />
-                    <Label Text="Local session is protected on this device. Sign out to remove access." Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    <Label Text="{x:Static loc:AppText.Security}" Style="{StaticResource SectionTitleLabel}" />
+                    <Label Text="{x:Static loc:AppText.LocalSessionProtected}" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
                 </VerticalStackLayout>
             </Border>
 
@@ -68,9 +69,9 @@
                 <VerticalStackLayout Spacing="10">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="WeChat" Style="{StaticResource SectionTitleLabel}" />
+                            <Label Text="{x:Static loc:AppText.Wechat}" Style="{StaticResource SectionTitleLabel}" />
                             <Label x:Name="WechatStatusLabel"
-                                   Text="Checking"
+                                   Text="{x:Static loc:AppText.Checking}"
                                    Style="{StaticResource MetaLabel}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
@@ -82,13 +83,13 @@
                     </Grid>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button x:Name="WechatBindButton"
-                                Text="Bind WeChat"
+                                Text="{x:Static loc:AppText.BindWechat}"
                                 Style="{StaticResource SecondaryButton}"
                                 IsVisible="False"
                                 Clicked="OnWechatBindClicked" />
                         <Button x:Name="WechatUnbindButton"
                                 Grid.Column="1"
-                                Text="Unbind"
+                                Text="{x:Static loc:AppText.Unbind}"
                                 Style="{StaticResource DangerButton}"
                                 IsVisible="False"
                                 Clicked="OnWechatUnbindClicked" />
@@ -96,11 +97,15 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Button Text="Operation logs"
+            <Button Text="{x:Static loc:AppText.OperationLogs}"
                     Style="{StaticResource SecondaryButton}"
                     Clicked="OnOperationLogsClicked" />
 
-            <Button Text="Sign out"
+            <Button Text="{x:Static loc:AppText.Trash}"
+                    Style="{StaticResource SecondaryButton}"
+                    Clicked="OnTrashClicked" />
+
+            <Button Text="{x:Static loc:AppText.SignOut}"
                     Style="{StaticResource DangerButton}"
                     Clicked="OnSignOutClicked" />
         </VerticalStackLayout>

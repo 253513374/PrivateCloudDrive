@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Views;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
@@ -49,7 +50,7 @@ public partial class MediaPreviewPage : ContentPage
         {
             if (!Guid.TryParse(FileId, out var id))
             {
-                throw new InvalidOperationException("Invalid media id.");
+                throw new InvalidOperationException(AppText.InvalidMediaId);
             }
 
             if (string.Equals(MediaKind, "Video", StringComparison.OrdinalIgnoreCase))

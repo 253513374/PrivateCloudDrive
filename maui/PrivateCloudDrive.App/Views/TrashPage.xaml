@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.TrashPage"
-             Title="Trash">
+             Title="{x:Static loc:AppText.Trash}">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Refresh" Clicked="OnRefreshClicked" />
-        <ToolbarItem Text="Empty" Clicked="OnEmptyTrashClicked" />
+        <ToolbarItem Text="{x:Static loc:AppText.Refresh}" Clicked="OnRefreshClicked" />
+        <ToolbarItem Text="{x:Static loc:AppText.Empty}" Clicked="OnEmptyTrashClicked" />
     </ContentPage.ToolbarItems>
 
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
         <VerticalStackLayout Spacing="4">
-            <Label Text="Trash"
+            <Label Text="{x:Static loc:AppText.Trash}"
                    Style="{StaticResource PageTitleLabel}" />
-            <Label Text="Restore items or remove them permanently."
+            <Label Text="{x:Static loc:AppText.RestoreItemsOrRemovePermanently}"
                    Style="{StaticResource MetaLabel}" />
         </VerticalStackLayout>
 
@@ -39,7 +40,7 @@
                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button x:Name="TrashRetryButton"
                         Grid.Column="2"
-                        Text="Retry"
+                        Text="{x:Static loc:AppText.Retry}"
                         IsVisible="False"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRefreshClicked" />
@@ -51,7 +52,7 @@
                         ItemsSource="{Binding TrashItems}"
                         SelectionMode="None">
             <CollectionView.EmptyView>
-                <Label Text="Trash is empty"
+                <Label Text="{x:Static loc:AppText.TrashIsEmpty}"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
@@ -86,7 +87,7 @@
                                            FontAttributes="Bold"
                                            FontSize="16"
                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-                                    <Label Text="{Binding Kind}"
+                                    <Label Text="{Binding DisplayKind}"
                                            FontSize="13"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
                                 </VerticalStackLayout>
@@ -107,14 +108,14 @@
                                                        Grid.ColumnSpan="3"
                                                        HorizontalOptions="End"
                                                        Spacing="8">
-                                    <Button Text="Restore"
+                                    <Button Text="{x:Static loc:AppText.Restore}"
                                             FontSize="12"
                                             HeightRequest="44"
                                             Padding="12,0"
                                             TextColor="White"
                                             CommandParameter="{Binding .}"
                                             Clicked="OnRestoreClicked" />
-                                    <Button Text="Delete forever"
+                                    <Button Text="{x:Static loc:AppText.DeleteForever}"
                                             FontSize="12"
                                             HeightRequest="44"
                                             Padding="12,0"

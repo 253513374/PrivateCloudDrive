@@ -1,3 +1,4 @@
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
@@ -38,19 +39,19 @@ public partial class StartupPage : ContentPage
         }
 
         _checking = true;
-        SetLoadingState("Checking sign-in status");
+        SetLoadingState(AppText.CheckingSignInStatus);
 
         try
         {
             await Task.Delay(350);
-            StartupStatusLabel.Text = "Restoring session";
+            StartupStatusLabel.Text = AppText.RestoringSession;
             var isSignedIn = await _authService.IsSignedInAsync();
             _navigated = true;
             await Shell.Current.GoToAsync(isSignedIn ? "//files" : "//login", true);
         }
         catch (Exception exception)
         {
-            SetErrorState($"Unable to restore sign-in state. {exception.Message}");
+            SetErrorState(AppText.Format(nameof(AppText.UnableToRestoreSignInState), exception.Message));
         }
         finally
         {
@@ -68,7 +69,7 @@ public partial class StartupPage : ContentPage
 
     private void SetErrorState(string message)
     {
-        StartupStatusLabel.Text = "Startup failed";
+        StartupStatusLabel.Text = AppText.StartupFailed;
         StartupLoadingIndicator.IsRunning = false;
         StartupLoadingIndicator.IsVisible = false;
         StartupErrorLabel.Text = message;

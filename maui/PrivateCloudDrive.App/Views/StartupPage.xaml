@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              x:Class="PrivateCloudDrive.App.Views.StartupPage"
              Shell.NavBarIsVisible="False">
     <Grid Padding="28" RowDefinitions="*,Auto,*">
@@ -24,7 +25,7 @@
                    Style="{StaticResource PageTitleLabel}"
                    HorizontalTextAlignment="Center" />
             <Label x:Name="StartupStatusLabel"
-                   Text="Checking sign-in status"
+                   Text="{x:Static loc:AppText.CheckingSignInStatus}"
                    Style="{StaticResource MetaLabel}"
                    HorizontalTextAlignment="Center" />
             <ActivityIndicator x:Name="StartupLoadingIndicator"
@@ -45,7 +46,7 @@
                            LineBreakMode="WordWrap"
                            HorizontalTextAlignment="Center"
                            TextColor="{StaticResource Danger}" />
-                    <Button Text="Retry"
+                    <Button Text="{x:Static loc:AppText.Retry}"
                             Style="{StaticResource SecondaryButton}"
                             Clicked="OnRetryClicked" />
                 </VerticalStackLayout>

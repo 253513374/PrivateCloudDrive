@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
 
@@ -10,7 +11,7 @@ public partial class PhotosPage : ContentPage
 
     public ObservableCollection<MediaLibraryItem> Items { get; } = [];
 
-    public string ItemCountText => $"{Items.Count} photos";
+    public string ItemCountText => AppText.Format(nameof(AppText.PhotosCount), Items.Count);
 
     public PhotosPage()
     {
@@ -49,7 +50,7 @@ public partial class PhotosPage : ContentPage
     private async Task LoadPhotosAsync()
     {
         RefreshButton.IsEnabled = false;
-        SetLoadingState("Loading photos...");
+        SetLoadingState(AppText.LoadingPhotos);
 
         try
         {
@@ -69,7 +70,7 @@ public partial class PhotosPage : ContentPage
         {
             Items.Clear();
             OnPropertyChanged(nameof(ItemCountText));
-            SetErrorState($"Unable to load photos. {exception.Message}");
+            SetErrorState(AppText.Format(nameof(AppText.UnableToLoadPhotos), exception.Message));
         }
         finally
         {
@@ -83,7 +84,7 @@ public partial class PhotosPage : ContentPage
         {
             try
             {
-                var content = await _apiClient.GetFileContentAsync(item.Id, thumbnail: true);
+                var content = await GetThumbnailOrImageAsync(item.Id);
                 var bytes = content.Content;
                 item.ThumbnailSource = ImageSource.FromStream(() => new MemoryStream(bytes));
             }
@@ -91,6 +92,18 @@ public partial class PhotosPage : ContentPage
             {
                 // Keep the badge fallback visible when thumbnail processing is not ready.
             }
+        }
+    }
+
+    private async Task<FileContentResult> GetThumbnailOrImageAsync(Guid id)
+    {
+        try
+        {
+            return await _apiClient.GetFileContentAsync(id, thumbnail: true);
+        }
+        catch
+        {
+            return await _apiClient.GetFileContentAsync(id, thumbnail: false);
         }
     }
 

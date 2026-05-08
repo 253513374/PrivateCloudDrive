@@ -1,4 +1,5 @@
 using PrivateCloudDrive.App.Models;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
@@ -34,10 +35,10 @@ public partial class SettingsPage : ContentPage
     private async void OnSignOutClicked(object? sender, EventArgs e)
     {
         var confirmed = await DisplayAlertAsync(
-            "Sign out",
-            "Sign out of PrivateCloudDrive on this device?",
-            "Sign out",
-            "Cancel");
+            AppText.SignOut,
+            AppText.SignOutQuestion,
+            AppText.SignOut,
+            AppText.Cancel);
 
         if (!confirmed)
         {
@@ -53,6 +54,11 @@ public partial class SettingsPage : ContentPage
         await Shell.Current.GoToAsync("operation-logs", true);
     }
 
+    private async void OnTrashClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("trash", true);
+    }
+
     private async void OnWechatBindClicked(object? sender, EventArgs e)
     {
         await BindWechatAsync();
@@ -61,10 +67,10 @@ public partial class SettingsPage : ContentPage
     private async void OnWechatUnbindClicked(object? sender, EventArgs e)
     {
         var confirmed = await DisplayAlertAsync(
-            "Unbind WeChat",
-            "Unbind WeChat from this account?",
-            "Unbind",
-            "Cancel");
+            AppText.UnbindWechat,
+            AppText.UnbindWechatQuestion,
+            AppText.Unbind,
+            AppText.Cancel);
 
         if (!confirmed)
         {
@@ -86,20 +92,20 @@ public partial class SettingsPage : ContentPage
 
     private async Task LoadSettingsStateAsync()
     {
-        SetLoadingState("Checking local session");
+        SetLoadingState(AppText.CheckingLocalSession);
 
         try
         {
             var isSignedIn = await _authService.IsSignedInAsync();
             SetInfoState(isSignedIn
-                ? "Signed in on this device."
-                : "No valid local session. Sign in again to access private files.");
+                ? AppText.SignedInOnThisDevice
+                : AppText.NoValidLocalSession);
             await LoadWechatStateAsync(isSignedIn);
         }
         catch (Exception exception)
         {
-            SetErrorState($"Unable to read local session state. {exception.Message}");
-            SetWechatInfoState("Unavailable", canBind: false, canUnbind: false);
+            SetErrorState(AppText.Format(nameof(AppText.UnableToReadLocalSession), exception.Message));
+            SetWechatInfoState(AppText.Unavailable, canBind: false, canUnbind: false);
         }
     }
 
@@ -113,7 +119,7 @@ public partial class SettingsPage : ContentPage
             if (!_wechatSettings.IsEnabled)
             {
                 _isWechatAvailable = false;
-                SetWechatInfoState("Not enabled", canBind: false, canUnbind: false);
+                SetWechatInfoState(AppText.NotEnabled, canBind: false, canUnbind: false);
                 return;
             }
 
@@ -122,7 +128,7 @@ public partial class SettingsPage : ContentPage
             var signedIn = isSignedIn ?? await _authService.IsSignedInAsync();
             if (!signedIn)
             {
-                SetWechatInfoState("Sign in required", canBind: false, canUnbind: false);
+                SetWechatInfoState(AppText.SignInRequired, canBind: false, canUnbind: false);
                 return;
             }
 
@@ -130,15 +136,15 @@ public partial class SettingsPage : ContentPage
             if (binding == null)
             {
                 SetWechatInfoState(
-                    _isWechatAvailable ? "Not bound" : "Unavailable on this device",
+                    _isWechatAvailable ? AppText.NotBound : AppText.UnavailableOnThisDevice,
                     canBind: _isWechatAvailable,
                     canUnbind: false);
                 return;
             }
 
             var name = string.IsNullOrWhiteSpace(binding.NickName)
-                ? "Bound"
-                : $"Bound: {binding.NickName}";
+                ? AppText.Bound
+                : AppText.Format(nameof(AppText.BoundWithName), binding.NickName);
             SetWechatInfoState(name, canBind: false, canUnbind: true);
         }
         catch (Exception exception)
@@ -161,7 +167,7 @@ public partial class SettingsPage : ContentPage
             var authorization = await _wechatPlatformAuthService.AuthorizeAsync(_wechatSettings);
             if (!authorization.Succeeded || string.IsNullOrWhiteSpace(authorization.Code))
             {
-                throw new InvalidOperationException(authorization.ErrorMessage ?? "WeChat authorization was canceled.");
+                throw new InvalidOperationException(authorization.ErrorMessage ?? AppText.WechatAuthorizationCanceled);
             }
 
             await _apiClient.BindCurrentWechatAsync(
@@ -211,7 +217,7 @@ public partial class SettingsPage : ContentPage
         WechatLoadingIndicator.IsRunning = true;
         WechatBindButton.IsVisible = false;
         WechatUnbindButton.IsVisible = false;
-        WechatStatusLabel.Text = "Checking";
+        WechatStatusLabel.Text = AppText.Checking;
     }
 
     private void SetWechatInfoState(string message, bool canBind, bool canUnbind)

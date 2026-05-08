@@ -2,7 +2,17 @@ namespace PrivateCloudDrive.App.Services;
 
 public static class AppSettings
 {
-    public const string ApiBaseUrl = "https://localhost:44343";
+    public static string ApiBaseUrl
+    {
+        get
+        {
+#if ANDROID
+            return "http://10.0.2.2:8080";
+#else
+            return "http://localhost:8080";
+#endif
+        }
+    }
 
     public const string OAuthClientId = "PrivateCloudDrive_App";
 

@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.FilesPage"
-             Title="Files">
+             Title="{x:Static loc:AppText.Files}">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="New Folder" Clicked="OnNewFolderClicked" />
-        <ToolbarItem Text="Upload" Clicked="OnUploadClicked" />
-        <ToolbarItem Text="Logout" Clicked="OnLogoutClicked" />
+        <ToolbarItem Text="{x:Static loc:AppText.NewFolder}" Clicked="OnNewFolderClicked" />
+        <ToolbarItem Text="{x:Static loc:AppText.Upload}" Clicked="OnUploadClicked" />
+        <ToolbarItem Text="{x:Static loc:AppText.Logout}" Clicked="OnLogoutClicked" />
     </ContentPage.ToolbarItems>
 
     <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="16">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
             <VerticalStackLayout Spacing="4">
-                <Label Text="Files"
+                <Label Text="{x:Static loc:AppText.Files}"
                        Style="{StaticResource PageTitleLabel}" />
                 <Label Text="{Binding ApiBaseUrl}"
                        Style="{StaticResource MetaLabel}" />
             </VerticalStackLayout>
             <Button x:Name="RefreshButton"
                     Grid.Column="1"
-                    Text="Refresh"
+                    Text="{x:Static loc:AppText.Refresh}"
                     TextColor="White"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
@@ -30,7 +31,7 @@
               ColumnDefinitions="Auto,*"
               ColumnSpacing="10">
             <Button x:Name="BackButton"
-                    Text="Back"
+                    Text="{x:Static loc:AppText.Back}"
                     IsVisible="{Binding CanGoBack}"
                     Style="{StaticResource SecondaryButton}"
                     Clicked="OnBackClicked" />
@@ -77,7 +78,7 @@
                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button x:Name="FilesRetryButton"
                         Grid.Column="2"
-                        Text="Retry"
+                        Text="{x:Static loc:AppText.Retry}"
                         IsVisible="False"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryLoadClicked" />
@@ -99,19 +100,19 @@
                     <VerticalStackLayout Spacing="10"
                                          HorizontalOptions="Center"
                                          VerticalOptions="Center">
-                        <Label Text="This folder is empty"
+                        <Label Text="{x:Static loc:AppText.ThisFolderIsEmpty}"
                                Style="{StaticResource SectionTitleLabel}"
                                HorizontalTextAlignment="Center" />
-                        <Label Text="Upload files or create a folder to start organizing this location."
+                        <Label Text="{x:Static loc:AppText.EmptyFolderHelp}"
                                Style="{StaticResource MetaLabel}"
                                HorizontalTextAlignment="Center"
                                MaximumWidthRequest="320"
                                LineBreakMode="WordWrap" />
                         <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Button Text="Upload"
+                            <Button Text="{x:Static loc:AppText.Upload}"
                                     TextColor="White"
                                     Clicked="OnUploadClicked" />
-                            <Button Text="New folder"
+                            <Button Text="{x:Static loc:AppText.NewFolderLower}"
                                     Style="{StaticResource SecondaryButton}"
                                     Clicked="OnNewFolderClicked" />
                         </HorizontalStackLayout>
@@ -148,7 +149,7 @@
                                            FontAttributes="Bold"
                                            FontSize="16"
                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-                                    <Label Text="{Binding Kind}"
+                                    <Label Text="{Binding DisplayKind}"
                                            FontSize="13"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
                                 </VerticalStackLayout>
@@ -166,7 +167,7 @@
                                            TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}" />
                                 </VerticalStackLayout>
                                 <Button Grid.Column="3"
-                                        Text="More"
+                                        Text="{x:Static loc:AppText.More}"
                                         FontSize="12"
                                         Padding="10,0"
                                         MinimumWidthRequest="56"
@@ -175,7 +176,7 @@
                                         CommandParameter="{Binding .}"
                                         Clicked="OnDetailsItemClicked" />
                                 <Button Grid.Column="4"
-                                        Text="Delete"
+                                        Text="{x:Static loc:AppText.Delete}"
                                         FontSize="12"
                                         Padding="10,0"
                                         MinimumWidthRequest="64"

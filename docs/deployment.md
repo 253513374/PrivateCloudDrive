@@ -48,7 +48,9 @@ The current default FileCenter storage still uses the local filesystem volume at
 
 The seeded mobile OAuth client is `PrivateCloudDrive_App` and uses `privateclouddrive://callback`. Keep `PUBLIC_URL` aligned with the address the mobile device can reach.
 
-For Android emulator or physical device testing, update `maui/PrivateCloudDrive.App/Services/AppSettings.cs` so `ApiBaseUrl` points to the reachable API URL. If the callback URI changes, update the DbMigrator OpenIddict application setting and rerun the migrator.
+For MVP inner testing, `maui/PrivateCloudDrive.App/Services/AppSettings.cs` targets the local Compose API by default: Windows uses `http://localhost:8080`, and the Android emulator uses `http://10.0.2.2:8080`. For physical device testing, update `ApiBaseUrl` to the LAN URL that can reach the API host. If the callback URI changes, update the DbMigrator OpenIddict application setting and rerun the migrator.
+
+The MVP app enters Trash from Settings. WeChat login remains a V1 optional path; without a platform-specific Android/iOS SDK implementation, the default MAUI service reports WeChat as unavailable and keeps account-password login unaffected.
 
 ## Configuration Reference
 

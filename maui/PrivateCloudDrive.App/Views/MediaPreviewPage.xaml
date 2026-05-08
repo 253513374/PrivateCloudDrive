@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="PrivateCloudDrive.App.Views.MediaPreviewPage"
              Title="{Binding FileName}">
@@ -38,7 +39,7 @@
                        HorizontalTextAlignment="Center"
                        LineBreakMode="WordWrap"
                        TextColor="{StaticResource Danger}" />
-                <Button Text="Retry"
+                <Button Text="{x:Static loc:AppText.Retry}"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryClicked" />
             </VerticalStackLayout>

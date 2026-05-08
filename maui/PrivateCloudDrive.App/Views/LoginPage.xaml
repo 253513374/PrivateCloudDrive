@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              x:Class="PrivateCloudDrive.App.Views.LoginPage"
-             Title="Sign In"
+             Title="{x:Static loc:AppText.SignIn}"
              Shell.NavBarIsVisible="False">
     <ScrollView>
         <Grid Padding="24" RowDefinitions="*,Auto,*" MinimumHeightRequest="640">
@@ -28,7 +29,7 @@
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
                             <Entry x:Name="UserNameEntry"
-                                   Placeholder="Username or email"
+                                   Placeholder="{x:Static loc:AppText.UserNameOrEmail}"
                                    ReturnType="Next" />
                         </Border>
                         <Border Padding="12,0"
@@ -38,17 +39,17 @@
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
                             <Entry x:Name="PasswordEntry"
-                                   Placeholder="Password"
+                                   Placeholder="{x:Static loc:AppText.Password}"
                                    IsPassword="True"
                                    ReturnType="Done"
                                    Completed="OnPasswordCompleted" />
                         </Border>
                         <Button x:Name="SignInButton"
-                                Text="Sign in"
+                                Text="{x:Static loc:AppText.SignInAction}"
                                 TextColor="White"
                                 Clicked="OnSignInClicked" />
                         <Button x:Name="WechatSignInButton"
-                                Text="Sign in with WeChat"
+                                Text="{x:Static loc:AppText.SignInWithWechat}"
                                 Style="{StaticResource SecondaryButton}"
                                 IsVisible="False"
                                 Clicked="OnWechatSignInClicked" />
@@ -60,7 +61,7 @@
                                                WidthRequest="18"
                                                HeightRequest="18"
                                                Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                            <Label Text="Signing in"
+                            <Label Text="{x:Static loc:AppText.SigningIn}"
                                    Style="{StaticResource MetaLabel}"
                                    VerticalOptions="Center" />
                         </HorizontalStackLayout>

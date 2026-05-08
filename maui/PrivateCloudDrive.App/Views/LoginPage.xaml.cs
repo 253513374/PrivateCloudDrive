@@ -1,4 +1,5 @@
 using PrivateCloudDrive.App.Models;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
@@ -49,7 +50,7 @@ public partial class LoginPage : ContentPage
 
         if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
         {
-            ValidationLabel.Text = "Enter username and password.";
+            ValidationLabel.Text = AppText.EnterUserNameAndPassword;
             ValidationLabel.IsVisible = true;
             return;
         }
@@ -90,7 +91,7 @@ public partial class LoginPage : ContentPage
             var authorization = await _wechatPlatformAuthService.AuthorizeAsync(_wechatSettings);
             if (!authorization.Succeeded || string.IsNullOrWhiteSpace(authorization.Code))
             {
-                throw new InvalidOperationException(authorization.ErrorMessage ?? "WeChat sign-in was canceled.");
+                throw new InvalidOperationException(authorization.ErrorMessage ?? AppText.WechatSignInCanceled);
             }
 
             var signInResult = await _authService.SignInWithWechatCodeAsync(
@@ -111,7 +112,7 @@ public partial class LoginPage : ContentPage
                 return;
             }
 
-            throw new InvalidOperationException(signInResult.ErrorMessage ?? "WeChat sign-in failed.");
+            throw new InvalidOperationException(signInResult.ErrorMessage ?? AppText.WechatSignInFailed);
         }
         catch (Exception exception)
         {
@@ -133,7 +134,7 @@ public partial class LoginPage : ContentPage
             string.IsNullOrWhiteSpace(userName) ||
             string.IsNullOrWhiteSpace(password))
         {
-            ValidationLabel.Text = "Enter username and password, then use WeChat again to bind.";
+            ValidationLabel.Text = AppText.EnterUserNamePasswordThenWechat;
             ValidationLabel.IsVisible = true;
             return;
         }
@@ -168,7 +169,7 @@ public partial class LoginPage : ContentPage
         PasswordEntry.IsEnabled = enabled;
         SignInButton.IsEnabled = enabled;
         WechatSignInButton.IsEnabled = enabled && _wechatSettings?.IsEnabled == true && _isWechatAvailable;
-        SignInButton.Text = enabled ? "Sign in" : "Signing in";
+        SignInButton.Text = enabled ? AppText.SignInAction : AppText.SigningIn;
         SignInLoadingPanel.IsVisible = !enabled;
         SignInLoadingIndicator.IsRunning = !enabled;
     }

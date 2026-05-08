@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
 
@@ -10,7 +11,7 @@ public partial class VideosPage : ContentPage
 
     public ObservableCollection<MediaLibraryItem> Items { get; } = [];
 
-    public string ItemCountText => $"{Items.Count} videos";
+    public string ItemCountText => AppText.Format(nameof(AppText.VideosCount), Items.Count);
 
     public VideosPage()
     {
@@ -49,7 +50,7 @@ public partial class VideosPage : ContentPage
     private async Task LoadVideosAsync()
     {
         RefreshButton.IsEnabled = false;
-        SetLoadingState("Loading videos...");
+        SetLoadingState(AppText.LoadingVideos);
 
         try
         {
@@ -69,7 +70,7 @@ public partial class VideosPage : ContentPage
         {
             Items.Clear();
             OnPropertyChanged(nameof(ItemCountText));
-            SetErrorState($"Unable to load videos. {exception.Message}");
+            SetErrorState(AppText.Format(nameof(AppText.UnableToLoadVideos), exception.Message));
         }
         finally
         {

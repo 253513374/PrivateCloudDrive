@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.VideosPage"
-             Title="Videos">
+             Title="{x:Static loc:AppText.Videos}">
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
             <VerticalStackLayout Spacing="4">
-                <Label Text="Videos" Style="{StaticResource PageTitleLabel}" />
+                <Label Text="{x:Static loc:AppText.Videos}" Style="{StaticResource PageTitleLabel}" />
                 <Label Text="{Binding ItemCountText}" Style="{StaticResource MetaLabel}" />
             </VerticalStackLayout>
             <Button x:Name="RefreshButton"
                     Grid.Column="1"
-                    Text="Refresh"
+                    Text="{x:Static loc:AppText.Refresh}"
                     TextColor="White"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
@@ -40,7 +41,7 @@
                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button x:Name="VideosRetryButton"
                         Grid.Column="2"
-                        Text="Retry"
+                        Text="{x:Static loc:AppText.Retry}"
                         IsVisible="False"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryClicked" />
@@ -60,8 +61,8 @@
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="No videos found" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
-                        <Label Text="Upload videos from Files to populate this view." Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="{x:Static loc:AppText.NoVideosFound}" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="{x:Static loc:AppText.NoVideosHelp}" Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
             </CollectionView.EmptyView>
@@ -80,8 +81,9 @@
                                         <RoundRectangle CornerRadius="8" />
                                     </Border.StrokeShape>
                                     <Grid>
-                                        <Image Source="{Binding ThumbnailSource}" Aspect="AspectFill" />
+                                        <Image Source="{Binding ThumbnailSource}" Aspect="AspectFill" IsVisible="{Binding HasThumbnail}" />
                                         <Label Text="{Binding Badge}"
+                                               IsVisible="{Binding ShowBadge}"
                                                FontAttributes="Bold"
                                                FontSize="11"
                                                TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
