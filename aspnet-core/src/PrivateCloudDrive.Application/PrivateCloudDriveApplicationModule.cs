@@ -8,6 +8,7 @@ using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
 using Microsoft.Extensions.DependencyInjection;
 using PrivateCloudDrive.FileCenter;
+using PrivateCloudDrive.MobileAuth;
 
 namespace PrivateCloudDrive;
 
@@ -26,6 +27,9 @@ public class PrivateCloudDriveApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+        var configuration = context.Services.GetConfiguration();
+        Configure<WechatLoginOptions>(configuration.GetSection("Authentication:WeChat"));
+
         context.Services.AddMapperlyObjectMapper<PrivateCloudDriveApplicationModule>();
     }
 }

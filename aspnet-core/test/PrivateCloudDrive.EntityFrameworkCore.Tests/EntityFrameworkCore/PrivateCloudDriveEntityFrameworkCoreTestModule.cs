@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 using PrivateCloudDrive.FileCenter;
+using PrivateCloudDrive.MobileAuth;
 using Volo.Abp;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Sqlite;
@@ -46,6 +47,22 @@ public class PrivateCloudDriveEntityFrameworkCoreTestModule : AbpModule
         context.Services.AddAlwaysDisableUnitOfWorkTransaction();
         context.Services.Replace(
             ServiceDescriptor.Transient<IFileCenterVideoProcessor, TestFileCenterVideoProcessor>());
+        context.Services.Replace(
+            ServiceDescriptor.Transient<IWechatIdentityService, TestWechatIdentityService>());
+
+        Configure<WechatLoginOptions>(options =>
+        {
+            options.Enabled = true;
+            options.AppId = TestWechatIdentityService.AppId;
+            options.AppSecret = "test-wechat-secret";
+            options.CallbackScheme = "privateclouddrive";
+            options.Android.PackageName = "com.companyname.privateclouddrive.app";
+            options.iOS.BundleId = "com.companyname.privateclouddrive.app";
+            options.iOS.UrlScheme = "privateclouddrive";
+            options.BindingTicketLifetimeMinutes = 5;
+            options.RateLimitWindowSeconds = 300;
+            options.RateLimitMaxAttempts = 20;
+        });
 
         ConfigureInMemorySqlite(context.Services);
     }

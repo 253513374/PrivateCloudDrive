@@ -22,4 +22,6 @@ public interface IFileCenterFoldersAppService : IApplicationService
     Task<FileNodeDto> RestoreAsync(Guid id);
 
     Task PermanentDeleteAsync(Guid id);
+
+    Task EmptyTrashAsync();
 }

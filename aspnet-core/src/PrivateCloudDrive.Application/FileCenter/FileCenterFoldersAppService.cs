@@ -153,6 +153,25 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         await _fileNodeManager.PermanentDeleteTreeAsync(CurrentTenant.Id, ownerId, node);
     }
 
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
+    public virtual async Task EmptyTrashAsync()
+    {
+        var ownerId = GetOwnerId();
+        var deletedRoots = await _fileNodeRepository.GetDeletedRootsAsync(
+            ownerId,
+            skipCount: 0,
+            maxResultCount: int.MaxValue,
+            CurrentTenant.Id);
+
+        foreach (var deletedRoot in deletedRoots)
+        {
+            var deletedNodes = await GetDeletedTreeNodesAsync(ownerId, deletedRoot);
+
+            await CleanupPermanentDeletedFilesAsync(ownerId, deletedNodes);
+            await _fileNodeManager.PermanentDeleteTreeAsync(CurrentTenant.Id, ownerId, deletedRoot);
+        }
+    }
+
     private async Task<List<FileNode>> GetDeletedTreeNodesAsync(Guid ownerId, FileNode node)
     {
         var nodes = new List<FileNode> { node };

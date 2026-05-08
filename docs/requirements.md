@@ -4,7 +4,13 @@
 
 本项目目标是开发一个可私有部署的文件、图片、视频管理系统。系统参考 Cloudreve 的文件管理体验，但不实现完整 NAS 操作系统能力。核心目标是让个人、家庭、小团队可以在自己的服务器、迷你主机、NAS 主机或云服务器上部署一个统一的私有网盘和媒体库。
 
-项目后端采用 ABP Framework 开发，移动端采用 .NET MAUI 开发。第一阶段优先实现稳定的文件管理、图片预览、视频播放、上传下载、分享和私有部署能力。
+项目后端采用 ABP Framework 开发，移动端采用 .NET MAUI 开发。MVP Core 优先实现稳定的账号密码登录、文件夹/文件列表、上传下载、图片缩略图、视频封面、视频播放、基础回收站和 Docker 本地私有部署能力。
+
+本文档冻结的版本边界为：
+
+- MVP Core：账号密码登录、管理员初始化、文件夹/文件列表、小文件上传、分片上传、流式下载、HTTP Range 视频播放、图片缩略图、视频封面、基础回收站、Docker 本地私有部署。
+- V1：分享链接、标签、收藏、按标签/收藏筛选、操作日志查询、管理所有分享、微信登录接入。
+- 微信登录是 V1 可选第三方登录能力，不能阻塞 MVP Core。
 
 ## 2. 目标用户
 
@@ -29,7 +35,7 @@
 
 ## 3. 非目标范围
 
-第一阶段不实现以下功能：
+MVP Core 不实现以下功能：
 
 - RAID、ZFS、Btrfs、磁盘池、SMART 硬盘健康管理。
 - SMB、NFS、AFP 等传统 NAS 文件协议。
@@ -39,8 +45,10 @@
 - 多节点集群、高可用、跨区域同步。
 - AI 语义搜索、人脸识别、智能相册。
 - Kubernetes 部署。
+- 分享链接、标签、收藏、按标签/收藏筛选、操作日志查询、管理所有分享。
+- 微信登录接入。
 
-这些能力可以作为后续版本规划，不进入 MVP 阶段。
+这些能力可以作为后续版本规划，不进入 MVP Core。
 
 ## 4. 技术栈
 
@@ -64,7 +72,7 @@
 - 框架：.NET MAUI。
 - 平台：Android、iOS，后续可支持 Windows/macOS。
 - API 调用：HttpClient，文件上传下载使用显式流式接口。
-- 登录：OpenIddict OAuth/OIDC Token。
+- 登录：第一方账号密码登录，Token 由 OpenIddict 签发；authorization_code 和微信登录作为兼容或 V1 扩展方案。
 - 本地缓存：SQLite 或 MAUI Essentials SecureStorage。
 - 图片预览：MAUI Image 控件或第三方图片查看组件。
 - 视频播放：.NET MAUI Community Toolkit MediaElement 或平台原生播放器封装。
@@ -96,8 +104,8 @@
 - 管理用户、角色、权限。
 - 配置存储位置、容量限制、上传限制。
 - 查看系统状态和任务状态。
-- 查看文件操作日志。
-- 管理非法或异常分享链接。
+- 查看文件操作日志，V1。
+- 管理非法或异常分享链接，V1。
 - 执行回收站清理。
 
 ### 5.2 普通用户
@@ -105,11 +113,13 @@
 - 管理自己的文件和文件夹。
 - 上传、下载、移动、复制、重命名、删除文件。
 - 浏览图片和视频。
-- 添加标签、收藏。
-- 创建分享链接。
+- 添加标签、收藏，V1。
+- 创建分享链接，V1。
 - 查看自己的容量使用情况。
 
 ### 5.3 分享访问者
+
+分享访问者属于 V1 范围，MVP Core 不提供公开分享入口。
 
 - 通过分享链接访问文件或文件夹。
 - 根据分享设置输入密码。
@@ -132,9 +142,9 @@
   - 文件上传
   - 文件下载
   - 文件删除
-  - 文件分享
-  - 管理用户
-  - 管理系统设置
+  - 文件分享，V1
+  - 管理用户，V1
+  - 管理系统设置，V1
 - 支持用户容量配额。
 - 支持单文件上传大小限制。
 - 支持用户总空间使用统计。
@@ -150,17 +160,22 @@
 
 #### 功能需求
 
+MVP Core：
+
 - 创建文件夹。
 - 获取目录文件列表。
 - 支持分页、排序、筛选。
 - 支持按名称、大小、类型、创建时间、修改时间排序。
-- 支持文件重命名。
-- 支持文件移动到其他目录。
-- 支持文件复制。
 - 支持文件软删除到回收站。
 - 支持从回收站恢复。
 - 支持永久删除。
 - 支持文件详情。
+
+V1：
+
+- 支持文件重命名。
+- 支持文件移动到其他目录。
+- 支持文件复制。
 - 支持计算目录大小。
 - 支持收藏文件。
 - 支持给文件添加标签。
@@ -180,7 +195,7 @@
 - 同一目录下不允许出现同名文件或文件夹。
 - 删除文件后默认进入回收站。
 - 回收站文件不在正常目录列表展示。
-- 移动目录时不能移动到自身或自己的子目录。
+- 移动目录时不能移动到自身或自己的子目录，V1。
 - 大目录列表必须支持分页。
 
 ### 6.3 上传模块
@@ -223,25 +238,35 @@
 
 #### 功能需求
 
+MVP Core：
+
 - 支持文件下载。
-- 支持文件夹打包下载，后续版本。
 - 支持 HTTP Range 请求。
 - 支持视频在线播放。
 - 支持图片原图访问。
 - 支持缩略图访问。
 - 支持下载权限校验。
+
+V1：
+
 - 支持分享链接下载。
+
+后续版本：
+
+- 支持文件夹打包下载。
 
 #### 验收标准
 
 - 视频播放时可以拖动进度条。
 - 大文件下载不能一次性加载到内存。
 - 未授权用户不能下载私有文件。
-- 分享过期后不能继续访问。
+- 分享过期后不能继续访问，V1。
 
 ### 6.5 图片管理模块
 
 #### 功能需求
+
+MVP Core：
 
 - 支持图片缩略图。
 - 支持图片大图预览。
@@ -255,8 +280,11 @@
   - 相机型号
   - GPS，若存在
   - 方向
+
+V1：
+
 - 支持按拍摄时间浏览图片。
-- 支持相册视图，第一阶段可用文件夹作为相册。
+- 支持相册视图，V1 可先使用文件夹作为相册。
 - 支持图片收藏。
 - 支持图片标签。
 
@@ -270,6 +298,8 @@
 
 #### 功能需求
 
+MVP Core：
+
 - 支持视频封面图。
 - 支持视频在线播放。
 - 支持视频基础信息：
@@ -279,9 +309,15 @@
   - 编码格式
   - 帧率，可选
   - 比特率，可选
+
+V1：
+
 - 支持按时间、大小、时长排序。
 - 支持视频收藏。
 - 支持视频标签。
+
+后续版本：
+
 - 后续支持 HLS 转码。
 
 #### 验收标准
@@ -313,6 +349,8 @@
 
 ### 6.8 分享模块
 
+分享模块属于 V1 范围，MVP Core 不提供公开分享入口。
+
 #### 功能需求
 
 - 支持创建文件分享链接。
@@ -333,12 +371,15 @@
 
 ### 6.9 搜索与筛选模块
 
-#### MVP 功能需求
+#### MVP Core 功能需求
 
 - 按文件名搜索。
 - 按文件类型筛选。
 - 按图片、视频、文档分类筛选。
 - 按创建时间范围筛选。
+
+#### V1 功能需求
+
 - 按标签筛选。
 - 按收藏筛选。
 
@@ -357,10 +398,15 @@
 
 #### 功能需求
 
+MVP Core：
+
 - 删除文件默认进入回收站。
 - 支持恢复文件。
 - 支持永久删除文件。
 - 支持清空回收站。
+
+V1：
+
 - 支持自动清理超过保留天数的文件。
 
 #### 验收标准
@@ -370,6 +416,8 @@
 - 永久删除后释放容量和 Blob 引用。
 
 ### 6.11 系统设置模块
+
+系统设置模块属于 V1 范围。MVP Core 只通过部署配置和环境变量提供必要运行配置，不提供完整 App 或管理后台设置页面。
 
 #### 功能需求
 
@@ -389,14 +437,16 @@
 
 ### 6.12 审计与日志模块
 
+MVP Core 必须记录登录、上传、删除、恢复、永久删除等关键安全事件；V1 提供面向管理员的操作日志查询页面和管理能力。
+
 #### 功能需求
 
 - 记录用户登录。
 - 记录文件上传。
 - 记录文件下载，可选。
 - 记录文件删除、恢复、永久删除。
-- 记录分享创建和取消。
-- 记录管理员操作。
+- 记录分享创建和取消，V1。
+- 记录管理员操作，V1。
 - 记录媒体任务失败日志。
 
 #### 验收标准
@@ -411,14 +461,15 @@
 - 启动页。
 - 登录页。
 - 文件首页。
-- 图片页。
-- 视频页。
 - 上传队列页。
-- 文件详情页。
 - 图片预览页。
 - 视频播放页。
-- 分享设置页。
+- 回收站页或回收站入口。
 - 设置页。
+- 图片页，V1 可增强为独立媒体库入口。
+- 视频页，V1 可增强为独立媒体库入口。
+- 文件详情页。
+- 分享设置页，V1。
 
 ### 7.2 文件首页
 
@@ -431,7 +482,8 @@
 - 支持返回上级目录。
 - 支持新建文件夹。
 - 支持上传文件。
-- 支持重命名、移动、删除、分享。
+- 支持删除到回收站。
+- 支持重命名、移动、分享，V1。
 - 支持下拉刷新。
 
 #### 验收标准
@@ -449,7 +501,7 @@
 - 支持点击进入大图预览。
 - 支持左右滑动切换图片。
 - 支持下载原图。
-- 支持收藏、标签、分享。
+- 支持收藏、标签、分享，V1。
 
 ### 7.4 视频页
 
@@ -479,7 +531,24 @@
 - App 关闭或网络中断后，未完成上传可以恢复，后续版本。
 - MVP 至少支持失败重试。
 
-### 7.6 本地安全
+### 7.6 回收站页或回收站入口
+
+#### 功能需求
+
+- 展示已删除文件和文件夹。
+- 支持恢复文件。
+- 支持永久删除文件。
+- 支持清空回收站。
+- 恢复时处理原目录同名冲突。
+
+#### 验收标准
+
+- 回收站为空时显示明确空状态。
+- 回收站列表加载失败时可重试。
+- 永久删除和清空回收站必须二次确认。
+- 恢复同名冲突时必须提示用户重命名或取消恢复。
+
+### 7.7 本地安全
 
 #### 功能需求
 
@@ -497,7 +566,7 @@
 字段建议：
 
 - Id
-- TenantId，可选，MVP 可关闭多租户
+- TenantId，可选，MVP Core 可关闭多租户
 - OwnerUserId
 - ParentId
 - Name
@@ -604,23 +673,51 @@
 
 ### 9.1 文件 API
 
+MVP Core：
+
 - `GET /api/file-center/nodes`
 - `GET /api/file-center/nodes/{id}`
 - `POST /api/file-center/folders`
+- `DELETE /api/file-center/nodes/{id}`
+- `GET /api/file-center/trash`
+- `POST /api/file-center/nodes/{id}/restore`
+- `DELETE /api/file-center/nodes/{id}/permanent`
+- `DELETE /api/file-center/trash`
+
+V1：
+
 - `PUT /api/file-center/nodes/{id}/rename`
 - `PUT /api/file-center/nodes/{id}/move`
 - `POST /api/file-center/nodes/{id}/copy`
-- `DELETE /api/file-center/nodes/{id}`
-- `POST /api/file-center/nodes/{id}/restore`
-- `DELETE /api/file-center/nodes/{id}/permanent`
 
 ### 9.2 上传 API
 
+- `POST /api/file-center/files/upload`
 - `POST /api/file-center/upload-sessions`
 - `GET /api/file-center/upload-sessions/{id}`
 - `PUT /api/file-center/upload-sessions/{id}/chunks/{chunkIndex}`
 - `POST /api/file-center/upload-sessions/{id}/complete`
 - `DELETE /api/file-center/upload-sessions/{id}`
+
+#### 小文件上传 API
+
+`POST /api/file-center/files/upload` 使用 `multipart/form-data`。
+
+字段：
+
+- `parentId`：目标目录 Id，可为空表示根目录。
+- `file`：上传文件。
+- `conflictPolicy`：重名策略，取值为 `Reject`、`AutoRename`，MVP Core 默认 `Reject`。
+- `sha256`：客户端计算的哈希，可选，用于完整性校验和后续秒传扩展。
+
+服务端规则：
+
+- 必须校验登录状态、上传权限、单文件大小、剩余容量和文件名安全性。
+- 同一目录存在同名有效文件时，`Reject` 返回明确业务错误，`AutoRename` 由服务端生成安全的新文件名。
+- 上传成功后写入 Blob Storage，创建 BlobObject、FileNode，图片或视频文件创建媒体处理任务。
+- 返回 `FileNodeDto`。
+
+分片上传继续使用 `upload-sessions` 端点，适用于超过小文件阈值或需要断点续传的文件。
 
 ### 9.3 下载与预览 API
 
@@ -638,6 +735,8 @@
 
 ### 9.5 分享 API
 
+分享 API 属于 V1。
+
 - `POST /api/file-center/shares`
 - `GET /api/file-center/shares`
 - `DELETE /api/file-center/shares/{id}`
@@ -646,6 +745,8 @@
 - `GET /api/public/shares/{token}/download`
 
 ### 9.6 标签 API
+
+标签 API 属于 V1。
 
 - `GET /api/file-center/tags`
 - `POST /api/file-center/tags`
@@ -656,13 +757,18 @@
 
 ## 10. 权限定义建议
 
+MVP Core：
+
 - `FileCenter.Files.Default`
 - `FileCenter.Files.Create`
-- `FileCenter.Files.Update`
 - `FileCenter.Files.Delete`
 - `FileCenter.Files.Download`
-- `FileCenter.Files.Share`
 - `FileCenter.Media.Default`
+
+V1：
+
+- `FileCenter.Files.Update`
+- `FileCenter.Files.Share`
 - `FileCenter.Tags.Default`
 - `FileCenter.Tags.Manage`
 - `FileCenter.Shares.Default`
@@ -674,7 +780,7 @@
 
 ### 11.1 本地文件系统
 
-MVP 默认使用本地文件系统。
+MVP Core 默认使用本地文件系统。
 
 目录结构建议：
 
@@ -744,8 +850,8 @@ Bucket 建议：
 
 - 所有私有 API 必须认证。
 - 所有文件访问必须校验权限。
-- 分享 Token 使用安全随机字符串。
-- 分享密码只保存哈希。
+- 分享 Token 使用安全随机字符串，V1。
+- 分享密码只保存哈希，V1。
 - 上传文件名必须做安全处理，避免路径穿越。
 - 下载接口必须防止任意路径读取。
 - 上传大小必须在服务端校验。
@@ -778,8 +884,8 @@ Bucket 建议：
 - 登录后上传文件。
 - 上传图片后生成媒体任务。
 - 删除文件进入回收站。
-- 分享链接访问文件。
 - Range 下载返回正确状态码。
+- 分享链接访问文件，V1。
 
 ### 15.3 MAUI 手动测试
 
@@ -790,35 +896,41 @@ Bucket 建议：
 - 预览图片。
 - 播放视频。
 - 删除文件。
-- 创建分享。
+- 恢复回收站文件。
+- 创建分享，V1。
 
 ## 16. 版本规划
 
-### 16.1 MVP
+### 16.1 MVP Core
 
 - ABP 后端项目搭建。
 - MAUI App 项目搭建。
-- 用户登录。
+- 管理员初始化。
+- 账号密码登录。
+- Token 刷新和退出登录。
 - 文件夹和文件列表。
 - 小文件上传。
 - 分片上传。
-- 文件下载。
-- 回收站。
+- 流式文件下载。
+- HTTP Range 视频播放。
+- 基础回收站。
 - 图片缩略图。
 - 视频封面。
-- 视频 Range 播放。
 - Docker Compose 部署。
 
 ### 16.2 V1
 
 - 分享链接。
 - 标签和收藏。
+- 按标签和收藏筛选。
 - 图片时间线。
 - 视频列表页。
 - 上传队列增强。
 - MinIO 存储。
 - 管理后台基础页面。
-- 操作日志。
+- 操作日志查询。
+- 管理所有分享。
+- 微信登录接入。
 
 ### 16.3 V2
 
@@ -841,26 +953,54 @@ Bucket 建议：
 
 - 优先使用 ABP 原生模块和约定，不重复造身份、权限、设置、审计基础设施。
 - 文件和媒体业务放在独立 `FileCenter` 模块。
+- 移动端登录、Token 审计、微信绑定和微信扩展登录放在 `MobileAuth` 或认证扩展模块，不放入 `FileCenter`。
 - 大文件上传、下载、视频播放接口使用显式 Controller，不依赖自动 API 生成。
 - 所有实体先建立清晰领域模型，再写 Application Service。
 - 每个阶段必须有可运行结果。
 - 每完成一个模块必须补充最小测试。
 - 不直接复制 Cloudreve 代码，只参考功能和产品结构。
 
-## 18. 第一阶段完成定义
+### 17.1 ABP 模块边界
 
-第一阶段完成时，系统必须满足：
+`FileCenter` 模块职责：
+
+- Domain：FileNode、BlobObject、UploadSession、MediaAsset、回收站相关领域规则；V1 扩展 FileShare、FileTag、FileNodeTag。
+- Application.Contracts：文件、文件夹、上传、下载、媒体、回收站 DTO 与 AppService 接口。
+- Application：文件夹管理、上传、下载、媒体任务、回收站应用服务；V1 扩展分享、标签、收藏应用服务。
+- EntityFrameworkCore：FileCenter 实体映射、索引、迁移。
+- HttpApi：小文件上传、分片上传、流式下载、HTTP Range、缩略图和预览等显式 Controller。
+
+`MobileAuth` 或认证扩展模块职责：
+
+- Domain：移动端登录审计聚合、WechatUserBinding，必要的设备会话或登录记录。
+- Application.Contracts：移动认证、当前会话、微信绑定/解绑 DTO 与 AppService 接口。
+- Application：账号密码登录辅助、Token 审计、微信 code 换取身份、绑定票据、绑定/解绑业务流程。
+- EntityFrameworkCore：WechatUserBinding、移动登录审计等认证扩展实体映射和迁移。
+- HttpApi：`/api/mobile-auth/*` 接口。
+- OpenIddict 扩展：V1 微信扩展 grant、移动端 client 权限与 Token 生命周期配置。
+
+跨模块规则：
+
+- `FileCenter` 可以读取当前用户身份和权限，但不直接管理登录、Token、微信绑定。
+- `MobileAuth` 可以读取 ABP Identity 用户和 OpenIddict 配置，但不处理文件业务。
+- `WechatUserBinding` 必须属于认证相关模块，不属于 `FileCenter`。
+
+## 18. MVP Core 完成定义
+
+MVP Core 完成时，系统必须满足：
 
 - 可以通过 Docker Compose 启动后端依赖。
 - 可以运行 ABP API Host。
 - 可以运行 MAUI Android App。
-- 管理员可以登录。
+- 管理员可以通过账号密码登录。
+- App 可以刷新 Token 并退出登录。
 - 用户可以创建文件夹。
 - 用户可以上传图片和视频。
 - 用户可以在 App 中看到文件列表。
 - 用户可以预览图片缩略图。
 - 用户可以播放 MP4 视频。
 - 用户可以删除文件并从回收站恢复。
+- 用户可以永久删除或清空回收站。
 - 后端有基本集成测试。
 
 ## 19. 参考资料

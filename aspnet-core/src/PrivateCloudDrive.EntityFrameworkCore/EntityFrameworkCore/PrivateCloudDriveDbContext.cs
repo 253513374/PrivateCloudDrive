@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PrivateCloudDrive.FileCenter;
+using PrivateCloudDrive.MobileAuth;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.Data;
@@ -32,6 +33,8 @@ public class PrivateCloudDriveDbContext :
     public DbSet<FileShare> FileShares { get; set; }
     public DbSet<FileTag> FileTags { get; set; }
     public DbSet<FileNodeTag> FileNodeTags { get; set; }
+    public DbSet<MobileAuthAuditLog> MobileAuthAuditLogs { get; set; }
+    public DbSet<WechatUserBinding> WechatUserBindings { get; set; }
 
     #region Entities from the modules
 
@@ -85,6 +88,7 @@ public class PrivateCloudDriveDbContext :
         /* Configure your own tables/entities inside here */
 
         builder.ConfigureFileCenter();
+        builder.ConfigureMobileAuth();
 
         //builder.Entity<YourEntity>(b =>
         //{

@@ -29,4 +29,11 @@ public static class PrivateCloudDriveDomainErrorCodes
     public const string FileCenterShareDownloadDisabled = "PrivateCloudDrive:FileCenter:000024";
     public const string FileCenterTagAlreadyExists = "PrivateCloudDrive:FileCenter:000025";
     public const string FileCenterTagNotFound = "PrivateCloudDrive:FileCenter:000026";
+    public const string WeChatDisabled = "PrivateCloudDrive:MobileAuth:000001";
+    public const string WeChatCodeExchangeFailed = "PrivateCloudDrive:MobileAuth:000002";
+    public const string WeChatBindingRequired = "PrivateCloudDrive:MobileAuth:000003";
+    public const string WeChatAlreadyBound = "PrivateCloudDrive:MobileAuth:000004";
+    public const string WeChatBindingTicketNotFound = "PrivateCloudDrive:MobileAuth:000005";
+    public const string WeChatUnbindNotAllowed = "PrivateCloudDrive:MobileAuth:000006";
+    public const string WeChatRateLimited = "PrivateCloudDrive:MobileAuth:000007";
 }

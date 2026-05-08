@@ -3,29 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.FilesPage"
-             Title="Files"
-             BackgroundColor="{AppThemeBinding Light=#F7F9FC, Dark=#111827}">
+             Title="Files">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="New Folder" Clicked="OnNewFolderClicked" />
         <ToolbarItem Text="Upload" Clicked="OnUploadClicked" />
         <ToolbarItem Text="Logout" Clicked="OnLogoutClicked" />
     </ContentPage.ToolbarItems>
 
-    <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
+    <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="16">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
             <VerticalStackLayout Spacing="4">
                 <Label Text="Files"
-                       FontAttributes="Bold"
-                       FontSize="28"
-                       TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}" />
+                       Style="{StaticResource PageTitleLabel}" />
                 <Label Text="{Binding ApiBaseUrl}"
-                       FontSize="13"
-                       TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+                       Style="{StaticResource MetaLabel}" />
             </VerticalStackLayout>
             <Button x:Name="RefreshButton"
                     Grid.Column="1"
                     Text="Refresh"
-                    BackgroundColor="#1F7A5C"
                     TextColor="White"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
@@ -37,8 +32,7 @@
             <Button x:Name="BackButton"
                     Text="Back"
                     IsVisible="{Binding CanGoBack}"
-                    BackgroundColor="{AppThemeBinding Light=#E7F4EF, Dark=#12382D}"
-                    TextColor="#1F7A5C"
+                    Style="{StaticResource SecondaryButton}"
                     Clicked="OnBackClicked" />
             <Label Grid.Column="1"
                    Text="{Binding CurrentPath}"
@@ -46,7 +40,7 @@
                    FontSize="15"
                    LineBreakMode="TailTruncation"
                    VerticalOptions="Center"
-                   TextColor="{AppThemeBinding Light=#3F4A59, Dark=#E5E7EB}" />
+                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         </Grid>
 
         <VerticalStackLayout x:Name="UploadStatusPanel"
@@ -55,36 +49,88 @@
                              Spacing="8">
             <Label x:Name="UploadStatusLabel"
                    FontSize="13"
-                   TextColor="{AppThemeBinding Light=#3F4A59, Dark=#E5E7EB}" />
+                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
             <ProgressBar x:Name="UploadProgressBar"
                          Progress="0"
-                         ProgressColor="#1F7A5C" />
+                         ProgressColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
         </VerticalStackLayout>
 
+        <Border x:Name="FilesStatePanel"
+                Grid.Row="3"
+                Padding="14"
+                IsVisible="False"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <ActivityIndicator x:Name="FilesLoadingIndicator"
+                                   WidthRequest="20"
+                                   HeightRequest="20"
+                                   Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                <Label x:Name="FilesStateLabel"
+                       Grid.Column="1"
+                       VerticalOptions="Center"
+                       FontSize="13"
+                       LineBreakMode="WordWrap"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Button x:Name="FilesRetryButton"
+                        Grid.Column="2"
+                        Text="Retry"
+                        IsVisible="False"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnRetryLoadClicked" />
+            </Grid>
+        </Border>
+
         <CollectionView x:Name="FilesCollectionView"
-                        Grid.Row="3"
+                        Grid.Row="4"
                         ItemsSource="{Binding Items}"
                         SelectionMode="Single"
                         SelectionChanged="OnFileSelected">
             <CollectionView.EmptyView>
-                <Label Text="No files"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
+                <Border Padding="18"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center">
+                        <Label Text="This folder is empty"
+                               Style="{StaticResource SectionTitleLabel}"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Upload files or create a folder to start organizing this location."
+                               Style="{StaticResource MetaLabel}"
+                               HorizontalTextAlignment="Center"
+                               MaximumWidthRequest="320"
+                               LineBreakMode="WordWrap" />
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button Text="Upload"
+                                    TextColor="White"
+                                    Clicked="OnUploadClicked" />
+                            <Button Text="New folder"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Clicked="OnNewFolderClicked" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:CloudDriveItem">
                     <Grid Padding="0,0,0,10">
                         <Border Padding="14"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}"
-                                Stroke="{AppThemeBinding Light=#E5EAF0, Dark=#374151}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                                 StrokeThickness="1">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
-                            <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12">
+                            <Grid ColumnDefinitions="52,*,Auto,Auto,Auto" ColumnSpacing="10">
                                 <Border HeightRequest="44"
                                         WidthRequest="44"
-                                        BackgroundColor="{AppThemeBinding Light=#E7F4EF, Dark=#12382D}"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
                                         StrokeThickness="0"
                                         VerticalOptions="Center">
                                     <Border.StrokeShape>
@@ -93,7 +139,7 @@
                                     <Label Text="{Binding Badge}"
                                            FontAttributes="Bold"
                                            FontSize="11"
-                                           TextColor="#1F7A5C"
+                                           TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center" />
                                 </Border>
@@ -101,10 +147,10 @@
                                     <Label Text="{Binding Name}"
                                            FontAttributes="Bold"
                                            FontSize="16"
-                                           TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}" />
+                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                                     <Label Text="{Binding Kind}"
                                            FontSize="13"
-                                           TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="2"
                                                      Spacing="3"
@@ -113,12 +159,30 @@
                                     <Label Text="{Binding Size}"
                                            FontSize="13"
                                            HorizontalTextAlignment="End"
-                                           TextColor="{AppThemeBinding Light=#3F4A59, Dark=#E5E7EB}" />
+                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                                     <Label Text="{Binding ModifiedAt}"
                                            FontSize="12"
                                            HorizontalTextAlignment="End"
-                                           TextColor="{AppThemeBinding Light=#7A8796, Dark=#9CA3AF}" />
+                                           TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}" />
                                 </VerticalStackLayout>
+                                <Button Grid.Column="3"
+                                        Text="More"
+                                        FontSize="12"
+                                        Padding="10,0"
+                                        MinimumWidthRequest="56"
+                                        HeightRequest="44"
+                                        Style="{StaticResource SecondaryButton}"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="OnDetailsItemClicked" />
+                                <Button Grid.Column="4"
+                                        Text="Delete"
+                                        FontSize="12"
+                                        Padding="10,0"
+                                        MinimumWidthRequest="64"
+                                        HeightRequest="44"
+                                        Style="{StaticResource DangerButton}"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="OnDeleteItemClicked" />
                             </Grid>
                         </Border>
                     </Grid>

@@ -1,6 +1,12 @@
 # PrivateCloudDrive
 
-PrivateCloudDrive 是一个可私有部署的文件、图片、视频管理系统。项目参考 Cloudreve 的文件管理体验，但当前范围聚焦文件管理、媒体预览、上传下载、分享链接和移动端访问，不包含 NAS 操作系统、磁盘阵列、SMB/NFS、远程下载或集群能力。
+PrivateCloudDrive 是一个可私有部署的文件、图片、视频管理系统。项目参考 Cloudreve 的文件管理体验，但当前 MVP Core 范围聚焦账号密码登录、文件管理、媒体预览、上传下载、基础回收站、移动端访问和本地私有部署，不包含 NAS 操作系统、磁盘阵列、SMB/NFS、远程下载或集群能力。
+
+版本边界：
+
+- MVP Core：账号密码登录、文件夹/文件列表、小文件上传、分片上传、流式下载、HTTP Range 视频播放、图片缩略图、视频封面、回收站、Docker Compose 本地私有部署。
+- V1：分享链接、标签、收藏、按标签/收藏筛选、操作日志查询、独立图片/视频媒体库入口、微信登录接入。
+- 微信登录是 V1 可选能力，不阻塞 MVP Core 的账号密码登录和本地文件管理。
 
 ## 技术栈
 
@@ -22,13 +28,15 @@ PrivateCloudDrive 是一个可私有部署的文件、图片、视频管理系�
 
 ## 本地开发
 
-先准备 .NET 10 SDK、Docker、PostgreSQL 或 Docker PostgreSQL、MAUI workload。开发数据库可以直接使用仓库里的 PostgreSQL Compose：
+先准备 .NET 10 SDK、Docker、PostgreSQL 或 Docker PostgreSQL、Redis、MAUI workload。本仓库通过 `global.json` 固定 .NET SDK `10.0.203`。开发数据库可以直接使用仓库里的 PostgreSQL Compose，并启动 Redis：
 
 ```powershell
 docker compose -f docker-compose.postgres.yml up -d
+docker compose up -d redis
 ```
 
 后端默认连接字符串在 `aspnet-core/src/PrivateCloudDrive.DbMigrator/appsettings.json` 与 `aspnet-core/src/PrivateCloudDrive.HttpApi.Host/appsettings.json` 中，默认开发库为 `PrivateCloudDrive`，用户 `root`，密码 `myPassword`。
+本地 ABP 分布式缓存默认使用 `localhost:6379` 的 Redis；如果改用完整 `docker-compose.yml` 中的 PostgreSQL，则需要同步覆盖连接字符串为 `privateclouddrive/privateclouddrive` 凭据。
 
 初始化或更新数据库：
 
@@ -66,9 +74,11 @@ public const string OAuthRedirectUri = "privateclouddrive://callback";
 
 ```powershell
 cd maui/PrivateCloudDrive.App
-dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0
-dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android
+dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64
+dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android
 ```
+
+Windows 和 Android 目标建议顺序构建；默认多目标 restore/build 会同时解析本机未安装的平台运行时，可能在缺少对应 workload 或 runtime 时失败。
 
 ## Docker Compose 部署
 
@@ -79,7 +89,9 @@ Copy-Item .env.example .env
 docker compose up -d --build
 ```
 
-完整部署说明见 `docs/deployment.md`。默认 API 地址为 `http://localhost:8080/swagger`，文件、缩略图、封面和临时分片会保存在 `privateclouddrive_storage` volume。
+完整部署说明见 `docs/deployment.md`。默认 API 地址为 `http://localhost:8080/swagger`，文件、缩略图、封面和临时分片会保存在 `privateclouddrive_stack_storage` volume。
+
+微信登录默认关闭。V1 接入真实微信能力时，只把 `AppId`、平台公开配置放入 MAUI，`AppSecret` 只能通过后端配置、环境变量或密钥系统提供。
 
 ## 验证
 

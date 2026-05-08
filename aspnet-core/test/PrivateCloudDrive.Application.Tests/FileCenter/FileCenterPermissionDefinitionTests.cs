@@ -32,5 +32,9 @@ public abstract class FileCenterPermissionDefinitionTests<TStartupModule> : Priv
         permissionNames.ShouldContain(PrivateCloudDrivePermissions.FileCenter.Delete);
         permissionNames.ShouldContain(PrivateCloudDrivePermissions.FileCenter.Share);
         permissionNames.ShouldContain(PrivateCloudDrivePermissions.FileCenter.Manage);
+        permissionNames.ShouldContain(PrivateCloudDrivePermissions.MobileAuth.Default);
+        permissionNames.ShouldContain(PrivateCloudDrivePermissions.MobileAuth.AuditLogs);
+        permissionNames.ShouldContain(PrivateCloudDrivePermissions.OperationLogs.Default);
+        permissionNames.ShouldContain(PrivateCloudDrivePermissions.OperationLogs.View);
     }
 }

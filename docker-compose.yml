@@ -65,6 +65,19 @@ services:
       FileCenter__MediaProcessing__VideoThumbnailWidth: "320"
       BackgroundJobs__IsJobExecutionEnabled: "false"
       StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+      Authentication__WeChat__Enabled: ${WECHAT_ENABLED:-false}
+      Authentication__WeChat__AppId: ${WECHAT_APP_ID:-}
+      Authentication__WeChat__AppSecret: ${WECHAT_APP_SECRET:-}
+      Authentication__WeChat__Scope: ${WECHAT_SCOPE:-snsapi_userinfo}
+      Authentication__WeChat__CallbackScheme: ${WECHAT_CALLBACK_SCHEME:-privateclouddrive}
+      Authentication__WeChat__Android__PackageName: ${WECHAT_ANDROID_PACKAGE_NAME:-com.companyname.privateclouddrive.app}
+      Authentication__WeChat__Android__Signature: ${WECHAT_ANDROID_SIGNATURE:-}
+      Authentication__WeChat__iOS__BundleId: ${WECHAT_IOS_BUNDLE_ID:-com.companyname.privateclouddrive.app}
+      Authentication__WeChat__iOS__UrlScheme: ${WECHAT_IOS_URL_SCHEME:-}
+      Authentication__WeChat__BindingTicketLifetimeMinutes: ${WECHAT_BINDING_TICKET_LIFETIME_MINUTES:-5}
+      Authentication__WeChat__RequestTimeoutSeconds: ${WECHAT_REQUEST_TIMEOUT_SECONDS:-10}
+      Authentication__WeChat__RateLimitWindowSeconds: ${WECHAT_RATE_LIMIT_WINDOW_SECONDS:-300}
+      Authentication__WeChat__RateLimitMaxAttempts: ${WECHAT_RATE_LIMIT_MAX_ATTEMPTS:-60}
     ports:
       - "8080:8080"
     volumes:

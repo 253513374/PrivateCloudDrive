@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
+             x:Class="PrivateCloudDrive.App.Views.PhotosPage"
+             Title="Photos">
+    <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Photos" Style="{StaticResource PageTitleLabel}" />
+                <Label Text="{Binding ItemCountText}" Style="{StaticResource MetaLabel}" />
+            </VerticalStackLayout>
+            <Button x:Name="RefreshButton"
+                    Grid.Column="1"
+                    Text="Refresh"
+                    TextColor="White"
+                    VerticalOptions="Center"
+                    Clicked="OnRefreshClicked" />
+        </Grid>
+
+        <Border x:Name="PhotosStatePanel"
+                Grid.Row="1"
+                Padding="14"
+                IsVisible="False"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <ActivityIndicator x:Name="PhotosLoadingIndicator"
+                                   WidthRequest="20"
+                                   HeightRequest="20"
+                                   Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                <Label x:Name="PhotosStateLabel"
+                       Grid.Column="1"
+                       VerticalOptions="Center"
+                       FontSize="13"
+                       LineBreakMode="WordWrap"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Button x:Name="PhotosRetryButton"
+                        Grid.Column="2"
+                        Text="Retry"
+                        IsVisible="False"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnRetryClicked" />
+            </Grid>
+        </Border>
+
+        <CollectionView x:Name="PhotosCollectionView"
+                        Grid.Row="2"
+                        ItemsSource="{Binding Items}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnPhotoSelected">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="3" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.EmptyView>
+                <Border Padding="18"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="No photos found" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="Upload images from Files to populate this view." Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:MediaLibraryItem">
+                    <Border StrokeThickness="1"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Grid HeightRequest="118">
+                            <Image Source="{Binding ThumbnailSource}" Aspect="AspectFill" />
+                            <Grid Padding="8" RowDefinitions="*,Auto">
+                                <Label Text="{Binding Badge}"
+                                       FontAttributes="Bold"
+                                       FontSize="11"
+                                       TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                <Label Grid.Row="1"
+                                       Text="{Binding Name}"
+                                       FontSize="12"
+                                       LineBreakMode="TailTruncation"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

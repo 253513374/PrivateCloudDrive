@@ -93,6 +93,34 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         return new PagedResultDto<FileShareDto>(totalCount, items);
     }
 
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual async Task<PagedResultDto<FileShareDto>> GetAllListAsync(PagedResultRequestDto input)
+    {
+        var queryable = (await _shareRepository.GetQueryableAsync())
+            .Where(share => share.TenantId == CurrentTenant.Id)
+            .OrderByDescending(share => share.CreationTime);
+
+        var totalCount = await _asyncExecuter.LongCountAsync(queryable);
+        var shares = await _asyncExecuter.ToListAsync(
+            queryable
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount));
+
+        var items = new List<FileShareDto>();
+        foreach (var share in shares)
+        {
+            var node = await _fileNodeRepository.FindByIdAsync(
+                share.FileNodeId,
+                share.OwnerId,
+                CurrentTenant.Id,
+                includeDeleted: true);
+
+            items.Add(ToDto(share, node));
+        }
+
+        return new PagedResultDto<FileShareDto>(totalCount, items);
+    }
+
     public virtual async Task DeleteAsync(Guid id)
     {
         var ownerId = GetOwnerId();
@@ -101,6 +129,25 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
                 item.Id == id &&
                 item.TenantId == CurrentTenant.Id &&
                 item.OwnerId == ownerId &&
+                item.IsEnabled);
+
+        if (share == null)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterShareNotFound)
+                .WithData("Id", id);
+        }
+
+        share.Disable();
+        await _shareRepository.UpdateAsync(share, autoSave: true);
+    }
+
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual async Task DisableAsync(Guid id)
+    {
+        var share = await _shareRepository.FirstOrDefaultAsync(
+            item =>
+                item.Id == id &&
+                item.TenantId == CurrentTenant.Id &&
                 item.IsEnabled);
 
         if (share == null)
@@ -150,7 +197,7 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         return CurrentUser.Id.Value;
     }
 
-    private static FileShareDto ToDto(FileShare share, FileNode node)
+    private static FileShareDto ToDto(FileShare share, FileNode? node)
     {
         return new FileShareDto
         {
@@ -158,8 +205,8 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
             TenantId = share.TenantId,
             OwnerId = share.OwnerId,
             FileNodeId = share.FileNodeId,
-            FileName = node.Name,
-            NodeType = node.NodeType,
+            FileName = node?.Name ?? "Deleted item",
+            NodeType = node?.NodeType ?? FileNodeType.File,
             Token = share.Token,
             ExpirationTime = share.ExpirationTime,
             AllowDownload = share.AllowDownload,

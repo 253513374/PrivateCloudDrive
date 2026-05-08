@@ -3,38 +3,70 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PrivateCloudDrive.App.Views.LoginPage"
              Title="Sign In"
-             Shell.NavBarIsVisible="False"
-             BackgroundColor="{AppThemeBinding Light=#F7F9FC, Dark=#111827}">
+             Shell.NavBarIsVisible="False">
     <ScrollView>
         <Grid Padding="24" RowDefinitions="*,Auto,*" MinimumHeightRequest="640">
             <VerticalStackLayout Grid.Row="1" Spacing="18">
                 <Label Text="PrivateCloudDrive"
-                       FontAttributes="Bold"
-                       FontSize="30"
-                       TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}" />
+                       Style="{StaticResource PageTitleLabel}" />
                 <Label Text="{Binding ApiBaseUrl}"
-                       FontSize="13"
-                       TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+                       Style="{StaticResource MetaLabel}" />
                 <Label Text="{Binding ClientId}"
-                       FontSize="13"
-                       TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+                       Style="{StaticResource MetaLabel}" />
 
                 <Border Padding="18"
-                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}"
-                        Stroke="{AppThemeBinding Light=#E5EAF0, Dark=#374151}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                         StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="14">
+                        <Border Padding="12,0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Entry x:Name="UserNameEntry"
+                                   Placeholder="Username or email"
+                                   ReturnType="Next" />
+                        </Border>
+                        <Border Padding="12,0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Entry x:Name="PasswordEntry"
+                                   Placeholder="Password"
+                                   IsPassword="True"
+                                   ReturnType="Done"
+                                   Completed="OnPasswordCompleted" />
+                        </Border>
                         <Button x:Name="SignInButton"
-                                Text="Sign in with server"
-                                BackgroundColor="#1F7A5C"
+                                Text="Sign in"
                                 TextColor="White"
                                 Clicked="OnSignInClicked" />
+                        <Button x:Name="WechatSignInButton"
+                                Text="Sign in with WeChat"
+                                Style="{StaticResource SecondaryButton}"
+                                IsVisible="False"
+                                Clicked="OnWechatSignInClicked" />
+                        <HorizontalStackLayout x:Name="SignInLoadingPanel"
+                                               IsVisible="False"
+                                               Spacing="8"
+                                               HorizontalOptions="Center">
+                            <ActivityIndicator x:Name="SignInLoadingIndicator"
+                                               WidthRequest="18"
+                                               HeightRequest="18"
+                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                            <Label Text="Signing in"
+                                   Style="{StaticResource MetaLabel}"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
                         <Label x:Name="ValidationLabel"
                                IsVisible="False"
-                               TextColor="#B42318"
+                               TextColor="{StaticResource Danger}"
                                FontSize="13" />
                     </VerticalStackLayout>
                 </Border>

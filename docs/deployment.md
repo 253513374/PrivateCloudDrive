@@ -21,6 +21,8 @@ The Compose stack contains PostgreSQL, Redis, an API host, a database migrator, 
 
 The `db-migrator` service runs before the API and applies database migrations plus ABP data seed. The seed creates the OpenIddict Swagger client and the MAUI client `PrivateCloudDrive_App`.
 
+V1 WeChat login stays disabled by default. When enabling it, set the `WECHAT_*` variables in `.env`; `WECHAT_APP_SECRET` is passed only to the backend API container and must not be copied into the MAUI app.
+
 ## Persistent Data
 
 - PostgreSQL data: `privateclouddrive_stack_postgres_data`
@@ -58,8 +60,24 @@ For Android emulator or physical device testing, update `maui/PrivateCloudDrive.
 | `STRING_ENCRYPTION_PASSPHRASE` | ABP string encryption passphrase; replace the template value before production use |
 | `PUBLIC_URL` | Public API/AuthServer URL used by Swagger and OpenIddict |
 | `FILECENTER_STORAGE_PATH` | Container path for FileCenter blob, thumbnail, cover, and temp upload storage |
+| `WECHAT_ENABLED` | Optional V1 WeChat login switch; keep `false` unless official mobile app credentials are ready |
+| `WECHAT_APP_ID` | WeChat Open Platform mobile application AppId |
+| `WECHAT_APP_SECRET` | WeChat Open Platform AppSecret; backend only |
+| `WECHAT_SCOPE` | WeChat OAuth scope, usually `snsapi_userinfo` |
+| `WECHAT_CALLBACK_SCHEME` | App callback scheme used by the MAUI platform implementation |
+| `WECHAT_ANDROID_PACKAGE_NAME` | Android package name registered in WeChat Open Platform |
+| `WECHAT_ANDROID_SIGNATURE` | Android application signature registered in WeChat Open Platform |
+| `WECHAT_IOS_BUNDLE_ID` | iOS Bundle Identifier registered in WeChat Open Platform |
+| `WECHAT_IOS_URL_SCHEME` | iOS URL Scheme registered for WeChat callback |
+| `WECHAT_BINDING_TICKET_LIFETIME_MINUTES` | Lifetime of first-login binding tickets |
+| `WECHAT_REQUEST_TIMEOUT_SECONDS` | Backend timeout when calling WeChat APIs |
+| `WECHAT_RATE_LIMIT_WINDOW_SECONDS` | WeChat login, bind, and unbind rate-limit window |
+| `WECHAT_RATE_LIMIT_MAX_ATTEMPTS` | Maximum WeChat login, bind, or unbind attempts in one window |
 | `MINIO_ROOT_USER` | Optional MinIO root user |
 | `MINIO_ROOT_PASSWORD` | Optional MinIO root password |
+
+The Docker variables above only enable the backend side. Android/iOS still need the official WeChat SDK integration, package signature or URL Scheme setup, and real-device authorization validation before WeChat login can be considered complete.
+WeChat operation rate limits are stored in Redis through ABP distributed cache, so API replicas share the same counters.
 
 ## Validation
 

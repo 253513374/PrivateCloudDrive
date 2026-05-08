@@ -15,4 +15,16 @@ public static class PrivateCloudDrivePermissions
         public const string Tags = Default + ".Tags";
         public const string Manage = Default + ".Manage";
     }
+
+    public static class MobileAuth
+    {
+        public const string Default = GroupName + ".MobileAuth";
+        public const string AuditLogs = Default + ".AuditLogs";
+    }
+
+    public static class OperationLogs
+    {
+        public const string Default = GroupName + ".OperationLogs";
+        public const string View = Default + ".View";
+    }
 }

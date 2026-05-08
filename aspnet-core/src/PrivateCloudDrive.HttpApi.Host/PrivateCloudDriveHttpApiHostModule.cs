@@ -14,6 +14,9 @@ using PrivateCloudDrive.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Microsoft.OpenApi;
+using PrivateCloudDrive.MobileAuth;
+using OpenIddict.Server;
+using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 using Volo.Abp;
 using Volo.Abp.Account;
@@ -52,6 +55,9 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
+        var configuration = context.Services.GetConfiguration();
+        var requireHttpsMetadata = configuration.GetValue("AuthServer:RequireHttpsMetadata", true);
+
         PreConfigure<OpenIddictBuilder>(builder =>
         {
             builder.AddValidation(options =>
@@ -60,6 +66,23 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
                 options.UseLocalServer();
                 options.UseAspNetCore();
             });
+        });
+
+        PreConfigure<OpenIddictServerBuilder>(builder =>
+        {
+            builder.AllowPasswordFlow();
+            builder.AllowRefreshTokenFlow();
+            builder.AllowCustomFlow(WechatLoginConsts.GrantType);
+            builder.SetRevocationEndpointUris("/connect/revocation");
+            builder.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(options =>
+            {
+                options.UseScopedHandler<WechatTokenGrantHandler>();
+            });
+
+            if (!requireHttpsMetadata)
+            {
+                builder.UseAspNetCore().DisableTransportSecurityRequirement();
+            }
         });
     }
 

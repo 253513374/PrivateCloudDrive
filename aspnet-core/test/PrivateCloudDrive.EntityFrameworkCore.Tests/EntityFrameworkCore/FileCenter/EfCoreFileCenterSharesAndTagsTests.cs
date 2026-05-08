@@ -190,6 +190,56 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
         });
     }
 
+    [Fact]
+    public async Task Should_Allow_Admin_To_Manage_All_Shares()
+    {
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileShareDto firstShare = null!;
+        PrivateCloudDrive.FileCenter.FileShareDto secondShare = null!;
+
+        await WithCurrentUserAsync(firstUserId, async () =>
+        {
+            var fileNode = await UploadTextFileAsync("first-user-share.txt", Encoding.UTF8.GetBytes("first"));
+            firstShare = await _sharesAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFileShareInput
+                {
+                    FileNodeId = fileNode.Id
+                });
+        });
+
+        await WithCurrentUserAsync(secondUserId, async () =>
+        {
+            var fileNode = await UploadTextFileAsync("second-user-share.txt", Encoding.UTF8.GetBytes("second"));
+            secondShare = await _sharesAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFileShareInput
+                {
+                    FileNodeId = fileNode.Id
+                });
+        });
+
+        await WithCurrentUserAsync(Guid.NewGuid(), async () =>
+        {
+            var allShares = await _sharesAppService.GetAllListAsync(
+                new Volo.Abp.Application.Dtos.PagedResultRequestDto
+                {
+                    MaxResultCount = 20
+                });
+
+            allShares.Items.Select(item => item.Id).ShouldContain(firstShare.Id);
+            allShares.Items.Select(item => item.Id).ShouldContain(secondShare.Id);
+
+            await _sharesAppService.DisableAsync(secondShare.Id);
+
+            var disabled = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _publicSharesAppService.GetAsync(secondShare.Token);
+            });
+
+            disabled.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterShareNotFound);
+        });
+    }
+
     private async Task<PrivateCloudDrive.FileCenter.FileNodeDto> UploadTextFileAsync(
         string fileName,
         byte[] content)

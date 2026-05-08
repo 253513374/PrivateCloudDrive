@@ -170,6 +170,46 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
     }
 
     [Fact]
+    public async Task Should_Empty_Trash_For_Current_User()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var first = await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "First" });
+            var second = await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Second" });
+
+            await _foldersAppService.DeleteAsync(first.Id);
+            await _foldersAppService.DeleteAsync(second.Id);
+
+            var beforeEmpty = await _foldersAppService.GetDeletedListAsync(
+                new PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            beforeEmpty.TotalCount.ShouldBe(2);
+
+            await _foldersAppService.EmptyTrashAsync();
+
+            var afterEmpty = await _foldersAppService.GetDeletedListAsync(
+                new PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            afterEmpty.TotalCount.ShouldBe(0);
+
+            await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.RestoreAsync(first.Id);
+            });
+        });
+    }
+
+    [Fact]
     public async Task Should_Reject_Restore_When_Active_Name_Already_Exists()
     {
         var userId = Guid.NewGuid();

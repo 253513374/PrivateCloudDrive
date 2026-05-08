@@ -8,5 +8,7 @@ public static class AppSettings
 
     public const string OAuthRedirectUri = "privateclouddrive://callback";
 
+    public const string WindowsOAuthRedirectUri = "http://127.0.0.1:49173/callback";
+
     public const string OAuthScopes = "openid profile email roles offline_access PrivateCloudDrive";
 }

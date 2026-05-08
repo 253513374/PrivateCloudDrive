@@ -40,7 +40,7 @@ public partial class MediaPreviewPage : ContentPage
     {
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
-        ErrorLabel.IsVisible = false;
+        ErrorPanel.IsVisible = false;
         PreviewImage.IsVisible = false;
         VideoPlayer.IsVisible = false;
         VideoPlayer.Source = null;
@@ -68,13 +68,18 @@ public partial class MediaPreviewPage : ContentPage
         catch (Exception exception)
         {
             ErrorLabel.Text = exception.Message;
-            ErrorLabel.IsVisible = true;
+            ErrorPanel.IsVisible = true;
         }
         finally
         {
             LoadingIndicator.IsRunning = false;
             LoadingIndicator.IsVisible = false;
         }
+    }
+
+    private async void OnRetryClicked(object? sender, EventArgs e)
+    {
+        await LoadPreviewAsync();
     }
 
     protected override void OnDisappearing()

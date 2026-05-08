@@ -17,9 +17,36 @@
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="login" />
 
-    <ShellContent
-        Title="Files"
-        ContentTemplate="{DataTemplate views:FilesPage}"
-        Route="files" />
+    <TabBar Route="main">
+        <ShellContent
+            Title="Files"
+            ContentTemplate="{DataTemplate views:FilesPage}"
+            Route="files" />
+
+        <ShellContent
+            Title="Photos"
+            ContentTemplate="{DataTemplate views:PhotosPage}"
+            Route="photos" />
+
+        <ShellContent
+            Title="Videos"
+            ContentTemplate="{DataTemplate views:VideosPage}"
+            Route="videos" />
+
+        <ShellContent
+            Title="Uploads"
+            ContentTemplate="{DataTemplate views:UploadsPage}"
+            Route="uploads" />
+
+        <ShellContent
+            Title="Trash"
+            ContentTemplate="{DataTemplate views:TrashPage}"
+            Route="trash" />
+
+        <ShellContent
+            Title="Settings"
+            ContentTemplate="{DataTemplate views:SettingsPage}"
+            Route="settings" />
+    </TabBar>
 
 </Shell>

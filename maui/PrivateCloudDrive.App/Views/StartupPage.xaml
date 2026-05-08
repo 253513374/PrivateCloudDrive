@@ -2,13 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PrivateCloudDrive.App.Views.StartupPage"
-             Shell.NavBarIsVisible="False"
-             BackgroundColor="{AppThemeBinding Light=#F7F9FC, Dark=#111827}">
+             Shell.NavBarIsVisible="False">
     <Grid Padding="28" RowDefinitions="*,Auto,*">
         <VerticalStackLayout Grid.Row="1" Spacing="18" HorizontalOptions="Center">
             <Border HeightRequest="72"
                     WidthRequest="72"
-                    BackgroundColor="#1F7A5C"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                     StrokeThickness="0"
                     HorizontalOptions="Center">
                 <Border.StrokeShape>
@@ -22,13 +21,35 @@
                        VerticalOptions="Center" />
             </Border>
             <Label Text="PrivateCloudDrive"
-                   FontAttributes="Bold"
-                   FontSize="28"
-                   TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}"
+                   Style="{StaticResource PageTitleLabel}"
                    HorizontalTextAlignment="Center" />
-            <ActivityIndicator IsRunning="True"
-                               Color="#1F7A5C"
+            <Label x:Name="StartupStatusLabel"
+                   Text="Checking sign-in status"
+                   Style="{StaticResource MetaLabel}"
+                   HorizontalTextAlignment="Center" />
+            <ActivityIndicator x:Name="StartupLoadingIndicator"
+                               IsRunning="True"
                                HorizontalOptions="Center" />
+            <Border x:Name="StartupErrorPanel"
+                    Padding="14"
+                    IsVisible="False"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    StrokeThickness="1"
+                    MaximumWidthRequest="360">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label x:Name="StartupErrorLabel"
+                           FontSize="13"
+                           LineBreakMode="WordWrap"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource Danger}" />
+                    <Button Text="Retry"
+                            Style="{StaticResource SecondaryButton}"
+                            Clicked="OnRetryClicked" />
+                </VerticalStackLayout>
+            </Border>
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

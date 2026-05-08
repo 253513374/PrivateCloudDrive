@@ -3,29 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="PrivateCloudDrive.App.Views.MediaPreviewPage"
-             Title="{Binding FileName}"
-             BackgroundColor="{AppThemeBinding Light=#F7F9FC, Dark=#111827}">
+             Title="{Binding FileName}">
     <Grid Padding="18" RowDefinitions="Auto,*" RowSpacing="16">
         <VerticalStackLayout Spacing="4">
             <Label Text="{Binding FileName}"
-                   FontAttributes="Bold"
-                   FontSize="22"
-                   TextColor="{AppThemeBinding Light=#17202A, Dark=#F9FAFB}" />
+                   Style="{StaticResource PageTitleLabel}" />
             <Label Text="{Binding MediaKind}"
-                   FontSize="13"
-                   TextColor="{AppThemeBinding Light=#607083, Dark=#CBD5E1}" />
+                   Style="{StaticResource MetaLabel}" />
         </VerticalStackLayout>
 
         <Grid Grid.Row="1">
             <ActivityIndicator x:Name="LoadingIndicator"
                                IsRunning="True"
-                               Color="#1F7A5C"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
             <Image x:Name="PreviewImage"
                    Aspect="AspectFit"
                    IsVisible="False"
-                   BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F2937}" />
+                   BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
             <toolkit:MediaElement x:Name="VideoPlayer"
                                   Aspect="AspectFit"
                                   ShouldAutoPlay="False"
@@ -33,12 +28,20 @@
                                   ShouldShowPlaybackControls="True"
                                   IsVisible="False"
                                   BackgroundColor="{AppThemeBinding Light=#000000, Dark=#000000}" />
-            <Label x:Name="ErrorLabel"
-                   IsVisible="False"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   HorizontalTextAlignment="Center"
-                   TextColor="#B42318" />
+            <VerticalStackLayout x:Name="ErrorPanel"
+                                 IsVisible="False"
+                                 Spacing="10"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 MaximumWidthRequest="360">
+                <Label x:Name="ErrorLabel"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap"
+                       TextColor="{StaticResource Danger}" />
+                <Button Text="Retry"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnRetryClicked" />
+            </VerticalStackLayout>
         </Grid>
     </Grid>
 </ContentPage>

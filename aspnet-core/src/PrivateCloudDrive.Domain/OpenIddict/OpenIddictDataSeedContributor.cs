@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using OpenIddict.Abstractions;
+using PrivateCloudDrive.MobileAuth;
 using Volo.Abp;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Data;
@@ -103,11 +104,15 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             );
         }
 
-        var appClientId = configurationSection["PrivateCloudDrive_App:ClientId"];
+        var appConfigurationSection = configurationSection.GetSection("PrivateCloudDrive_App");
+        var appClientId = appConfigurationSection["ClientId"];
         if (!appClientId.IsNullOrWhiteSpace())
         {
-            var appRedirectUri = configurationSection["PrivateCloudDrive_App:RedirectUri"];
-            var appPostLogoutRedirectUri = configurationSection["PrivateCloudDrive_App:PostLogoutRedirectUri"];
+            var appRedirectUris = GetConfiguredUris(appConfigurationSection, "RedirectUri", "RedirectUris");
+            var appPostLogoutRedirectUris = GetConfiguredUris(
+                appConfigurationSection,
+                "PostLogoutRedirectUri",
+                "PostLogoutRedirectUris");
             var appScopes = commonScopes.Concat(new[] { "openid", "offline_access" }).ToList();
 
             await CreateApplicationAsync(
@@ -119,11 +124,13 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 grantTypes: new List<string>
                 {
                     OpenIddictConstants.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.GrantTypes.RefreshToken
+                    OpenIddictConstants.GrantTypes.Password,
+                    OpenIddictConstants.GrantTypes.RefreshToken,
+                    WechatLoginConsts.GrantType
                 },
                 scopes: appScopes,
-                redirectUri: appRedirectUri,
-                postLogoutRedirectUri: appPostLogoutRedirectUri
+                redirectUris: appRedirectUris,
+                postLogoutRedirectUris: appPostLogoutRedirectUris
             );
         }
     }
@@ -139,6 +146,8 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
         string? clientUri = null,
         string? redirectUri = null,
         string? postLogoutRedirectUri = null,
+        List<string>? redirectUris = null,
+        List<string>? postLogoutRedirectUris = null,
         List<string>? permissions = null)
     {
         if (!string.IsNullOrEmpty(secret) && string.Equals(type, OpenIddictConstants.ClientTypes.Public,
@@ -179,7 +188,10 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             }
         }
 
-        if (!redirectUri.IsNullOrWhiteSpace() || !postLogoutRedirectUri.IsNullOrWhiteSpace())
+        if (!redirectUri.IsNullOrWhiteSpace() ||
+            !postLogoutRedirectUri.IsNullOrWhiteSpace() ||
+            redirectUris?.Count > 0 ||
+            postLogoutRedirectUris?.Count > 0)
         {
             application.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.EndSession);
         }
@@ -275,36 +287,33 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             }
         }
 
-        if (redirectUri != null)
+        var configuredRedirectUris = GetDistinctUris(redirectUri, redirectUris);
+        foreach (var configuredRedirectUri in configuredRedirectUris)
         {
-            if (!redirectUri.IsNullOrEmpty())
+            if (!Uri.TryCreate(configuredRedirectUri, UriKind.Absolute, out var uri) ||
+                !uri.IsWellFormedOriginalString())
             {
-                if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var uri) || !uri.IsWellFormedOriginalString())
-                {
-                    throw new BusinessException(L["InvalidRedirectUri", redirectUri]);
-                }
+                throw new BusinessException(L["InvalidRedirectUri", configuredRedirectUri]);
+            }
 
-                if (application.RedirectUris.All(x => x != uri))
-                {
-                    application.RedirectUris.Add(uri);
-                }
+            if (application.RedirectUris.All(x => x != uri))
+            {
+                application.RedirectUris.Add(uri);
             }
         }
 
-        if (postLogoutRedirectUri != null)
+        var configuredPostLogoutRedirectUris = GetDistinctUris(postLogoutRedirectUri, postLogoutRedirectUris);
+        foreach (var configuredPostLogoutRedirectUri in configuredPostLogoutRedirectUris)
         {
-            if (!postLogoutRedirectUri.IsNullOrEmpty())
+            if (!Uri.TryCreate(configuredPostLogoutRedirectUri, UriKind.Absolute, out var uri) ||
+                !uri.IsWellFormedOriginalString())
             {
-                if (!Uri.TryCreate(postLogoutRedirectUri, UriKind.Absolute, out var uri) ||
-                    !uri.IsWellFormedOriginalString())
-                {
-                    throw new BusinessException(L["InvalidPostLogoutRedirectUri", postLogoutRedirectUri]);
-                }
+                throw new BusinessException(L["InvalidPostLogoutRedirectUri", configuredPostLogoutRedirectUri]);
+            }
 
-                if (application.PostLogoutRedirectUris.All(x => x != uri))
-                {
-                    application.PostLogoutRedirectUris.Add(uri);
-                }
+            if (application.PostLogoutRedirectUris.All(x => x != uri))
+            {
+                application.PostLogoutRedirectUris.Add(uri);
             }
         }
 
@@ -353,5 +362,48 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
     private bool HasSameScopes(OpenIddictApplication existingClient, AbpApplicationDescriptor application)
     {
         return existingClient.Permissions == JsonSerializer.Serialize(application.Permissions.Select(q => q.ToString().TrimEnd('/')));
+    }
+
+    private static List<string> GetConfiguredUris(
+        IConfigurationSection configurationSection,
+        string singleUriKey,
+        string pluralUrisKey)
+    {
+        var uris = new List<string>();
+        var singleUri = configurationSection[singleUriKey];
+        if (!singleUri.IsNullOrWhiteSpace())
+        {
+            uris.Add(singleUri!);
+        }
+
+        uris.AddRange(
+            configurationSection
+                .GetSection(pluralUrisKey)
+                .GetChildren()
+                .Select(child => child.Value)
+                .Where(uri => !uri.IsNullOrWhiteSpace())
+                .Select(uri => uri!));
+
+        return uris
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static List<string> GetDistinctUris(string? uri, List<string>? uris)
+    {
+        var values = new List<string>();
+        if (!uri.IsNullOrWhiteSpace())
+        {
+            values.Add(uri!);
+        }
+
+        if (uris != null)
+        {
+            values.AddRange(uris.Where(value => !value.IsNullOrWhiteSpace()));
+        }
+
+        return values
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 }

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
+             x:Class="PrivateCloudDrive.App.Views.VideosPage"
+             Title="Videos">
+    <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Videos" Style="{StaticResource PageTitleLabel}" />
+                <Label Text="{Binding ItemCountText}" Style="{StaticResource MetaLabel}" />
+            </VerticalStackLayout>
+            <Button x:Name="RefreshButton"
+                    Grid.Column="1"
+                    Text="Refresh"
+                    TextColor="White"
+                    VerticalOptions="Center"
+                    Clicked="OnRefreshClicked" />
+        </Grid>
+
+        <Border x:Name="VideosStatePanel"
+                Grid.Row="1"
+                Padding="14"
+                IsVisible="False"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <ActivityIndicator x:Name="VideosLoadingIndicator"
+                                   WidthRequest="20"
+                                   HeightRequest="20"
+                                   Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                <Label x:Name="VideosStateLabel"
+                       Grid.Column="1"
+                       VerticalOptions="Center"
+                       FontSize="13"
+                       LineBreakMode="WordWrap"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Button x:Name="VideosRetryButton"
+                        Grid.Column="2"
+                        Text="Retry"
+                        IsVisible="False"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnRetryClicked" />
+            </Grid>
+        </Border>
+
+        <CollectionView x:Name="VideosCollectionView"
+                        Grid.Row="2"
+                        ItemsSource="{Binding Items}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnVideoSelected">
+            <CollectionView.EmptyView>
+                <Border Padding="18"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="No videos found" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="Upload videos from Files to populate this view." Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:MediaLibraryItem">
+                    <Grid Padding="0,0,0,10">
+                        <Border Padding="12"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="96,*,Auto" ColumnSpacing="12">
+                                <Border WidthRequest="96" HeightRequest="64" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+                                    <Grid>
+                                        <Image Source="{Binding ThumbnailSource}" Aspect="AspectFill" />
+                                        <Label Text="{Binding Badge}"
+                                               FontAttributes="Bold"
+                                               FontSize="11"
+                                               TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Size}" Style="{StaticResource MetaLabel}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text="{Binding ModifiedAt}"
+                                       Style="{StaticResource MetaLabel}"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -57,6 +57,22 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
     }
 
+    public async Task<IReadOnlyList<CloudDriveItem>> GetTrashItemsAsync(
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var path = $"/api/file-center/trash?SkipCount={skipCount}&MaxResultCount={maxResultCount}";
+        using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, path, cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<FileNodeDto>>(responseText, JsonOptions);
+        return result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
+    }
+
     public async Task<CloudDriveItem> CreateFolderAsync(
         Guid? parentId,
         string name,
@@ -85,6 +101,54 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
                       ?? throw new InvalidOperationException("Create folder response is invalid.");
 
         return ToCloudDriveItem(created);
+    }
+
+    public async Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            $"/api/file-center/nodes/{id}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    public async Task RestoreTrashItemAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            $"/api/file-center/nodes/{id}/restore",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    public async Task PermanentlyDeleteTrashItemAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            $"/api/file-center/nodes/{id}/permanent",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    public async Task EmptyTrashAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            "/api/file-center/trash",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
     }
 
     public async Task UploadFileAsync(
@@ -153,6 +217,298 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             });
     }
 
+    public async Task<IReadOnlyList<CloudDriveTag>> GetTagsAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/file-center/tags",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var tags = JsonSerializer.Deserialize<List<FileTagDto>>(responseText, JsonOptions) ?? [];
+        return tags
+            .Select(tag => new CloudDriveTag(tag.Id, tag.Name, tag.Color))
+            .ToList();
+    }
+
+    public async Task<CloudDriveTag> CreateTagAsync(
+        string name,
+        string? color,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            "/api/file-center/tags",
+            cancellationToken);
+
+        var body = JsonSerializer.Serialize(
+            new CreateTagRequest
+            {
+                Name = name,
+                Color = color
+            },
+            JsonOptions);
+
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var tag = JsonSerializer.Deserialize<FileTagDto>(responseText, JsonOptions)
+                  ?? throw new InvalidOperationException("Create tag response is invalid.");
+
+        return new CloudDriveTag(tag.Id, tag.Name, tag.Color);
+    }
+
+    public async Task AddTagToItemAsync(
+        Guid itemId,
+        Guid tagId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            $"/api/file-center/nodes/{itemId}/tags/{tagId}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    public async Task<CloudDriveItem> SetFavoriteAsync(
+        Guid itemId,
+        bool isFavorite,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            $"/api/file-center/nodes/{itemId}/favorite",
+            cancellationToken);
+
+        var body = JsonSerializer.Serialize(
+            new SetFavoriteRequest
+            {
+                IsFavorite = isFavorite
+            },
+            JsonOptions);
+
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var node = JsonSerializer.Deserialize<FileNodeDto>(responseText, JsonOptions)
+                   ?? throw new InvalidOperationException("Set favorite response is invalid.");
+
+        return ToCloudDriveItem(node);
+    }
+
+    public async Task<CloudDriveShare> CreateShareAsync(
+        Guid itemId,
+        DateTime? expirationTime,
+        bool allowDownload,
+        string? password,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            "/api/file-center/shares",
+            cancellationToken);
+
+        var body = JsonSerializer.Serialize(
+            new CreateShareRequest
+            {
+                FileNodeId = itemId,
+                ExpirationTime = expirationTime,
+                AllowDownload = allowDownload,
+                Password = password
+            },
+            JsonOptions);
+
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var share = JsonSerializer.Deserialize<FileShareDto>(responseText, JsonOptions)
+                    ?? throw new InvalidOperationException("Create share response is invalid.");
+
+        return new CloudDriveShare(
+            share.Id,
+            share.FileNodeId,
+            share.FileName,
+            share.Token,
+            share.ExpirationTime,
+            share.AllowDownload,
+            share.RequiresPassword);
+    }
+
+    public async Task<IReadOnlyList<CloudOperationLog>> GetOperationLogsAsync(
+        int skipCount = 0,
+        int maxResultCount = 30,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            $"/api/operation-logs?SkipCount={skipCount}&MaxResultCount={maxResultCount}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<OperationLogDto>>(responseText, JsonOptions);
+        return result?.Items
+            .Select(item => new CloudOperationLog(
+                item.Id,
+                item.Time,
+                item.Source,
+                item.Action,
+                item.Result,
+                item.UserName,
+                item.ClientIpAddress,
+                item.HttpStatusCode,
+                item.Summary))
+            .ToList() ?? [];
+    }
+
+    public Task<IReadOnlyList<CloudDriveItem>> GetImagesAsync(
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default)
+    {
+        return GetMediaItemsAsync("/api/file-center/media/images", skipCount, maxResultCount, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<CloudDriveItem>> GetVideosAsync(
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default)
+    {
+        return GetMediaItemsAsync("/api/file-center/media/videos", skipCount, maxResultCount, cancellationToken);
+    }
+
+    public async Task<WechatLoginSettings> GetWechatLoginSettingsAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.GetAsync("/api/mobile-auth/wechat/settings", cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var settings = JsonSerializer.Deserialize<WechatLoginSettingsDto>(responseText, JsonOptions)
+                       ?? throw new InvalidOperationException("WeChat settings response is invalid.");
+
+        return new WechatLoginSettings(
+            settings.IsEnabled,
+            settings.AppId,
+            settings.CallbackScheme,
+            settings.AndroidPackageName,
+            settings.IosBundleId,
+            settings.IosUrlScheme);
+    }
+
+    public async Task<WechatBinding?> GetWechatBindingAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/mobile-auth/wechat/binding",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NoContent ||
+            string.IsNullOrWhiteSpace(responseText))
+        {
+            return null;
+        }
+
+        var binding = JsonSerializer.Deserialize<WechatBindingDto>(responseText, JsonOptions);
+        return binding == null ? null : ToWechatBinding(binding);
+    }
+
+    public async Task<WechatBinding> BindCurrentWechatAsync(
+        string code,
+        string? state,
+        string? platform,
+        string? deviceIdHash,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            "/api/mobile-auth/wechat/bind-current",
+            cancellationToken);
+
+        var body = JsonSerializer.Serialize(
+            new BindCurrentWechatRequest
+            {
+                Code = code,
+                State = state,
+                Platform = platform,
+                DeviceIdHash = deviceIdHash
+            },
+            JsonOptions);
+
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var binding = JsonSerializer.Deserialize<WechatBindingDto>(responseText, JsonOptions)
+                      ?? throw new InvalidOperationException("WeChat binding response is invalid.");
+
+        return ToWechatBinding(binding);
+    }
+
+    public async Task<WechatBinding> BindExistingWechatAsync(
+        string bindingTicket,
+        string userNameOrEmail,
+        string password,
+        CancellationToken cancellationToken = default)
+    {
+        var body = JsonSerializer.Serialize(
+            new BindExistingWechatRequest
+            {
+                BindingTicket = bindingTicket,
+                UserNameOrEmail = userNameOrEmail,
+                Password = password
+            },
+            JsonOptions);
+
+        using var content = new StringContent(body, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync(
+            "/api/mobile-auth/wechat/bind-existing",
+            content,
+            cancellationToken);
+
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var binding = JsonSerializer.Deserialize<WechatBindingDto>(responseText, JsonOptions)
+                      ?? throw new InvalidOperationException("WeChat binding response is invalid.");
+
+        return ToWechatBinding(binding);
+    }
+
+    public async Task UnbindWechatAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            "/api/mobile-auth/wechat/binding",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
     private async Task<HttpRequestMessage> CreateAuthenticatedRequestAsync(
         HttpMethod method,
         string requestUri,
@@ -168,6 +524,25 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         return request;
+    }
+
+    private async Task<IReadOnlyList<CloudDriveItem>> GetMediaItemsAsync(
+        string route,
+        int skipCount,
+        int maxResultCount,
+        CancellationToken cancellationToken)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            $"{route}?SkipCount={skipCount}&MaxResultCount={maxResultCount}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<FileNodeDto>>(responseText, JsonOptions);
+        return result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
     }
 
     private async Task UploadSmallFileAsync(
@@ -348,7 +723,22 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             isFolder ? "--" : FormatSize(node.Size),
             FormatDate(node.LastModificationTime ?? node.CreationTime),
             badge,
-            node.ContentType);
+            node.ContentType,
+            node.IsFavorite);
+    }
+
+    private static WechatBinding ToWechatBinding(WechatBindingDto binding)
+    {
+        return new WechatBinding(
+            binding.Id,
+            binding.TenantId,
+            binding.UserId,
+            binding.AppId,
+            binding.NickName,
+            binding.AvatarUrl,
+            binding.IsEnabled,
+            binding.LastLoginTime,
+            binding.CreationTime);
     }
 
     private static string GetFileKind(string fileName, string? contentType)
@@ -471,6 +861,8 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
         public string? ContentType { get; init; }
 
+        public bool IsFavorite { get; init; }
+
         public DateTime CreationTime { get; init; }
 
         public DateTime? LastModificationTime { get; init; }
@@ -498,9 +890,135 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public string? ContentType { get; init; }
     }
 
+    private sealed class CreateTagRequest
+    {
+        public string Name { get; init; } = string.Empty;
+
+        public string? Color { get; init; }
+    }
+
+    private sealed class SetFavoriteRequest
+    {
+        public bool IsFavorite { get; init; }
+    }
+
+    private sealed class CreateShareRequest
+    {
+        public Guid FileNodeId { get; init; }
+
+        public DateTime? ExpirationTime { get; init; }
+
+        public bool AllowDownload { get; init; }
+
+        public string? Password { get; init; }
+    }
+
+    private sealed class FileTagDto
+    {
+        public Guid Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string? Color { get; init; }
+    }
+
+    private sealed class FileShareDto
+    {
+        public Guid Id { get; init; }
+
+        public Guid FileNodeId { get; init; }
+
+        public string FileName { get; init; } = string.Empty;
+
+        public string Token { get; init; } = string.Empty;
+
+        public DateTime? ExpirationTime { get; init; }
+
+        public bool AllowDownload { get; init; }
+
+        public bool RequiresPassword { get; init; }
+    }
+
+    private sealed class OperationLogDto
+    {
+        public Guid Id { get; init; }
+
+        public DateTime Time { get; init; }
+
+        public string Source { get; init; } = string.Empty;
+
+        public string Action { get; init; } = string.Empty;
+
+        public string Result { get; init; } = string.Empty;
+
+        public string? UserName { get; init; }
+
+        public string? ClientIpAddress { get; init; }
+
+        public int? HttpStatusCode { get; init; }
+
+        public string Summary { get; init; } = string.Empty;
+    }
+
     private sealed class UploadSessionDto
     {
         public Guid Id { get; init; }
+    }
+
+    private sealed class WechatLoginSettingsDto
+    {
+        public bool IsEnabled { get; init; }
+
+        public string? AppId { get; init; }
+
+        public string CallbackScheme { get; init; } = "privateclouddrive";
+
+        public string? AndroidPackageName { get; init; }
+
+        public string? IosBundleId { get; init; }
+
+        public string? IosUrlScheme { get; init; }
+    }
+
+    private sealed class WechatBindingDto
+    {
+        public Guid Id { get; init; }
+
+        public Guid? TenantId { get; init; }
+
+        public Guid UserId { get; init; }
+
+        public string AppId { get; init; } = string.Empty;
+
+        public string? NickName { get; init; }
+
+        public string? AvatarUrl { get; init; }
+
+        public bool IsEnabled { get; init; }
+
+        public DateTime? LastLoginTime { get; init; }
+
+        public DateTime CreationTime { get; init; }
+    }
+
+    private sealed class BindCurrentWechatRequest
+    {
+        public string Code { get; init; } = string.Empty;
+
+        public string? State { get; init; }
+
+        public string? Platform { get; init; }
+
+        public string? DeviceIdHash { get; init; }
+    }
+
+    private sealed class BindExistingWechatRequest
+    {
+        public string BindingTicket { get; init; } = string.Empty;
+
+        public string UserNameOrEmail { get; init; } = string.Empty;
+
+        public string Password { get; init; } = string.Empty;
     }
 
     private enum FileNodeType

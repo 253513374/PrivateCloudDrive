@@ -11,5 +11,9 @@ public interface IFileCenterSharesAppService : IApplicationService
 
     Task<PagedResultDto<FileShareDto>> GetListAsync(PagedResultRequestDto input);
 
+    Task<PagedResultDto<FileShareDto>> GetAllListAsync(PagedResultRequestDto input);
+
     Task DeleteAsync(Guid id);
+
+    Task DisableAsync(Guid id);
 }

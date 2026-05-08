@@ -40,6 +40,9 @@ project.lock.json
 *.pdb
 *.ilk
 
+# Local runtime storage
+**/App_Data/
+
 # MAUI/mobile packaging outputs
 *.apk
 *.aab

@@ -8,7 +8,8 @@ public sealed record CloudDriveItem(
     string Size,
     string ModifiedAt,
     string Badge,
-    string? ContentType)
+    string? ContentType,
+    bool IsFavorite = false)
 {
     public bool IsFolder => Kind == "Folder";
 
