@@ -5,13 +5,7 @@
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.FilesPage"
              Title="{x:Static loc:AppText.Files}">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="{x:Static loc:AppText.NewFolder}" Clicked="OnNewFolderClicked" />
-        <ToolbarItem Text="{x:Static loc:AppText.Upload}" Clicked="OnUploadClicked" />
-        <ToolbarItem Text="{x:Static loc:AppText.Logout}" Clicked="OnLogoutClicked" />
-    </ContentPage.ToolbarItems>
-
-    <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="16">
+    <Grid Padding="16,14,16,18" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowSpacing="14">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
             <VerticalStackLayout Spacing="4">
                 <Label Text="{x:Static loc:AppText.Files}"
@@ -22,7 +16,7 @@
             <Button x:Name="RefreshButton"
                     Grid.Column="1"
                     Text="{x:Static loc:AppText.Refresh}"
-                    TextColor="White"
+                    Style="{StaticResource SecondaryButton}"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
         </Grid>
@@ -44,8 +38,20 @@
                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         </Grid>
 
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,*"
+              ColumnSpacing="10">
+            <Button Text="{x:Static loc:AppText.Upload}"
+                    TextColor="White"
+                    Clicked="OnUploadClicked" />
+            <Button Grid.Column="1"
+                    Text="{x:Static loc:AppText.NewFolderLower}"
+                    Style="{StaticResource SecondaryButton}"
+                    Clicked="OnNewFolderClicked" />
+        </Grid>
+
         <VerticalStackLayout x:Name="UploadStatusPanel"
-                             Grid.Row="2"
+                             Grid.Row="3"
                              IsVisible="False"
                              Spacing="8">
             <Label x:Name="UploadStatusLabel"
@@ -57,7 +63,7 @@
         </VerticalStackLayout>
 
         <Border x:Name="FilesStatePanel"
-                Grid.Row="3"
+                Grid.Row="4"
                 Padding="14"
                 IsVisible="False"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
@@ -86,7 +92,7 @@
         </Border>
 
         <CollectionView x:Name="FilesCollectionView"
-                        Grid.Row="4"
+                        Grid.Row="5"
                         ItemsSource="{Binding Items}"
                         SelectionMode="Single"
                         SelectionChanged="OnFileSelected">
@@ -99,7 +105,8 @@
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="10"
                                          HorizontalOptions="Center"
-                                         VerticalOptions="Center">
+                                         VerticalOptions="Center"
+                                         MinimumHeightRequest="320">
                         <Label Text="{x:Static loc:AppText.ThisFolderIsEmpty}"
                                Style="{StaticResource SectionTitleLabel}"
                                HorizontalTextAlignment="Center" />
@@ -110,7 +117,6 @@
                                LineBreakMode="WordWrap" />
                         <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
                             <Button Text="{x:Static loc:AppText.Upload}"
-                                    TextColor="White"
                                     Clicked="OnUploadClicked" />
                             <Button Text="{x:Static loc:AppText.NewFolderLower}"
                                     Style="{StaticResource SecondaryButton}"

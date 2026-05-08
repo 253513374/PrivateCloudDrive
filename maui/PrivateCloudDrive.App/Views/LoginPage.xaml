@@ -7,13 +7,32 @@
              Shell.NavBarIsVisible="False">
     <ScrollView>
         <Grid Padding="24" RowDefinitions="*,Auto,*" MinimumHeightRequest="640">
-            <VerticalStackLayout Grid.Row="1" Spacing="18">
-                <Label Text="PrivateCloudDrive"
-                       Style="{StaticResource PageTitleLabel}" />
-                <Label Text="{Binding ApiBaseUrl}"
-                       Style="{StaticResource MetaLabel}" />
-                <Label Text="{Binding ClientId}"
-                       Style="{StaticResource MetaLabel}" />
+            <VerticalStackLayout Grid.Row="1"
+                                 Spacing="20"
+                                 MaximumWidthRequest="420"
+                                 HorizontalOptions="Fill">
+                <VerticalStackLayout Spacing="10">
+                    <Border HeightRequest="64"
+                            WidthRequest="64"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                            StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Label Text="PCD"
+                               TextColor="White"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="18"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="PrivateCloudDrive"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="26"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    <Label Text="私有文件与媒体"
+                           Style="{StaticResource MetaLabel}" />
+                </VerticalStackLayout>
 
                 <Border Padding="18"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
@@ -22,6 +41,13 @@
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="账号密码登录"
+                                   Style="{StaticResource SectionTitleLabel}" />
+                            <Label Text="{Binding ApiBaseUrl}"
+                                   Style="{StaticResource MetaLabel}"
+                                   LineBreakMode="TailTruncation" />
+                        </VerticalStackLayout>
                         <Border Padding="12,0"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
                                 StrokeThickness="0">
@@ -47,6 +73,7 @@
                         <Button x:Name="SignInButton"
                                 Text="{x:Static loc:AppText.SignInAction}"
                                 TextColor="White"
+                                Margin="0,4,0,0"
                                 Clicked="OnSignInClicked" />
                         <Button x:Name="WechatSignInButton"
                                 Text="{x:Static loc:AppText.SignInWithWechat}"
@@ -68,7 +95,8 @@
                         <Label x:Name="ValidationLabel"
                                IsVisible="False"
                                TextColor="{StaticResource Danger}"
-                               FontSize="13" />
+                               FontSize="13"
+                               LineBreakMode="WordWrap" />
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>

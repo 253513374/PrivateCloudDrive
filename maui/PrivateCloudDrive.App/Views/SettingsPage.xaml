@@ -38,76 +38,98 @@
             </Grid>
         </Border>
 
-        <VerticalStackLayout Grid.Row="2" Spacing="12">
-            <Border Padding="16"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8" />
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="{x:Static loc:AppText.Server}" Style="{StaticResource SectionTitleLabel}" />
-                    <Label Text="{Binding ApiBaseUrl}" Style="{StaticResource MetaLabel}" />
-                </VerticalStackLayout>
-            </Border>
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Spacing="12">
+                <Border Padding="16"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{x:Static loc:AppText.Server}" Style="{StaticResource SectionTitleLabel}" />
+                        <Label Text="{Binding ApiBaseUrl}"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="TailTruncation" />
+                    </VerticalStackLayout>
+                </Border>
 
-            <Border Padding="16"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8" />
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="{x:Static loc:AppText.Security}" Style="{StaticResource SectionTitleLabel}" />
-                    <Label Text="{x:Static loc:AppText.LocalSessionProtected}" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
-                </VerticalStackLayout>
-            </Border>
+                <Border Padding="16"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{x:Static loc:AppText.Security}" Style="{StaticResource SectionTitleLabel}" />
+                        <Label Text="{x:Static loc:AppText.LocalSessionProtected}"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Border>
 
-            <Border Padding="16"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8" />
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="10">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Border Padding="16"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="{x:Static loc:AppText.Wechat}" Style="{StaticResource SectionTitleLabel}" />
-                            <Label x:Name="WechatStatusLabel"
-                                   Text="{x:Static loc:AppText.Checking}"
+                            <Label Text="数据与记录" Style="{StaticResource SectionTitleLabel}" />
+                            <Label Text="回收站、操作日志和本机内测诊断入口。"
                                    Style="{StaticResource MetaLabel}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                        <ActivityIndicator x:Name="WechatLoadingIndicator"
-                                           Grid.Column="1"
-                                           WidthRequest="20"
-                                           HeightRequest="20"
-                                           Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button x:Name="WechatBindButton"
-                                Text="{x:Static loc:AppText.BindWechat}"
-                                Style="{StaticResource SecondaryButton}"
-                                IsVisible="False"
-                                Clicked="OnWechatBindClicked" />
-                        <Button x:Name="WechatUnbindButton"
-                                Grid.Column="1"
-                                Text="{x:Static loc:AppText.Unbind}"
-                                Style="{StaticResource DangerButton}"
-                                IsVisible="False"
-                                Clicked="OnWechatUnbindClicked" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Text="{x:Static loc:AppText.Trash}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Clicked="OnTrashClicked" />
+                            <Button Grid.Column="1"
+                                    Text="{x:Static loc:AppText.OperationLogs}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Clicked="OnOperationLogsClicked" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
 
-            <Button Text="{x:Static loc:AppText.OperationLogs}"
-                    Style="{StaticResource SecondaryButton}"
-                    Clicked="OnOperationLogsClicked" />
+                <Border Padding="16"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{x:Static loc:AppText.Wechat}" Style="{StaticResource SectionTitleLabel}" />
+                                <Label x:Name="WechatStatusLabel"
+                                       Text="{x:Static loc:AppText.Checking}"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                            <ActivityIndicator x:Name="WechatLoadingIndicator"
+                                               Grid.Column="1"
+                                               WidthRequest="20"
+                                               HeightRequest="20"
+                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button x:Name="WechatBindButton"
+                                    Text="{x:Static loc:AppText.BindWechat}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    IsVisible="False"
+                                    Clicked="OnWechatBindClicked" />
+                            <Button x:Name="WechatUnbindButton"
+                                    Grid.Column="1"
+                                    Text="{x:Static loc:AppText.Unbind}"
+                                    Style="{StaticResource DangerButton}"
+                                    IsVisible="False"
+                                    Clicked="OnWechatUnbindClicked" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
 
-            <Button Text="{x:Static loc:AppText.Trash}"
-                    Style="{StaticResource SecondaryButton}"
-                    Clicked="OnTrashClicked" />
-
-            <Button Text="{x:Static loc:AppText.SignOut}"
-                    Style="{StaticResource DangerButton}"
-                    Clicked="OnSignOutClicked" />
-        </VerticalStackLayout>
+                <Button Text="{x:Static loc:AppText.SignOut}"
+                        Style="{StaticResource DangerButton}"
+                        Clicked="OnSignOutClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>

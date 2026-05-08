@@ -313,8 +313,23 @@
   - 工作目录：`maui/PrivateCloudDrive.App`
   - 结果：成功，0 个警告，0 个错误。
 
+### 2026-05-08 V0.2 产品化 UI 基线
+
+- 新增 `docs/product-ui-baseline.md`
+  - 范围：明确 V0.2 “私有部署内测版”的 UI 产品原则、信息架构、视觉基线、核心页面基线、组件规则和验收标准。
+  - 边界：不新增后端业务 API，不把微信登录作为 V0.2 阻塞项，不设计营销首页。
+- MAUI 产品化 UI 第一轮收口
+  - 文件：`LoginPage.xaml`、`FilesPage.xaml`、`SettingsPage.xaml`、`TrashPage.xaml`。
+  - 结果：登录页强化产品标识和本地 API 诊断信息；文件页将上传、新建文件夹、刷新放回页面内核心操作区；设置页将回收站提升为明确入口；回收站页补充页面内刷新/清空和正式空状态。
+- `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64`
+  - 工作目录：`maui/PrivateCloudDrive.App`
+  - 结果：成功，0 个警告，0 个错误。
+- `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android`
+  - 工作目录：`maui/PrivateCloudDrive.App`
+  - 结果：成功，0 个警告，0 个错误。
+
 ## 下一步
 
-- 阶段 8 后续需要接入真实 WeChat Android/iOS SDK 或平台适配实现，使用正式 AppId/AppSecret 验证 code 获取、绑定已有账号和已绑定 WeChat 登录端到端流程。
-- 阶段 6 后续需要在真实 Android/iOS 设备上执行 MVP Core 手动验收清单，并回填体验问题或验收结论。
+- 下一阶段产品目标为 V0.2 私有部署内测版：围绕正式 UI 基线、真实数据集、私有部署稳定性和内测问题闭环继续收口。
+- 微信登录继续作为 V1 可选能力，不作为 V0.2 阻塞项。
 - 后续阶段完成后必须先验证对应构建/测试，再提交 Git，并单独更新本进度文档。
