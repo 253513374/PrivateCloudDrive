@@ -57,6 +57,7 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
     {
         var configuration = context.Services.GetConfiguration();
         var requireHttpsMetadata = configuration.GetValue("AuthServer:RequireHttpsMetadata", true);
+        var authority = configuration["AuthServer:Authority"];
 
         PreConfigure<OpenIddictBuilder>(builder =>
         {
@@ -70,6 +71,11 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
 
         PreConfigure<OpenIddictServerBuilder>(builder =>
         {
+            if (!string.IsNullOrWhiteSpace(authority))
+            {
+                builder.SetIssuer(new Uri(authority.TrimEnd('/') + "/"));
+            }
+
             builder.AllowPasswordFlow();
             builder.AllowRefreshTokenFlow();
             builder.AllowCustomFlow(WechatLoginConsts.GrantType);

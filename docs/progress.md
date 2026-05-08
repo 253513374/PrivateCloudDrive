@@ -54,6 +54,12 @@
     - 结果：password grant 200 且有 access/refresh token；refresh grant 200；根目录列表 200；上传 200；Range 下载 206 且返回 8 bytes；删除到回收站 204；恢复 200；永久清理 204。探针输出未记录 access token、refresh token 或密码。
   - 真实设备/模拟器验收
     - 结果：未执行交互式 App 验收；`adb` 当前不在 PATH，无法直接驱动 Android 设备或模拟器。仍需按 `docs/testing.md` 阶段 6.5 在真实设备或可用模拟器上回填人工验收记录。
+- Android 模拟器文件列表授权修复
+  - 问题：Android 模拟器通过 `http://10.0.2.2:8080` 登录后，文件列表请求返回授权失败；API 日志显示 `/api/app/file-center-folders` 未通过 OpenIddict validation，随后 401 错误页又因缺少 UI bundle 资源转成 500，MAUI 端显示 `FileCenter request failed.`。
+  - 修复：`PrivateCloudDriveHttpApiHostModule` 在配置了 `AuthServer:Authority` 时调用 `OpenIddictServerBuilder.SetIssuer(...)`，固定 token issuer，不再随 Android 请求 Host 变化。
+  - 复现探针：修复前，用 `Host: 10.0.2.2:8080` 请求 `/connect/token` 得到 token 后，再请求 `/api/app/file-center-folders` 返回 500。
+  - 验证：后端 `dotnet build .\PrivateCloudDrive.slnx` 成功；`dotnet test .\PrivateCloudDrive.slnx` 中 `PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 63 个测试；重建 Compose API/media-worker 后，同一 Android Host 头探针返回 token 200、文件列表 200。
+  - 操作提示：模拟器中需要退出登录后重新登录，或清理 App 数据，以丢弃修复前签发的旧 token。
 
 - 阶段 8 V1 微信登录可选接入
   - 后端：新增 `Authentication:WeChat` 配置、`WechatUserBinding` 实体和 EF 迁移、绑定票据缓存、WeChat code 交换服务、绑定/解绑应用服务与 HTTP 控制器、OpenIddict `urn:privateclouddrive:wechat` 自定义 grant。
