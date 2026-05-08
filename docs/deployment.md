@@ -50,7 +50,7 @@ The seeded mobile OAuth client is `PrivateCloudDrive_App` and uses `privatecloud
 
 For MVP inner testing, `maui/PrivateCloudDrive.App/Services/AppSettings.cs` targets the local Compose API by default: Windows uses `http://localhost:8080`, and the Android emulator uses `http://10.0.2.2:8080`. For physical device testing, update `ApiBaseUrl` to the LAN URL that can reach the API host. If the callback URI changes, update the DbMigrator OpenIddict application setting and rerun the migrator.
 
-The MVP app enters Trash from Settings. WeChat login remains a V1 optional path; without a platform-specific Android/iOS SDK implementation, the default MAUI service reports WeChat as unavailable and keeps account-password login unaffected.
+The MVP app enters Trash from Settings. WeChat login remains a V1 optional path. Android now has a native WeChat SDK authorization bridge, while Windows and iOS still report WeChat as unavailable through the default MAUI service. Keep account-password login available regardless of WeChat configuration.
 
 ## Configuration Reference
 
@@ -81,7 +81,7 @@ The MVP app enters Trash from Settings. WeChat login remains a V1 optional path;
 | `MINIO_ROOT_USER` | Optional MinIO root user |
 | `MINIO_ROOT_PASSWORD` | Optional MinIO root password |
 
-The Docker variables above only enable the backend side. Android/iOS still need the official WeChat SDK integration, package signature or URL Scheme setup, and real-device authorization validation before WeChat login can be considered complete.
+The Docker variables above enable the backend side and expose only public settings to the app. Android includes the official WeChat SDK authorization bridge, but still needs a real Open Platform mobile AppId/AppSecret, matching package signature, installed WeChat client, and real-device authorization validation before it can be accepted. iOS still needs its platform SDK implementation and URL Scheme validation.
 WeChat operation rate limits are stored in Redis through ABP distributed cache, so API replicas share the same counters.
 Password-login failure limits are also stored in Redis and are checked for both username and request IP before the password grant is processed.
 

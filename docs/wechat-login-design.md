@@ -93,6 +93,18 @@ App 处理规则：
 - 用户拒绝授权时提示“已取消微信授权”。
 - state 不匹配时直接丢弃结果并记录本地诊断日志。
 
+### 4.1.1 Android 实现状态
+
+当前 Android 端已接入官方 WeChat SDK 授权桥接：
+
+- MAUI Android 目标通过 `AndroidMavenLibrary` 引入 `com.tencent.mm.opensdk:wechat-sdk-android`，并只把 SDK 作为 Java 依赖使用，不生成 C# 绑定。
+- `AndroidWechatPlatformAuthService` 负责检查微信是否安装、生成随机 `state`、拉起 `SendAuth.Req`，并把返回的 `code/state` 交给现有 MAUI 登录和绑定流程。
+- `Platforms/Android/Java/.../wxapi/WXEntryActivity.java` 接收微信客户端回调，再通过应用内广播回传授权结果。
+- `AndroidManifest.xml` 声明 `com.tencent.mm` package query 和 `.wxapi.WXEntryActivity`。
+- App 只从 `/api/mobile-auth/wechat/settings` 使用公开的 `AppId`、`Scope` 和平台公开配置；`AppSecret` 不进入 MAUI 客户端。
+
+验收边界：Android 构建通过不等于真实微信登录通过。真实授权仍需要微信开放平台移动应用已审核、Android 包名和签名匹配、后端配置正式 `AppId/AppSecret`、真机安装微信并能访问后端 API。
+
 ### 4.2 后端 code 换取身份
 
 后端调用微信接口：
@@ -396,22 +408,14 @@ Authentication__WeChat__RateLimitWindowSeconds=300
 Authentication__WeChat__RateLimitMaxAttempts=60
 ```
 
-MAUI 配置建议：
-
-```text
-Wechat__Enabled=true
-Wechat__AppId=wx-your-app-id
-Wechat__CallbackScheme=privateclouddrive
-```
-
-MAUI App 只能包含 `AppId`、Scheme 和平台公开配置，不能包含 `AppSecret`。
+MAUI App 不保存 `AppSecret`。当前 App 通过 `/api/mobile-auth/wechat/settings` 获取公开配置，只消费 `AppId`、`Scope`、`CallbackScheme`、Android 包名和 iOS 公开配置；未配置或后端禁用时平台授权入口保持不可用。
 
 ## 10. App UI 行为
 
 登录页：
 
 - 微信已启用且平台支持时显示“使用微信登录”。
-- 未安装微信时，iOS 隐藏按钮，Android 可显示并提示安装。
+- 未安装微信或平台实现不可用时隐藏微信入口；Android 真机安装微信且后端启用后才显示入口。
 - 微信登录失败只影响微信流程，不清空账号密码输入框。
 
 首次绑定页：
@@ -468,7 +472,7 @@ MAUI App 只能包含 `AppId`、Scheme 和平台公开配置，不能包含 `App
 
 - 以下验收标准只适用于 V1 微信登录任务，不作为 MVP Core 阻塞项。
 - 未配置微信时，账号密码登录正常，微信按钮隐藏或禁用。
-- 配置微信后，App 能拉起微信授权并拿到 code。
+- 配置微信后，Android App 能通过 WeChat SDK 拉起微信授权并拿到 code。
 - 后端能使用 code 换取 openid/unionid。
 - 未绑定微信首次登录时进入绑定账号流程，不直接创建管理员。
 - 绑定已有账号后可通过微信登录进入系统。

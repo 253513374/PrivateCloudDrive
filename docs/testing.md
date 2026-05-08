@@ -84,6 +84,8 @@ MVP 内测默认连接 Docker Compose API：Windows 为 `http://localhost:8080`�
 
 阶段 8.2 需要在真实 Android 和 iOS 设备上执行。执行前必须准备微信开放平台移动应用、正式 `AppId`/`AppSecret`、Android 包名与签名、iOS Bundle Identifier 与 URL Scheme，并确保后端 API 可被设备访问。
 
+当前实现状态：后端 WeChat code 交换、绑定、解绑、OpenIddict 自定义 grant、审计和限流已接入；MAUI 登录页和 Settings 绑定入口已接入；Android 已接入 WeChat SDK 原生授权桥接。Windows/iOS 仍使用默认不可用平台实现。Android 模拟器如果未安装微信，只能完成构建和按钮隐藏验证，不能完成真实授权。
+
 | 范围 | 检查步骤 | 预期结果 |
 | --- | --- | --- |
 | 后端配置 | 设置 `WECHAT_ENABLED=true`、`WECHAT_APP_ID`、`WECHAT_APP_SECRET`、平台包名/签名或 URL Scheme，重启 API。 | `/api/mobile-auth/wechat/settings` 返回 `isEnabled=true` 和公开配置；响应不包含 `AppSecret`。 |
@@ -121,7 +123,7 @@ MVP 内测默认连接 Docker Compose API：Windows 为 `http://localhost:8080`�
 - V1 图片/视频媒体库已接入 `/api/file-center/media/images` 和 `/api/file-center/media/videos`，并接入 MAUI Photos/Videos 底部导航；临时 API 探针已验证两个媒体库入口均返回 200。
 - V1 操作日志已接入 MAUI Settings 入口和列表页，Windows/Android 构建已验证。
 - V1 微信登录后端骨架已接入：默认禁用配置、`WechatUserBinding`、绑定/解绑接口、OpenIddict 自定义 grant、绑定票据、分布式缓存限流和审计测试已验证；临时 API 探针确认未配置时返回 `wechat_disabled` 且账号密码登录正常。
-- V1 微信登录 MAUI 端目前是入口骨架和平台授权占位实现；按钮显示同时受后端 settings 和平台可用性控制，默认占位实现报告不可用；微信授权或 token grant 失败时不会清理已有账号密码登录 Token，也不会清空登录页已输入的账号密码；真实 Android/iOS WeChat SDK、正式 AppId/AppSecret、应用签名/URL Scheme 和真机授权流程仍需后续单独验收。
+- V1 微信登录 MAUI 端已接入登录页和 Settings 绑定入口；Android 已接入 WeChat SDK 原生授权桥接，按钮显示同时受后端 settings、设备是否安装微信和平台可用性控制；Windows/iOS 仍报告不可用。微信授权或 token grant 失败时不会清理已有账号密码登录 Token，也不会清空登录页已输入的账号密码；正式 AppId/AppSecret、Android 应用签名和真机授权流程仍需回填验收结果。
 - 账号密码登录失败已接入用户名和 IP 双维度分布式限流；Android Emulator Pixel 9 Pro API 36 已完成 MVP Core 内测验收，iOS/真实设备体验后续按发布需要补充。
 - 如果在同一个 Redis 实例上先运行过旧版 API，再更新 `PrivateCloudDrive_App` 的 OpenIddict grant 权限，可能会命中旧客户端缓存；本地验收时可重启 API 并刷新对应 Redis 缓存，或使用独立 Redis 逻辑库做临时探针。
 - MAUI MVP Core 页面状态已通过 Windows/Android 构建验证，覆盖启动、登录、文件、上传、详情、预览、回收站和设置页；Android 模拟器交互验收已完成。

@@ -63,6 +63,7 @@ public class WechatAuthAppService :
         {
             IsEnabled = _options.IsUsable(),
             AppId = _options.IsUsable() ? _options.AppId : null,
+            Scope = _options.Scope,
             CallbackScheme = _options.CallbackScheme,
             AndroidPackageName = _options.Android.PackageName,
             IosBundleId = _options.iOS.BundleId,

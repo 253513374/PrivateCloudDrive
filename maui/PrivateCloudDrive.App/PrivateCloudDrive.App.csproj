@@ -72,4 +72,9 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 	</ItemGroup>
 
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<AndroidMavenLibrary Include="com.tencent.mm.opensdk:wechat-sdk-android" Version="6.8.34" Bind="false" />
+		<AndroidJavaSource Include="Platforms\Android\Java\**\*.java" Bind="false" />
+	</ItemGroup>
+
 </Project>

@@ -269,4 +269,4 @@ docker compose down -v
 - 继续使用本阶段 Docker Compose 部署方式。
 - 用真实图片、视频和多文件夹数据集做体验复查。
 - 继续收口 UI 细节，不新增后端业务 API。
-- 真实手机局域网部署、生产 HTTPS、WeChat SDK、MinIO 对象存储作为后续独立任务。
+- 真实手机局域网部署、生产 HTTPS、iOS WeChat SDK、正式微信凭据真机验收、MinIO 对象存储作为后续独立任务。

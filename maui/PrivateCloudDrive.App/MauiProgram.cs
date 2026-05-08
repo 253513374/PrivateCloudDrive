@@ -26,7 +26,11 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IAuthService, OpenIddictAuthService>();
 		builder.Services.AddSingleton<ICloudDriveApiClient, CloudDriveApiClient>();
 		builder.Services.AddSingleton<IUploadQueueService, UploadQueueService>();
+#if ANDROID
+		builder.Services.AddSingleton<IWechatPlatformAuthService, AndroidWechatPlatformAuthService>();
+#else
 		builder.Services.AddSingleton<IWechatPlatformAuthService, DefaultWechatPlatformAuthService>();
+#endif
 
 		var app = builder.Build();
 		AppServices.Initialize(app.Services);

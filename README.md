@@ -82,7 +82,7 @@ public const string OAuthRedirectUri = "privateclouddrive://callback";
 
 Windows 客户端使用 `http://localhost:8080`，Android 模拟器使用 `http://10.0.2.2:8080`。真实手机内测时，需要把 `ApiBaseUrl` 改成设备可访问的局域网地址；如果回调 URI 发生变化，再同步更新 DbMigrator 中 `PrivateCloudDrive_App` 的 RedirectUri 配置并重新运行迁移种子。
 
-当前底部导航保留 Files、Photos、Videos、Uploads、Settings。MVP 回收站入口在 Settings 页中进入，微信登录仍是 V1 可选能力；默认平台实现不可用时不会显示微信登录或绑定入口。
+当前底部导航保留 Files、Photos、Videos、Uploads、Settings。MVP 回收站入口在 Settings 页中进入。微信登录仍是 V1 可选能力；Android 已接入 WeChat SDK 原生授权，后端启用且设备安装微信时才显示登录或绑定入口，Windows/iOS 仍保持默认不可用平台实现。
 
 常用构建命令：
 
@@ -105,7 +105,7 @@ docker compose up -d --build
 
 完整部署说明见 `docs/deployment.md`。默认 API 地址为 `http://localhost:8080/swagger`，文件、缩略图、封面和临时分片会保存在 `privateclouddrive_stack_storage` volume。
 
-微信登录默认关闭。V1 接入真实微信能力时，只把 `AppId`、平台公开配置放入 MAUI，`AppSecret` 只能通过后端配置、环境变量或密钥系统提供。
+微信登录默认关闭。Android App 只消费后端公开 settings 中的 `AppId`、`Scope` 和平台公开配置，`AppSecret` 只能通过后端配置、环境变量或密钥系统提供。真实微信登录还需要微信开放平台移动应用、Android 包名与签名配置，以及安装微信的真机验收。
 
 ## 验证
 

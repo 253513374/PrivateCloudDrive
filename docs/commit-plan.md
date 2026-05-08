@@ -129,7 +129,7 @@ git status --short --ignored
 - WeChat 相关登录页、设置页和 API 客户端改动。
 - WeChat 相关 EF 测试。
 
-注意：真实 Android/iOS WeChat SDK 尚未接入，此提交不应把阶段 8 标记为已完成。
+注意：Android WeChat SDK 已接入授权桥接，但正式凭据、Android 真机授权和 iOS SDK 尚未验收，此提交不应把阶段 8 标记为已完成。
 
 ## 提交前验证顺序
 

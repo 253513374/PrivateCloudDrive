@@ -21,11 +21,28 @@
 | 阶段 5：MVP Core 回收站、部署与质量收尾 | 已完成 | `de2c6f9` | 任务 5.1 回收站 API 与 App 入口已实现；Docker Compose、README、部署说明和测试说明已完成收尾复核；本地运行时 `App_Data` 已加入忽略规则并随阶段收尾提交 | 2026-05-08：预提交刷新验证中，后端 build 成功；后端测试通过 60 个 EF 集成测试；MAUI Windows/Android 构建成功；`docker compose config` 复验通过 |
 | 阶段 6：MVP Core 产品体验与账号密码认证深化 | 已完成 | `de2c6f9`, `bce5e4e`, `d4f4f76`, `97e2bec` | 任务 6.1 MAUI 设计系统、任务 6.2 MVP Core 页面状态、任务 6.3 账号密码登录/Refresh Token/撤销端点、任务 6.4 移动端认证审计和账号/IP 双维度登录失败限流已落地；MVP 内测版已对齐本地化文案、Compose API 地址和 Settings 回收站入口；任务 6.5 已在 Android Emulator Pixel 9 Pro API 36 完成内测验收 | 2026-05-08：后端 build 成功；后端测试通过 63 个 EF 集成测试；临时 API 验证 password grant、refresh_token、revocation、mobile auth audit、password rate limit 和 Compose 小文件上传/Range/回收站链路；MAUI Windows/Android 构建成功；Android 模拟器完成 MVP Core 内测验收；`docs/testing.md` 已记录执行结果 |
 | 阶段 7：V1 分享、标签、收藏与操作日志 | 已完成 | `bb654ee`, `4f4f6a1`, `158cbc3`, `de2c6f9` | 分享链接、公开访问与密码校验、管理员管理所有分享、标签管理、收藏筛选、图片/视频媒体库、操作日志查询后端与 HTTP 入口已实现；MAUI 文件详情、图片页、视频页和操作日志页已接入对应入口并随收尾提交 | 2026-05-08：后端测试通过 60 个 EF 集成测试；临时 API 已验证 `/api/operation-logs`、分享/标签/收藏、`/api/file-center/media/images`、`/api/file-center/media/videos` 和 `/api/file-center/shares/all`；MAUI Windows/Android 构建通过 |
-| 阶段 8：V1 微信登录可选接入 | 进行中 | `de2c6f9` | 后端 WeChat 配置、`WechatUserBinding`、绑定/解绑接口、绑定票据、OpenIddict 自定义 grant、审计记录和 MAUI 登录/设置页入口骨架已实现并提交；`WechatUserBinding` PostgreSQL Host/Tenant 唯一索引已加固；首次绑定已有账号和已绑定微信登录均对齐 Identity lockout；登录、绑定和解绑已接入分布式缓存限流；解绑审计已覆盖无绑定场景；真实 WeChat SDK 原生授权仍待 AppId/AppSecret 与平台审核后接入 | 2026-05-08：后端 build 通过；EF 集成测试通过 60 个；DbMigrator 已应用 `AddedWechatUserBindings` 与 `FixedWechatUserBindingUniqueIndexes`；临时 API 探针验证 WeChat disabled、password grant 和 custom grant fail-closed；MAUI Windows/Android 目标框架构建通过 |
+| 阶段 8：V1 微信登录可选接入 | 进行中 | `de2c6f9`, 本次提交 | 后端 WeChat 配置、`WechatUserBinding`、绑定/解绑接口、绑定票据、OpenIddict 自定义 grant、审计记录和 MAUI 登录/设置页入口已实现；`WechatUserBinding` PostgreSQL Host/Tenant 唯一索引已加固；首次绑定已有账号和已绑定微信登录均对齐 Identity lockout；登录、绑定和解绑已接入分布式缓存限流；解绑审计已覆盖无绑定场景；Android 已接入 WeChat SDK 原生授权桥接；iOS 平台 SDK 和真实微信凭据真机验收仍待执行 | 2026-05-08：后端隔离输出 build 通过；EF 集成测试通过 63 个；Android WeChat SDK 构建通过；MAUI Windows/Android 目标框架构建通过；真实 WeChat AppId/AppSecret、Android 签名和真机授权结果待回填 |
 
 ## 最近验证记录
 
 ### 2026-05-08
+
+- 阶段 8 Android WeChat SDK 原生授权接入
+  - 后端契约：`WechatLoginSettingsDto` 透出公开 `Scope`，App 从 `/api/mobile-auth/wechat/settings` 获取 `AppId`、`Scope` 和平台公开配置；`AppSecret` 仍只存在后端配置。
+  - MAUI Android：新增 `AndroidWechatPlatformAuthService`、`WechatAuthCallbackStore`、Java `WechatAuthBridge` 和 `.wxapi.WXEntryActivity`；通过官方 `com.tencent.mm.opensdk:wechat-sdk-android` 拉起 `SendAuth.Req`，回调后把 `code/state` 接入现有微信登录和绑定流程。
+  - 平台边界：Windows/iOS 仍使用默认不可用实现；Android 真机授权仍需要微信开放平台正式移动应用、包名签名匹配、后端正式 `AppId/AppSecret`、设备安装微信并能访问 API。
+  - `dotnet build .\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-wechat-sdk-build\`
+    - 工作目录：`aspnet-core`
+    - 结果：成功，0 个警告，0 个错误；默认 `bin` 输出目录被正在运行的 `PrivateCloudDrive.HttpApi.Host` 锁定，因此使用隔离输出目录验证。
+  - `dotnet test .\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-wechat-sdk-test\`
+    - 工作目录：`aspnet-core`
+    - 结果：`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 63 个测试；其它测试项目当前没有可发现测试。
+  - `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64`
+    - 工作目录：`maui/PrivateCloudDrive.App`
+    - 结果：成功，0 个警告，0 个错误。
+  - `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android`
+    - 工作目录：`maui/PrivateCloudDrive.App`
+    - 结果：成功，0 个警告，0 个错误。
 
 - MVP Core 内测收口
   - MAUI：新增 `AppText` 本地化文本入口，登录、文件、上传、详情、媒体、回收站、设置和操作日志页面改用统一中文/英文文案；Windows 默认 API 地址为 `http://localhost:8080`，Android 模拟器默认 API 地址为 `http://10.0.2.2:8080`；Android 开发构建允许 cleartext 访问本地 Compose API。
@@ -70,7 +87,7 @@
   - 后端：新增 `Authentication:WeChat` 配置、`WechatUserBinding` 实体和 EF 迁移、绑定票据缓存、WeChat code 交换服务、绑定/解绑应用服务与 HTTP 控制器、OpenIddict `urn:privateclouddrive:wechat` 自定义 grant。
   - 安全：默认禁用 WeChat；未配置时 `/api/mobile-auth/wechat/settings` 不返回 `AppSecret`；WeChat 登录、绑定、解绑失败只记录安全错误码，不记录 code、AppSecret 或 WeChat access token；登录、绑定和解绑基于 ABP 分布式缓存限流。
   - 测试：新增 `EfCoreWechatAuthAppServiceTests` 覆盖未绑定登录票据、绑定已有账号、禁止迁移绑定、解绑不移除密码登录、交换失败审计脱敏、DTO 无敏感字段和微信操作限流。
-  - MAUI：登录页同时按后端 settings 和平台可用性显示 WeChat 按钮；设置页显示绑定状态并提供绑定/解绑入口；当前 `DefaultWechatPlatformAuthService` 为原生 SDK 占位实现，默认报告不可用，因此未接入真实 WeChat SDK 的构建不会显示绑定/登录按钮。
+  - MAUI：登录页同时按后端 settings 和平台可用性显示 WeChat 按钮；设置页显示绑定状态并提供绑定/解绑入口；Android 已由后续 `AndroidWechatPlatformAuthService` 接入 WeChat SDK 授权桥接，Windows/iOS 仍由 `DefaultWechatPlatformAuthService` 报告不可用。
   - `dotnet build .\aspnet-core\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-build\`
     - 结果：成功，0 个警告，0 个错误。
   - `dotnet test .\aspnet-core\test\PrivateCloudDrive.EntityFrameworkCore.Tests\PrivateCloudDrive.EntityFrameworkCore.Tests.csproj -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-test\`
@@ -157,11 +174,11 @@
 - 阶段 8 WeChat 真实设备验收清单
   - 文件：`docs/testing.md`
   - 覆盖：后端 WeChat 配置、Android/iOS 授权入口、用户取消授权、未绑定首次登录、绑定已有账号、已绑定微信登录、已登录绑定、解绑、锁定用户、限流和验收证据记录。
-  - 结果：已追加人工执行步骤和预期结果；真实 WeChat SDK、正式 AppId/AppSecret、平台签名/URL Scheme 和真机执行结果仍待后续回填。
+  - 结果：已追加人工执行步骤和预期结果；Android SDK 桥接已接入，正式 AppId/AppSecret、Android 签名、iOS SDK/URL Scheme 和真机执行结果仍待后续回填。
 - 阶段 5 到阶段 8 完成度审计
   - 文件：`docs/completion-audit.md`
   - 覆盖：MVP Core 收尾、MVP 体验与认证深化、V1 分享标签日志、V1 微信登录要求到证据映射，以及未完成项和不能作为完成证明的代理信号。
-  - 结果：审计结论为目标尚未完成；阶段 6.5 真机验收、阶段 8.2 真实 WeChat SDK/凭据/真机验收仍是阻塞项；当时的阶段 Git 提交阻塞项已由后续 `de2c6f9` 补齐。
+  - 结果：审计结论为目标尚未完成；阶段 6.5 真机验收、阶段 8.2 微信凭据/真机验收和 iOS SDK 仍是阻塞项；当时的阶段 Git 提交阻塞项已由后续 `de2c6f9` 补齐。
 - 阶段提交整理准备
   - 文件：`.gitignore`、`docs/commit-plan.md`
   - 覆盖：忽略本地运行时 `App_Data` 存储，按阶段 5 到阶段 8 拆分建议提交批次，列出预提交验证命令和跨阶段改动风险。

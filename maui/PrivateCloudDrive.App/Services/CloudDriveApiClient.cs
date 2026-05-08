@@ -407,6 +407,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return new WechatLoginSettings(
             settings.IsEnabled,
             settings.AppId,
+            settings.Scope,
             settings.CallbackScheme,
             settings.AndroidPackageName,
             settings.IosBundleId,
@@ -962,6 +963,8 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public bool IsEnabled { get; init; }
 
         public string? AppId { get; init; }
+
+        public string Scope { get; init; } = "snsapi_userinfo";
 
         public string CallbackScheme { get; init; } = "privateclouddrive";
 
