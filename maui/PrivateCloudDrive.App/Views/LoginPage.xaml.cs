@@ -150,16 +150,23 @@ public partial class LoginPage : ContentPage
         try
         {
             _wechatSettings = await _apiClient.GetWechatLoginSettingsAsync();
-            _isWechatAvailable = _wechatSettings.IsEnabled &&
-                                 await _wechatPlatformAuthService.IsAvailableAsync(_wechatSettings);
-            WechatSignInButton.IsVisible = _isWechatAvailable;
-            WechatSignInButton.IsEnabled = _isWechatAvailable;
+            if (!_wechatSettings.IsEnabled)
+            {
+                _isWechatAvailable = false;
+                SetWechatEntryState(false, AppText.WechatSignInNotEnabled);
+                return;
+            }
+
+            _isWechatAvailable = await _wechatPlatformAuthService.IsAvailableAsync(_wechatSettings);
+            SetWechatEntryState(
+                _isWechatAvailable,
+                _isWechatAvailable ? null : AppText.WechatUnavailableOnThisDevice);
         }
         catch
         {
             _wechatSettings = null;
             _isWechatAvailable = false;
-            WechatSignInButton.IsVisible = false;
+            SetWechatEntryState(false, AppText.UnableToLoadWechatSettings);
         }
     }
 
@@ -172,5 +179,13 @@ public partial class LoginPage : ContentPage
         SignInButton.Text = enabled ? AppText.SignInAction : AppText.SigningIn;
         SignInLoadingPanel.IsVisible = !enabled;
         SignInLoadingIndicator.IsRunning = !enabled;
+    }
+
+    private void SetWechatEntryState(bool canSignIn, string? statusMessage)
+    {
+        WechatSignInButton.IsVisible = true;
+        WechatSignInButton.IsEnabled = canSignIn;
+        WechatStatusLabel.Text = statusMessage ?? string.Empty;
+        WechatStatusLabel.IsVisible = !string.IsNullOrWhiteSpace(statusMessage);
     }
 }

@@ -78,8 +78,11 @@
                         <Button x:Name="WechatSignInButton"
                                 Text="{x:Static loc:AppText.SignInWithWechat}"
                                 Style="{StaticResource SecondaryButton}"
-                                IsVisible="False"
+                                IsEnabled="False"
                                 Clicked="OnWechatSignInClicked" />
+                        <Label x:Name="WechatStatusLabel"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
                         <HorizontalStackLayout x:Name="SignInLoadingPanel"
                                                IsVisible="False"
                                                Spacing="8"

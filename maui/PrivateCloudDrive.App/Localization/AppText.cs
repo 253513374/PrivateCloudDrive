@@ -24,6 +24,9 @@ public static class AppText
         [nameof(EnterUserNamePasswordThenWechat)] = new("请输入用户名和密码，然后再次使用微信完成绑定。", "Enter username and password, then use WeChat again to bind."),
         [nameof(WechatSignInCanceled)] = new("微信登录已取消。", "WeChat sign-in was canceled."),
         [nameof(WechatSignInFailed)] = new("微信登录失败。", "WeChat sign-in failed."),
+        [nameof(WechatSignInNotEnabled)] = new("微信登录未启用", "WeChat sign-in is not enabled"),
+        [nameof(WechatUnavailableOnThisDevice)] = new("此设备未安装微信或暂不可用", "WeChat is not installed or unavailable on this device"),
+        [nameof(UnableToLoadWechatSettings)] = new("无法读取微信登录配置", "Unable to load WeChat sign-in settings"),
         [nameof(Files)] = new("文件", "Files"),
         [nameof(Photos)] = new("图片", "Photos"),
         [nameof(Videos)] = new("视频", "Videos"),
@@ -170,6 +173,9 @@ public static class AppText
     public static string EnterUserNamePasswordThenWechat => Get(nameof(EnterUserNamePasswordThenWechat));
     public static string WechatSignInCanceled => Get(nameof(WechatSignInCanceled));
     public static string WechatSignInFailed => Get(nameof(WechatSignInFailed));
+    public static string WechatSignInNotEnabled => Get(nameof(WechatSignInNotEnabled));
+    public static string WechatUnavailableOnThisDevice => Get(nameof(WechatUnavailableOnThisDevice));
+    public static string UnableToLoadWechatSettings => Get(nameof(UnableToLoadWechatSettings));
     public static string Files => Get(nameof(Files));
     public static string Photos => Get(nameof(Photos));
     public static string Videos => Get(nameof(Videos));
