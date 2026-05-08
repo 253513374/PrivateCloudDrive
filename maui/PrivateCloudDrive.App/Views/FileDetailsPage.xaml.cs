@@ -16,9 +16,11 @@ public partial class FileDetailsPage : ContentPage
     private string _fileId = string.Empty;
     private string _fileName = string.Empty;
     private string _fileKind = string.Empty;
+    private string _rawFileKind = string.Empty;
     private string _fileSize = string.Empty;
     private string _modifiedAt = string.Empty;
     private bool _isFavorite;
+    private bool _imagePreviewLoaded;
 
     public string FileId
     {
@@ -45,8 +47,10 @@ public partial class FileDetailsPage : ContentPage
         get => _fileKind;
         set
         {
+            _rawFileKind = value;
             _fileKind = AppText.FileKind(value);
             OnPropertyChanged();
+            OnPropertyChanged(nameof(IsImageDetails));
         }
     }
 
@@ -88,19 +92,26 @@ public partial class FileDetailsPage : ContentPage
         ? AppText.RemoveFavorite
         : AppText.AddFavorite;
 
+    public bool IsImageDetails => string.Equals(_rawFileKind, "Image", StringComparison.OrdinalIgnoreCase);
+
     public FileDetailsPage()
     {
         InitializeComponent();
         BindingContext = this;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
 
         if (Guid.TryParse(FileId, out _))
         {
             SetIdleState();
+            if (IsImageDetails && !_imagePreviewLoaded)
+            {
+                await LoadImagePreviewAsync();
+            }
+
             return;
         }
 
@@ -110,6 +121,11 @@ public partial class FileDetailsPage : ContentPage
     private async void OnBackClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("..", true);
+    }
+
+    private async void OnRetryImagePreviewClicked(object? sender, EventArgs e)
+    {
+        await LoadImagePreviewAsync();
     }
 
     private async void OnFavoriteClicked(object? sender, EventArgs e)
@@ -235,6 +251,64 @@ public partial class FileDetailsPage : ContentPage
         DetailsLoadingIndicator.IsVisible = false;
         DetailsBackButton.IsVisible = true;
         DetailsStateLabel.Text = message;
+    }
+
+    private async Task LoadImagePreviewAsync()
+    {
+        if (!TryGetFileId(out var fileId))
+        {
+            SetImagePreviewError(AppText.InvalidFileDetails);
+            return;
+        }
+
+        _imagePreviewLoaded = true;
+        SetImagePreviewLoading();
+
+        try
+        {
+            FileContentResult content;
+            try
+            {
+                content = await _apiClient.GetFileContentAsync(fileId, thumbnail: true);
+            }
+            catch
+            {
+                content = await _apiClient.GetFileContentAsync(fileId, thumbnail: false);
+            }
+
+            DetailsPreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(content.Content));
+            DetailsPreviewImage.IsVisible = true;
+            ImagePreviewStatusPanel.IsVisible = false;
+            ImagePreviewLoadingIndicator.IsRunning = false;
+        }
+        catch (Exception exception)
+        {
+            SetImagePreviewError(AppText.Format(nameof(AppText.UnableToLoadImagePreview), exception.Message));
+        }
+    }
+
+    private void SetImagePreviewLoading()
+    {
+        DetailsPreviewImage.IsVisible = false;
+        ImagePreviewStatusPanel.IsVisible = true;
+        ImagePreviewLoadingIndicator.IsVisible = true;
+        ImagePreviewLoadingIndicator.IsRunning = true;
+        ImagePreviewRetryButton.IsVisible = false;
+        ImagePreviewStatusLabel.Text = AppText.LoadingImagePreview;
+        ImagePreviewStatusLabel.TextColor = Application.Current?.RequestedTheme == AppTheme.Dark
+            ? (Color)Application.Current.Resources["TextSecondaryDark"]
+            : (Color)Application.Current!.Resources["TextSecondaryLight"];
+    }
+
+    private void SetImagePreviewError(string message)
+    {
+        DetailsPreviewImage.IsVisible = false;
+        ImagePreviewStatusPanel.IsVisible = true;
+        ImagePreviewLoadingIndicator.IsRunning = false;
+        ImagePreviewLoadingIndicator.IsVisible = false;
+        ImagePreviewRetryButton.IsVisible = true;
+        ImagePreviewStatusLabel.Text = message;
+        ImagePreviewStatusLabel.TextColor = (Color)Application.Current!.Resources["Danger"];
     }
 
     private async Task RunActionAsync(Func<Task> action)

@@ -328,6 +328,21 @@
   - 工作目录：`maui/PrivateCloudDrive.App`
   - 结果：成功，0 个警告，0 个错误。
 
+### 2026-05-08 图片详情预览
+
+- MAUI 图片详情页补充图片显示
+  - 文件：`FileDetailsPage.xaml`、`FileDetailsPage.xaml.cs`、`AppText.cs`。
+  - 结果：当详情页接收 `Image` 类型文件时，页面顶部显示“图片预览”区域；优先加载缩略图，缩略图不可用时回退加载原图内容；失败时展示错误和重试入口。
+- `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64`
+  - 工作目录：`maui/PrivateCloudDrive.App`
+  - 结果：成功，0 个警告，0 个错误。
+- `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android`
+  - 工作目录：`maui/PrivateCloudDrive.App`
+  - 结果：成功，0 个警告，0 个错误。
+- `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android -t:Run`
+  - 工作目录：`maui/PrivateCloudDrive.App`
+  - 结果：成功重新部署并启动 Android 模拟器 App，`adb shell pidof com.companyname.privateclouddrive.app` 返回进程号 `20462`。
+
 ## 下一步
 
 - 下一阶段产品目标为 V0.2 私有部署内测版：围绕正式 UI 基线、真实数据集、私有部署稳定性和内测问题闭环继续收口。

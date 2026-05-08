@@ -93,6 +93,9 @@ public static class AppText
         [nameof(Size)] = new("大小", "Size"),
         [nameof(Modified)] = new("修改时间", "Modified"),
         [nameof(AvailableActions)] = new("可用操作", "Available actions"),
+        [nameof(ImagePreview)] = new("图片预览", "Image preview"),
+        [nameof(LoadingImagePreview)] = new("正在加载图片...", "Loading image..."),
+        [nameof(UnableToLoadImagePreview)] = new("无法加载图片预览。{0}", "Unable to load image preview. {0}"),
         [nameof(Favorited)] = new("已收藏", "Favorited"),
         [nameof(NotFavorited)] = new("未收藏", "Not favorited"),
         [nameof(AddFavorite)] = new("添加收藏", "Add favorite"),
@@ -237,6 +240,9 @@ public static class AppText
     public static string Size => Get(nameof(Size));
     public static string Modified => Get(nameof(Modified));
     public static string AvailableActions => Get(nameof(AvailableActions));
+    public static string ImagePreview => Get(nameof(ImagePreview));
+    public static string LoadingImagePreview => Get(nameof(LoadingImagePreview));
+    public static string UnableToLoadImagePreview => Get(nameof(UnableToLoadImagePreview));
     public static string Favorited => Get(nameof(Favorited));
     public static string NotFavorited => Get(nameof(NotFavorited));
     public static string AddFavorite => Get(nameof(AddFavorite));
