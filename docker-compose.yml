@@ -65,6 +65,9 @@ services:
       FileCenter__MediaProcessing__VideoThumbnailWidth: "320"
       BackgroundJobs__IsJobExecutionEnabled: "false"
       StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+      MobileAuth__LoginRateLimit__EnablePasswordLoginRateLimit: ${PASSWORD_LOGIN_RATE_LIMIT_ENABLED:-true}
+      MobileAuth__LoginRateLimit__MaxFailedAttempts: ${PASSWORD_LOGIN_RATE_LIMIT_MAX_FAILED_ATTEMPTS:-5}
+      MobileAuth__LoginRateLimit__WindowMinutes: ${PASSWORD_LOGIN_RATE_LIMIT_WINDOW_MINUTES:-15}
       Authentication__WeChat__Enabled: ${WECHAT_ENABLED:-false}
       Authentication__WeChat__AppId: ${WECHAT_APP_ID:-}
       Authentication__WeChat__AppSecret: ${WECHAT_APP_SECRET:-}

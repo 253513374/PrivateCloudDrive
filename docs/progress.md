@@ -19,7 +19,7 @@
 | 阶段 3：媒体处理 | 已完成 | `75a4138` | MediaAsset 实体、上传后创建媒体任务、图片缩略图、视频封面和元数据处理基础、缩略图访问 API | 2026-05-07：后端构建成功；媒体处理相关集成测试包含图片、视频、缩略图和永久删除清理场景 |
 | 阶段 4：MAUI App 核心 | 已完成 | `8dfd5a6` | OpenIddict 登录接入、Token 安全保存和刷新、真实文件列表、文件夹导航、新建文件夹、当前目录上传、图片预览、MediaElement 视频播放 | 2026-05-07：后端构建和测试通过；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0` 成功；`dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-android` 成功 |
 | 阶段 5：MVP Core 回收站、部署与质量收尾 | 已完成 | `de2c6f9` | 任务 5.1 回收站 API 与 App 入口已实现；Docker Compose、README、部署说明和测试说明已完成收尾复核；本地运行时 `App_Data` 已加入忽略规则并随阶段收尾提交 | 2026-05-08：预提交刷新验证中，后端 build 成功；后端测试通过 60 个 EF 集成测试；MAUI Windows/Android 构建成功；`docker compose config` 复验通过 |
-| 阶段 6：MVP Core 产品体验与账号密码认证深化 | 进行中 | `de2c6f9` | 任务 6.1 MAUI 设计系统、任务 6.2 MVP Core 页面状态、任务 6.3 账号密码登录/Refresh Token/撤销端点、任务 6.4 移动端认证审计已落地并提交；任务 6.5 真实设备手动验收清单已补充，真实设备执行尚未完成 | 2026-05-08：MAUI Windows/Android 构建成功；临时 API password grant、refresh_token、revocation 和 mobile auth audit 探针通过；`docs/testing.md` 已追加移动端验收清单 |
+| 阶段 6：MVP Core 产品体验与账号密码认证深化 | 进行中 | `de2c6f9`，未提交 | 任务 6.1 MAUI 设计系统、任务 6.2 MVP Core 页面状态、任务 6.3 账号密码登录/Refresh Token/撤销端点、任务 6.4 移动端认证审计和账号/IP 双维度登录失败限流已落地；任务 6.5 真实设备手动验收清单和执行记录模板已补充，真实设备执行尚未完成 | 2026-05-08：后端 build 成功；后端测试通过 63 个 EF 集成测试；MAUI Windows/Android 构建成功；临时 API password grant、refresh_token、revocation 和 mobile auth audit 探针通过；`docs/testing.md` 已追加移动端验收清单和结果记录模板 |
 | 阶段 7：V1 分享、标签、收藏与操作日志 | 已完成 | `bb654ee`, `4f4f6a1`, `158cbc3`, `de2c6f9` | 分享链接、公开访问与密码校验、管理员管理所有分享、标签管理、收藏筛选、图片/视频媒体库、操作日志查询后端与 HTTP 入口已实现；MAUI 文件详情、图片页、视频页和操作日志页已接入对应入口并随收尾提交 | 2026-05-08：后端测试通过 60 个 EF 集成测试；临时 API 已验证 `/api/operation-logs`、分享/标签/收藏、`/api/file-center/media/images`、`/api/file-center/media/videos` 和 `/api/file-center/shares/all`；MAUI Windows/Android 构建通过 |
 | 阶段 8：V1 微信登录可选接入 | 进行中 | `de2c6f9` | 后端 WeChat 配置、`WechatUserBinding`、绑定/解绑接口、绑定票据、OpenIddict 自定义 grant、审计记录和 MAUI 登录/设置页入口骨架已实现并提交；`WechatUserBinding` PostgreSQL Host/Tenant 唯一索引已加固；首次绑定已有账号和已绑定微信登录均对齐 Identity lockout；登录、绑定和解绑已接入分布式缓存限流；解绑审计已覆盖无绑定场景；真实 WeChat SDK 原生授权仍待 AppId/AppSecret 与平台审核后接入 | 2026-05-08：后端 build 通过；EF 集成测试通过 60 个；DbMigrator 已应用 `AddedWechatUserBindings` 与 `FixedWechatUserBindingUniqueIndexes`；临时 API 探针验证 WeChat disabled、password grant 和 custom grant fail-closed；MAUI Windows/Android 目标框架构建通过 |
 
@@ -153,6 +153,22 @@
   - 提交：`de2c6f9 Checkpoint staged PrivateCloudDrive features`
   - 范围：阶段 5 MVP Core 收尾、阶段 6 体验/认证深化、阶段 7 分享标签日志、阶段 8 微信后端与 MAUI 骨架，以及配套文档、迁移、测试和忽略规则。
   - 仓库状态：提交后 `git status --short` 为空，当前无未提交工作区变更。
+- 阶段 6 账号密码登录失败限流
+  - 后端：新增 `MobileAuth:LoginRateLimit` 配置、账号密码登录失败分布式缓存限流服务，以及 OpenIddict password grant token endpoint 前置检查和失败计数处理；限流按用户名和请求 IP 双维度生效，成功登录会清理用户名维度失败计数。
+  - 配置：Host `appsettings.json`、Docker Compose、`.env.example` 和部署文档均补充 `PASSWORD_LOGIN_RATE_LIMIT_*` 变量；Compose 配置展开确认 API 容器包含 `MobileAuth__LoginRateLimit__*` 映射。
+  - 测试：新增 `EfCorePasswordLoginRateLimiterTests` 覆盖用户名限流、IP 限流和成功后用户名计数清理。
+  - `dotnet test .\test\PrivateCloudDrive.EntityFrameworkCore.Tests\PrivateCloudDrive.EntityFrameworkCore.Tests.csproj --filter FullyQualifiedName~EfCorePasswordLoginRateLimiterTests -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-password-rate-limit-test-rerun\`
+    - 工作目录：`aspnet-core`
+    - 结果：通过 3 个账号密码登录限流测试。
+  - `dotnet build .\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-build-password-rate-limit-rerun\`
+    - 工作目录：`aspnet-core`
+    - 结果：成功，0 个警告，0 个错误。
+  - `dotnet test .\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-test-password-rate-limit\`
+    - 工作目录：`aspnet-core`
+    - 结果：`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 63 个测试；其它测试项目当前没有可发现测试。
+  - `docker compose config`
+    - 工作目录：仓库根目录
+    - 结果：成功展开 Compose 配置，新增账号密码登录限流环境变量映射有效。
 
 - `dotnet build .\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-build\`
   - 工作目录：`aspnet-core`
@@ -257,4 +273,5 @@
 
 - 阶段 8 后续需要接入真实 WeChat Android/iOS SDK 或平台适配实现，使用正式 AppId/AppSecret 验证 code 获取、绑定已有账号和已绑定 WeChat 登录端到端流程。
 - 阶段 6 后续需要在真实 Android/iOS 设备上执行 MVP Core 手动验收清单，并回填体验问题或验收结论。
+- 当前新增账号密码登录限流变更尚未提交；提交前需要复查 diff 并保持工作区只包含本轮相关文件。
 - 后续阶段完成后必须先验证对应构建/测试，再提交 Git，并单独更新本进度文档。

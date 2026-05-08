@@ -28,6 +28,7 @@ public class PrivateCloudDriveApplicationModule : AbpModule
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
+        Configure<MobileAuthLoginOptions>(configuration.GetSection("MobileAuth:LoginRateLimit"));
         Configure<WechatLoginOptions>(configuration.GetSection("Authentication:WeChat"));
 
         context.Services.AddMapperlyObjectMapper<PrivateCloudDriveApplicationModule>();

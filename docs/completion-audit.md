@@ -29,7 +29,7 @@
 | 要求 | 证据 | 当前状态 |
 | --- | --- | --- |
 | 阶段 5：MVP Core 回收站、部署与质量收尾 | `docs/progress.md` 阶段 5 行记录回收站 API 与 App 入口、Docker Compose、README、部署说明和测试说明已完成收尾复核；验证包含后端 build、后端测试、MAUI Windows/Android 构建和 `docker compose config`；提交为 `de2c6f9`。 | 已完成。 |
-| 阶段 6：MVP Core 产品体验与账号密码认证深化 | `docs/progress.md` 阶段 6 行记录任务 6.1 到 6.4 已落地并通过 `de2c6f9` 提交，任务 6.5 手动验收清单已补充；`docs/testing.md` 包含移动端真实设备手动验收清单。 | 未完成。真实 Android/iOS 设备执行尚未完成。 |
+| 阶段 6：MVP Core 产品体验与账号密码认证深化 | `docs/progress.md` 阶段 6 行记录任务 6.1 到 6.4 已落地，账号密码登录失败按用户名和 IP 双维度限流，任务 6.5 手动验收清单和执行记录模板已补充；验证包含后端 build、后端测试 63 个 EF 集成测试、MAUI Windows/Android 构建和临时 API 探针。 | 未完成。新增限流变更尚未提交，真实 Android/iOS 设备执行尚未完成。 |
 | 阶段 7：V1 分享、标签、收藏与操作日志 | `docs/progress.md` 阶段 7 行记录分享、标签、收藏、媒体库和操作日志后端与 MAUI 入口已接入；验证包含后端测试、临时 API 探针和 MAUI Windows/Android 构建；提交包含 `de2c6f9`。 | 已完成。 |
 | 阶段 8.1：微信登录后端基础 | `docs/progress.md` 阶段 8 行记录 WeChat 配置、`WechatUserBinding`、绑定/解绑接口、绑定票据、OpenIddict 自定义 grant、审计、唯一索引、lockout 和限流已实现；验证包含 60 个 EF 测试、后端 build、DbMigrator 和临时 API 探针；提交为 `de2c6f9`。 | 后端主体已完成本地验证，但阶段未完成。 |
 | 阶段 8.2：MAUI 微信登录与绑定入口 | MAUI 已有 `IWechatPlatformAuthService`、登录页/设置页入口和默认不可用实现；`docs/progress.md` 记录 Windows/Android 构建通过。 | 部分完成。真实 Android/iOS WeChat SDK 平台实现未接入，`DefaultWechatPlatformAuthService` 仍返回不可用。 |
@@ -44,7 +44,7 @@
 2. 接入真实 WeChat Android/iOS SDK 或明确选定平台适配方案。
 3. 准备正式 WeChat `AppId`、`AppSecret`、Android 包名与签名、iOS Bundle Identifier 与 URL Scheme。
 4. 在真实 Android/iOS 设备上执行 `docs/testing.md` 的 V1 微信登录真实设备验收清单。
-5. 在真实设备执行完成后，按阶段完成规则更新验收记录并提交。
+5. 提交当前账号密码登录限流变更；真实设备执行完成后，按阶段完成规则继续更新验收记录并提交。
 
 ## 当前不能作为完成证明的信号
 

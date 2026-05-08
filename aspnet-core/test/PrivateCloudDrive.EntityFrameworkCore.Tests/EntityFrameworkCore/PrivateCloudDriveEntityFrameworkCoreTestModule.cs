@@ -63,6 +63,12 @@ public class PrivateCloudDriveEntityFrameworkCoreTestModule : AbpModule
             options.RateLimitWindowSeconds = 300;
             options.RateLimitMaxAttempts = 20;
         });
+        Configure<MobileAuthLoginOptions>(options =>
+        {
+            options.EnablePasswordLoginRateLimit = true;
+            options.MaxFailedAttempts = 3;
+            options.WindowMinutes = 15;
+        });
 
         ConfigureInMemorySqlite(context.Services);
     }

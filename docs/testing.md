@@ -120,6 +120,6 @@ Docker Compose 栈预检查：
 - V1 操作日志已接入 MAUI Settings 入口和列表页，Windows/Android 构建已验证。
 - V1 微信登录后端骨架已接入：默认禁用配置、`WechatUserBinding`、绑定/解绑接口、OpenIddict 自定义 grant、绑定票据、分布式缓存限流和审计测试已验证；临时 API 探针确认未配置时返回 `wechat_disabled` 且账号密码登录正常。
 - V1 微信登录 MAUI 端目前是入口骨架和平台授权占位实现；按钮显示同时受后端 settings 和平台可用性控制，默认占位实现报告不可用；微信授权或 token grant 失败时不会清理已有账号密码登录 Token，也不会清空登录页已输入的账号密码；真实 Android/iOS WeChat SDK、正式 AppId/AppSecret、应用签名/URL Scheme 和真机授权流程仍需后续单独验收。
-- 账号密码登录的完整限流策略，尤其 IP 维度限流，以及真实设备端到端体验仍需在阶段 6.5 单独验收。
+- 账号密码登录失败已接入用户名和 IP 双维度分布式限流；真实设备端到端体验仍需在阶段 6.5 单独验收。
 - 如果在同一个 Redis 实例上先运行过旧版 API，再更新 `PrivateCloudDrive_App` 的 OpenIddict grant 权限，可能会命中旧客户端缓存；本地验收时可重启 API 并刷新对应 Redis 缓存，或使用独立 Redis 逻辑库做临时探针。
 - MAUI MVP Core 页面状态已通过 Windows/Android 构建验证，覆盖启动、登录、文件、上传、详情、预览、回收站和设置页；真实设备交互仍需阶段 6.5 单独验收。

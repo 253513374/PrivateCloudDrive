@@ -74,6 +74,14 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
             builder.AllowRefreshTokenFlow();
             builder.AllowCustomFlow(WechatLoginConsts.GrantType);
             builder.SetRevocationEndpointUris("/connect/revocation");
+            builder.AddEventHandler<OpenIddictServerEvents.ValidateTokenRequestContext>(options =>
+            {
+                options.UseScopedHandler<PasswordLoginRateLimitValidationHandler>();
+            });
+            builder.AddEventHandler<OpenIddictServerEvents.ApplyTokenResponseContext>(options =>
+            {
+                options.UseScopedHandler<PasswordLoginRateLimitResponseHandler>();
+            });
             builder.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(options =>
             {
                 options.UseScopedHandler<WechatTokenGrantHandler>();

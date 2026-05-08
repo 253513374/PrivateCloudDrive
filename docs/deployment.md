@@ -60,6 +60,9 @@ For Android emulator or physical device testing, update `maui/PrivateCloudDrive.
 | `STRING_ENCRYPTION_PASSPHRASE` | ABP string encryption passphrase; replace the template value before production use |
 | `PUBLIC_URL` | Public API/AuthServer URL used by Swagger and OpenIddict |
 | `FILECENTER_STORAGE_PATH` | Container path for FileCenter blob, thumbnail, cover, and temp upload storage |
+| `PASSWORD_LOGIN_RATE_LIMIT_ENABLED` | Enables account-password login failure rate limiting |
+| `PASSWORD_LOGIN_RATE_LIMIT_MAX_FAILED_ATTEMPTS` | Maximum failed password-login attempts per username and IP window |
+| `PASSWORD_LOGIN_RATE_LIMIT_WINDOW_MINUTES` | Password-login failure rate-limit window |
 | `WECHAT_ENABLED` | Optional V1 WeChat login switch; keep `false` unless official mobile app credentials are ready |
 | `WECHAT_APP_ID` | WeChat Open Platform mobile application AppId |
 | `WECHAT_APP_SECRET` | WeChat Open Platform AppSecret; backend only |
@@ -78,6 +81,7 @@ For Android emulator or physical device testing, update `maui/PrivateCloudDrive.
 
 The Docker variables above only enable the backend side. Android/iOS still need the official WeChat SDK integration, package signature or URL Scheme setup, and real-device authorization validation before WeChat login can be considered complete.
 WeChat operation rate limits are stored in Redis through ABP distributed cache, so API replicas share the same counters.
+Password-login failure limits are also stored in Redis and are checked for both username and request IP before the password grant is processed.
 
 ## Validation
 

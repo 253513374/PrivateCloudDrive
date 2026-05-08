@@ -36,4 +36,5 @@ public static class PrivateCloudDriveDomainErrorCodes
     public const string WeChatBindingTicketNotFound = "PrivateCloudDrive:MobileAuth:000005";
     public const string WeChatUnbindNotAllowed = "PrivateCloudDrive:MobileAuth:000006";
     public const string WeChatRateLimited = "PrivateCloudDrive:MobileAuth:000007";
+    public const string PasswordLoginRateLimited = "PrivateCloudDrive:MobileAuth:000008";
 }
