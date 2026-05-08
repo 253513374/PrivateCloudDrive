@@ -122,11 +122,11 @@
 - 阶段 5 到阶段 8 完成度审计
   - 文件：`docs/completion-audit.md`
   - 覆盖：MVP Core 收尾、MVP 体验与认证深化、V1 分享标签日志、V1 微信登录要求到证据映射，以及未完成项和不能作为完成证明的代理信号。
-  - 结果：审计结论为目标尚未完成；阶段 6.5 真机验收、阶段 8.2 真实 WeChat SDK/凭据/真机验收和阶段 Git 提交仍是阻塞项。
+  - 结果：审计结论为目标尚未完成；阶段 6.5 真机验收、阶段 8.2 真实 WeChat SDK/凭据/真机验收仍是阻塞项；当时的阶段 Git 提交阻塞项已由后续 `de2c6f9` 补齐。
 - 阶段提交整理准备
   - 文件：`.gitignore`、`docs/commit-plan.md`
   - 覆盖：忽略本地运行时 `App_Data` 存储，按阶段 5 到阶段 8 拆分建议提交批次，列出预提交验证命令和跨阶段改动风险。
-  - 结果：`App_Data` 已被 Git 识别为 ignored；提交计划已补充，实际提交尚未执行。
+  - 结果：`App_Data` 已被 Git 识别为 ignored；提交计划已补充，后续已通过 `de2c6f9` 完成 checkpoint 提交。
 - 预提交验证刷新
   - `dotnet build .\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-build-before-commit\`
     - 工作目录：`aspnet-core`
