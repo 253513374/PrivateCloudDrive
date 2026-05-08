@@ -42,43 +42,41 @@
         <ScrollView Grid.Row="2">
             <VerticalStackLayout Spacing="12">
                 <Border x:Name="ImagePreviewPanel"
-                        Padding="12"
+                        Padding="0"
                         IsVisible="{Binding IsImageDetails}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                         StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="{x:Static loc:AppText.ImagePreview}"
-                               Style="{StaticResource SectionTitleLabel}" />
-                        <Grid HeightRequest="260"
-                              BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
-                            <Image x:Name="DetailsPreviewImage"
-                                   Aspect="AspectFit"
-                                   IsVisible="False" />
-                            <VerticalStackLayout x:Name="ImagePreviewStatusPanel"
-                                                 Spacing="10"
-                                                 HorizontalOptions="Center"
-                                                 VerticalOptions="Center"
-                                                 Padding="16">
-                                <ActivityIndicator x:Name="ImagePreviewLoadingIndicator"
-                                                   WidthRequest="24"
-                                                   HeightRequest="24"
-                                                   IsRunning="False" />
-                                <Label x:Name="ImagePreviewStatusLabel"
-                                       Text="{x:Static loc:AppText.LoadingImagePreview}"
-                                       Style="{StaticResource MetaLabel}"
-                                       HorizontalTextAlignment="Center"
-                                       LineBreakMode="WordWrap" />
-                                <Button x:Name="ImagePreviewRetryButton"
-                                        Text="{x:Static loc:AppText.Retry}"
-                                        Style="{StaticResource SecondaryButton}"
-                                        IsVisible="False"
-                                        Clicked="OnRetryImagePreviewClicked" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
+                    <Grid HeightRequest="300"
+                          BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
+                        <Image x:Name="DetailsPreviewImage"
+                               Aspect="AspectFill"
+                               HorizontalOptions="Fill"
+                               VerticalOptions="Fill"
+                               IsVisible="False" />
+                        <VerticalStackLayout x:Name="ImagePreviewStatusPanel"
+                                             Spacing="10"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Padding="16">
+                            <ActivityIndicator x:Name="ImagePreviewLoadingIndicator"
+                                               WidthRequest="24"
+                                               HeightRequest="24"
+                                               IsRunning="False" />
+                            <Label x:Name="ImagePreviewStatusLabel"
+                                   Text="{x:Static loc:AppText.LoadingImagePreview}"
+                                   Style="{StaticResource MetaLabel}"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap" />
+                            <Button x:Name="ImagePreviewRetryButton"
+                                    Text="{x:Static loc:AppText.Retry}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    IsVisible="False"
+                                    Clicked="OnRetryImagePreviewClicked" />
+                        </VerticalStackLayout>
+                    </Grid>
                 </Border>
 
                 <Border Padding="16"
