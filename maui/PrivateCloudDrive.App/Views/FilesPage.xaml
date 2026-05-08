@@ -4,7 +4,8 @@
              xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.FilesPage"
-             Title="{x:Static loc:AppText.Files}">
+             Title="{x:Static loc:AppText.Files}"
+             Shell.NavBarIsVisible="False">
     <Grid Padding="16,14,16,18" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowSpacing="14">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
             <VerticalStackLayout Spacing="4">
@@ -23,7 +24,8 @@
 
         <Grid Grid.Row="1"
               ColumnDefinitions="Auto,*"
-              ColumnSpacing="10">
+              ColumnSpacing="10"
+              IsVisible="{Binding ShowCurrentPath}">
             <Button x:Name="BackButton"
                     Text="{x:Static loc:AppText.Back}"
                     IsVisible="{Binding CanGoBack}"

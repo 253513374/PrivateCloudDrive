@@ -4,16 +4,20 @@
              xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.UploadsPage"
-             Title="{x:Static loc:AppText.Uploads}">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="{x:Static loc:AppText.ClearDone}" Clicked="OnClearCompletedClicked" />
-    </ContentPage.ToolbarItems>
-
+             Title="{x:Static loc:AppText.Uploads}"
+             Shell.NavBarIsVisible="False">
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
-        <VerticalStackLayout Spacing="4">
-            <Label Text="{x:Static loc:AppText.Uploads}" Style="{StaticResource PageTitleLabel}" />
-            <Label Text="{x:Static loc:AppText.ActiveFailedCompletedUploads}" Style="{StaticResource MetaLabel}" />
-        </VerticalStackLayout>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{x:Static loc:AppText.Uploads}" Style="{StaticResource PageTitleLabel}" />
+                <Label Text="{x:Static loc:AppText.ActiveFailedCompletedUploads}" Style="{StaticResource MetaLabel}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="{x:Static loc:AppText.ClearDone}"
+                    Style="{StaticResource SecondaryButton}"
+                    VerticalOptions="Center"
+                    Clicked="OnClearCompletedClicked" />
+        </Grid>
 
         <Border x:Name="QueueStatePanel"
                 Grid.Row="1"

@@ -4,7 +4,8 @@
              xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              x:Class="PrivateCloudDrive.App.Views.VideosPage"
-             Title="{x:Static loc:AppText.Videos}">
+             Title="{x:Static loc:AppText.Videos}"
+             Shell.NavBarIsVisible="False">
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
             <VerticalStackLayout Spacing="4">

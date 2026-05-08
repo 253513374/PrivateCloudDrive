@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              x:Class="PrivateCloudDrive.App.Views.SettingsPage"
-             Title="{x:Static loc:AppText.Settings}">
+             Title="{x:Static loc:AppText.Settings}"
+             Shell.NavBarIsVisible="False">
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
         <VerticalStackLayout Spacing="4">
             <Label Text="{x:Static loc:AppText.Settings}" Style="{StaticResource PageTitleLabel}" />

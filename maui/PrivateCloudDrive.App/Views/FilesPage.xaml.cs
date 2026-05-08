@@ -24,6 +24,8 @@ public partial class FilesPage : ContentPage
 
     public bool CanGoBack => _path.Count > 1;
 
+    public bool ShowCurrentPath => CanGoBack;
+
     public FilesPage()
     {
         InitializeComponent();
@@ -476,6 +478,7 @@ public partial class FilesPage : ContentPage
     {
         OnPropertyChanged(nameof(CurrentPath));
         OnPropertyChanged(nameof(CanGoBack));
+        OnPropertyChanged(nameof(ShowCurrentPath));
     }
 
     private sealed record PathSegment(Guid? Id, string Name);
