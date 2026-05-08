@@ -336,6 +336,9 @@
 - MAUI 图片详情页预览样式调整
   - 文件：`FileDetailsPage.xaml`、`AppText.cs`。
   - 结果：移除预览区域标题，图片容器取消内边距并使用 `AspectFill` 铺满区域；加载和失败状态保留居中提示。
+- MAUI 图片详情页预览容器贴边
+  - 文件：`FileDetailsPage.xaml`。
+  - 结果：图片预览区域移除外层卡片、圆角和页面左右边距，作为全宽媒体区展示；文件信息和操作区仍保留正常详情页边距。
 - `dotnet build .\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64`
   - 工作目录：`maui/PrivateCloudDrive.App`
   - 结果：成功，0 个警告，0 个错误。
