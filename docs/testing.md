@@ -78,7 +78,7 @@ MVP 内测默认连接 Docker Compose API：Windows 为 `http://localhost:8080`�
 
 | 日期 | 平台与设备 | 系统版本 | App 构建号 | 后端提交 | 测试账号 | 结果 | 问题与备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 待执行 | Android/iOS | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
+| 2026-05-08 | Android Emulator Pixel 9 Pro | API 36 | 1.0 (1) | `97e2bec` | admin | 通过 | 已完成 MVP Core 内测验收：账号密码登录、文件页加载、上传入口、回收站入口和 Compose API 访问可用；未记录密码或 token。iOS/真实设备验收后续按发布需要补充。 |
 
 ## V1 微信登录真实设备验收清单
 
@@ -122,6 +122,6 @@ MVP 内测默认连接 Docker Compose API：Windows 为 `http://localhost:8080`�
 - V1 操作日志已接入 MAUI Settings 入口和列表页，Windows/Android 构建已验证。
 - V1 微信登录后端骨架已接入：默认禁用配置、`WechatUserBinding`、绑定/解绑接口、OpenIddict 自定义 grant、绑定票据、分布式缓存限流和审计测试已验证；临时 API 探针确认未配置时返回 `wechat_disabled` 且账号密码登录正常。
 - V1 微信登录 MAUI 端目前是入口骨架和平台授权占位实现；按钮显示同时受后端 settings 和平台可用性控制，默认占位实现报告不可用；微信授权或 token grant 失败时不会清理已有账号密码登录 Token，也不会清空登录页已输入的账号密码；真实 Android/iOS WeChat SDK、正式 AppId/AppSecret、应用签名/URL Scheme 和真机授权流程仍需后续单独验收。
-- 账号密码登录失败已接入用户名和 IP 双维度分布式限流；真实设备端到端体验仍需在阶段 6.5 单独验收。
+- 账号密码登录失败已接入用户名和 IP 双维度分布式限流；Android Emulator Pixel 9 Pro API 36 已完成 MVP Core 内测验收，iOS/真实设备体验后续按发布需要补充。
 - 如果在同一个 Redis 实例上先运行过旧版 API，再更新 `PrivateCloudDrive_App` 的 OpenIddict grant 权限，可能会命中旧客户端缓存；本地验收时可重启 API 并刷新对应 Redis 缓存，或使用独立 Redis 逻辑库做临时探针。
-- MAUI MVP Core 页面状态已通过 Windows/Android 构建验证，覆盖启动、登录、文件、上传、详情、预览、回收站和设置页；真实设备交互仍需阶段 6.5 单独验收。
+- MAUI MVP Core 页面状态已通过 Windows/Android 构建验证，覆盖启动、登录、文件、上传、详情、预览、回收站和设置页；Android 模拟器交互验收已完成。
