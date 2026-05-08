@@ -70,6 +70,14 @@ Docker Compose 栈预检查：
 | 退出登录 | 从设置页退出登录后重启 App。 | 本地 token 被清理；重新启动后停留在登录页；后端产生退出登录审计记录。 |
 | iOS/Android 平台差异 | 分别在目标平台检查状态栏、安全区域、键盘遮挡、文件选择器和视频播放。 | 内容不被系统栏或键盘遮挡；触控区域可用；平台差异不阻塞 MVP Core 主流程。 |
 
+### 移动端真实设备执行记录
+
+执行阶段 6.5 后，把结果追加到下表。记录只保留可复现信息，不记录密码、access token、refresh token 或个人敏感数据。
+
+| 日期 | 平台与设备 | 系统版本 | App 构建号 | 后端提交 | 测试账号 | 结果 | 问题与备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 待执行 | Android/iOS | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
+
 ## V1 微信登录真实设备验收清单
 
 阶段 8.2 需要在真实 Android 和 iOS 设备上执行。执行前必须准备微信开放平台移动应用、正式 `AppId`/`AppSecret`、Android 包名与签名、iOS Bundle Identifier 与 URL Scheme，并确保后端 API 可被设备访问。
@@ -88,6 +96,15 @@ Docker Compose 栈预检查：
 | 锁定用户 | 将已绑定用户设置为 Identity lockout 后尝试微信登录。 | 不签发 Token；返回失败并记录 `user_locked_out` 审计。 |
 | 限流 | 在同一设备或账号维度连续触发微信登录、绑定、解绑超过配置阈值。 | 返回 `wechat_rate_limited`；失败审计不包含 code、AppSecret、access token 或 refresh token。 |
 | 证据记录 | 记录设备型号、系统版本、App 构建号、后端提交、AppId 后四位、测试账号、关键接口状态和审计日志时间。 | 验收记录可复现，且不包含明文 AppSecret、密码、access token、refresh token 或微信 access token。 |
+
+### V1 微信登录执行记录
+
+执行阶段 8.2 后，把 Android 和 iOS 结果分别追加到下表。`AppId` 只记录后四位，禁止记录 `AppSecret`、微信 access token、openid、unionid、业务 access token 或 refresh token。
+
+| 日期 | 平台与设备 | 系统版本 | App 构建号 | 后端提交 | AppId 后四位 | 微信版本 | 结果 | 问题与备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 待执行 | Android | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
+| 待执行 | iOS | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
 
 ## 当前边界
 
