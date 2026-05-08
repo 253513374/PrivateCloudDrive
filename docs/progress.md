@@ -367,6 +367,14 @@
   - 工作目录：`maui/PrivateCloudDrive.App`
   - 结果：成功重新部署并启动 Android 模拟器 App，`adb shell pidof com.companyname.privateclouddrive.app` 返回进程号 `21062`。
 
+### 2026-05-08 第一阶段部署文档
+
+- 新增 `docs/phase-1-deployment.md`
+  - 范围：固化第一阶段“本机 Docker Compose + Android 模拟器内测”的部署步骤、环境要求、后端启动、MAUI 构建运行、手动验收、常见问题和清理方式。
+  - 边界：不覆盖微信登录、真实手机局域网访问、生产 HTTPS、MinIO 对象存储或多节点部署。
+- 更新 `README.md`
+  - 结果：目录结构中补充第一阶段部署文档入口。
+
 ## 下一步
 
 - 下一阶段产品目标为 V0.2 私有部署内测版：围绕正式 UI 基线、真实数据集、私有部署稳定性和内测问题闭环继续收口。

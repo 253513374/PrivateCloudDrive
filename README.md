@@ -24,6 +24,7 @@ PrivateCloudDrive 是一个可私有部署的文件、图片、视频管理系�
 - `docs/codex-development-plan.md`：分阶段开发任务。
 - `docs/progress.md`：阶段完成状态、提交和验证证据。
 - `docs/deployment.md`：Docker Compose 私有部署说明。
+- `docs/phase-1-deployment.md`：第一阶段本机私有部署和 Android 模拟器内测部署文档。
 - `docs/testing.md`：测试覆盖和验证边界。
 - `docs/product-ui-baseline.md`：V0.2 产品化 UI 执行基线。
 
