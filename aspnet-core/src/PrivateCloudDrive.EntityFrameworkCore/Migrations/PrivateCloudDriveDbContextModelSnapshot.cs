@@ -629,6 +629,84 @@ namespace PrivateCloudDrive.Migrations
                     b.ToTable("AppFileCenterUploadSessions", (string)null);
                 });
 
+            modelBuilder.Entity("PrivateCloudDrive.MobileAuth.ExternalUserBinding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastLoginTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("ProviderUserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Provider", "ProviderUserId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ExternalUserBindings_Host_Provider_UserId")
+                        .HasFilter("\"TenantId\" IS NULL");
+
+                    b.HasIndex("UserId", "Provider")
+                        .HasDatabaseName("IX_ExternalUserBindings_UserId_Provider");
+
+                    b.HasIndex("TenantId", "Provider", "ProviderUserId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ExternalUserBindings_Tenant_Provider_UserId")
+                        .HasFilter("\"TenantId\" IS NOT NULL");
+
+                    b.ToTable("AppMobileAuthExternalUserBindings", (string)null);
+                });
+
             modelBuilder.Entity("PrivateCloudDrive.MobileAuth.MobileAuthAuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -769,13 +847,13 @@ namespace PrivateCloudDrive.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("IX_WechatUserBindings_UserId");
-
                     b.HasIndex("UnionId")
                         .IsUnique()
                         .HasDatabaseName("UX_WechatUserBindings_Host_UnionId")
                         .HasFilter("\"TenantId\" IS NULL AND \"UnionId\" IS NOT NULL");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_WechatUserBindings_UserId");
 
                     b.HasIndex("AppId", "OpenId")
                         .IsUnique()

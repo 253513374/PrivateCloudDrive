@@ -12,6 +12,9 @@ using Volo.Abp.MultiTenancy;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证DistributedCachePasswordLoginRateLimiter，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 [ExposeServices(
     typeof(IPasswordLoginRateLimiter),
     typeof(DistributedCachePasswordLoginRateLimiter))]
@@ -23,6 +26,9 @@ public class DistributedCachePasswordLoginRateLimiter :
     private readonly MobileAuthLoginOptions _options;
     private readonly ICurrentTenant _currentTenant;
 
+    /// <summary>
+    /// 初始化 <see cref="DistributedCachePasswordLoginRateLimiter"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public DistributedCachePasswordLoginRateLimiter(
         IDistributedCache<PasswordLoginRateLimitCacheItem, string> cache,
         IOptions<MobileAuthLoginOptions> options,
@@ -33,6 +39,9 @@ public class DistributedCachePasswordLoginRateLimiter :
         _currentTenant = currentTenant;
     }
 
+    /// <summary>
+    /// 检查当前操作是否满足安全限制或业务前置条件。
+    /// </summary>
     public virtual async Task CheckAsync(string? userName, string? ipAddress)
     {
         if (!_options.EnablePasswordLoginRateLimit)
@@ -53,6 +62,9 @@ public class DistributedCachePasswordLoginRateLimiter :
         }
     }
 
+    /// <summary>
+    /// 记录业务事件或安全事件，便于后续审计、追踪和风险分析。
+    /// </summary>
     public virtual async Task RecordFailureAsync(string? userName, string? ipAddress)
     {
         if (!_options.EnablePasswordLoginRateLimit)
@@ -87,6 +99,9 @@ public class DistributedCachePasswordLoginRateLimiter :
         }
     }
 
+    /// <summary>
+    /// 重置指定对象的临时安全状态或缓存状态。
+    /// </summary>
     public virtual async Task ResetUserAsync(string? userName)
     {
         if (!_options.EnablePasswordLoginRateLimit || string.IsNullOrWhiteSpace(userName))

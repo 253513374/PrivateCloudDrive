@@ -5,15 +5,25 @@ using Volo.Abp;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 文件节点领域服务，集中处理目录树规则和跨聚合校验。
+/// 应用层在创建、移动、删除、恢复、永久删除节点时应优先通过该服务，避免绕过所有权、重名和目录循环校验。
+/// </summary>
 public class FileNodeManager : FileCenterDomainService
 {
     private readonly IFileNodeRepository _fileNodeRepository;
 
+    /// <summary>
+    /// 初始化 <see cref="FileNodeManager"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileNodeManager(IFileNodeRepository fileNodeRepository)
     {
         _fileNodeRepository = fileNodeRepository;
     }
 
+    /// <summary>
+    /// 创建文件夹前校验父目录归属和同目录名称唯一性。
+    /// </summary>
     public virtual async Task<FileNode> CreateFolderAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -30,6 +40,9 @@ public class FileNodeManager : FileCenterDomainService
             name);
     }
 
+    /// <summary>
+    /// 创建文件节点前校验父目录归属和同目录名称唯一性。
+    /// </summary>
     public virtual async Task<FileNode> CreateFileAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -52,6 +65,9 @@ public class FileNodeManager : FileCenterDomainService
             blobName);
     }
 
+    /// <summary>
+    /// 校验指定父目录下是否允许创建新节点。
+    /// </summary>
     public virtual async Task EnsureCanCreateAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -62,6 +78,9 @@ public class FileNodeManager : FileCenterDomainService
         await EnsureNameNotExistsAsync(tenantId, ownerId, parentId, name);
     }
 
+    /// <summary>
+    /// 重命名节点，并阻止与同一父目录下其他节点重名。
+    /// </summary>
     public virtual async Task RenameAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -86,6 +105,9 @@ public class FileNodeManager : FileCenterDomainService
         node.Rename(name);
     }
 
+    /// <summary>
+    /// 移动节点到目标目录，同时校验所有权、目标目录、目录循环和重名冲突。
+    /// </summary>
     public virtual async Task MoveAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -111,6 +133,9 @@ public class FileNodeManager : FileCenterDomainService
         node.MoveTo(parentId);
     }
 
+    /// <summary>
+    /// 递归软删除文件夹树，使文件夹及其子节点进入回收站。
+    /// </summary>
     public virtual async Task DeleteFolderTreeAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -141,6 +166,9 @@ public class FileNodeManager : FileCenterDomainService
         await _fileNodeRepository.DeleteAsync(node);
     }
 
+    /// <summary>
+    /// 从回收站递归恢复节点树；恢复前会校验父目录仍存在且未与现有节点重名。
+    /// </summary>
     public virtual async Task RestoreTreeAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -157,6 +185,10 @@ public class FileNodeManager : FileCenterDomainService
         await RestoreTreeCoreAsync(tenantId, ownerId, node);
     }
 
+    /// <summary>
+    /// 递归永久删除节点树，直接移除数据库记录。
+    /// 调用方应确保底层 Blob 清理策略已经明确，避免元数据和文件内容生命周期不一致。
+    /// </summary>
     public virtual async Task PermanentDeleteTreeAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -180,6 +212,9 @@ public class FileNodeManager : FileCenterDomainService
         await _fileNodeRepository.DeleteByIdDirectAsync(node.Id);
     }
 
+    /// <summary>
+    /// 获取当前用户拥有的文件夹节点；不存在、跨租户或跨用户时统一按未找到处理。
+    /// </summary>
     public virtual async Task<FileNode> GetOwnerFolderAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -198,6 +233,9 @@ public class FileNodeManager : FileCenterDomainService
         return node;
     }
 
+    /// <summary>
+    /// 获取当前用户拥有的文件节点；用于下载、预览和删除等文件专属操作。
+    /// </summary>
     public virtual async Task<FileNode> GetOwnerFileAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -216,6 +254,9 @@ public class FileNodeManager : FileCenterDomainService
         return node;
     }
 
+    /// <summary>
+    /// 获取当前用户回收站中的节点，供恢复和永久删除入口使用。
+    /// </summary>
     public virtual async Task<FileNode> GetOwnerDeletedNodeAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -254,6 +295,9 @@ public class FileNodeManager : FileCenterDomainService
         }
     }
 
+    /// <summary>
+    /// 校验回收站节点是否可恢复：父目录必须存在且未删除，目标目录不能出现同名节点。
+    /// </summary>
     private async Task EnsureCanRestoreAsync(
         Guid? tenantId,
         Guid ownerId,
@@ -287,6 +331,9 @@ public class FileNodeManager : FileCenterDomainService
         }
     }
 
+    /// <summary>
+    /// 校验目录移动不会形成“移动到自身或子孙目录”的循环结构。
+    /// </summary>
     private async Task EnsureCanMoveAsync(
         Guid? tenantId,
         Guid ownerId,

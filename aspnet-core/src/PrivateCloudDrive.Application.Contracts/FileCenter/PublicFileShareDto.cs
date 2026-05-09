@@ -2,6 +2,9 @@ using System;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 匿名访问分享时返回的公开分享 DTO，不包含密码哈希、盐或底层 Blob 路径。
+/// </summary>
 public class PublicFileShareDto
 {
     public string Token { get; set; } = string.Empty;

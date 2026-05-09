@@ -1,5 +1,8 @@
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示WechatLogin配置选项，用于集中管理运行时可调整参数。
+/// </summary>
 public class WechatLoginOptions
 {
     public bool Enabled { get; set; }
@@ -24,6 +27,9 @@ public class WechatLoginOptions
 
     public int RateLimitMaxAttempts { get; set; } = 60;
 
+    /// <summary>
+    /// 执行IsUsable操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public bool IsUsable()
     {
         return Enabled &&
@@ -32,6 +38,9 @@ public class WechatLoginOptions
     }
 }
 
+/// <summary>
+/// 表示WechatAndroid配置选项，用于集中管理运行时可调整参数。
+/// </summary>
 public class WechatAndroidOptions
 {
     public string PackageName { get; set; } = string.Empty;
@@ -39,6 +48,9 @@ public class WechatAndroidOptions
     public string Signature { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// 表示WechatIos配置选项，用于集中管理运行时可调整参数。
+/// </summary>
 public class WechatIosOptions
 {
     public string BundleId { get; set; } = string.Empty;

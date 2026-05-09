@@ -11,6 +11,9 @@ using Volo.Abp.MultiTenancy;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证DistributedCacheWechatAuthRateLimiter，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 [ExposeServices(
     typeof(IWechatAuthRateLimiter),
     typeof(DistributedCacheWechatAuthRateLimiter))]
@@ -22,6 +25,9 @@ public class DistributedCacheWechatAuthRateLimiter :
     private readonly WechatLoginOptions _options;
     private readonly ICurrentTenant _currentTenant;
 
+    /// <summary>
+    /// 初始化 <see cref="DistributedCacheWechatAuthRateLimiter"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public DistributedCacheWechatAuthRateLimiter(
         IDistributedCache<WechatAuthRateLimitCacheItem, string> cache,
         IOptions<WechatLoginOptions> options,
@@ -32,6 +38,9 @@ public class DistributedCacheWechatAuthRateLimiter :
         _currentTenant = currentTenant;
     }
 
+    /// <summary>
+    /// 检查当前操作是否满足安全限制或业务前置条件。
+    /// </summary>
     public virtual async Task CheckAsync(string operation, string subject)
     {
         var maxAttempts = Math.Max(1, _options.RateLimitMaxAttempts);

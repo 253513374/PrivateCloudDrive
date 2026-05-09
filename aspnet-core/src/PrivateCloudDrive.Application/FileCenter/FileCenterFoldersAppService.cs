@@ -14,6 +14,10 @@ using Volo.Abp.Linq;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 文件夹和目录树应用服务。
+/// 负责文件夹创建、列表、重命名、移动、回收站、恢复、永久删除和清空回收站等用户操作。
+/// </summary>
 [Authorize(PrivateCloudDrivePermissions.FileCenter.View)]
 public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFoldersAppService
 {
@@ -25,6 +29,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
     private readonly IDataFilter<ISoftDelete> _softDeleteFilter;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterFoldersAppService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterFoldersAppService(
         IFileNodeRepository fileNodeRepository,
         FileNodeManager fileNodeManager,
@@ -43,6 +50,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         _asyncExecuter = asyncExecuter;
     }
 
+    /// <summary>
+    /// 在当前用户指定父目录下创建文件夹。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
     public virtual async Task<FileNodeDto> CreateAsync(CreateFolderInput input)
     {
@@ -54,6 +64,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         return ToDto(folder);
     }
 
+    /// <summary>
+    /// 查询指定文件夹的直接子节点；ParentId 为空时表示根目录。
+    /// </summary>
     public virtual async Task<PagedResultDto<FileNodeDto>> GetListAsync(GetFolderChildrenInput input)
     {
         var ownerId = GetOwnerId();
@@ -83,6 +96,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
             items.Select(ToDto).ToList());
     }
 
+    /// <summary>
+    /// 查询当前用户回收站中的节点列表。
+    /// </summary>
     public virtual async Task<PagedResultDto<FileNodeDto>> GetDeletedListAsync(PagedResultRequestDto input)
     {
         var ownerId = GetOwnerId();
@@ -98,6 +114,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
             items.Select(ToDto).ToList());
     }
 
+    /// <summary>
+    /// 重命名资源，并校验同级名称唯一性和业务命名规则。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
     public virtual async Task<FileNodeDto> RenameAsync(Guid id, RenameFileNodeInput input)
     {
@@ -110,6 +129,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         return ToDto(folder);
     }
 
+    /// <summary>
+    /// 移动资源到新的业务位置，并校验层级关系、归属和命名约束。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
     public virtual async Task<FileNodeDto> MoveAsync(Guid id, MoveFileNodeInput input)
     {
@@ -122,6 +144,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         return ToDto(folder);
     }
 
+    /// <summary>
+    /// 删除指定业务资源；涉及文件中心时优先遵循回收站或安全删除语义。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
     public virtual async Task DeleteAsync(Guid id)
     {
@@ -131,6 +156,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         await _fileNodeManager.DeleteFolderTreeAsync(CurrentTenant.Id, ownerId, folder);
     }
 
+    /// <summary>
+    /// 从回收站恢复节点；恢复前会校验父目录状态和同名冲突。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
     public virtual async Task<FileNodeDto> RestoreAsync(Guid id)
     {
@@ -142,6 +170,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         return ToDto(node);
     }
 
+    /// <summary>
+    /// 永久删除回收站节点及其子节点，删除后不可通过软删除恢复。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
     public virtual async Task PermanentDeleteAsync(Guid id)
     {
@@ -153,6 +184,9 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         await _fileNodeManager.PermanentDeleteTreeAsync(CurrentTenant.Id, ownerId, node);
     }
 
+    /// <summary>
+    /// 清空当前用户回收站中的所有节点。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
     public virtual async Task EmptyTrashAsync()
     {

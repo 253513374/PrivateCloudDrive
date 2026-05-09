@@ -8,6 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace PrivateCloudDrive.App.Views;
 
+/// <summary>
+/// 表示FilesPage页面，承载移动端界面交互和页面级状态绑定。
+/// </summary>
 public partial class FilesPage : ContentPage
 {
     private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
@@ -26,6 +29,9 @@ public partial class FilesPage : ContentPage
 
     public bool ShowCurrentPath => CanGoBack;
 
+    /// <summary>
+    /// 初始化 <see cref="FilesPage"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FilesPage()
     {
         InitializeComponent();
@@ -179,6 +185,9 @@ public partial class FilesPage : ContentPage
         private const int OfnPathMustExist = 0x00000800;
         private const int OfnNoChangeDir = 0x00000008;
 
+        /// <summary>
+        /// 执行PickFiles操作，封装该场景下的业务规则、异常处理和结果返回。
+        /// </summary>
         public static IReadOnlyList<string> PickFiles()
         {
             var buffer = Marshal.AllocHGlobal(BufferCharCount * sizeof(char));

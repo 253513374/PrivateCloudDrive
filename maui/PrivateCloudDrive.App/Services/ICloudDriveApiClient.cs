@@ -3,6 +3,9 @@ using PrivateCloudDrive.App.Models;
 
 namespace PrivateCloudDrive.App.Services;
 
+/// <summary>
+/// 定义CloudDriveApiClient抽象契约，用于解耦调用方与具体实现。
+/// </summary>
 public interface ICloudDriveApiClient
 {
     Task<IReadOnlyList<CloudDriveItem>> GetItemsAsync(
@@ -107,4 +110,27 @@ public interface ICloudDriveApiClient
         CancellationToken cancellationToken = default);
 
     Task UnbindWechatAsync(CancellationToken cancellationToken = default);
+
+    Task<ExternalLoginSettings> GetExternalLoginSettingsAsync(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ExternalBinding>> GetExternalBindingsAsync(CancellationToken cancellationToken = default);
+
+    Task<ExternalBinding> BindCurrentExternalAsync(
+        string provider,
+        string code,
+        string? state,
+        string redirectUri,
+        string? codeVerifier,
+        string? deviceIdHash,
+        CancellationToken cancellationToken = default);
+
+    Task<ExternalBinding> BindExistingExternalAsync(
+        string bindingTicket,
+        string userNameOrEmail,
+        string password,
+        CancellationToken cancellationToken = default);
+
+    Task UnbindExternalAsync(
+        string provider,
+        CancellationToken cancellationToken = default);
 }

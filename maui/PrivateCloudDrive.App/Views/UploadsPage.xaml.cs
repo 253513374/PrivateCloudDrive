@@ -7,12 +7,18 @@ using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
 
+/// <summary>
+/// 表示UploadsPage页面，承载移动端界面交互和页面级状态绑定。
+/// </summary>
 public partial class UploadsPage : ContentPage
 {
     private readonly IUploadQueueService _uploadQueueService = AppServices.GetRequiredService<IUploadQueueService>();
 
     public ObservableCollection<UploadQueueItem> UploadItems => _uploadQueueService.Items;
 
+    /// <summary>
+    /// 初始化 <see cref="UploadsPage"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public UploadsPage()
     {
         InitializeComponent();

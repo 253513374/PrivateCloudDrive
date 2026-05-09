@@ -10,6 +10,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterFileDownloadServiceTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterFileDownloadServiceTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -18,6 +21,9 @@ public class EfCoreFileCenterFileDownloadServiceTests : PrivateCloudDriveEntityF
     private readonly PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService _foldersAppService;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterFileDownloadServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterFileDownloadServiceTests()
     {
         _fileDownloadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileDownloadService>();
@@ -26,6 +32,9 @@ public class EfCoreFileCenterFileDownloadServiceTests : PrivateCloudDriveEntityF
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Open_Download_Stream_For_File_Owner()
     {
@@ -58,6 +67,9 @@ public class EfCoreFileCenterFileDownloadServiceTests : PrivateCloudDriveEntityF
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Download_From_Other_User()
     {
@@ -90,6 +102,9 @@ public class EfCoreFileCenterFileDownloadServiceTests : PrivateCloudDriveEntityF
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Folder_Download()
     {

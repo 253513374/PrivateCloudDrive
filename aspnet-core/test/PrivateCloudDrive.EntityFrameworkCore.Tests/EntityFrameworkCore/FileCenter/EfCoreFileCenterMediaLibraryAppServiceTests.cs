@@ -10,6 +10,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterMediaLibraryAppServiceTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -18,6 +21,9 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
     private readonly PrivateCloudDrive.FileCenter.IFileCenterTagsAppService _tagsAppService;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterMediaLibraryAppServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterMediaLibraryAppServiceTests()
     {
         _fileUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileUploadService>();
@@ -26,6 +32,9 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_List_Images_And_Videos_Separately()
     {
@@ -56,6 +65,9 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Filter_Media_Library_By_Favorite()
     {

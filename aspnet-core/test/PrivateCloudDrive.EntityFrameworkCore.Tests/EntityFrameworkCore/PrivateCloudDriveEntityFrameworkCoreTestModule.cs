@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,6 +18,9 @@ using Volo.Abp.Uow;
 
 namespace PrivateCloudDrive.EntityFrameworkCore;
 
+/// <summary>
+/// 配置PrivateCloudDriveEntityFrameworkCoreTestModule模块依赖、服务注册和框架集成行为。
+/// </summary>
 [DependsOn(
     typeof(PrivateCloudDriveApplicationTestModule),
     typeof(PrivateCloudDriveEntityFrameworkCoreModule),
@@ -27,6 +30,9 @@ public class PrivateCloudDriveEntityFrameworkCoreTestModule : AbpModule
 {
     private SqliteConnection? _sqliteConnection;
 
+    /// <summary>
+    /// 配置模块服务、选项或框架扩展点，确保运行时行为符合项目约定。
+    /// </summary>
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         Configure<FeatureManagementOptions>(options =>
@@ -49,6 +55,8 @@ public class PrivateCloudDriveEntityFrameworkCoreTestModule : AbpModule
             ServiceDescriptor.Transient<IFileCenterVideoProcessor, TestFileCenterVideoProcessor>());
         context.Services.Replace(
             ServiceDescriptor.Transient<IWechatIdentityService, TestWechatIdentityService>());
+        context.Services.Replace(
+            ServiceDescriptor.Transient<IExternalIdentityService, TestExternalIdentityService>());
 
         Configure<WechatLoginOptions>(options =>
         {
@@ -59,6 +67,20 @@ public class PrivateCloudDriveEntityFrameworkCoreTestModule : AbpModule
             options.Android.PackageName = "com.companyname.privateclouddrive.app";
             options.iOS.BundleId = "com.companyname.privateclouddrive.app";
             options.iOS.UrlScheme = "privateclouddrive";
+            options.BindingTicketLifetimeMinutes = 5;
+            options.RateLimitWindowSeconds = 300;
+            options.RateLimitMaxAttempts = 20;
+        });
+        Configure<ExternalLoginOptions>(options =>
+        {
+            options.Google.Enabled = true;
+            options.Google.ClientId = "google-test-client";
+            options.Google.ClientSecret = "";
+            options.Google.RedirectUri = "privateclouddrive://callback";
+            options.GitHub.Enabled = true;
+            options.GitHub.ClientId = "github-test-client";
+            options.GitHub.ClientSecret = "github-test-secret";
+            options.GitHub.RedirectUri = "privateclouddrive://callback";
             options.BindingTicketLifetimeMinutes = 5;
             options.RateLimitWindowSeconds = 300;
             options.RateLimitMaxAttempts = 20;
@@ -86,6 +108,9 @@ public class PrivateCloudDriveEntityFrameworkCoreTestModule : AbpModule
         });
     }
 
+    /// <summary>
+    /// 响应框架生命周期或界面事件，并协调页面状态与业务操作。
+    /// </summary>
     public override void OnApplicationShutdown(ApplicationShutdownContext context)
     {
         _sqliteConnection?.Dispose();

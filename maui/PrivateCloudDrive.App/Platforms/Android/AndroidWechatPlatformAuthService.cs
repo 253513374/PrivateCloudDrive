@@ -8,6 +8,9 @@ using PrivateCloudDrive.App.Models;
 
 namespace PrivateCloudDrive.App.Services;
 
+/// <summary>
+/// 提供AndroidWechatPlatformAuth服务能力，封装可复用的业务或基础设施逻辑。
+/// </summary>
 public sealed class AndroidWechatPlatformAuthService : IWechatPlatformAuthService
 {
     private const string DefaultWechatScope = "snsapi_userinfo";
@@ -16,6 +19,9 @@ public sealed class AndroidWechatPlatformAuthService : IWechatPlatformAuthServic
     private static readonly TimeSpan AuthorizationTimeout = TimeSpan.FromMinutes(5);
     private WechatAuthResultReceiver? _receiver;
 
+    /// <summary>
+    /// 执行IsAvailable操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public Task<bool> IsAvailableAsync(
         WechatLoginSettings settings,
         CancellationToken cancellationToken = default)
@@ -29,6 +35,9 @@ public sealed class AndroidWechatPlatformAuthService : IWechatPlatformAuthServic
         return Task.FromResult(WechatAuthBridge.IsWechatInstalled(context, appId));
     }
 
+    /// <summary>
+    /// 执行Authorize操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public async Task<WechatPlatformAuthResult> AuthorizeAsync(
         WechatLoginSettings settings,
         CancellationToken cancellationToken = default)
@@ -101,6 +110,9 @@ public sealed class AndroidWechatPlatformAuthService : IWechatPlatformAuthServic
 
     private sealed class WechatAuthResultReceiver : BroadcastReceiver
     {
+        /// <summary>
+        /// 响应框架生命周期或界面事件，并协调页面状态与业务操作。
+        /// </summary>
         public override void OnReceive(Context? context, Intent? intent)
         {
             if (intent == null)
@@ -119,6 +131,9 @@ public sealed class AndroidWechatPlatformAuthService : IWechatPlatformAuthServic
 
     private static class WechatAuthBridge
     {
+        /// <summary>
+        /// 执行IsWechatInstalled操作，封装该场景下的业务规则、异常处理和结果返回。
+        /// </summary>
         public static bool IsWechatInstalled(Context context, string appId)
         {
             using var appIdString = new Java.Lang.String(appId);
@@ -129,6 +144,9 @@ public sealed class AndroidWechatPlatformAuthService : IWechatPlatformAuthServic
                 new JValue(appIdString));
         }
 
+        /// <summary>
+        /// 执行SendAuth操作，封装该场景下的业务规则、异常处理和结果返回。
+        /// </summary>
         public static bool SendAuth(Context context, string appId, string scope, string state)
         {
             using var appIdString = new Java.Lang.String(appId);

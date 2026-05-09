@@ -5,6 +5,9 @@ using Volo.Abp.Application.Services;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 文件夹、目录树和回收站应用服务契约。
+/// </summary>
 public interface IFileCenterFoldersAppService : IApplicationService
 {
     Task<FileNodeDto> CreateAsync(CreateFolderInput input);

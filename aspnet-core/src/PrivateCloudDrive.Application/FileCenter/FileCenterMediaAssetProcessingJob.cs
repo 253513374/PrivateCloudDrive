@@ -15,6 +15,9 @@ using Volo.Abp.Uow;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 执行FileCenterMediaAssetProcessingJob后台任务，处理异步业务流程并避免阻塞用户请求。
+/// </summary>
 public class FileCenterMediaAssetProcessingJob
     : AsyncBackgroundJob<MediaAssetProcessingJobArgs>, ITransientDependency
 {
@@ -26,6 +29,9 @@ public class FileCenterMediaAssetProcessingJob
     private readonly IFileCenterBlobStorageService _blobStorageService;
     private readonly IFileCenterVideoProcessor _videoProcessor;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterMediaAssetProcessingJob"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterMediaAssetProcessingJob(
         IRepository<MediaAsset, Guid> mediaAssetRepository,
         IFileNodeRepository fileNodeRepository,
@@ -40,6 +46,9 @@ public class FileCenterMediaAssetProcessingJob
         _videoProcessor = videoProcessor;
     }
 
+    /// <summary>
+    /// 处理异步或耗时业务任务，并产出后续流程所需的结果。
+    /// </summary>
     [UnitOfWork]
     public override async Task ExecuteAsync(MediaAssetProcessingJobArgs args)
     {

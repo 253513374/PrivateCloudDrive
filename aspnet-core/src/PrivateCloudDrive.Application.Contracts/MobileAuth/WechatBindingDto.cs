@@ -3,6 +3,9 @@ using Volo.Abp.Application.Dtos;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示WechatBinding数据传输对象，用于跨层或 API 边界返回业务数据。
+/// </summary>
 public class WechatBindingDto : EntityDto<Guid>
 {
     public Guid? TenantId { get; set; }

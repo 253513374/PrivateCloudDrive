@@ -27,6 +27,7 @@ PrivateCloudDrive 是一个可私有部署的文件、图片、视频管理系�
 - `docs/phase-1-deployment.md`：第一阶段本机私有部署和 Android 模拟器内测部署文档。
 - `docs/testing.md`：测试覆盖和验证边界。
 - `docs/product-ui-baseline.md`：V0.2 产品化 UI 执行基线。
+- `docs/external-login-design.md`：Google/GitHub 外部登录与账号绑定说明。
 
 ## 本地开发
 

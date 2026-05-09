@@ -8,6 +8,10 @@ using PrivateCloudDrive.App.Models;
 
 namespace PrivateCloudDrive.App.Services;
 
+/// <summary>
+/// MAUI 客户端访问 PrivateCloudDrive 后端文件中心 API 的实现。
+/// 负责自动附加 Bearer Token、解析 ABP 响应，并按文件大小选择小文件或分片上传策略。
+/// </summary>
 public sealed class CloudDriveApiClient : ICloudDriveApiClient
 {
     private const int ChunkSize = 8 * 1024 * 1024;
@@ -24,11 +28,17 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         PropertyNameCaseInsensitive = true
     };
 
+    /// <summary>
+    /// 初始化 <see cref="CloudDriveApiClient"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public CloudDriveApiClient(IAuthService authService)
     {
         _authService = authService;
     }
 
+    /// <summary>
+    /// 获取指定目录下的文件和文件夹列表。
+    /// </summary>
     public async Task<IReadOnlyList<CloudDriveItem>> GetItemsAsync(
         Guid? parentId,
         int skipCount = 0,
@@ -58,6 +68,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<IReadOnlyList<CloudDriveItem>> GetTrashItemsAsync(
         int skipCount = 0,
         int maxResultCount = 50,
@@ -74,6 +87,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
     }
 
+    /// <summary>
+    /// 创建新的业务资源，并在持久化前执行必要的权限和规则校验。
+    /// </summary>
     public async Task<CloudDriveItem> CreateFolderAsync(
         Guid? parentId,
         string name,
@@ -104,6 +120,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return ToCloudDriveItem(created);
     }
 
+    /// <summary>
+    /// 删除指定业务资源；涉及文件中心时优先遵循回收站或安全删除语义。
+    /// </summary>
     public async Task DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         using var request = await CreateAuthenticatedRequestAsync(
@@ -116,6 +135,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
     }
 
+    /// <summary>
+    /// 从回收站或临时状态恢复资源，并校验恢复位置和命名冲突。
+    /// </summary>
     public async Task RestoreTrashItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         using var request = await CreateAuthenticatedRequestAsync(
@@ -128,6 +150,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
     }
 
+    /// <summary>
+    /// 执行PermanentlyDeleteTrashItem操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public async Task PermanentlyDeleteTrashItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         using var request = await CreateAuthenticatedRequestAsync(
@@ -140,6 +165,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
     }
 
+    /// <summary>
+    /// 执行EmptyTrash操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public async Task EmptyTrashAsync(CancellationToken cancellationToken = default)
     {
         using var request = await CreateAuthenticatedRequestAsync(
@@ -152,6 +180,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
     }
 
+    /// <summary>
+    /// 上传本地文件；小文件直接上传，大文件按固定分片大小走上传会话。
+    /// </summary>
     public async Task UploadFileAsync(
         Guid? parentId,
         FileResult file,
@@ -174,6 +205,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         progress?.Report(1);
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<FileContentResult> GetFileContentAsync(
         Guid id,
         bool thumbnail,
@@ -200,6 +234,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         };
     }
 
+    /// <summary>
+    /// 为媒体预览组件生成远程文件流地址和授权头，避免把文件完整下载到内存后再播放。
+    /// </summary>
     public async Task<RemoteFileContentSource> GetRemoteFileContentSourceAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -218,6 +255,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             });
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<IReadOnlyList<CloudDriveTag>> GetTagsAsync(CancellationToken cancellationToken = default)
     {
         using var request = await CreateAuthenticatedRequestAsync(
@@ -235,6 +275,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             .ToList();
     }
 
+    /// <summary>
+    /// 创建新的业务资源，并在持久化前执行必要的权限和规则校验。
+    /// </summary>
     public async Task<CloudDriveTag> CreateTagAsync(
         string name,
         string? color,
@@ -265,6 +308,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return new CloudDriveTag(tag.Id, tag.Name, tag.Color);
     }
 
+    /// <summary>
+    /// 执行AddTagToItem操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public async Task AddTagToItemAsync(
         Guid itemId,
         Guid tagId,
@@ -280,6 +326,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
     }
 
+    /// <summary>
+    /// 更新现有业务资源，并保持跨层数据和领域状态一致。
+    /// </summary>
     public async Task<CloudDriveItem> SetFavoriteAsync(
         Guid itemId,
         bool isFavorite,
@@ -309,6 +358,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return ToCloudDriveItem(node);
     }
 
+    /// <summary>
+    /// 创建新的业务资源，并在持久化前执行必要的权限和规则校验。
+    /// </summary>
     public async Task<CloudDriveShare> CreateShareAsync(
         Guid itemId,
         DateTime? expirationTime,
@@ -350,6 +402,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             share.RequiresPassword);
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<IReadOnlyList<CloudOperationLog>> GetOperationLogsAsync(
         int skipCount = 0,
         int maxResultCount = 30,
@@ -379,6 +434,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             .ToList() ?? [];
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public Task<IReadOnlyList<CloudDriveItem>> GetImagesAsync(
         int skipCount = 0,
         int maxResultCount = 60,
@@ -387,6 +445,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return GetMediaItemsAsync("/api/file-center/media/images", skipCount, maxResultCount, cancellationToken);
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public Task<IReadOnlyList<CloudDriveItem>> GetVideosAsync(
         int skipCount = 0,
         int maxResultCount = 60,
@@ -395,6 +456,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return GetMediaItemsAsync("/api/file-center/media/videos", skipCount, maxResultCount, cancellationToken);
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<WechatLoginSettings> GetWechatLoginSettingsAsync(CancellationToken cancellationToken = default)
     {
         using var response = await _httpClient.GetAsync("/api/mobile-auth/wechat/settings", cancellationToken);
@@ -414,6 +478,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             settings.IosUrlScheme);
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<WechatBinding?> GetWechatBindingAsync(CancellationToken cancellationToken = default)
     {
         using var request = await CreateAuthenticatedRequestAsync(
@@ -435,6 +502,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return binding == null ? null : ToWechatBinding(binding);
     }
 
+    /// <summary>
+    /// 绑定第三方身份与当前或指定账号，并防止同一外部身份被重复占用。
+    /// </summary>
     public async Task<WechatBinding> BindCurrentWechatAsync(
         string code,
         string? state,
@@ -469,6 +539,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return ToWechatBinding(binding);
     }
 
+    /// <summary>
+    /// 绑定第三方身份与当前或指定账号，并防止同一外部身份被重复占用。
+    /// </summary>
     public async Task<WechatBinding> BindExistingWechatAsync(
         string bindingTicket,
         string userNameOrEmail,
@@ -499,11 +572,149 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return ToWechatBinding(binding);
     }
 
+    /// <summary>
+    /// 解除第三方身份绑定，并确保账号仍保留可用登录方式。
+    /// </summary>
     public async Task UnbindWechatAsync(CancellationToken cancellationToken = default)
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Delete,
             "/api/mobile-auth/wechat/binding",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public async Task<ExternalLoginSettings> GetExternalLoginSettingsAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.GetAsync("/api/mobile-auth/external/settings", cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var settings = JsonSerializer.Deserialize<ExternalLoginSettingsDto>(responseText, JsonOptions)
+                       ?? throw new InvalidOperationException("External sign-in settings response is invalid.");
+
+        return new ExternalLoginSettings(
+            settings.Providers
+                .Select(provider => new ExternalLoginProviderSettings(
+                    provider.Provider,
+                    provider.DisplayName,
+                    provider.IsEnabled,
+                    provider.ClientId,
+                    provider.AuthorizationEndpoint,
+                    provider.Scope,
+                    provider.RedirectUri,
+                    provider.UsePkce))
+                .ToList());
+    }
+
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public async Task<IReadOnlyList<ExternalBinding>> GetExternalBindingsAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/mobile-auth/external/bindings",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var bindings = JsonSerializer.Deserialize<List<ExternalBindingDto>>(responseText, JsonOptions);
+        return bindings?.Select(ToExternalBinding).ToList() ?? [];
+    }
+
+    /// <summary>
+    /// 绑定第三方身份与当前或指定账号，并防止同一外部身份被重复占用。
+    /// </summary>
+    public async Task<ExternalBinding> BindCurrentExternalAsync(
+        string provider,
+        string code,
+        string? state,
+        string redirectUri,
+        string? codeVerifier,
+        string? deviceIdHash,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            "/api/mobile-auth/external/bind-current",
+            cancellationToken);
+
+        var body = JsonSerializer.Serialize(
+            new BindCurrentExternalRequest
+            {
+                Provider = provider,
+                Code = code,
+                State = state,
+                RedirectUri = redirectUri,
+                CodeVerifier = codeVerifier,
+                DeviceIdHash = deviceIdHash
+            },
+            JsonOptions);
+
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var binding = JsonSerializer.Deserialize<ExternalBindingDto>(responseText, JsonOptions)
+                      ?? throw new InvalidOperationException("External binding response is invalid.");
+
+        return ToExternalBinding(binding);
+    }
+
+    /// <summary>
+    /// 绑定第三方身份与当前或指定账号，并防止同一外部身份被重复占用。
+    /// </summary>
+    public async Task<ExternalBinding> BindExistingExternalAsync(
+        string bindingTicket,
+        string userNameOrEmail,
+        string password,
+        CancellationToken cancellationToken = default)
+    {
+        var body = JsonSerializer.Serialize(
+            new BindExistingExternalRequest
+            {
+                BindingTicket = bindingTicket,
+                UserNameOrEmail = userNameOrEmail,
+                Password = password
+            },
+            JsonOptions);
+
+        using var content = new StringContent(body, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync(
+            "/api/mobile-auth/external/bind-existing",
+            content,
+            cancellationToken);
+
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var binding = JsonSerializer.Deserialize<ExternalBindingDto>(responseText, JsonOptions)
+                      ?? throw new InvalidOperationException("External binding response is invalid.");
+
+        return ToExternalBinding(binding);
+    }
+
+    /// <summary>
+    /// 解除第三方身份绑定，并确保账号仍保留可用登录方式。
+    /// </summary>
+    public async Task UnbindExternalAsync(
+        string provider,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            $"/api/mobile-auth/external/bindings/{Uri.EscapeDataString(provider)}",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -737,6 +948,21 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             binding.UserId,
             binding.AppId,
             binding.NickName,
+            binding.AvatarUrl,
+            binding.IsEnabled,
+            binding.LastLoginTime,
+            binding.CreationTime);
+    }
+
+    private static ExternalBinding ToExternalBinding(ExternalBindingDto binding)
+    {
+        return new ExternalBinding(
+            binding.Id,
+            binding.TenantId,
+            binding.UserId,
+            binding.Provider,
+            binding.Email,
+            binding.DisplayName,
             binding.AvatarUrl,
             binding.IsEnabled,
             binding.LastLoginTime,
@@ -1008,6 +1234,77 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     private sealed class BindExistingWechatRequest
+    {
+        public string BindingTicket { get; init; } = string.Empty;
+
+        public string UserNameOrEmail { get; init; } = string.Empty;
+
+        public string Password { get; init; } = string.Empty;
+    }
+
+    private sealed class ExternalLoginSettingsDto
+    {
+        public List<ExternalLoginProviderSettingsDto> Providers { get; init; } = [];
+    }
+
+    private sealed class ExternalLoginProviderSettingsDto
+    {
+        public string Provider { get; init; } = string.Empty;
+
+        public string DisplayName { get; init; } = string.Empty;
+
+        public bool IsEnabled { get; init; }
+
+        public string? ClientId { get; init; }
+
+        public string AuthorizationEndpoint { get; init; } = string.Empty;
+
+        public string Scope { get; init; } = string.Empty;
+
+        public string RedirectUri { get; init; } = string.Empty;
+
+        public bool UsePkce { get; init; }
+    }
+
+    private sealed class ExternalBindingDto
+    {
+        public Guid Id { get; init; }
+
+        public Guid? TenantId { get; init; }
+
+        public Guid UserId { get; init; }
+
+        public string Provider { get; init; } = string.Empty;
+
+        public string? Email { get; init; }
+
+        public string? DisplayName { get; init; }
+
+        public string? AvatarUrl { get; init; }
+
+        public bool IsEnabled { get; init; }
+
+        public DateTime? LastLoginTime { get; init; }
+
+        public DateTime CreationTime { get; init; }
+    }
+
+    private sealed class BindCurrentExternalRequest
+    {
+        public string Provider { get; init; } = string.Empty;
+
+        public string Code { get; init; } = string.Empty;
+
+        public string? State { get; init; }
+
+        public string RedirectUri { get; init; } = string.Empty;
+
+        public string? CodeVerifier { get; init; }
+
+        public string? DeviceIdHash { get; init; }
+    }
+
+    private sealed class BindExistingExternalRequest
     {
         public string BindingTicket { get; init; } = string.Empty;
 

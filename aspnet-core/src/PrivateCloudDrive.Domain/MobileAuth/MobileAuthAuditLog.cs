@@ -5,6 +5,9 @@ using Volo.Abp.MultiTenancy;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证MobileAuthAuditLog，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 public class MobileAuthAuditLog : CreationAuditedAggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; private set; }
@@ -31,6 +34,9 @@ public class MobileAuthAuditLog : CreationAuditedAggregateRoot<Guid>, IMultiTena
     {
     }
 
+    /// <summary>
+    /// 初始化 <see cref="MobileAuthAuditLog"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public MobileAuthAuditLog(
         Guid id,
         Guid? tenantId,

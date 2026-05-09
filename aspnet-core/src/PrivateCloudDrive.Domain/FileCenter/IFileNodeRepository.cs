@@ -6,6 +6,9 @@ using Volo.Abp.Domain.Repositories;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 提供IFileNodeRepository持久化访问能力，封装查询条件和数据存取细节。
+/// </summary>
 public interface IFileNodeRepository : IRepository<FileNode, Guid>
 {
     Task<FileNode?> FindByNameAsync(

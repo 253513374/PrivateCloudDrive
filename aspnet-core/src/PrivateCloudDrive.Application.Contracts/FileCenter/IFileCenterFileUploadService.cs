@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 小文件直传应用服务契约。
+/// </summary>
 public interface IFileCenterFileUploadService
 {
     Task<FileNodeDto> UploadSmallFileAsync(

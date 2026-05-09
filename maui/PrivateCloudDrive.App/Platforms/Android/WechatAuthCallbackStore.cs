@@ -1,10 +1,16 @@
 namespace PrivateCloudDrive.App.Services;
 
+/// <summary>
+/// 表示移动认证WechatAuthCallbackStore，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 public static class WechatAuthCallbackStore
 {
     private static readonly object SyncRoot = new();
     private static PendingWechatAuth? _pending;
 
+    /// <summary>
+    /// 执行Begin操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public static Task<WechatPlatformAuthResult> BeginAsync(
         string state,
         TimeSpan timeout,
@@ -29,6 +35,9 @@ public static class WechatAuthCallbackStore
         return pending.Task;
     }
 
+    /// <summary>
+    /// 执行Complete操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public static void Complete(string? code, string? state, string? errorMessage)
     {
         PendingWechatAuth? pending;
@@ -58,6 +67,9 @@ public static class WechatAuthCallbackStore
         pending.TrySetResult(new WechatPlatformAuthResult(true, code, state, "android", null));
     }
 
+    /// <summary>
+    /// 执行Fail操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public static void Fail(string message)
     {
         PendingWechatAuth? pending;
@@ -92,6 +104,9 @@ public static class WechatAuthCallbackStore
         private readonly TaskCompletionSource<WechatPlatformAuthResult> _completion =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
 
+        /// <summary>
+        /// 执行PendingWechatAuth操作，封装该场景下的业务规则、异常处理和结果返回。
+        /// </summary>
         public PendingWechatAuth(string state)
         {
             State = state;
@@ -101,6 +116,9 @@ public static class WechatAuthCallbackStore
 
         public Task<WechatPlatformAuthResult> Task => _completion.Task;
 
+        /// <summary>
+        /// 执行TrySetResult操作，封装该场景下的业务规则、异常处理和结果返回。
+        /// </summary>
         public void TrySetResult(WechatPlatformAuthResult result)
         {
             _completion.TrySetResult(result);

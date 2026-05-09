@@ -8,6 +8,10 @@ using Volo.Abp.MultiTenancy;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 大文件分片上传会话聚合。
+/// 记录分片大小、总分片数、已上传分片和过期时间，确保客户端可断点续传且服务端可校验分片边界。
+/// </summary>
 public class UploadSession : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; private set; }
@@ -91,6 +95,9 @@ public class UploadSession : FullAuditedAggregateRoot<Guid>, IMultiTenant
         SetFileName(fileName);
     }
 
+    /// <summary>
+    /// 创建待上传会话，并校验总大小、分片大小和总分片数是否匹配。
+    /// </summary>
     public static UploadSession Create(
         Guid id,
         Guid? tenantId,
@@ -118,11 +125,17 @@ public class UploadSession : FullAuditedAggregateRoot<Guid>, IMultiTenant
             sha256);
     }
 
+    /// <summary>
+    /// 读取已成功上传的分片索引列表，用于客户端断点续传和进度展示。
+    /// </summary>
     public IReadOnlyList<int> GetUploadedChunks()
     {
         return JsonSerializer.Deserialize<List<int>>(UploadedChunksJson) ?? new List<int>();
     }
 
+    /// <summary>
+    /// 标记指定分片已上传。重复上报同一分片不会重复记录。
+    /// </summary>
     public void MarkChunkUploaded(int chunkIndex)
     {
         EnsurePending();
@@ -141,6 +154,9 @@ public class UploadSession : FullAuditedAggregateRoot<Guid>, IMultiTenant
             UploadSessionConsts.MaxUploadedChunksJsonLength)!;
     }
 
+    /// <summary>
+    /// 计算指定分片期望大小；最后一个分片允许小于标准分片大小。
+    /// </summary>
     public long GetExpectedChunkSize(int chunkIndex)
     {
         EnsureValidChunkIndex(chunkIndex);
@@ -153,6 +169,9 @@ public class UploadSession : FullAuditedAggregateRoot<Guid>, IMultiTenant
         return ChunkSize;
     }
 
+    /// <summary>
+    /// 上传会话完成后绑定最终生成的文件节点。
+    /// </summary>
     public void Complete(Guid fileNodeId)
     {
         EnsurePending();
@@ -161,6 +180,9 @@ public class UploadSession : FullAuditedAggregateRoot<Guid>, IMultiTenant
         FileNodeId = fileNodeId;
     }
 
+    /// <summary>
+    /// 取消待上传会话，后续不允许继续上传分片或完成合并。
+    /// </summary>
     public void Cancel()
     {
         EnsurePending();

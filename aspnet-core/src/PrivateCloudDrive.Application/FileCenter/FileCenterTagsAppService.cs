@@ -12,6 +12,10 @@ using Volo.Abp.Linq;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 文件标签和收藏应用服务。
+/// 标签按当前用户隔离，文件与标签通过 FileNodeTag 关联；收藏直接保存在 FileNode 上。
+/// </summary>
 [Authorize(PrivateCloudDrivePermissions.FileCenter.Tags)]
 public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsAppService
 {
@@ -21,6 +25,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
     private readonly IFileNodeRepository _fileNodeRepository;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterTagsAppService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterTagsAppService(
         IGuidGenerator guidGenerator,
         IRepository<FileTag, Guid> tagRepository,
@@ -35,6 +42,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
         _asyncExecuter = asyncExecuter;
     }
 
+    /// <summary>
+    /// 获取当前用户的全部标签，按标准化名称排序。
+    /// </summary>
     public virtual async Task<IReadOnlyList<FileTagDto>> GetListAsync()
     {
         var ownerId = GetOwnerId();
@@ -47,6 +57,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
             .ToList();
     }
 
+    /// <summary>
+    /// 创建标签，并阻止同一用户下出现大小写不同但语义相同的重复标签。
+    /// </summary>
     public virtual async Task<FileTagDto> CreateAsync(CreateFileTagInput input)
     {
         var ownerId = GetOwnerId();
@@ -64,6 +77,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
         return ToDto(tag);
     }
 
+    /// <summary>
+    /// 更新标签名称和颜色，保留已有文件关联关系。
+    /// </summary>
     public virtual async Task<FileTagDto> UpdateAsync(Guid id, UpdateFileTagInput input)
     {
         var ownerId = GetOwnerId();
@@ -78,6 +94,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
         return ToDto(tag);
     }
 
+    /// <summary>
+    /// 删除标签并清理该标签与所有文件节点的关联。
+    /// </summary>
     public virtual async Task DeleteAsync(Guid id)
     {
         var ownerId = GetOwnerId();
@@ -91,6 +110,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
         await _tagRepository.DeleteAsync(tag, autoSave: true);
     }
 
+    /// <summary>
+    /// 将标签添加到当前用户拥有的文件节点。重复添加会被幂等忽略。
+    /// </summary>
     public virtual async Task AddToNodeAsync(Guid nodeId, Guid tagId)
     {
         var ownerId = GetOwnerId();
@@ -119,6 +141,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
             autoSave: true);
     }
 
+    /// <summary>
+    /// 从当前用户拥有的文件节点移除指定标签。
+    /// </summary>
     public virtual async Task RemoveFromNodeAsync(Guid nodeId, Guid tagId)
     {
         var ownerId = GetOwnerId();
@@ -133,6 +158,9 @@ public class FileCenterTagsAppService : FileCenterAppService, IFileCenterTagsApp
                 nodeTag.TagId == tagId);
     }
 
+    /// <summary>
+    /// 设置文件或文件夹收藏状态，用于媒体库和文件列表快速筛选。
+    /// </summary>
     public virtual async Task<FileNodeDto> SetFavoriteAsync(Guid nodeId, SetFileFavoriteInput input)
     {
         var ownerId = GetOwnerId();

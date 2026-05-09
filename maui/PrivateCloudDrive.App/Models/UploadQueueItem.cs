@@ -5,6 +5,9 @@ using PrivateCloudDrive.App.Localization;
 
 namespace PrivateCloudDrive.App.Models;
 
+/// <summary>
+/// 表示UploadQueueItem组件，封装对应业务场景的状态或行为。
+/// </summary>
 public sealed class UploadQueueItem : INotifyPropertyChanged
 {
     private double _progress;
@@ -13,6 +16,9 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    /// <summary>
+    /// 初始化 <see cref="UploadQueueItem"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public UploadQueueItem(FileResult file, string targetPath)
     {
         File = file;
@@ -88,17 +94,26 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
 
     public bool IsCompleted => Status == UploadQueueStatus.Completed;
 
+    /// <summary>
+    /// 执行MarkUploading操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public void MarkUploading()
     {
         ErrorMessage = null;
         Status = UploadQueueStatus.Uploading;
     }
 
+    /// <summary>
+    /// 更新现有业务资源，并保持跨层数据和领域状态一致。
+    /// </summary>
     public void UpdateProgress(double value)
     {
         Progress = value;
     }
 
+    /// <summary>
+    /// 执行MarkCompleted操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public void MarkCompleted()
     {
         Progress = 1;
@@ -106,6 +121,9 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
         Status = UploadQueueStatus.Completed;
     }
 
+    /// <summary>
+    /// 执行MarkFailed操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public void MarkFailed(string errorMessage)
     {
         ErrorMessage = errorMessage;
@@ -118,6 +136,9 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     }
 }
 
+/// <summary>
+/// 表示UploadQueueStatus组件，封装对应业务场景的状态或行为。
+/// </summary>
 public enum UploadQueueStatus
 {
     Waiting,

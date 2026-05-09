@@ -11,6 +11,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterSharesAndTagsTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -21,6 +24,9 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
     private readonly PrivateCloudDrive.FileCenter.IFileCenterTagsAppService _tagsAppService;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterSharesAndTagsTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterSharesAndTagsTests()
     {
         _fileUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileUploadService>();
@@ -31,6 +37,9 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Create_And_Access_Password_Protected_File_Share()
     {
@@ -82,6 +91,9 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Expired_Or_Disabled_Shares()
     {
@@ -122,6 +134,9 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Tag_And_Favorite_Files_Then_Filter_List()
     {
@@ -190,6 +205,9 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Allow_Admin_To_Manage_All_Shares()
     {
@@ -237,6 +255,70 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
             });
 
             disabled.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterShareNotFound);
+        });
+    }
+
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
+    [Fact]
+    public async Task Should_Reject_Download_When_Share_Download_Is_Disabled()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("preview only");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var fileNode = await UploadTextFileAsync("preview-only.txt", content);
+            var share = await _sharesAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFileShareInput
+                {
+                    FileNodeId = fileNode.Id,
+                    AllowDownload = false
+                });
+
+            var publicSummary = await _publicSharesAppService.GetAsync(share.Token);
+            publicSummary.AllowDownload.ShouldBeFalse();
+
+            var exception = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _publicSharesAppService.GetDownloadAsync(share.Token);
+            });
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterShareDownloadDisabled);
+        });
+    }
+
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
+    [Fact]
+    public async Task Should_Not_Expose_Password_Requirement_After_Verification()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("password metadata");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var fileNode = await UploadTextFileAsync("password-metadata.txt", content);
+            var share = await _sharesAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFileShareInput
+                {
+                    FileNodeId = fileNode.Id,
+                    Password = "secret",
+                    AllowDownload = true
+                });
+
+            var summary = await _publicSharesAppService.GetAsync(share.Token);
+            summary.PasswordRequired.ShouldBeTrue();
+
+            var verified = await _publicSharesAppService.VerifyPasswordAsync(
+                share.Token,
+                new PrivateCloudDrive.FileCenter.VerifySharePasswordInput { Password = "secret" });
+
+            verified.PasswordRequired.ShouldBeFalse();
+            verified.FileName.ShouldBe("password-metadata.txt");
+            verified.AllowDownload.ShouldBeTrue();
         });
     }
 

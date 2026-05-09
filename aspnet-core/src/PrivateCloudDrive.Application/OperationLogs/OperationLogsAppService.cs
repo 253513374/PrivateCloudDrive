@@ -13,6 +13,9 @@ using Volo.Abp.Linq;
 
 namespace PrivateCloudDrive.OperationLogs;
 
+/// <summary>
+/// 提供OperationLogs相关应用服务编排，承接权限校验、业务规则调用与 DTO 映射。
+/// </summary>
 [Authorize(PrivateCloudDrivePermissions.OperationLogs.View)]
 public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLogsAppService
 {
@@ -21,6 +24,9 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
     private readonly IRepository<MobileAuthAuditLog, Guid> _mobileAuthAuditLogRepository;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
 
+    /// <summary>
+    /// 初始化 <see cref="OperationLogsAppService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public OperationLogsAppService(
         IRepository<AuditLog, Guid> auditLogRepository,
         IRepository<IdentitySecurityLog, Guid> securityLogRepository,
@@ -33,6 +39,9 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
         _asyncExecuter = asyncExecuter;
     }
 
+    /// <summary>
+    /// 查询分页列表数据，并按当前用户、租户和输入条件进行过滤。
+    /// </summary>
     public virtual async Task<PagedResultDto<OperationLogDto>> GetListAsync(GetOperationLogsInput input)
     {
         var logs = new List<OperationLogDto>();

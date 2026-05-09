@@ -5,6 +5,9 @@ using Volo.Abp.Application.Services;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 登录用户分享管理应用服务契约。
+/// </summary>
 public interface IFileCenterSharesAppService : IApplicationService
 {
     Task<FileShareDto> CreateAsync(CreateFileShareInput input);

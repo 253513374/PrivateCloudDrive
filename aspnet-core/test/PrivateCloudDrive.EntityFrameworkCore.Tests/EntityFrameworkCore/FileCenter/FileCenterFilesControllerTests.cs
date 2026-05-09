@@ -10,8 +10,14 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心FileCenterFilesControllerTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 public class FileCenterFilesControllerTests
 {
+    /// <summary>
+    /// 获取文件下载信息，并保留权限检查、范围下载和内容类型处理边界。
+    /// </summary>
     [Fact]
     public async Task Download_Should_Enable_Range_Processing()
     {
@@ -25,6 +31,9 @@ public class FileCenterFilesControllerTests
         fileResult.ContentType.ShouldBe("video/mp4");
     }
 
+    /// <summary>
+    /// 获取文件下载信息，并保留权限检查、范围下载和内容类型处理边界。
+    /// </summary>
     [Fact]
     public async Task Content_Should_Enable_Range_Processing_Without_Attachment_Name()
     {
@@ -57,12 +66,18 @@ public class FileCenterFilesControllerTests
         private readonly string _fileName;
         private readonly string _contentType;
 
+        /// <summary>
+        /// 执行StubDownloadService操作，封装该场景下的业务规则、异常处理和结果返回。
+        /// </summary>
         public StubDownloadService(string fileName, string contentType)
         {
             _fileName = fileName;
             _contentType = contentType;
         }
 
+        /// <summary>
+        /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+        /// </summary>
         public Task<PrivateCloudDrive.FileCenter.FileDownloadInfo> GetDownloadAsync(
             Guid id,
             CancellationToken cancellationToken = default)
@@ -77,6 +92,9 @@ public class FileCenterFilesControllerTests
                 });
         }
 
+        /// <summary>
+        /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+        /// </summary>
         public Task<PrivateCloudDrive.FileCenter.FileDownloadInfo> GetThumbnailAsync(
             Guid id,
             CancellationToken cancellationToken = default)
@@ -94,6 +112,9 @@ public class FileCenterFilesControllerTests
 
     private class StubUploadService : PrivateCloudDrive.FileCenter.IFileCenterFileUploadService
     {
+        /// <summary>
+        /// 处理文件上传或保存请求，校验大小、归属和存储一致性后写入数据。
+        /// </summary>
         public Task<PrivateCloudDrive.FileCenter.FileNodeDto> UploadSmallFileAsync(
             Guid? parentId,
             string fileName,
@@ -105,6 +126,9 @@ public class FileCenterFilesControllerTests
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// 删除指定业务资源；涉及文件中心时优先遵循回收站或安全删除语义。
+        /// </summary>
         public Task DeleteAsync(
             Guid id,
             CancellationToken cancellationToken = default)

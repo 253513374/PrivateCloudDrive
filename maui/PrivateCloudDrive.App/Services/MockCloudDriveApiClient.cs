@@ -2,24 +2,36 @@ using PrivateCloudDrive.App.Models;
 
 namespace PrivateCloudDrive.App.Services;
 
+/// <summary>
+/// 表示MockCloudDriveApiClient组件，封装对应业务场景的状态或行为。
+/// </summary>
 public sealed class MockCloudDriveApiClient
 {
     private static bool _isSignedIn;
 
     public bool IsSignedIn => _isSignedIn;
 
+    /// <summary>
+    /// 执行登录流程，统一处理身份校验、绑定状态、安全审计和错误返回。
+    /// </summary>
     public Task<bool> SignInAsync(string userName, string password, CancellationToken cancellationToken = default)
     {
         _isSignedIn = !string.IsNullOrWhiteSpace(userName) && !string.IsNullOrWhiteSpace(password);
         return Task.FromResult(_isSignedIn);
     }
 
+    /// <summary>
+    /// 执行SignOut操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public Task SignOutAsync(CancellationToken cancellationToken = default)
     {
         _isSignedIn = false;
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public Task<IReadOnlyList<CloudDriveItem>> GetItemsAsync(
         Guid? parentId,
         int skipCount = 0,

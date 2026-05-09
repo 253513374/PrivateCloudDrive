@@ -19,6 +19,10 @@ using Volo.Abp.Users;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 大文件分片上传应用服务。
+/// 负责创建上传会话、校验分片大小、落盘临时分片、合并文件、校验 SHA-256，并最终生成 FileNode 与媒体处理任务。
+/// </summary>
 public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITransientDependency
 {
     private const long DefaultMaxUploadFileSizeInBytes = 104857600;
@@ -40,6 +44,9 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
     private readonly FileNodeManager _fileNodeManager;
     private readonly IFileCenterMediaAssetService _mediaAssetService;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterChunkUploadService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterChunkUploadService(
         ICurrentUser currentUser,
         ICurrentTenant currentTenant,
@@ -70,6 +77,9 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
         _mediaAssetService = mediaAssetService;
     }
 
+    /// <summary>
+    /// 创建分片上传会话；会先校验用户登录、文件大小、存储配额、目标目录和同名文件冲突。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<UploadSessionDto> CreateAsync(CreateUploadSessionInput input)
     {
@@ -98,11 +108,17 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
         return ToDto(session);
     }
 
+    /// <summary>
+    /// 获取当前用户拥有的上传会话，用于客户端恢复上传进度。
+    /// </summary>
     public virtual async Task<UploadSessionDto> GetAsync(Guid id)
     {
         return ToDto(await GetOwnerSessionAsync(id));
     }
 
+    /// <summary>
+    /// 上传单个分片。服务端按会话记录校验分片索引和大小，防止客户端越界写入或错传分片。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<UploadChunkResultDto> UploadChunkAsync(
         Guid id,
@@ -138,6 +154,9 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
         };
     }
 
+    /// <summary>
+    /// 完成上传会话：确认所有分片已上传，合并临时文件，校验总大小和 SHA-256，保存 Blob 并创建文件节点。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<FileNodeDto> CompleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -206,6 +225,9 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
         return ToFileNodeDto(fileNode);
     }
 
+    /// <summary>
+    /// 取消上传会话并清理本地临时分片目录。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task CancelAsync(Guid id)
     {
@@ -340,6 +362,9 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
         return Path.Combine(sessionDirectory, $"{chunkIndex:D10}.chunk");
     }
 
+    /// <summary>
+    /// 保存单个分片到会话临时目录，并确保实际写入字节数与期望大小一致。
+    /// </summary>
     private static async Task SaveChunkAsync(
         Stream stream,
         string chunkPath,
@@ -369,6 +394,9 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
         }
     }
 
+    /// <summary>
+    /// 按分片索引顺序合并临时文件，同时计算最终文件大小和 SHA-256。
+    /// </summary>
     private static async Task<(long Size, string Sha256)> MergeChunksAsync(
         UploadSession session,
         string sessionDirectory,

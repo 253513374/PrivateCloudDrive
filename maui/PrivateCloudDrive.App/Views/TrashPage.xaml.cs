@@ -5,12 +5,18 @@ using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
 
+/// <summary>
+/// 表示TrashPage页面，承载移动端界面交互和页面级状态绑定。
+/// </summary>
 public partial class TrashPage : ContentPage
 {
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
 
     public ObservableCollection<CloudDriveItem> TrashItems { get; } = [];
 
+    /// <summary>
+    /// 初始化 <see cref="TrashPage"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public TrashPage()
     {
         InitializeComponent();

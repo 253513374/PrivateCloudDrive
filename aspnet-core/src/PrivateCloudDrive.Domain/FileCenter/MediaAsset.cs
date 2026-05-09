@@ -5,6 +5,10 @@ using Volo.Abp.MultiTenancy;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 媒体文件的派生资产聚合，保存图片/视频尺寸、时长、缩略图和处理状态。
+/// 原始文件仍由 FileNode/BlobObject 管理，本聚合只描述媒体库和预览所需的元数据。
+/// </summary>
 public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; private set; }
@@ -54,6 +58,9 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ProcessStatus = MediaAssetProcessStatus.Pending;
     }
 
+    /// <summary>
+    /// 为图片或视频创建待处理媒体资产，等待后台任务生成缩略图和元数据。
+    /// </summary>
     public static MediaAsset CreatePending(
         Guid id,
         Guid? tenantId,
@@ -64,12 +71,18 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
         return new MediaAsset(id, tenantId, ownerId, fileNodeId, mediaType);
     }
 
+    /// <summary>
+    /// 标记媒体资产开始处理，并清空上一次错误信息。
+    /// </summary>
     public void MarkProcessing()
     {
         ProcessStatus = MediaAssetProcessStatus.Processing;
         ProcessError = null;
     }
 
+    /// <summary>
+    /// 标记图片处理完成，记录尺寸、拍摄时间和缩略图 Blob。
+    /// </summary>
     public void MarkImageProcessed(
         int width,
         int height,
@@ -86,6 +99,9 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ProcessError = null;
     }
 
+    /// <summary>
+    /// 标记视频处理完成，记录尺寸、时长、编码信息和封面缩略图 Blob。
+    /// </summary>
     public void MarkVideoProcessed(
         int width,
         int height,
@@ -106,6 +122,9 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ProcessError = null;
     }
 
+    /// <summary>
+    /// 标记媒体处理失败，并截断保存可展示的错误原因。
+    /// </summary>
     public void MarkFailed(string error)
     {
         ProcessStatus = MediaAssetProcessStatus.Failed;

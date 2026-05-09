@@ -7,23 +7,35 @@ using Volo.Abp.Application.Dtos;
 
 namespace PrivateCloudDrive.Controllers.FileCenter;
 
+/// <summary>
+/// 媒体库 HTTP API 控制器。
+/// </summary>
 [Route("api/file-center/media")]
 [Authorize(PrivateCloudDrivePermissions.FileCenter.View)]
 public class FileCenterMediaLibraryController : PrivateCloudDriveController
 {
     private readonly IFileCenterMediaLibraryAppService _mediaLibraryAppService;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterMediaLibraryController"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterMediaLibraryController(IFileCenterMediaLibraryAppService mediaLibraryAppService)
     {
         _mediaLibraryAppService = mediaLibraryAppService;
     }
 
+    /// <summary>
+    /// 查询图片媒体列表。
+    /// </summary>
     [HttpGet("images")]
     public virtual Task<PagedResultDto<FileNodeDto>> GetImagesAsync([FromQuery] GetMediaFilesInput input)
     {
         return _mediaLibraryAppService.GetImagesAsync(input);
     }
 
+    /// <summary>
+    /// 查询视频媒体列表。
+    /// </summary>
     [HttpGet("videos")]
     public virtual Task<PagedResultDto<FileNodeDto>> GetVideosAsync([FromQuery] GetMediaFilesInput input)
     {

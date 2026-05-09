@@ -4,6 +4,9 @@ using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
 
+/// <summary>
+/// 表示MediaPreviewPage页面，承载移动端界面交互和页面级状态绑定。
+/// </summary>
 [QueryProperty(nameof(FileId), "id")]
 [QueryProperty(nameof(FileName), "name")]
 [QueryProperty(nameof(MediaKind), "kind")]
@@ -18,6 +21,9 @@ public partial class MediaPreviewPage : ContentPage
 
     public string MediaKind { get; set; } = string.Empty;
 
+    /// <summary>
+    /// 初始化 <see cref="MediaPreviewPage"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public MediaPreviewPage()
     {
         InitializeComponent();

@@ -7,15 +7,24 @@ using Xunit;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证EfCoreMobileAuthAuditLogsAppServiceTests，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 public class EfCoreMobileAuthAuditLogsAppServiceTests : PrivateCloudDrive.EntityFrameworkCore.PrivateCloudDriveEntityFrameworkCoreTestBase
 {
     private readonly IMobileAuthAuditLogsAppService _auditLogsAppService;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreMobileAuthAuditLogsAppServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreMobileAuthAuditLogsAppServiceTests()
     {
         _auditLogsAppService = GetRequiredService<IMobileAuthAuditLogsAppService>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Record_And_Query_Mobile_Auth_Audit_Log()
     {
@@ -47,6 +56,9 @@ public class EfCoreMobileAuthAuditLogsAppServiceTests : PrivateCloudDrive.Entity
         auditLog.UserAgent.ShouldBe("PrivateCloudDrive.MAUI");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public void Should_Keep_Audit_Input_And_Dto_Free_From_Secrets()
     {

@@ -12,12 +12,18 @@ using Volo.Abp.EntityFrameworkCore;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 提供EfCoreFileNodeRepository持久化访问能力，封装查询条件和数据存取细节。
+/// </summary>
 public class EfCoreFileNodeRepository
     : EfCoreRepository<PrivateCloudDriveDbContext, FileNode, Guid>,
         IFileNodeRepository
 {
     private readonly IDataFilter<ISoftDelete> _softDeleteFilter;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileNodeRepository"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileNodeRepository(
         IDbContextProvider<PrivateCloudDriveDbContext> dbContextProvider,
         IDataFilter<ISoftDelete> softDeleteFilter)
@@ -26,6 +32,9 @@ public class EfCoreFileNodeRepository
         _softDeleteFilter = softDeleteFilter;
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<FileNode?> FindByNameAsync(
         Guid ownerId,
         Guid? parentId,
@@ -58,6 +67,9 @@ public class EfCoreFileNodeRepository
         }
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<FileNode?> FindByIdAsync(
         Guid id,
         Guid ownerId,
@@ -86,6 +98,9 @@ public class EfCoreFileNodeRepository
         }
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<List<FileNode>> GetChildrenAsync(
         Guid ownerId,
         Guid? parentId,
@@ -118,6 +133,9 @@ public class EfCoreFileNodeRepository
         }
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<long> GetChildrenCountAsync(
         Guid ownerId,
         Guid? parentId,
@@ -164,6 +182,9 @@ public class EfCoreFileNodeRepository
         return queryable;
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<List<FileNode>> GetDeletedRootsAsync(
         Guid ownerId,
         int skipCount,
@@ -194,6 +215,9 @@ public class EfCoreFileNodeRepository
         }
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<long> GetDeletedRootsCountAsync(
         Guid ownerId,
         Guid? tenantId = null,
@@ -219,6 +243,9 @@ public class EfCoreFileNodeRepository
         }
     }
 
+    /// <summary>
+    /// 删除指定业务资源；涉及文件中心时优先遵循回收站或安全删除语义。
+    /// </summary>
     public async Task DeleteByIdDirectAsync(
         Guid id,
         CancellationToken cancellationToken = default)

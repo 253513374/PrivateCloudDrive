@@ -83,6 +83,22 @@
                         <Label x:Name="WechatStatusLabel"
                                Style="{StaticResource MetaLabel}"
                                LineBreakMode="WordWrap" />
+                        <Button x:Name="GoogleSignInButton"
+                                Text="{x:Static loc:AppText.SignInWithGoogle}"
+                                Style="{StaticResource SecondaryButton}"
+                                IsEnabled="False"
+                                Clicked="OnGoogleSignInClicked" />
+                        <Label x:Name="GoogleStatusLabel"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                        <Button x:Name="GitHubSignInButton"
+                                Text="{x:Static loc:AppText.SignInWithGitHub}"
+                                Style="{StaticResource SecondaryButton}"
+                                IsEnabled="False"
+                                Clicked="OnGitHubSignInClicked" />
+                        <Label x:Name="GitHubStatusLabel"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
                         <HorizontalStackLayout x:Name="SignInLoadingPanel"
                                                IsVisible="False"
                                                Spacing="8"
@@ -94,6 +110,13 @@
                             <Label Text="{x:Static loc:AppText.SigningIn}"
                                    Style="{StaticResource MetaLabel}"
                                    VerticalOptions="Center" />
+                            <Button x:Name="SignInCancelButton"
+                                    Text="{x:Static loc:AppText.Cancel}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Padding="12,4"
+                                    HeightRequest="32"
+                                    IsVisible="False"
+                                    Clicked="OnCancelSignInClicked" />
                         </HorizontalStackLayout>
                         <Label x:Name="ValidationLabel"
                                IsVisible="False"

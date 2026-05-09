@@ -3,6 +3,9 @@ using Volo.Abp.Application.Dtos;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 文件中心节点 DTO，统一表示文件夹和文件。
+/// </summary>
 public class FileNodeDto : EntityDto<Guid>
 {
     public Guid? TenantId { get; set; }

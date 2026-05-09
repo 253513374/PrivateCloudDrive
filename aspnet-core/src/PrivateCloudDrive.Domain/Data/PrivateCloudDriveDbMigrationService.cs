@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +15,9 @@ using Volo.Abp.TenantManagement;
 
 namespace PrivateCloudDrive.Data;
 
+/// <summary>
+/// 提供PrivateCloudDriveDbMigration服务能力，封装可复用的业务或基础设施逻辑。
+/// </summary>
 public class PrivateCloudDriveDbMigrationService : ITransientDependency
 {
     public ILogger<PrivateCloudDriveDbMigrationService> Logger { get; set; }
@@ -24,6 +27,9 @@ public class PrivateCloudDriveDbMigrationService : ITransientDependency
     private readonly ITenantRepository _tenantRepository;
     private readonly ICurrentTenant _currentTenant;
 
+    /// <summary>
+    /// 初始化 <see cref="PrivateCloudDriveDbMigrationService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public PrivateCloudDriveDbMigrationService(
         IDataSeeder dataSeeder,
         IEnumerable<IPrivateCloudDriveDbSchemaMigrator> dbSchemaMigrators,
@@ -38,6 +44,9 @@ public class PrivateCloudDriveDbMigrationService : ITransientDependency
         Logger = NullLogger<PrivateCloudDriveDbMigrationService>.Instance;
     }
 
+    /// <summary>
+    /// 执行数据库迁移流程，使当前数据库结构与应用模型保持一致。
+    /// </summary>
     public async Task MigrateAsync()
     {
         var initialMigrationAdded = AddInitialMigrationIfNotExist();

@@ -14,8 +14,8 @@ using PrivateCloudDrive.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Microsoft.OpenApi;
-using PrivateCloudDrive.MobileAuth;
 using OpenIddict.Server;
+using PrivateCloudDrive.MobileAuth;
 using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 using Volo.Abp;
@@ -31,6 +31,7 @@ using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
+using Volo.Abp.OpenIddict.ExtensionGrantTypes;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation;
@@ -39,6 +40,9 @@ using Volo.Abp.VirtualFileSystem;
 
 namespace PrivateCloudDrive;
 
+/// <summary>
+/// 配置PrivateCloudDriveHttpApiHostModule模块依赖、服务注册和框架集成行为。
+/// </summary>
 [DependsOn(
     typeof(PrivateCloudDriveHttpApiModule),
     typeof(AbpAutofacModule),
@@ -53,6 +57,9 @@ namespace PrivateCloudDrive;
 )]
 public class PrivateCloudDriveHttpApiHostModule : AbpModule
 {
+    /// <summary>
+    /// 配置模块服务、选项或框架扩展点，确保运行时行为符合项目约定。
+    /// </summary>
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
@@ -79,6 +86,7 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
             builder.AllowPasswordFlow();
             builder.AllowRefreshTokenFlow();
             builder.AllowCustomFlow(WechatLoginConsts.GrantType);
+            builder.AllowCustomFlow(ExternalLoginConsts.GrantType);
             builder.SetRevocationEndpointUris("/connect/revocation");
             builder.AddEventHandler<OpenIddictServerEvents.ValidateTokenRequestContext>(options =>
             {
@@ -88,10 +96,6 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
             {
                 options.UseScopedHandler<PasswordLoginRateLimitResponseHandler>();
             });
-            builder.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(options =>
-            {
-                options.UseScopedHandler<WechatTokenGrantHandler>();
-            });
 
             if (!requireHttpsMetadata)
             {
@@ -100,6 +104,9 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         });
     }
 
+    /// <summary>
+    /// 配置模块服务、选项或框架扩展点，确保运行时行为符合项目约定。
+    /// </summary>
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
@@ -113,7 +120,20 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureBackgroundJobs(configuration);
+        ConfigureTokenExtensionGrants();
         ConfigureSwaggerServices(context, configuration);
+    }
+
+    private void ConfigureTokenExtensionGrants()
+    {
+        Configure<AbpOpenIddictExtensionGrantsOptions>(options =>
+        {
+            options.Grants.Remove(WechatLoginConsts.GrantType);
+            options.Grants.Add(WechatLoginConsts.GrantType, new WechatTokenExtensionGrant());
+
+            options.Grants.Remove(ExternalLoginConsts.GrantType);
+            options.Grants.Add(ExternalLoginConsts.GrantType, new ExternalTokenExtensionGrant());
+        });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -239,6 +259,9 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         });
     }
 
+    /// <summary>
+    /// 响应框架生命周期或界面事件，并协调页面状态与业务操作。
+    /// </summary>
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {
         var app = context.GetApplicationBuilder();

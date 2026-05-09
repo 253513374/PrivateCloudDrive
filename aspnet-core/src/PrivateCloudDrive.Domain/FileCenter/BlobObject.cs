@@ -5,6 +5,9 @@ using Volo.Abp.MultiTenancy;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 表示文件中心BlobObject，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 public class BlobObject : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; private set; }
@@ -56,6 +59,9 @@ public class BlobObject : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Hash = Check.Length(hash, nameof(hash), BlobObjectConsts.MaxHashLength);
     }
 
+    /// <summary>
+    /// 创建新的业务资源，并在持久化前执行必要的权限和规则校验。
+    /// </summary>
     public static BlobObject Create(
         Guid id,
         Guid? tenantId,

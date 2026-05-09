@@ -11,23 +11,36 @@ using PrivateCloudDrive.App.Models;
 
 namespace PrivateCloudDrive.App.Services;
 
+/// <summary>
+/// 基于 OpenIddict 的 MAUI 认证服务实现。
+/// 负责 password grant、authorization code + PKCE、微信扩展 grant、Google/GitHub 外部 grant 以及安全存储 Token。
+/// </summary>
 public sealed class OpenIddictAuthService : IAuthService
 {
     private const string TokenStorageKey = "auth.tokens";
     private const string WechatGrantType = "urn:privateclouddrive:wechat";
     private const string WechatBindingRequiredError = "wechat_binding_required";
+    private const string ExternalGrantType = "urn:privateclouddrive:external";
+    private const string ExternalBindingRequiredError = "external_binding_required";
     private static readonly TimeSpan RefreshSkew = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan BrowserAuthenticationTimeout = TimeSpan.FromSeconds(45);
 
     private readonly HttpClient _httpClient = new()
     {
         BaseAddress = new Uri(AppSettings.ApiBaseUrl)
     };
 
+    /// <summary>
+    /// 检查本地是否存在可用 access token。
+    /// </summary>
     public async Task<bool> IsSignedInAsync(CancellationToken cancellationToken = default)
     {
         return !string.IsNullOrWhiteSpace(await GetAccessTokenAsync(cancellationToken));
     }
 
+    /// <summary>
+    /// 使用账号密码登录；登录失败会清理本地 Token，避免继续使用旧会话。
+    /// </summary>
     public async Task SignInAsync(
         string userName,
         string password,
@@ -71,6 +84,9 @@ public sealed class OpenIddictAuthService : IAuthService
         }
     }
 
+    /// <summary>
+    /// 执行登录流程，统一处理身份校验、绑定状态、安全审计和错误返回。
+    /// </summary>
     public async Task<WechatSignInResult> SignInWithWechatCodeAsync(
         string code,
         string? state,
@@ -108,6 +124,104 @@ public sealed class OpenIddictAuthService : IAuthService
         }
     }
 
+    /// <summary>
+    /// 发起第三方 Provider 授权，生成 state 和可选 PKCE challenge，并验证回调结果。
+    /// </summary>
+    public async Task<ExternalAuthorizationResult> AuthorizeExternalAsync(
+        ExternalLoginProviderSettings provider,
+        CancellationToken cancellationToken = default)
+    {
+        if (!provider.IsEnabled ||
+            string.IsNullOrWhiteSpace(provider.ClientId) ||
+            string.IsNullOrWhiteSpace(provider.AuthorizationEndpoint) ||
+            string.IsNullOrWhiteSpace(provider.RedirectUri))
+        {
+            throw new InvalidOperationException("External sign-in provider is not enabled.");
+        }
+
+        var state = CreateBase64UrlRandom(32);
+        var codeVerifier = provider.UsePkce ? CreateBase64UrlRandom(32) : null;
+        var codeChallenge = string.IsNullOrWhiteSpace(codeVerifier)
+            ? null
+            : CreateCodeChallenge(codeVerifier);
+        var callbackUrl = new Uri(provider.RedirectUri);
+        var authorizationUrl = BuildExternalAuthorizeUri(provider, state, codeChallenge);
+
+        var result = await AuthenticateAsync(authorizationUrl, callbackUrl, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (result.TryGetValue("error", out var error))
+        {
+            throw new InvalidOperationException(error);
+        }
+
+        if (!result.TryGetValue("state", out var returnedState) ||
+            returnedState != state)
+        {
+            throw new InvalidOperationException("Invalid external sign-in state.");
+        }
+
+        if (!result.TryGetValue("code", out var authorizationCode) ||
+            string.IsNullOrWhiteSpace(authorizationCode))
+        {
+            throw new InvalidOperationException("External provider did not return an authorization code.");
+        }
+
+        return new ExternalAuthorizationResult(
+            provider.Provider,
+            authorizationCode,
+            returnedState,
+            provider.RedirectUri,
+            codeVerifier);
+    }
+
+    /// <summary>
+    /// 将第三方授权结果提交给后端扩展 grant；未绑定时返回绑定票据而不是抛出普通登录失败。
+    /// </summary>
+    public async Task<ExternalSignInResult> SignInWithExternalCodeAsync(
+        string provider,
+        string code,
+        string? state,
+        string redirectUri,
+        string? codeVerifier,
+        string? deviceIdHash,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(provider) || string.IsNullOrWhiteSpace(code))
+        {
+            throw new InvalidOperationException("External sign-in provider and authorization code are required.");
+        }
+
+        try
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                ["grant_type"] = ExternalGrantType,
+                ["client_id"] = AppSettings.OAuthClientId,
+                ["provider"] = provider.Trim(),
+                ["code"] = code.Trim(),
+                ["redirect_uri"] = redirectUri,
+                ["scope"] = AppSettings.OAuthScopes
+            };
+
+            AddOptionalParameter(parameters, "state", state);
+            AddOptionalParameter(parameters, "code_verifier", codeVerifier);
+            AddOptionalParameter(parameters, "device_id", deviceIdHash);
+
+            var tokenResponse = await RequestTokenAsync(parameters, cancellationToken);
+            await SaveTokenSetAsync(tokenResponse, cancellationToken);
+
+            return ExternalSignInResult.Success();
+        }
+        catch (OAuthTokenException exception) when (exception.Error == ExternalBindingRequiredError)
+        {
+            return ExternalSignInResult.RequireBinding(exception.BindingTicket, exception.Message);
+        }
+    }
+
+    /// <summary>
+    /// 使用系统浏览器完成本系统 OpenIddict authorization code + PKCE 登录。
+    /// </summary>
     public async Task SignInWithBrowserAsync(CancellationToken cancellationToken = default)
     {
         var state = CreateBase64UrlRandom(32);
@@ -151,6 +265,9 @@ public sealed class OpenIddictAuthService : IAuthService
         await SaveTokenSetAsync(tokenResponse, cancellationToken);
     }
 
+    /// <summary>
+    /// 执行SignOut操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public async Task SignOutAsync(CancellationToken cancellationToken = default)
     {
         await SignOutInternalAsync(recordAudit: true, cancellationToken);
@@ -194,6 +311,9 @@ public sealed class OpenIddictAuthService : IAuthService
         }
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     public async Task<string?> GetAccessTokenAsync(CancellationToken cancellationToken = default)
     {
         var tokenSet = await LoadTokenSetAsync(cancellationToken);
@@ -258,7 +378,20 @@ public sealed class OpenIddictAuthService : IAuthService
 #if WINDOWS
         return await AuthenticateWithLoopbackRedirectAsync(authorizationUrl, callbackUrl, cancellationToken);
 #else
-        var result = await WebAuthenticator.Default.AuthenticateAsync(authorizationUrl, callbackUrl);
+        var authenticationTask = WebAuthenticator.Default.AuthenticateAsync(authorizationUrl, callbackUrl);
+        var timeoutTask = Task.Delay(BrowserAuthenticationTimeout, cancellationToken);
+        var completedTask = await Task.WhenAny(authenticationTask, timeoutTask);
+
+        if (completedTask != authenticationTask)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _ = authenticationTask.ContinueWith(
+                task => _ = task.Exception,
+                TaskContinuationOptions.OnlyOnFaulted);
+            throw new TimeoutException("External browser sign-in timed out.");
+        }
+
+        var result = await authenticationTask;
         return result.Properties;
 #endif
     }
@@ -367,6 +500,30 @@ public sealed class OpenIddictAuthService : IAuthService
         return new Uri($"{AppSettings.ApiBaseUrl.TrimEnd('/')}/connect/authorize?{query}");
     }
 
+    private static Uri BuildExternalAuthorizeUri(
+        ExternalLoginProviderSettings provider,
+        string state,
+        string? codeChallenge)
+    {
+        var parameters = new Dictionary<string, string>
+        {
+            ["client_id"] = provider.ClientId!,
+            ["redirect_uri"] = provider.RedirectUri,
+            ["response_type"] = "code",
+            ["state"] = state
+        };
+
+        AddOptionalParameter(parameters, "scope", provider.Scope);
+
+        if (!string.IsNullOrWhiteSpace(codeChallenge))
+        {
+            parameters["code_challenge"] = codeChallenge;
+            parameters["code_challenge_method"] = "S256";
+        }
+
+        return new Uri($"{provider.AuthorizationEndpoint}?{BuildQueryString(parameters)}");
+    }
+
     private async Task<TokenResponse> RequestTokenAsync(
         IReadOnlyDictionary<string, string> parameters,
         CancellationToken cancellationToken)
@@ -377,7 +534,7 @@ public sealed class OpenIddictAuthService : IAuthService
 
         if (!response.IsSuccessStatusCode)
         {
-            throw CreateOAuthTokenException(responseText);
+            throw CreateOAuthTokenException(response.StatusCode, response.ReasonPhrase, responseText);
         }
 
         var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseText);
@@ -526,10 +683,13 @@ public sealed class OpenIddictAuthService : IAuthService
 
     private static string GetOAuthError(string responseText)
     {
-        return CreateOAuthTokenException(responseText).Message;
+        return CreateOAuthTokenException(null, null, responseText).Message;
     }
 
-    private static OAuthTokenException CreateOAuthTokenException(string responseText)
+    private static OAuthTokenException CreateOAuthTokenException(
+        System.Net.HttpStatusCode? statusCode,
+        string? reasonPhrase,
+        string responseText)
     {
         try
         {
@@ -552,10 +712,29 @@ public sealed class OpenIddictAuthService : IAuthService
             // Fall through to the raw response body.
         }
 
-        var message = string.IsNullOrWhiteSpace(responseText)
-            ? "OpenIddict token request failed."
-            : responseText;
+        var message = BuildOAuthErrorMessage(statusCode, reasonPhrase, responseText);
         return new OAuthTokenException("invalid_grant", message, null);
+    }
+
+    private static string BuildOAuthErrorMessage(
+        System.Net.HttpStatusCode? statusCode,
+        string? reasonPhrase,
+        string responseText)
+    {
+        var status = statusCode.HasValue
+            ? $" HTTP {(int)statusCode.Value} {statusCode.Value}"
+            : string.Empty;
+
+        var reason = string.IsNullOrWhiteSpace(reasonPhrase)
+            ? string.Empty
+            : $" {reasonPhrase.Trim()}";
+
+        if (string.IsNullOrWhiteSpace(responseText))
+        {
+            return $"OpenIddict token request failed.{status}{reason}".Trim();
+        }
+
+        return responseText;
     }
 
     private sealed class TokenResponse
@@ -598,6 +777,9 @@ public sealed class OpenIddictAuthService : IAuthService
 
     private sealed class OAuthTokenException : InvalidOperationException
     {
+        /// <summary>
+        /// 执行OAuthTokenException操作，封装该场景下的业务规则、异常处理和结果返回。
+        /// </summary>
         public OAuthTokenException(string error, string message, string? bindingTicket)
             : base(message)
         {

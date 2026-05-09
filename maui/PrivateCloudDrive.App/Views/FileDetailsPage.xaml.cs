@@ -4,6 +4,9 @@ using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
 
+/// <summary>
+/// 表示FileDetailsPage页面，承载移动端界面交互和页面级状态绑定。
+/// </summary>
 [QueryProperty(nameof(FileId), "id")]
 [QueryProperty(nameof(FileName), "name")]
 [QueryProperty(nameof(FileKind), "kind")]
@@ -94,6 +97,9 @@ public partial class FileDetailsPage : ContentPage
 
     public bool IsImageDetails => string.Equals(_rawFileKind, "Image", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// 初始化 <see cref="FileDetailsPage"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileDetailsPage()
     {
         InitializeComponent();

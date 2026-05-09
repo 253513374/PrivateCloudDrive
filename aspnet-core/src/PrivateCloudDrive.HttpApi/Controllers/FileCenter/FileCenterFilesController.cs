@@ -8,6 +8,10 @@ using PrivateCloudDrive.Permissions;
 
 namespace PrivateCloudDrive.Controllers.FileCenter;
 
+/// <summary>
+/// 文件上传、下载、预览和删除 HTTP API 控制器。
+/// 下载类接口通过应用服务校验当前用户权限后返回文件流。
+/// </summary>
 [Route("api/file-center/files")]
 [Authorize]
 public class FileCenterFilesController : PrivateCloudDriveController
@@ -15,6 +19,9 @@ public class FileCenterFilesController : PrivateCloudDriveController
     private readonly IFileCenterFileUploadService _fileUploadService;
     private readonly IFileCenterFileDownloadService _fileDownloadService;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterFilesController"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterFilesController(
         IFileCenterFileUploadService fileUploadService,
         IFileCenterFileDownloadService fileDownloadService)
@@ -23,6 +30,9 @@ public class FileCenterFilesController : PrivateCloudDriveController
         _fileDownloadService = fileDownloadService;
     }
 
+    /// <summary>
+    /// 小文件直传入口，适合一次请求完成上传的文件。
+    /// </summary>
     [HttpPost("upload-small")]
     [Consumes("multipart/form-data")]
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Upload)]
@@ -39,6 +49,9 @@ public class FileCenterFilesController : PrivateCloudDriveController
             HttpContext.RequestAborted);
     }
 
+    /// <summary>
+    /// 下载原始文件。启用 RangeProcessing 以支持断点下载和视频拖动。
+    /// </summary>
     [HttpGet("{id}/download")]
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Download)]
     public virtual async Task<IActionResult> DownloadAsync(Guid id)
@@ -52,6 +65,9 @@ public class FileCenterFilesController : PrivateCloudDriveController
         };
     }
 
+    /// <summary>
+    /// 返回浏览器可内嵌预览的文件内容。
+    /// </summary>
     [HttpGet("{id}/content")]
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Download)]
     public virtual async Task<IActionResult> ContentAsync(Guid id)
@@ -64,6 +80,9 @@ public class FileCenterFilesController : PrivateCloudDriveController
         };
     }
 
+    /// <summary>
+    /// 返回图片或视频的缩略图内容。
+    /// </summary>
     [HttpGet("{id}/thumbnail")]
     [Authorize(PrivateCloudDrivePermissions.FileCenter.View)]
     public virtual async Task<IActionResult> ThumbnailAsync(Guid id)
@@ -73,6 +92,9 @@ public class FileCenterFilesController : PrivateCloudDriveController
         return new FileStreamResult(file.Content, file.ContentType);
     }
 
+    /// <summary>
+    /// 删除文件节点，使其进入回收站。
+    /// </summary>
     [HttpDelete("{id}")]
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
     public virtual async Task<IActionResult> DeleteAsync(Guid id)

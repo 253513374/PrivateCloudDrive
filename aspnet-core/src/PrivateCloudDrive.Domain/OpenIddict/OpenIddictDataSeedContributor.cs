@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -22,6 +22,9 @@ namespace PrivateCloudDrive.OpenIddict;
 /* Creates initial data that is needed to property run the application
  * and make client-to-server communication possible.
  */
+/// <summary>
+/// 表示OpenIddictDataSeedContributor组件，封装对应业务场景的状态或行为。
+/// </summary>
 public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDependency
 {
     private readonly IConfiguration _configuration;
@@ -32,6 +35,9 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
     private readonly IPermissionDataSeeder _permissionDataSeeder;
     private readonly IStringLocalizer<OpenIddictResponse> L;
 
+    /// <summary>
+    /// 初始化 <see cref="OpenIddictDataSeedContributor"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public OpenIddictDataSeedContributor(
         IConfiguration configuration,
         IOpenIddictApplicationRepository openIddictApplicationRepository,
@@ -50,6 +56,9 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
         L = l;
     }
 
+    /// <summary>
+    /// 初始化种子数据，确保运行或测试环境具备必要的基础配置。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task SeedAsync(DataSeedContext context)
     {
@@ -126,7 +135,8 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                     OpenIddictConstants.GrantTypes.AuthorizationCode,
                     OpenIddictConstants.GrantTypes.Password,
                     OpenIddictConstants.GrantTypes.RefreshToken,
-                    WechatLoginConsts.GrantType
+                    WechatLoginConsts.GrantType,
+                    ExternalLoginConsts.GrantType
                 },
                 scopes: appScopes,
                 redirectUris: appRedirectUris,
@@ -333,35 +343,46 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             return;
         }
 
+        var shouldUpdateClient = false;
+
         if (!HasSameRedirectUris(client, application) ||
             !HasSamePostLogoutRedirectUris(client, application))
         {
-            client.RedirectUris = JsonSerializer.Serialize(application.RedirectUris.Select(q => q.ToString().TrimEnd('/')));
-            client.PostLogoutRedirectUris = JsonSerializer.Serialize(application.PostLogoutRedirectUris.Select(q => q.ToString().TrimEnd('/')));
-
-            await _applicationManager.UpdateAsync(client.ToModel());
+            client.RedirectUris = SerializeValues(application.RedirectUris.Select(q => q.ToString()));
+            client.PostLogoutRedirectUris = SerializeValues(application.PostLogoutRedirectUris.Select(q => q.ToString()));
+            shouldUpdateClient = true;
         }
 
-        if (!HasSameScopes(client, application))
+        if (!HasSamePermissions(client, application))
         {
-            client.Permissions = JsonSerializer.Serialize(application.Permissions.Select(q => q.ToString()));
-            await _applicationManager.UpdateAsync(client.ToModel());
+            client.Permissions = SerializeValues(application.Permissions.Select(q => q.ToString()));
+            shouldUpdateClient = true;
+        }
+
+        if (shouldUpdateClient)
+        {
+            await _openIddictApplicationRepository.UpdateAsync(client, autoSave: true);
         }
     }
 
     private bool HasSameRedirectUris(OpenIddictApplication existingClient, AbpApplicationDescriptor application)
     {
-        return existingClient.RedirectUris == JsonSerializer.Serialize(application.RedirectUris.Select(q => q.ToString().TrimEnd('/')));
+        return existingClient.RedirectUris == SerializeValues(application.RedirectUris.Select(q => q.ToString()));
     }
 
     private bool HasSamePostLogoutRedirectUris(OpenIddictApplication existingClient, AbpApplicationDescriptor application)
     {
-        return existingClient.PostLogoutRedirectUris == JsonSerializer.Serialize(application.PostLogoutRedirectUris.Select(q => q.ToString().TrimEnd('/')));
+        return existingClient.PostLogoutRedirectUris == SerializeValues(application.PostLogoutRedirectUris.Select(q => q.ToString()));
     }
 
-    private bool HasSameScopes(OpenIddictApplication existingClient, AbpApplicationDescriptor application)
+    private bool HasSamePermissions(OpenIddictApplication existingClient, AbpApplicationDescriptor application)
     {
-        return existingClient.Permissions == JsonSerializer.Serialize(application.Permissions.Select(q => q.ToString().TrimEnd('/')));
+        return existingClient.Permissions == SerializeValues(application.Permissions.Select(q => q.ToString()));
+    }
+
+    private static string SerializeValues(IEnumerable<string> values)
+    {
+        return JsonSerializer.Serialize(values.Select(value => value.TrimEnd('/')));
     }
 
     private static List<string> GetConfiguredUris(

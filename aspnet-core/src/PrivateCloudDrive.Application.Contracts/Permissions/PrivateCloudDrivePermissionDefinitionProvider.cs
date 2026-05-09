@@ -1,11 +1,17 @@
-﻿using PrivateCloudDrive.Localization;
+using PrivateCloudDrive.Localization;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Localization;
 
 namespace PrivateCloudDrive.Permissions;
 
+/// <summary>
+/// 表示PrivateCloudDrivePermissionDefinitionProvider组件，封装对应业务场景的状态或行为。
+/// </summary>
 public class PrivateCloudDrivePermissionDefinitionProvider : PermissionDefinitionProvider
 {
+    /// <summary>
+    /// 执行Define操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public override void Define(IPermissionDefinitionContext context)
     {
         var privateCloudDriveGroup = context.AddGroup(

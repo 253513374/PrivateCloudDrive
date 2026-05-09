@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 分片上传会话状态 DTO，供客户端展示进度和恢复上传。
+/// </summary>
 public class UploadSessionDto
 {
     public Guid Id { get; set; }

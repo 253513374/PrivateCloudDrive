@@ -15,6 +15,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证EfCoreWechatAuthAppServiceTests，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFrameworkCore.PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -28,6 +31,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
     private readonly WechatLoginOptions _wechatOptions;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreWechatAuthAppServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreWechatAuthAppServiceTests()
     {
         _wechatLoginService = GetRequiredService<IWechatLoginService>();
@@ -39,6 +45,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
         _wechatOptions = GetRequiredService<IOptions<WechatLoginOptions>>().Value;
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Create_Binding_Ticket_When_Wechat_Login_Is_Not_Bound()
     {
@@ -63,6 +72,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.DeviceIdHash == "device-hash-1");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Bind_Existing_User_And_Login_With_Wechat()
     {
@@ -127,6 +139,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.UserId == user.Id);
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Prevent_Wechat_Binding_From_Moving_To_Another_User()
     {
@@ -168,6 +183,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.DeviceIdHash == "device-hash-2");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Count_Failed_Bind_Existing_Password_Attempts_Without_Consuming_Ticket()
     {
@@ -223,6 +241,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.UserId == user.Id);
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Prevent_Locked_Out_User_From_Login_With_Bound_Wechat()
     {
@@ -266,6 +287,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.DeviceIdHash == "locked-device");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Unbind_Current_User_Without_Removing_Password_Login()
     {
@@ -318,6 +342,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.UserId == user.Id);
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Audit_Unbind_When_Current_User_Has_No_Wechat_Binding()
     {
@@ -337,6 +364,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.UserId == user.Id);
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Record_Safe_Wechat_Exchange_Failure_Without_Secrets()
     {
@@ -360,6 +390,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.FailureReason.Contains(TestWechatIdentityService.FailedCode, StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Rate_Limit_Wechat_Login_Attempts()
     {
@@ -399,6 +432,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.DeviceIdHash == "rate-login-device");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Rate_Limit_Wechat_Bind_Existing_Attempts()
     {
@@ -439,6 +475,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.UserName == "rate-limit-bind@example.test");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Rate_Limit_Wechat_Bind_Current_And_Unbind_Attempts()
     {
@@ -497,6 +536,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
             log.UserId == user.Id);
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public void Should_Keep_Wechat_Output_Dtos_Free_From_Secrets()
     {
@@ -513,6 +555,9 @@ public class EfCoreWechatAuthAppServiceTests : PrivateCloudDrive.EntityFramework
         propertyNames.ShouldNotContain("RefreshToken");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public void Should_Use_Postgres_Safe_Unique_Indexes_For_Wechat_Bindings()
     {

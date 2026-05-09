@@ -14,6 +14,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterFileUploadServiceTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -24,6 +27,9 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
     private readonly IDataFilter<ISoftDelete> _softDeleteFilter;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterFileUploadServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterFileUploadServiceTests()
     {
         _fileUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileUploadService>();
@@ -34,6 +40,9 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Upload_Small_File_And_Create_FileNode_And_BlobObject()
     {
@@ -80,6 +89,9 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Delete_File_To_Recycle_Bin()
     {
@@ -118,6 +130,9 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Release_Blob_When_File_Is_Permanently_Deleted()
     {
@@ -154,6 +169,9 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Too_Large_File()
     {
@@ -178,6 +196,9 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_When_User_Storage_Quota_Is_Exceeded()
     {
@@ -217,6 +238,9 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Duplicate_File_Name_In_Folder()
     {

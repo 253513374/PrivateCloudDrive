@@ -30,6 +30,9 @@ class Program
         await CreateHostBuilder(args).RunConsoleAsync();
     }
 
+    /// <summary>
+    /// 创建新的业务资源，并在持久化前执行必要的权限和规则校验。
+    /// </summary>
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .AddAppSettingsSecretsJson()

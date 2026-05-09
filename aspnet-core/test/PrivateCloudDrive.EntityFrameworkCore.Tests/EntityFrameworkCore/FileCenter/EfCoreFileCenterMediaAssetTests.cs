@@ -18,6 +18,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterMediaAssetTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -33,6 +36,9 @@ public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkC
     private readonly IDataFilter<ISoftDelete> _softDeleteFilter;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterMediaAssetTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterMediaAssetTests()
     {
         _fileUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileUploadService>();
@@ -48,6 +54,9 @@ public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkC
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Process_Image_And_Expose_Thumbnail()
     {
@@ -97,6 +106,9 @@ public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkC
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Remove_MediaAsset_And_Thumbnail_When_File_Is_Permanently_Deleted()
     {
@@ -144,6 +156,9 @@ public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkC
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Process_Video_And_Expose_Cover_Thumbnail()
     {
@@ -198,6 +213,9 @@ public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkC
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Create_Pending_MediaAsset_And_BackgroundJob_For_Image_Upload()
     {
@@ -229,6 +247,9 @@ public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkC
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Create_Pending_MediaAsset_And_BackgroundJob_For_Chunked_Video_Upload()
     {
@@ -270,6 +291,9 @@ public class EfCoreFileCenterMediaAssetTests : PrivateCloudDriveEntityFrameworkC
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Not_Create_MediaAsset_For_NonMedia_File()
     {

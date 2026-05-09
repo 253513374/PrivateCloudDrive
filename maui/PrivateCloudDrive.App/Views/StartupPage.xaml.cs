@@ -3,12 +3,18 @@ using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
 
+/// <summary>
+/// 表示StartupPage页面，承载移动端界面交互和页面级状态绑定。
+/// </summary>
 public partial class StartupPage : ContentPage
 {
     private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
     private bool _checking;
     private bool _navigated;
 
+    /// <summary>
+    /// 初始化 <see cref="StartupPage"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public StartupPage()
     {
         InitializeComponent();

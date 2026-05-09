@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,8 +8,14 @@ using Serilog.Events;
 
 namespace PrivateCloudDrive;
 
+/// <summary>
+/// 表示Program组件，封装对应业务场景的状态或行为。
+/// </summary>
 public class Program
 {
+    /// <summary>
+    /// 执行Main操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public async static Task<int> Main(string[] args)
     {
         Log.Logger = new LoggerConfiguration()

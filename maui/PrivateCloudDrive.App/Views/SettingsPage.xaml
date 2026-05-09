@@ -127,6 +127,78 @@
                     </VerticalStackLayout>
                 </Border>
 
+                <Border Padding="16"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{x:Static loc:AppText.Google}" Style="{StaticResource SectionTitleLabel}" />
+                                <Label x:Name="GoogleStatusLabel"
+                                       Text="{x:Static loc:AppText.Checking}"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                            <ActivityIndicator x:Name="GoogleLoadingIndicator"
+                                               Grid.Column="1"
+                                               WidthRequest="20"
+                                               HeightRequest="20"
+                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button x:Name="GoogleBindButton"
+                                    Text="{x:Static loc:AppText.BindGoogle}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    IsVisible="False"
+                                    Clicked="OnGoogleBindClicked" />
+                            <Button x:Name="GoogleUnbindButton"
+                                    Grid.Column="1"
+                                    Text="{x:Static loc:AppText.Unbind}"
+                                    Style="{StaticResource DangerButton}"
+                                    IsVisible="False"
+                                    Clicked="OnGoogleUnbindClicked" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Padding="16"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{x:Static loc:AppText.GitHub}" Style="{StaticResource SectionTitleLabel}" />
+                                <Label x:Name="GitHubStatusLabel"
+                                       Text="{x:Static loc:AppText.Checking}"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                            <ActivityIndicator x:Name="GitHubLoadingIndicator"
+                                               Grid.Column="1"
+                                               WidthRequest="20"
+                                               HeightRequest="20"
+                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button x:Name="GitHubBindButton"
+                                    Text="{x:Static loc:AppText.BindGitHub}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    IsVisible="False"
+                                    Clicked="OnGitHubBindClicked" />
+                            <Button x:Name="GitHubUnbindButton"
+                                    Grid.Column="1"
+                                    Text="{x:Static loc:AppText.Unbind}"
+                                    Style="{StaticResource DangerButton}"
+                                    IsVisible="False"
+                                    Clicked="OnGitHubUnbindClicked" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
                 <Button Text="{x:Static loc:AppText.SignOut}"
                         Style="{StaticResource DangerButton}"
                         Clicked="OnSignOutClicked" />

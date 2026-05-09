@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using PrivateCloudDrive.FileCenter;
 using Volo.Abp.Uow;
@@ -16,6 +16,9 @@ using Volo.Abp.TenantManagement.EntityFrameworkCore;
 
 namespace PrivateCloudDrive.EntityFrameworkCore;
 
+/// <summary>
+/// 配置PrivateCloudDriveEntityFrameworkCoreModule模块依赖、服务注册和框架集成行为。
+/// </summary>
 [DependsOn(
     typeof(PrivateCloudDriveDomainModule),
     typeof(AbpIdentityEntityFrameworkCoreModule),
@@ -31,6 +34,9 @@ namespace PrivateCloudDrive.EntityFrameworkCore;
     )]
 public class PrivateCloudDriveEntityFrameworkCoreModule : AbpModule
 {
+    /// <summary>
+    /// 配置模块服务、选项或框架扩展点，确保运行时行为符合项目约定。
+    /// </summary>
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
         // https://www.npgsql.org/efcore/release-notes/6.0.html#opting-out-of-the-new-timestamp-mapping-logic
@@ -39,6 +45,9 @@ public class PrivateCloudDriveEntityFrameworkCoreModule : AbpModule
         PrivateCloudDriveEfCoreEntityExtensionMappings.Configure();
     }
 
+    /// <summary>
+    /// 配置模块服务、选项或框架扩展点，确保运行时行为符合项目约定。
+    /// </summary>
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         context.Services.AddAbpDbContext<PrivateCloudDriveDbContext>(options =>

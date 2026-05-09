@@ -4,6 +4,9 @@ using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
 
+/// <summary>
+/// 表示SettingsPage页面，承载移动端界面交互和页面级状态绑定。
+/// </summary>
 public partial class SettingsPage : ContentPage
 {
     private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
@@ -11,10 +14,16 @@ public partial class SettingsPage : ContentPage
     private readonly IWechatPlatformAuthService _wechatPlatformAuthService =
         AppServices.GetRequiredService<IWechatPlatformAuthService>();
     private WechatLoginSettings? _wechatSettings;
+    private ExternalLoginSettings? _externalSettings;
     private bool _isWechatAvailable;
+    private const string GoogleProvider = "Google";
+    private const string GitHubProvider = "GitHub";
 
     public string ApiBaseUrl => AppSettings.ApiBaseUrl;
 
+    /// <summary>
+    /// 初始化 <see cref="SettingsPage"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public SettingsPage()
     {
         InitializeComponent();
@@ -90,6 +99,26 @@ public partial class SettingsPage : ContentPage
         }
     }
 
+    private async void OnGoogleBindClicked(object? sender, EventArgs e)
+    {
+        await BindExternalAsync(GoogleProvider);
+    }
+
+    private async void OnGitHubBindClicked(object? sender, EventArgs e)
+    {
+        await BindExternalAsync(GitHubProvider);
+    }
+
+    private async void OnGoogleUnbindClicked(object? sender, EventArgs e)
+    {
+        await UnbindExternalAsync(GoogleProvider);
+    }
+
+    private async void OnGitHubUnbindClicked(object? sender, EventArgs e)
+    {
+        await UnbindExternalAsync(GitHubProvider);
+    }
+
     private async Task LoadSettingsStateAsync()
     {
         SetLoadingState(AppText.CheckingLocalSession);
@@ -101,11 +130,14 @@ public partial class SettingsPage : ContentPage
                 ? AppText.SignedInOnThisDevice
                 : AppText.NoValidLocalSession);
             await LoadWechatStateAsync(isSignedIn);
+            await LoadExternalStateAsync(isSignedIn);
         }
         catch (Exception exception)
         {
             SetErrorState(AppText.Format(nameof(AppText.UnableToReadLocalSession), exception.Message));
             SetWechatInfoState(AppText.Unavailable, canBind: false, canUnbind: false);
+            SetExternalInfoState(GoogleProvider, AppText.Unavailable, canBind: false, canUnbind: false);
+            SetExternalInfoState(GitHubProvider, AppText.Unavailable, canBind: false, canUnbind: false);
         }
     }
 
@@ -184,6 +216,124 @@ public partial class SettingsPage : ContentPage
         }
     }
 
+    private async Task LoadExternalStateAsync(bool? isSignedIn = null)
+    {
+        SetExternalLoadingState(GoogleProvider);
+        SetExternalLoadingState(GitHubProvider);
+
+        try
+        {
+            _externalSettings = await _apiClient.GetExternalLoginSettingsAsync();
+            var signedIn = isSignedIn ?? await _authService.IsSignedInAsync();
+            var bindings = signedIn
+                ? await _apiClient.GetExternalBindingsAsync()
+                : [];
+
+            SetExternalProviderState(GoogleProvider, signedIn, bindings);
+            SetExternalProviderState(GitHubProvider, signedIn, bindings);
+        }
+        catch (Exception exception)
+        {
+            SetExternalInfoState(GoogleProvider, exception.Message, canBind: false, canUnbind: false);
+            SetExternalInfoState(GitHubProvider, exception.Message, canBind: false, canUnbind: false);
+        }
+    }
+
+    private void SetExternalProviderState(
+        string provider,
+        bool signedIn,
+        IReadOnlyList<ExternalBinding> bindings)
+    {
+        var providerSettings = _externalSettings?.GetProvider(provider);
+        if (providerSettings?.IsEnabled != true)
+        {
+            SetExternalInfoState(provider, AppText.NotEnabled, canBind: false, canUnbind: false);
+            return;
+        }
+
+        if (!signedIn)
+        {
+            SetExternalInfoState(provider, AppText.SignInRequired, canBind: false, canUnbind: false);
+            return;
+        }
+
+        var binding = bindings.FirstOrDefault(item =>
+            string.Equals(item.Provider, provider, StringComparison.OrdinalIgnoreCase));
+        if (binding == null)
+        {
+            SetExternalInfoState(provider, AppText.NotBound, canBind: true, canUnbind: false);
+            return;
+        }
+
+        var name = string.IsNullOrWhiteSpace(binding.DisplayName)
+            ? AppText.Bound
+            : AppText.Format(nameof(AppText.BoundWithName), binding.DisplayName);
+        SetExternalInfoState(provider, name, canBind: false, canUnbind: true);
+    }
+
+    private async Task BindExternalAsync(string provider)
+    {
+        var providerSettings = _externalSettings?.GetProvider(provider);
+        if (providerSettings?.IsEnabled != true)
+        {
+            return;
+        }
+
+        SetExternalLoadingState(provider);
+
+        try
+        {
+            var authorization = await _authService.AuthorizeExternalAsync(providerSettings);
+            await _apiClient.BindCurrentExternalAsync(
+                provider,
+                authorization.Code,
+                authorization.State,
+                authorization.RedirectUri,
+                authorization.CodeVerifier,
+                deviceIdHash: null);
+
+            await LoadExternalStateAsync(isSignedIn: true);
+        }
+        catch (OperationCanceledException)
+        {
+            SetExternalInfoState(provider, AppText.ExternalAuthorizationCanceled, canBind: true, canUnbind: false);
+        }
+        catch (TimeoutException)
+        {
+            SetExternalInfoState(provider, AppText.ExternalSignInTimedOut, canBind: true, canUnbind: false);
+        }
+        catch (Exception exception)
+        {
+            SetExternalInfoState(provider, exception.Message, canBind: true, canUnbind: false);
+        }
+    }
+
+    private async Task UnbindExternalAsync(string provider)
+    {
+        var confirmed = await DisplayAlertAsync(
+            GetExternalUnbindTitle(provider),
+            GetExternalUnbindQuestion(provider),
+            AppText.Unbind,
+            AppText.Cancel);
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        SetExternalLoadingState(provider);
+
+        try
+        {
+            await _apiClient.UnbindExternalAsync(provider);
+            await LoadExternalStateAsync(isSignedIn: true);
+        }
+        catch (Exception exception)
+        {
+            SetExternalInfoState(provider, exception.Message, canBind: false, canUnbind: true);
+        }
+    }
+
     private void SetLoadingState(string message)
     {
         SettingsStatePanel.IsVisible = true;
@@ -229,5 +379,77 @@ public partial class SettingsPage : ContentPage
         WechatBindButton.IsEnabled = canBind;
         WechatUnbindButton.IsVisible = canUnbind;
         WechatUnbindButton.IsEnabled = canUnbind;
+    }
+
+    private void SetExternalLoadingState(string provider)
+    {
+        var loadingIndicator = GetExternalLoadingIndicator(provider);
+        var bindButton = GetExternalBindButton(provider);
+        var unbindButton = GetExternalUnbindButton(provider);
+        var statusLabel = GetExternalStatusLabel(provider);
+
+        loadingIndicator.IsVisible = true;
+        loadingIndicator.IsRunning = true;
+        bindButton.IsVisible = false;
+        unbindButton.IsVisible = false;
+        statusLabel.Text = AppText.Checking;
+    }
+
+    private void SetExternalInfoState(string provider, string message, bool canBind, bool canUnbind)
+    {
+        var loadingIndicator = GetExternalLoadingIndicator(provider);
+        var bindButton = GetExternalBindButton(provider);
+        var unbindButton = GetExternalUnbindButton(provider);
+        var statusLabel = GetExternalStatusLabel(provider);
+
+        loadingIndicator.IsRunning = false;
+        loadingIndicator.IsVisible = false;
+        statusLabel.Text = message;
+        bindButton.IsVisible = canBind;
+        bindButton.IsEnabled = canBind;
+        unbindButton.IsVisible = canUnbind;
+        unbindButton.IsEnabled = canUnbind;
+    }
+
+    private ActivityIndicator GetExternalLoadingIndicator(string provider)
+    {
+        return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
+            ? GitHubLoadingIndicator
+            : GoogleLoadingIndicator;
+    }
+
+    private Button GetExternalBindButton(string provider)
+    {
+        return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
+            ? GitHubBindButton
+            : GoogleBindButton;
+    }
+
+    private Button GetExternalUnbindButton(string provider)
+    {
+        return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
+            ? GitHubUnbindButton
+            : GoogleUnbindButton;
+    }
+
+    private Label GetExternalStatusLabel(string provider)
+    {
+        return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
+            ? GitHubStatusLabel
+            : GoogleStatusLabel;
+    }
+
+    private static string GetExternalUnbindTitle(string provider)
+    {
+        return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
+            ? AppText.UnbindGitHub
+            : AppText.UnbindGoogle;
+    }
+
+    private static string GetExternalUnbindQuestion(string provider)
+    {
+        return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
+            ? AppText.UnbindGitHubQuestion
+            : AppText.UnbindGoogleQuestion;
     }
 }

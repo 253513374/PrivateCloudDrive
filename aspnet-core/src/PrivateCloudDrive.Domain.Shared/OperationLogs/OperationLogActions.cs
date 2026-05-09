@@ -1,5 +1,8 @@
 namespace PrivateCloudDrive.OperationLogs;
 
+/// <summary>
+/// 表示OperationLogActions组件，封装对应业务场景的状态或行为。
+/// </summary>
 public static class OperationLogActions
 {
     public const string FileUpload = "FileUpload";

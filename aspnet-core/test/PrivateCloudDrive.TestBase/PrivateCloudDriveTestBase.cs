@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
@@ -10,6 +10,9 @@ namespace PrivateCloudDrive;
 
 /* All test classes are derived from this class, directly or indirectly.
  */
+/// <summary>
+/// 表示PrivateCloudDriveTestBase组件，封装对应业务场景的状态或行为。
+/// </summary>
 public abstract class PrivateCloudDriveTestBase<TStartupModule> : AbpIntegratedTest<TStartupModule>
     where TStartupModule : IAbpModule
 {

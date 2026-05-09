@@ -10,11 +10,17 @@ using Volo.Abp.Uow;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 媒体资产识别与后台处理调度服务。
+/// </summary>
 public interface IFileCenterMediaAssetService
 {
     Task<MediaAsset?> CreatePendingAssetAsync(FileNode fileNode);
 }
 
+/// <summary>
+/// 根据上传文件的 ContentType 或扩展名判断是否为图片/视频，并创建待处理媒体资产。
+/// </summary>
 public class FileCenterMediaAssetService : IFileCenterMediaAssetService, ITransientDependency
 {
     private static readonly string[] ImageExtensions =
@@ -31,6 +37,9 @@ public class FileCenterMediaAssetService : IFileCenterMediaAssetService, ITransi
     private readonly IBackgroundJobManager _backgroundJobManager;
     private readonly IGuidGenerator _guidGenerator;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterMediaAssetService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterMediaAssetService(
         IRepository<MediaAsset, Guid> mediaAssetRepository,
         IBackgroundJobManager backgroundJobManager,
@@ -41,6 +50,9 @@ public class FileCenterMediaAssetService : IFileCenterMediaAssetService, ITransi
         _guidGenerator = guidGenerator;
     }
 
+    /// <summary>
+    /// 为图片或视频文件创建媒体资产并投递后台处理任务；非媒体文件返回 null。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<MediaAsset?> CreatePendingAssetAsync(FileNode fileNode)
     {

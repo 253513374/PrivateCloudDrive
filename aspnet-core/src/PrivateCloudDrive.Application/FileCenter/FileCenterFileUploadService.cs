@@ -17,6 +17,10 @@ using Volo.Abp.Users;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 小文件直传应用服务。
+/// 适合一次请求即可完成的文件上传；大文件应走 FileCenterChunkUploadService 分片流程。
+/// </summary>
 public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransientDependency
 {
     private const long DefaultMaxUploadFileSizeInBytes = 104857600;
@@ -32,6 +36,9 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
     private readonly FileNodeManager _fileNodeManager;
     private readonly IFileCenterMediaAssetService _mediaAssetService;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterFileUploadService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterFileUploadService(
         ICurrentUser currentUser,
         ICurrentTenant currentTenant,
@@ -54,6 +61,9 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
         _mediaAssetService = mediaAssetService;
     }
 
+    /// <summary>
+    /// 上传小文件并创建文件节点，同时触发图片/视频媒体资产识别与后台处理。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<FileNodeDto> UploadSmallFileAsync(
         Guid? parentId,
@@ -92,6 +102,9 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
         return ToDto(fileNode);
     }
 
+    /// <summary>
+    /// 删除当前用户的文件节点；这里执行软删除，使文件进入回收站。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task DeleteAsync(
         Guid id,
@@ -127,6 +140,9 @@ public class FileCenterFileUploadService : IFileCenterFileUploadService, ITransi
         return safeFileName;
     }
 
+    /// <summary>
+    /// 校验单文件大小上限和用户存储配额。
+    /// </summary>
     private async Task EnsureUploadSizeAsync(Guid ownerId, long size)
     {
         if (size < 0)

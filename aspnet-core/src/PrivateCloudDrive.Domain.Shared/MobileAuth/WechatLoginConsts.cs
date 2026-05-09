@@ -1,5 +1,8 @@
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 定义WechatLogin相关常量，避免业务规则和协议值在代码中重复散落。
+/// </summary>
 public static class WechatLoginConsts
 {
     public const string GrantType = "urn:privateclouddrive:wechat";

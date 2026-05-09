@@ -1,12 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 using CommunityToolkit.Maui;
 using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App;
 
+/// <summary>
+/// 表示MauiProgram组件，封装对应业务场景的状态或行为。
+/// </summary>
 public static class MauiProgram
 {
+	/// <summary>
+	/// 创建新的业务资源，并在持久化前执行必要的权限和规则校验。
+	/// </summary>
 	public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();

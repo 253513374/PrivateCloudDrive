@@ -3,6 +3,9 @@ using Volo.Abp.Application.Dtos;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 登录用户视角的分享 DTO，包含分享管理所需的状态和权限信息。
+/// </summary>
 public class FileShareDto : EntityDto<Guid>
 {
     public Guid? TenantId { get; set; }

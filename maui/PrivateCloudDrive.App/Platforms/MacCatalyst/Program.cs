@@ -1,8 +1,11 @@
-﻿using ObjCRuntime;
+using ObjCRuntime;
 using UIKit;
 
 namespace PrivateCloudDrive.App;
 
+/// <summary>
+/// 表示Program组件，封装对应业务场景的状态或行为。
+/// </summary>
 public class Program
 {
 	// This is the main entry point of the application.

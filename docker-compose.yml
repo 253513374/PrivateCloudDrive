@@ -81,6 +81,22 @@ services:
       Authentication__WeChat__RequestTimeoutSeconds: ${WECHAT_REQUEST_TIMEOUT_SECONDS:-10}
       Authentication__WeChat__RateLimitWindowSeconds: ${WECHAT_RATE_LIMIT_WINDOW_SECONDS:-300}
       Authentication__WeChat__RateLimitMaxAttempts: ${WECHAT_RATE_LIMIT_MAX_ATTEMPTS:-60}
+      Authentication__External__BindingTicketLifetimeMinutes: ${EXTERNAL_BINDING_TICKET_LIFETIME_MINUTES:-5}
+      Authentication__External__RequestTimeoutSeconds: ${EXTERNAL_REQUEST_TIMEOUT_SECONDS:-10}
+      Authentication__External__RateLimitWindowSeconds: ${EXTERNAL_RATE_LIMIT_WINDOW_SECONDS:-300}
+      Authentication__External__RateLimitMaxAttempts: ${EXTERNAL_RATE_LIMIT_MAX_ATTEMPTS:-60}
+      Authentication__External__Google__Enabled: ${GOOGLE_LOGIN_ENABLED:-false}
+      Authentication__External__Google__ClientId: ${GOOGLE_CLIENT_ID:-}
+      Authentication__External__Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
+      Authentication__External__Google__RedirectUri: ${GOOGLE_REDIRECT_URI:-privateclouddrive://callback}
+      Authentication__External__Google__Scope: ${GOOGLE_SCOPE:-openid profile email}
+      Authentication__External__Google__UsePkce: ${GOOGLE_USE_PKCE:-true}
+      Authentication__External__GitHub__Enabled: ${GITHUB_LOGIN_ENABLED:-false}
+      Authentication__External__GitHub__ClientId: ${GITHUB_CLIENT_ID:-}
+      Authentication__External__GitHub__ClientSecret: ${GITHUB_CLIENT_SECRET:-}
+      Authentication__External__GitHub__RedirectUri: ${GITHUB_REDIRECT_URI:-privateclouddrive://callback}
+      Authentication__External__GitHub__Scope: ${GITHUB_SCOPE-}
+      Authentication__External__GitHub__UsePkce: ${GITHUB_USE_PKCE:-true}
     ports:
       - "8080:8080"
     volumes:

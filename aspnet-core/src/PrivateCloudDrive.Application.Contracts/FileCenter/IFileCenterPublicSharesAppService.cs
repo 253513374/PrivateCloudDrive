@@ -4,6 +4,9 @@ using Volo.Abp.Application.Services;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 公开分享访问应用服务契约。
+/// </summary>
 public interface IFileCenterPublicSharesAppService : IApplicationService
 {
     Task<PublicFileShareDto> GetAsync(string token);

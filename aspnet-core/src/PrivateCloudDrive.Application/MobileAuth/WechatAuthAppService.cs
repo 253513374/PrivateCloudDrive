@@ -15,6 +15,9 @@ using Volo.Abp.Linq;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 提供WechatAuth相关应用服务编排，承接权限校验、业务规则调用与 DTO 映射。
+/// </summary>
 [ExposeServices(
     typeof(IWechatAuthAppService),
     typeof(IWechatLoginService),
@@ -34,6 +37,9 @@ public class WechatAuthAppService :
     private readonly IGuidGenerator _guidGenerator;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
 
+    /// <summary>
+    /// 初始化 <see cref="WechatAuthAppService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public WechatAuthAppService(
         IOptions<WechatLoginOptions> options,
         IWechatIdentityService wechatIdentityService,
@@ -56,6 +62,9 @@ public class WechatAuthAppService :
         _asyncExecuter = asyncExecuter;
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     [AllowAnonymous]
     public virtual Task<WechatLoginSettingsDto> GetSettingsAsync()
     {
@@ -71,6 +80,9 @@ public class WechatAuthAppService :
         });
     }
 
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
     [Authorize]
     public virtual async Task<WechatBindingDto?> GetBindingAsync()
     {
@@ -83,6 +95,9 @@ public class WechatAuthAppService :
         return binding == null ? null : ToDto(binding);
     }
 
+    /// <summary>
+    /// 绑定第三方身份与当前或指定账号，并防止同一外部身份被重复占用。
+    /// </summary>
     [Authorize]
     public virtual async Task<WechatBindingDto> BindCurrentAsync(BindCurrentWechatInput input)
     {
@@ -125,6 +140,9 @@ public class WechatAuthAppService :
         }
     }
 
+    /// <summary>
+    /// 绑定第三方身份与当前或指定账号，并防止同一外部身份被重复占用。
+    /// </summary>
     [AllowAnonymous]
     public virtual async Task<WechatBindingDto> BindExistingAsync(BindExistingWechatInput input)
     {
@@ -251,6 +269,9 @@ public class WechatAuthAppService :
         }
     }
 
+    /// <summary>
+    /// 解除第三方身份绑定，并确保账号仍保留可用登录方式。
+    /// </summary>
     [Authorize]
     public virtual async Task UnbindAsync()
     {
@@ -321,6 +342,9 @@ public class WechatAuthAppService :
             deviceIdHash: null);
     }
 
+    /// <summary>
+    /// 执行登录流程，统一处理身份校验、绑定状态、安全审计和错误返回。
+    /// </summary>
     [AllowAnonymous]
     public virtual async Task<WechatLoginResult> LoginAsync(WechatLoginInput input)
     {

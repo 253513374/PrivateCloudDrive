@@ -2,6 +2,9 @@ using PrivateCloudDrive.App.Localization;
 
 namespace PrivateCloudDrive.App.Models;
 
+/// <summary>
+/// 表示CloudOperationLog组件，封装对应业务场景的状态或行为。
+/// </summary>
 public sealed record CloudOperationLog(
     Guid Id,
     DateTime Time,

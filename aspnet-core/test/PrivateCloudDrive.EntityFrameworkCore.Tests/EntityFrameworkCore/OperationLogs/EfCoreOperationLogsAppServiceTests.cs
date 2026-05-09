@@ -7,17 +7,26 @@ using Xunit;
 
 namespace PrivateCloudDrive.OperationLogs;
 
+/// <summary>
+/// 表示EfCoreOperationLogsAppServiceTests组件，封装对应业务场景的状态或行为。
+/// </summary>
 public class EfCoreOperationLogsAppServiceTests : PrivateCloudDrive.EntityFrameworkCore.PrivateCloudDriveEntityFrameworkCoreTestBase
 {
     private readonly IMobileAuthAuditLogsAppService _mobileAuthAuditLogsAppService;
     private readonly IOperationLogsAppService _operationLogsAppService;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreOperationLogsAppServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreOperationLogsAppServiceTests()
     {
         _mobileAuthAuditLogsAppService = GetRequiredService<IMobileAuthAuditLogsAppService>();
         _operationLogsAppService = GetRequiredService<IOperationLogsAppService>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Query_Mobile_Auth_Operation_Logs_With_Filters()
     {
@@ -58,6 +67,9 @@ public class EfCoreOperationLogsAppServiceTests : PrivateCloudDrive.EntityFramew
         log.ClientId.ShouldBe("PrivateCloudDrive_App");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Filter_Operation_Logs_By_Time_Range()
     {
@@ -82,6 +94,9 @@ public class EfCoreOperationLogsAppServiceTests : PrivateCloudDrive.EntityFramew
         result.TotalCount.ShouldBe(0);
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public void Should_Keep_Operation_Log_Contracts_Free_From_Secrets()
     {

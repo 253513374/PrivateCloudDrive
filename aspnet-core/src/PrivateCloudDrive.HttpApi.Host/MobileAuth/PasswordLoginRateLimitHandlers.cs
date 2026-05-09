@@ -7,16 +7,25 @@ using Volo.Abp;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证PasswordLoginRateLimitValidationHandler，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 public class PasswordLoginRateLimitValidationHandler :
     IOpenIddictServerHandler<OpenIddictServerEvents.ValidateTokenRequestContext>
 {
     private readonly IPasswordLoginRateLimiter _rateLimiter;
 
+    /// <summary>
+    /// 初始化 <see cref="PasswordLoginRateLimitValidationHandler"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public PasswordLoginRateLimitValidationHandler(IPasswordLoginRateLimiter rateLimiter)
     {
         _rateLimiter = rateLimiter;
     }
 
+    /// <summary>
+    /// 执行Handle操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public virtual async ValueTask HandleAsync(OpenIddictServerEvents.ValidateTokenRequestContext context)
     {
         if (!IsPasswordGrant(context.Request))
@@ -62,16 +71,25 @@ public class PasswordLoginRateLimitValidationHandler :
     }
 }
 
+/// <summary>
+/// 表示移动认证PasswordLoginRateLimitResponseHandler，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 public class PasswordLoginRateLimitResponseHandler :
     IOpenIddictServerHandler<OpenIddictServerEvents.ApplyTokenResponseContext>
 {
     private readonly IPasswordLoginRateLimiter _rateLimiter;
 
+    /// <summary>
+    /// 初始化 <see cref="PasswordLoginRateLimitResponseHandler"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public PasswordLoginRateLimitResponseHandler(IPasswordLoginRateLimiter rateLimiter)
     {
         _rateLimiter = rateLimiter;
     }
 
+    /// <summary>
+    /// 执行Handle操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public virtual async ValueTask HandleAsync(OpenIddictServerEvents.ApplyTokenResponseContext context)
     {
         if (!IsPasswordGrant(context.Request))

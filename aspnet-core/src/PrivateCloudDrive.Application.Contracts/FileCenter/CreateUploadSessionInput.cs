@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 创建分片上传会话的输入参数。
+/// </summary>
 public class CreateUploadSessionInput
 {
     public Guid? ParentId { get; set; }

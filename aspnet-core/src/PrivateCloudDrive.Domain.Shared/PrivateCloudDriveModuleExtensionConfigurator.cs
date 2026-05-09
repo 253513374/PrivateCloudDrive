@@ -1,14 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Identity;
 using Volo.Abp.ObjectExtending;
 using Volo.Abp.Threading;
 
 namespace PrivateCloudDrive;
 
+/// <summary>
+/// 表示PrivateCloudDriveModuleExtensionConfigurator组件，封装对应业务场景的状态或行为。
+/// </summary>
 public static class PrivateCloudDriveModuleExtensionConfigurator
 {
     private static readonly OneTimeRunner OneTimeRunner = new OneTimeRunner();
 
+    /// <summary>
+    /// 配置模块服务、选项或框架扩展点，确保运行时行为符合项目约定。
+    /// </summary>
     public static void Configure()
     {
         OneTimeRunner.Run(() =>

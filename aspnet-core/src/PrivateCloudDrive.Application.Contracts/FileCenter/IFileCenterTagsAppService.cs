@@ -5,6 +5,9 @@ using Volo.Abp.Application.Services;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 文件标签和收藏应用服务契约。
+/// </summary>
 public interface IFileCenterTagsAppService : IApplicationService
 {
     Task<IReadOnlyList<FileTagDto>> GetListAsync();

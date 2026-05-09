@@ -10,18 +10,27 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterFoldersAppServiceTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
     private readonly PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService _foldersAppService;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterFoldersAppServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterFoldersAppServiceTests()
     {
         _foldersAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService>();
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Create_And_List_Folders_With_Paging()
     {
@@ -46,6 +55,9 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Rename_Move_And_Delete_Folder()
     {
@@ -99,6 +111,9 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Restore_And_Permanently_Delete_Folder_Tree()
     {
@@ -169,6 +184,9 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Empty_Trash_For_Current_User()
     {
@@ -209,6 +227,9 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Restore_When_Active_Name_Already_Exists()
     {
@@ -230,6 +251,9 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Duplicate_Folder_Name()
     {
@@ -248,6 +272,9 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Move_To_Self_Child_Folder()
     {

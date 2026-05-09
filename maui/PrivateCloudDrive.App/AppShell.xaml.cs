@@ -1,7 +1,13 @@
-﻿namespace PrivateCloudDrive.App;
+namespace PrivateCloudDrive.App;
 
+/// <summary>
+/// 表示AppShell组件，封装对应业务场景的状态或行为。
+/// </summary>
 public partial class AppShell : Shell
 {
+	/// <summary>
+	/// 初始化 <see cref="AppShell"/> 的新实例，并注入完成业务处理所需的依赖。
+	/// </summary>
 	public AppShell()
 	{
 		InitializeComponent();

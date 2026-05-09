@@ -4,6 +4,9 @@ using Volo.Abp.Application.Dtos;
 
 namespace PrivateCloudDrive.OperationLogs;
 
+/// <summary>
+/// 表示GetOperationLogs请求输入参数，用于约束客户端提交的数据。
+/// </summary>
 public class GetOperationLogsInput : PagedAndSortedResultRequestDto
 {
     [StringLength(64)]

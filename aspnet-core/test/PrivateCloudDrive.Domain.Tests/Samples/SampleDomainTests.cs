@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Shouldly;
 using Volo.Abp.Identity;
 using Volo.Abp.Modularity;
@@ -11,6 +11,9 @@ namespace PrivateCloudDrive.Samples;
  * (like IdentityUserManager here).
  * Only test your own domain services.
  */
+/// <summary>
+/// 表示SampleDomainTests组件，封装对应业务场景的状态或行为。
+/// </summary>
 public abstract class SampleDomainTests<TStartupModule> : PrivateCloudDriveDomainTestBase<TStartupModule>
     where TStartupModule : IAbpModule
 {
@@ -23,6 +26,9 @@ public abstract class SampleDomainTests<TStartupModule> : PrivateCloudDriveDomai
         _identityUserManager = GetRequiredService<IdentityUserManager>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Set_Email_Of_A_User()
     {

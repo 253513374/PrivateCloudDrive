@@ -18,6 +18,10 @@ using Volo.Abp.Timing;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 登录用户的文件分享管理应用服务。
+/// 负责创建分享、列出个人分享、管理员查看全量分享以及禁用分享链接。
+/// </summary>
 [Authorize(PrivateCloudDrivePermissions.FileCenter.Share)]
 public class FileCenterSharesAppService : FileCenterAppService, IFileCenterSharesAppService
 {
@@ -27,6 +31,9 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
     private readonly IFileNodeRepository _fileNodeRepository;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterSharesAppService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterSharesAppService(
         IGuidGenerator guidGenerator,
         IClock clock,
@@ -41,6 +48,9 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         _asyncExecuter = asyncExecuter;
     }
 
+    /// <summary>
+    /// 为当前用户拥有的文件或文件夹创建分享链接；可选密码会以盐和哈希保存。
+    /// </summary>
     public virtual async Task<FileShareDto> CreateAsync(CreateFileShareInput input)
     {
         var ownerId = GetOwnerId();
@@ -64,6 +74,9 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         return ToDto(share, node);
     }
 
+    /// <summary>
+    /// 获取当前用户启用中的分享列表。
+    /// </summary>
     public virtual async Task<PagedResultDto<FileShareDto>> GetListAsync(PagedResultRequestDto input)
     {
         var ownerId = GetOwnerId();
@@ -93,6 +106,9 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         return new PagedResultDto<FileShareDto>(totalCount, items);
     }
 
+    /// <summary>
+    /// 管理员查看当前租户下全部分享，包含已删除文件节点关联的历史分享。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
     public virtual async Task<PagedResultDto<FileShareDto>> GetAllListAsync(PagedResultRequestDto input)
     {
@@ -121,6 +137,9 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         return new PagedResultDto<FileShareDto>(totalCount, items);
     }
 
+    /// <summary>
+    /// 当前用户禁用自己的分享链接。
+    /// </summary>
     public virtual async Task DeleteAsync(Guid id)
     {
         var ownerId = GetOwnerId();
@@ -141,6 +160,9 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         await _shareRepository.UpdateAsync(share, autoSave: true);
     }
 
+    /// <summary>
+    /// 管理员禁用任意分享链接，用于违规内容或安全风险处置。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
     public virtual async Task DisableAsync(Guid id)
     {
@@ -262,6 +284,10 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
     }
 }
 
+/// <summary>
+/// 公开分享访问应用服务。
+/// 允许匿名用户通过 token 读取分享元数据、校验密码和下载被分享文件。
+/// </summary>
 [AllowAnonymous]
 public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCenterPublicSharesAppService
 {
@@ -270,6 +296,9 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
     private readonly IFileNodeRepository _fileNodeRepository;
     private readonly IBlobContainer<FileCenterBlobContainer> _blobContainer;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterPublicSharesAppService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterPublicSharesAppService(
         IClock clock,
         IRepository<FileShare, Guid> shareRepository,
@@ -282,6 +311,9 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
         _blobContainer = blobContainer;
     }
 
+    /// <summary>
+    /// 根据分享 token 获取公开分享信息；如分享设置密码，则不会返回可下载内容。
+    /// </summary>
     public virtual async Task<PublicFileShareDto> GetAsync(string token)
     {
         var (share, node) = await GetShareAndNodeAsync(token);
@@ -296,6 +328,9 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
         return ToPublicDto(share, node, passwordRequired: false);
     }
 
+    /// <summary>
+    /// 校验分享密码，成功后返回可访问的分享信息。明文密码只用于本次哈希比对。
+    /// </summary>
     public virtual async Task<PublicFileShareDto> VerifyPasswordAsync(string token, VerifySharePasswordInput input)
     {
         var (share, node) = await GetShareAndNodeAsync(token);
@@ -307,6 +342,9 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
         return ToPublicDto(share, node, passwordRequired: false);
     }
 
+    /// <summary>
+    /// 获取公开分享文件的下载流；仅文件分享且允许下载时可用。
+    /// </summary>
     public virtual async Task<FileDownloadInfo> GetDownloadAsync(
         string token,
         string? password = null,

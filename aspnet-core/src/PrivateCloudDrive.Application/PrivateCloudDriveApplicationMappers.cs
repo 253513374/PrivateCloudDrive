@@ -3,6 +3,9 @@ using Volo.Abp.Mapperly;
 
 namespace PrivateCloudDrive;
 
+/// <summary>
+/// 表示PrivateCloudDriveApplicationMappers组件，封装对应业务场景的状态或行为。
+/// </summary>
 [Mapper]
 public partial class PrivateCloudDriveApplicationMappers
 {

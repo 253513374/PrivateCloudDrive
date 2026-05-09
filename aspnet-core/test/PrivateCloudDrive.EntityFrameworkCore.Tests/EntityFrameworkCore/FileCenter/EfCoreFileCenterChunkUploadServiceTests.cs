@@ -14,6 +14,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterChunkUploadServiceTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterChunkUploadServiceTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -23,6 +26,9 @@ public class EfCoreFileCenterChunkUploadServiceTests : PrivateCloudDriveEntityFr
     private readonly PrivateCloudDrive.FileCenter.IFileCenterBlobStoragePathProvider _storagePathProvider;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterChunkUploadServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterChunkUploadServiceTests()
     {
         _chunkUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterChunkUploadService>();
@@ -32,6 +38,9 @@ public class EfCoreFileCenterChunkUploadServiceTests : PrivateCloudDriveEntityFr
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Complete_Chunk_Upload_And_Create_File()
     {
@@ -88,6 +97,9 @@ public class EfCoreFileCenterChunkUploadServiceTests : PrivateCloudDriveEntityFr
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reject_Complete_When_Sha256_Does_Not_Match()
     {
@@ -123,6 +135,81 @@ public class EfCoreFileCenterChunkUploadServiceTests : PrivateCloudDriveEntityFr
         });
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
+    [Fact]
+    public async Task Should_Reject_Chunk_When_Size_Does_Not_Match_Expected_Size()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("chunk size mismatch");
+        var chunkSize = 5;
+        var chunks = Split(content, chunkSize);
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var session = await _chunkUploadService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateUploadSessionInput
+                {
+                    FileName = "size-mismatch.bin",
+                    ContentType = "application/octet-stream",
+                    TotalSize = content.Length,
+                    ChunkSize = chunkSize,
+                    TotalChunks = chunks.Count
+                });
+
+            await using var wrongSizedStream = new MemoryStream(chunks[0].Take(chunks[0].Length - 1).ToArray());
+
+            var exception = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _chunkUploadService.UploadChunkAsync(
+                    session.Id,
+                    0,
+                    wrongSizedStream,
+                    wrongSizedStream.Length);
+            });
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterUploadChunkSizeMismatch);
+        });
+    }
+
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
+    [Fact]
+    public async Task Should_Reject_Complete_When_Not_All_Chunks_Are_Uploaded()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("incomplete upload session");
+        var chunkSize = 6;
+        var chunks = Split(content, chunkSize);
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var session = await _chunkUploadService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateUploadSessionInput
+                {
+                    FileName = "incomplete.bin",
+                    ContentType = "application/octet-stream",
+                    TotalSize = content.Length,
+                    ChunkSize = chunkSize,
+                    TotalChunks = chunks.Count
+                });
+
+            await UploadChunkAsync(session.Id, 0, chunks[0]);
+
+            var exception = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _chunkUploadService.CompleteAsync(session.Id);
+            });
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterUploadSessionIncomplete);
+        });
+    }
+
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Cancel_Session_And_Delete_Temporary_Chunks()
     {

@@ -5,6 +5,9 @@ using Volo.Abp.MultiTenancy;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证WechatUserBinding，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 public class WechatUserBinding : CreationAuditedAggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; private set; }
@@ -29,6 +32,9 @@ public class WechatUserBinding : CreationAuditedAggregateRoot<Guid>, IMultiTenan
     {
     }
 
+    /// <summary>
+    /// 初始化 <see cref="WechatUserBinding"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public WechatUserBinding(
         Guid id,
         Guid? tenantId,
@@ -55,6 +61,9 @@ public class WechatUserBinding : CreationAuditedAggregateRoot<Guid>, IMultiTenan
         UpdateProfile(unionId, nickName, avatarUrl);
     }
 
+    /// <summary>
+    /// 更新现有业务资源，并保持跨层数据和领域状态一致。
+    /// </summary>
     public void UpdateProfile(string? unionId, string? nickName, string? avatarUrl)
     {
         UnionId = Check.Length(Normalize(unionId), nameof(unionId), WechatUserBindingConsts.MaxUnionIdLength);
@@ -62,16 +71,25 @@ public class WechatUserBinding : CreationAuditedAggregateRoot<Guid>, IMultiTenan
         AvatarUrl = Check.Length(Normalize(avatarUrl), nameof(avatarUrl), WechatUserBindingConsts.MaxAvatarUrlLength);
     }
 
+    /// <summary>
+    /// 执行MarkLogin操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public void MarkLogin(DateTime loginTime)
     {
         LastLoginTime = loginTime;
     }
 
+    /// <summary>
+    /// 执行Enable操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public void Enable()
     {
         IsEnabled = true;
     }
 
+    /// <summary>
+    /// 执行Disable操作，封装该场景下的业务规则、异常处理和结果返回。
+    /// </summary>
     public void Disable()
     {
         IsEnabled = false;

@@ -1,5 +1,8 @@
-﻿namespace PrivateCloudDrive;
+namespace PrivateCloudDrive;
 
+/// <summary>
+/// 表示PrivateCloudDriveDomainErrorCodes组件，封装对应业务场景的状态或行为。
+/// </summary>
 public static class PrivateCloudDriveDomainErrorCodes
 {
     /* You can add your business exception error codes here, as constants */
@@ -37,4 +40,13 @@ public static class PrivateCloudDriveDomainErrorCodes
     public const string WeChatUnbindNotAllowed = "PrivateCloudDrive:MobileAuth:000006";
     public const string WeChatRateLimited = "PrivateCloudDrive:MobileAuth:000007";
     public const string PasswordLoginRateLimited = "PrivateCloudDrive:MobileAuth:000008";
+    public const string ExternalLoginDisabled = "PrivateCloudDrive:MobileAuth:000009";
+    public const string ExternalLoginCodeExchangeFailed = "PrivateCloudDrive:MobileAuth:000010";
+    public const string ExternalLoginBindingRequired = "PrivateCloudDrive:MobileAuth:000011";
+    public const string ExternalLoginAlreadyBound = "PrivateCloudDrive:MobileAuth:000012";
+    public const string ExternalLoginBindingTicketNotFound = "PrivateCloudDrive:MobileAuth:000013";
+    public const string ExternalLoginUnbindNotAllowed = "PrivateCloudDrive:MobileAuth:000014";
+    public const string ExternalLoginRateLimited = "PrivateCloudDrive:MobileAuth:000015";
+    public const string ExternalLoginProviderUnsupported = "PrivateCloudDrive:MobileAuth:000016";
+    public const string ExternalLoginAutoProvisionFailed = "PrivateCloudDrive:MobileAuth:000017";
 }

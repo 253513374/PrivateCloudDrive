@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PrivateCloudDrive.FileCenter;
 using PrivateCloudDrive.MobileAuth;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
@@ -17,6 +17,9 @@ using Volo.Abp.TenantManagement.EntityFrameworkCore;
 
 namespace PrivateCloudDrive.EntityFrameworkCore;
 
+/// <summary>
+/// 定义 EF Core 数据上下文，集中声明聚合根、实体集合和模型映射入口。
+/// </summary>
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
 [ConnectionStringName("Default")]
@@ -35,6 +38,7 @@ public class PrivateCloudDriveDbContext :
     public DbSet<FileNodeTag> FileNodeTags { get; set; }
     public DbSet<MobileAuthAuditLog> MobileAuthAuditLogs { get; set; }
     public DbSet<WechatUserBinding> WechatUserBindings { get; set; }
+    public DbSet<ExternalUserBinding> ExternalUserBindings { get; set; }
 
     #region Entities from the modules
 
@@ -64,6 +68,9 @@ public class PrivateCloudDriveDbContext :
 
     #endregion
 
+    /// <summary>
+    /// 初始化 <see cref="PrivateCloudDriveDbContext"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public PrivateCloudDriveDbContext(DbContextOptions<PrivateCloudDriveDbContext> options)
         : base(options)
     {

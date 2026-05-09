@@ -10,12 +10,18 @@ using Volo.Abp.Linq;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 提供MobileAuthAuditLogs相关应用服务编排，承接权限校验、业务规则调用与 DTO 映射。
+/// </summary>
 public class MobileAuthAuditLogsAppService : PrivateCloudDriveAppService, IMobileAuthAuditLogsAppService
 {
     private readonly IGuidGenerator _guidGenerator;
     private readonly IRepository<MobileAuthAuditLog, Guid> _auditLogRepository;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
 
+    /// <summary>
+    /// 初始化 <see cref="MobileAuthAuditLogsAppService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public MobileAuthAuditLogsAppService(
         IGuidGenerator guidGenerator,
         IRepository<MobileAuthAuditLog, Guid> auditLogRepository,
@@ -26,6 +32,9 @@ public class MobileAuthAuditLogsAppService : PrivateCloudDriveAppService, IMobil
         _asyncExecuter = asyncExecuter;
     }
 
+    /// <summary>
+    /// 记录业务事件或安全事件，便于后续审计、追踪和风险分析。
+    /// </summary>
     [AllowAnonymous]
     public virtual async Task RecordAsync(CreateMobileAuthAuditLogInput input)
     {
@@ -45,6 +54,9 @@ public class MobileAuthAuditLogsAppService : PrivateCloudDriveAppService, IMobil
         await _auditLogRepository.InsertAsync(auditLog, autoSave: true);
     }
 
+    /// <summary>
+    /// 查询分页列表数据，并按当前用户、租户和输入条件进行过滤。
+    /// </summary>
     [Authorize(PrivateCloudDrivePermissions.MobileAuth.AuditLogs)]
     public virtual async Task<PagedResultDto<MobileAuthAuditLogDto>> GetListAsync(PagedResultRequestDto input)
     {

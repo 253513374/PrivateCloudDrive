@@ -6,18 +6,27 @@ using Xunit;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 表示移动认证EfCorePasswordLoginRateLimiterTests，参与第三方登录、账号绑定、审计或安全控制流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCorePasswordLoginRateLimiterTests : PrivateCloudDrive.EntityFrameworkCore.PrivateCloudDriveEntityFrameworkCoreTestBase
 {
     private readonly IPasswordLoginRateLimiter _rateLimiter;
     private readonly MobileAuthLoginOptions _options;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCorePasswordLoginRateLimiterTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCorePasswordLoginRateLimiterTests()
     {
         _rateLimiter = GetRequiredService<IPasswordLoginRateLimiter>();
         _options = GetRequiredService<IOptions<MobileAuthLoginOptions>>().Value;
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Rate_Limit_Password_Login_By_UserName()
     {
@@ -39,6 +48,9 @@ public class EfCorePasswordLoginRateLimiterTests : PrivateCloudDrive.EntityFrame
         await _rateLimiter.CheckAsync("other-rate-user@example.test", "10.10.0.250");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Rate_Limit_Password_Login_By_Ip()
     {
@@ -60,6 +72,9 @@ public class EfCorePasswordLoginRateLimiterTests : PrivateCloudDrive.EntityFrame
         await _rateLimiter.CheckAsync("new-ip-user@example.test", "10.20.0.11");
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Reset_User_Rate_Limit_After_Successful_Login()
     {

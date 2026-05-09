@@ -1,14 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Identity;
 using Volo.Abp.ObjectExtending;
 using Volo.Abp.Threading;
 
 namespace PrivateCloudDrive.EntityFrameworkCore;
 
+/// <summary>
+/// 表示PrivateCloudDriveEfCoreEntityExtensionMappings组件，封装对应业务场景的状态或行为。
+/// </summary>
 public static class PrivateCloudDriveEfCoreEntityExtensionMappings
 {
     private static readonly OneTimeRunner OneTimeRunner = new OneTimeRunner();
 
+    /// <summary>
+    /// 配置模块服务、选项或框架扩展点，确保运行时行为符合项目约定。
+    /// </summary>
     public static void Configure()
     {
         PrivateCloudDriveGlobalFeatureConfigurator.Configure();

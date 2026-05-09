@@ -10,6 +10,9 @@ using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 
+/// <summary>
+/// 表示文件中心EfCoreFileCenterBlobStorageServiceTests，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreFileCenterBlobStorageServiceTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
@@ -17,6 +20,9 @@ public class EfCoreFileCenterBlobStorageServiceTests : PrivateCloudDriveEntityFr
     private readonly IRepository<PrivateCloudDrive.FileCenter.BlobObject, Guid> _blobObjectRepository;
     private readonly PrivateCloudDrive.FileCenter.IFileCenterBlobStoragePathProvider _storagePathProvider;
 
+    /// <summary>
+    /// 初始化 <see cref="EfCoreFileCenterBlobStorageServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public EfCoreFileCenterBlobStorageServiceTests()
     {
         _blobStorageService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterBlobStorageService>();
@@ -24,6 +30,9 @@ public class EfCoreFileCenterBlobStorageServiceTests : PrivateCloudDriveEntityFr
         _storagePathProvider = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterBlobStoragePathProvider>();
     }
 
+    /// <summary>
+    /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
+    /// </summary>
     [Fact]
     public async Task Should_Save_Physical_File_And_Create_BlobObject()
     {

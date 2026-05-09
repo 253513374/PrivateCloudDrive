@@ -14,6 +14,10 @@ using Volo.Abp.Users;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 文件下载和缩略图读取应用服务。
+/// 只允许当前用户读取自己拥有的文件，并通过 Blob 容器返回流式内容。
+/// </summary>
 public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITransientDependency
 {
     private const string DefaultContentType = "application/octet-stream";
@@ -25,6 +29,9 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
     private readonly IRepository<MediaAsset, Guid> _mediaAssetRepository;
     private readonly FileNodeManager _fileNodeManager;
 
+    /// <summary>
+    /// 初始化 <see cref="FileCenterFileDownloadService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FileCenterFileDownloadService(
         ICurrentUser currentUser,
         ICurrentTenant currentTenant,
@@ -41,6 +48,9 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
         _fileNodeManager = fileNodeManager;
     }
 
+    /// <summary>
+    /// 获取原始文件下载流和响应元数据。控制器可基于该信息支持 Range 下载和浏览器保存文件名。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<FileDownloadInfo> GetDownloadAsync(
         Guid id,
@@ -79,6 +89,9 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
         };
     }
 
+    /// <summary>
+    /// 获取媒体缩略图下载流。缩略图不存在时抛出业务异常，由上层返回明确错误。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<FileDownloadInfo> GetThumbnailAsync(
         Guid id,

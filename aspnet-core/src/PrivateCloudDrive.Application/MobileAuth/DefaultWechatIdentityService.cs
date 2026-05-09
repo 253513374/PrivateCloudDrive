@@ -10,6 +10,9 @@ using Volo.Abp.DependencyInjection;
 
 namespace PrivateCloudDrive.MobileAuth;
 
+/// <summary>
+/// 提供DefaultWechatIdentity服务能力，封装可复用的业务或基础设施逻辑。
+/// </summary>
 [ExposeServices(
     typeof(IWechatIdentityService),
     typeof(DefaultWechatIdentityService))]
@@ -19,11 +22,17 @@ public class DefaultWechatIdentityService :
 {
     private readonly WechatLoginOptions _options;
 
+    /// <summary>
+    /// 初始化 <see cref="DefaultWechatIdentityService"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public DefaultWechatIdentityService(IOptions<WechatLoginOptions> options)
     {
         _options = options.Value;
     }
 
+    /// <summary>
+    /// 使用授权凭据换取外部身份信息，并避免在日志或返回值中暴露敏感数据。
+    /// </summary>
     public virtual async Task<WechatIdentity> ExchangeAsync(
         string code,
         string? platform = null,

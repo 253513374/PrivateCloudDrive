@@ -11,11 +11,17 @@ using Volo.Abp.DependencyInjection;
 
 namespace PrivateCloudDrive.FileCenter;
 
+/// <summary>
+/// 表示文件中心FfmpegFileCenterVideoProcessor，参与私有云盘文件、目录、分享、标签或媒体处理流程。
+/// </summary>
 public class FfmpegFileCenterVideoProcessor : IFileCenterVideoProcessor, ITransientDependency
 {
     private readonly IFileCenterBlobStoragePathProvider _storagePathProvider;
     private readonly FileCenterMediaProcessingOptions _options;
 
+    /// <summary>
+    /// 初始化 <see cref="FfmpegFileCenterVideoProcessor"/> 的新实例，并注入完成业务处理所需的依赖。
+    /// </summary>
     public FfmpegFileCenterVideoProcessor(
         IFileCenterBlobStoragePathProvider storagePathProvider,
         IOptions<FileCenterMediaProcessingOptions> options)
@@ -24,6 +30,9 @@ public class FfmpegFileCenterVideoProcessor : IFileCenterVideoProcessor, ITransi
         _options = options.Value;
     }
 
+    /// <summary>
+    /// 处理异步或耗时业务任务，并产出后续流程所需的结果。
+    /// </summary>
     public virtual async Task<FileCenterVideoProcessingResult> ProcessAsync(
         Stream videoStream,
         string fileName,
