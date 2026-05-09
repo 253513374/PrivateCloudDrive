@@ -18,6 +18,7 @@
 | 分享链接 | 创建分享、公开摘要、密码错误、密码校验、公开下载、过期链接、禁用链接、管理员全量列表和禁用任意分享 |
 | 标签和收藏 | 创建标签、重复标签校验、绑定/解绑标签、收藏状态、按标签和收藏筛选 |
 | 媒体库入口 | 图片/视频媒体库分离查询、收藏媒体筛选、媒体库 HTTP 入口 |
+| V1.2 媒体库体验 | 混合媒体时间线、TakenAt 优先排序、类型筛选、用户隔离、媒体详情与处理状态、错误摘要脱敏、相册创建/去重/成员添加/成员移除/删除不删文件/封面设置 |
 | HTTP 控制器 | 文件下载和缩略图 Range 响应头、上传表单参数传递 |
 | 移动认证审计 | 匿名记录登录审计、管理员分页查询审计日志、确认审计输入和 DTO 不包含密码或令牌字段 |
 | 微信登录可选接入 | 未绑定登录返回绑定票据、绑定已有账号、错误密码接入 Identity access-failed/lockout 且不消费绑定票据、已锁定用户不能通过已绑定微信登录、禁止迁移已绑定微信、解绑后保留密码登录能力、无绑定解绑也记录审计、登录/绑定/解绑基于分布式缓存限流、WeChat 交换失败审计脱敏、输出 DTO 不包含 AppSecret/OpenId/UnionId/access token、PostgreSQL Host/Tenant 部分唯一索引避免空 TenantId 绕过绑定唯一性 |
@@ -66,6 +67,29 @@ dotnet test .\aspnet-core\PrivateCloudDrive.slnx
 ```
 
 2026-05-09 执行结果：后端 build 成功；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 79 个测试；MAUI Windows 构建通过，Android 按参数跳过；`docker compose config`、`docker compose up -d --build` 和 `.\scripts\verify-docker-stack.ps1` 验证通过，Swagger 可访问。
+
+V1.2 媒体库体验验证：
+```powershell
+cd aspnet-core
+dotnet build .\PrivateCloudDrive.slnx
+dotnet test .\test\PrivateCloudDrive.EntityFrameworkCore.Tests\PrivateCloudDrive.EntityFrameworkCore.Tests.csproj --no-restore
+
+cd ..\maui\PrivateCloudDrive.App
+dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0 -p:OutputPath=artifacts\verify-build\
+```
+
+2026-05-09 执行结果：后端 build 成功；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 91 个 EF 集成测试；MAUI Windows 隔离输出构建成功，0 警告 0 错误。默认 MAUI 输出目录当前被运行中的 `PrivateCloudDrive.App (75188)` 锁定，因此使用隔离输出目录验证。
+
+## V1.2 手动验收清单
+
+| 范围 | 检查步骤 | 预期结果 |
+| --- | --- | --- |
+| 媒体时间线 | 进入 Photos/媒体库页，切换全部、图片、视频筛选。 | 媒体按月份分组并按时间倒序展示；图片筛选不显示视频，视频筛选不显示图片。 |
+| 状态可见 | 上传图片/视频后，在后台处理完成前刷新媒体库和处理状态页。 | Pending/Processing/Failed 不显示为空白卡片，卡片或详情页展示清晰状态。 |
+| 相册 | 进入媒体库的“相册”，新建相册，使用“添加最近”加入媒体，移除媒体，设置封面。 | 相册列表显示数量；移除媒体不删除原文件；封面设置成功。 |
+| 删除相册 | 删除一个包含媒体的相册后回到媒体库时间线。 | 相册被删除，原媒体仍在时间线中。 |
+| 视频详情 | 打开视频卡片。 | Completed 视频进入播放器；Pending/Processing 显示处理中说明；Failed 显示脱敏摘要和重新处理按钮。 |
+| 重新处理 | 在失败媒体详情或处理状态页点击重试。 | 状态重新进入 Processing，处理状态页刷新后可看到最新状态。 |
 
 ## V1.1 手动验收清单
 

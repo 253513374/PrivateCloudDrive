@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
-             x:Class="PrivateCloudDrive.App.Views.VideosPage"
-             Title="{x:Static loc:AppText.Videos}"
-             Shell.NavBarIsVisible="False">
-    <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+             x:Class="PrivateCloudDrive.App.Views.MediaAlbumDetailPage"
+             Title="{Binding AlbumName}">
+    <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="14">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
             <VerticalStackLayout Spacing="4">
-                <Label Text="{x:Static loc:AppText.Videos}" Style="{StaticResource PageTitleLabel}" />
+                <Label Text="{Binding AlbumName}" Style="{StaticResource PageTitleLabel}" />
                 <Label Text="{Binding ItemCountText}" Style="{StaticResource MetaLabel}" />
             </VerticalStackLayout>
-            <Button x:Name="RefreshButton"
-                    Grid.Column="1"
-                    Text="{x:Static loc:AppText.Refresh}"
+            <Button Grid.Column="1"
+                    Text="添加最近"
                     TextColor="White"
-                    VerticalOptions="Center"
+                    Clicked="OnAddRecentClicked" />
+            <Button Grid.Column="2"
+                    Text="刷新"
+                    Style="{StaticResource SecondaryButton}"
                     Clicked="OnRefreshClicked" />
+            <Button Grid.Column="3"
+                    Text="删除"
+                    Style="{StaticResource SecondaryButton}"
+                    Clicked="OnDeleteAlbumClicked" />
         </Grid>
 
-        <Border x:Name="VideosStatePanel"
+        <Border x:Name="StatePanel"
                 Grid.Row="1"
                 Padding="14"
                 IsVisible="False"
@@ -29,31 +33,23 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
             </Border.StrokeShape>
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                <ActivityIndicator x:Name="VideosLoadingIndicator"
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <ActivityIndicator x:Name="LoadingIndicator"
                                    WidthRequest="20"
                                    HeightRequest="20"
                                    Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                <Label x:Name="VideosStateLabel"
+                <Label x:Name="StateLabel"
                        Grid.Column="1"
                        VerticalOptions="Center"
                        FontSize="13"
-                       LineBreakMode="WordWrap"
-                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-                <Button x:Name="VideosRetryButton"
-                        Grid.Column="2"
-                        Text="{x:Static loc:AppText.Retry}"
-                        IsVisible="False"
-                        Style="{StaticResource SecondaryButton}"
-                        Clicked="OnRetryClicked" />
+                       LineBreakMode="WordWrap" />
             </Grid>
         </Border>
 
-        <CollectionView x:Name="VideosCollectionView"
-                        Grid.Row="2"
+        <CollectionView Grid.Row="2"
                         ItemsSource="{Binding Items}"
                         SelectionMode="Single"
-                        SelectionChanged="OnVideoSelected">
+                        SelectionChanged="OnItemSelected">
             <CollectionView.EmptyView>
                 <Border Padding="18"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
@@ -62,8 +58,8 @@
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="{x:Static loc:AppText.NoVideosFound}" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
-                        <Label Text="{x:Static loc:AppText.NoVideosHelp}" Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="相册为空" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="使用“添加最近”把媒体加入相册。" Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
             </CollectionView.EmptyView>
@@ -76,34 +72,30 @@
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
-                            <Grid ColumnDefinitions="96,*,Auto" ColumnSpacing="12">
-                                <Border WidthRequest="96" HeightRequest="64" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
+                            <Grid ColumnDefinitions="80,*,Auto,Auto" ColumnSpacing="10">
+                                <Border WidthRequest="80" HeightRequest="56" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="8" />
                                     </Border.StrokeShape>
                                     <Grid>
                                         <Image Source="{Binding ThumbnailSource}" Aspect="AspectFill" IsVisible="{Binding HasThumbnail}" />
-                                        <Label Text="{Binding Badge}"
-                                               IsVisible="{Binding ShowBadge}"
-                                               FontAttributes="Bold"
-                                               FontSize="11"
-                                               TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center" />
+                                        <Label Text="{Binding Badge}" IsVisible="{Binding ShowBadge}" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
                                     </Grid>
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding SecondaryText}" Style="{StaticResource MetaLabel}" />
-                                    <Label Text="{Binding ProcessStatusText}"
-                                           IsVisible="{Binding ShowProcessStatus}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource Danger}" />
                                 </VerticalStackLayout>
-                                <Label Grid.Column="2"
-                                       Text="{Binding ModifiedAt}"
-                                       Style="{StaticResource MetaLabel}"
-                                       VerticalOptions="Center" />
+                                <Button Grid.Column="2"
+                                        Text="封面"
+                                        Style="{StaticResource SecondaryButton}"
+                                        CommandParameter="{Binding Id}"
+                                        Clicked="OnSetCoverClicked" />
+                                <Button Grid.Column="3"
+                                        Text="移除"
+                                        Style="{StaticResource SecondaryButton}"
+                                        CommandParameter="{Binding Id}"
+                                        Clicked="OnRemoveClicked" />
                             </Grid>
                         </Border>
                     </Grid>

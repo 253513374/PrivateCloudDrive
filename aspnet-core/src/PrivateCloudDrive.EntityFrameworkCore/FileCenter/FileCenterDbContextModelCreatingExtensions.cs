@@ -90,6 +90,37 @@ public static class FileCenterDbContextModelCreatingExtensions
             b.HasIndex(asset => asset.FileNodeId).IsUnique();
             b.HasIndex(asset => new { asset.TenantId, asset.OwnerId, asset.MediaType });
             b.HasIndex(asset => asset.ProcessStatus);
+            b.HasIndex(asset => new { asset.TenantId, asset.OwnerId, asset.TakenAt });
+            b.HasIndex(asset => new { asset.TenantId, asset.OwnerId, asset.ProcessStatus });
+        });
+
+        builder.Entity<MediaAlbum>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "MediaAlbums", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(album => album.OwnerId).IsRequired();
+            b.Property(album => album.Name).IsRequired().HasMaxLength(MediaAlbumConsts.MaxNameLength);
+            b.Property(album => album.NormalizedName).IsRequired().HasMaxLength(MediaAlbumConsts.MaxNormalizedNameLength);
+            b.Property(album => album.Description).HasMaxLength(MediaAlbumConsts.MaxDescriptionLength);
+
+            b.HasIndex(album => new { album.TenantId, album.OwnerId, album.NormalizedName }).IsUnique();
+            b.HasIndex(album => new { album.TenantId, album.OwnerId, album.LastModificationTime });
+        });
+
+        builder.Entity<MediaAlbumItem>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "MediaAlbumItems", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(item => item.OwnerId).IsRequired();
+            b.Property(item => item.AlbumId).IsRequired();
+            b.Property(item => item.FileNodeId).IsRequired();
+            b.Property(item => item.SortOrder).IsRequired();
+
+            b.HasIndex(item => new { item.TenantId, item.OwnerId, item.AlbumId });
+            b.HasIndex(item => new { item.TenantId, item.OwnerId, item.FileNodeId });
+            b.HasIndex(item => new { item.AlbumId, item.FileNodeId }).IsUnique();
         });
 
         builder.Entity<FileShare>(b =>

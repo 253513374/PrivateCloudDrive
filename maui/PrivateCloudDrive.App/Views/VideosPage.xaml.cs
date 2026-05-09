@@ -60,7 +60,7 @@ public partial class VideosPage : ContentPage
 
         try
         {
-            var videos = await _apiClient.GetVideosAsync();
+            var videos = await _apiClient.GetMediaTimelineAsync(mediaType: "Video");
             Items.Clear();
 
             foreach (var video in videos)

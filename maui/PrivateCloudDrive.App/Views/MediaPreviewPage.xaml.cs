@@ -1,5 +1,6 @@
 using CommunityToolkit.Maui.Views;
 using PrivateCloudDrive.App.Localization;
+using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
 
 namespace PrivateCloudDrive.App.Views;
@@ -14,6 +15,8 @@ public partial class MediaPreviewPage : ContentPage
 {
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
     private CancellationTokenSource? _loadCancellationTokenSource;
+    private MediaDetail? _detail;
+    private Guid _currentFileId;
     private bool _loaded;
 
     public string FileId { get; set; } = string.Empty;
@@ -53,6 +56,7 @@ public partial class MediaPreviewPage : ContentPage
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
         ErrorPanel.IsVisible = false;
+        StatusPanel.IsVisible = false;
         PreviewImage.IsVisible = false;
         VideoPlayer.IsVisible = false;
         VideoPlayer.Source = null;
@@ -64,7 +68,20 @@ public partial class MediaPreviewPage : ContentPage
                 throw new InvalidOperationException(AppText.InvalidMediaId);
             }
 
-            if (string.Equals(MediaKind, "Video", StringComparison.OrdinalIgnoreCase))
+            _currentFileId = id;
+            _detail = await _apiClient.GetMediaDetailAsync(id, cancellationToken);
+            FileName = string.IsNullOrWhiteSpace(FileName) ? _detail.Name : FileName;
+            MediaKind = _detail.MediaType == MediaAssetMediaType.Video ? "Video" : "Image";
+            OnPropertyChanged(nameof(FileName));
+            OnPropertyChanged(nameof(MediaKind));
+
+            if (!_detail.CanPreview)
+            {
+                ShowStatusPanel(_detail);
+                return;
+            }
+
+            if (_detail.MediaType == MediaAssetMediaType.Video)
             {
                 VideoPlayer.Source = await CreateVideoSourceAsync(id, cancellationToken);
                 VideoPlayer.MetadataTitle = FileName;
@@ -95,6 +112,23 @@ public partial class MediaPreviewPage : ContentPage
         }
     }
 
+    private void ShowStatusPanel(MediaDetail detail)
+    {
+        var statusText = detail.ProcessStatus switch
+        {
+            MediaAssetProcessStatus.Pending => "媒体正在等待后台处理，稍后刷新即可预览。",
+            MediaAssetProcessStatus.Processing => "媒体正在处理中，完成后会显示封面和预览。",
+            MediaAssetProcessStatus.Failed => string.IsNullOrWhiteSpace(detail.ProcessErrorSummary)
+                ? "媒体处理失败，可以重新提交处理。"
+                : $"媒体处理失败：{detail.ProcessErrorSummary}",
+            _ => "媒体暂时不可预览。"
+        };
+
+        StatusLabel.Text = statusText;
+        RetryProcessingButton.IsVisible = detail.CanRetryProcessing;
+        StatusPanel.IsVisible = true;
+    }
+
     private async Task<MediaSource> CreateVideoSourceAsync(Guid id, CancellationToken cancellationToken)
     {
 #if WINDOWS
@@ -109,6 +143,29 @@ public partial class MediaPreviewPage : ContentPage
     private async void OnRetryClicked(object? sender, EventArgs e)
     {
         await LoadPreviewAsync();
+    }
+
+    private async void OnRetryProcessingClicked(object? sender, EventArgs e)
+    {
+        if (_currentFileId == Guid.Empty)
+        {
+            return;
+        }
+
+        try
+        {
+            RetryProcessingButton.IsEnabled = false;
+            await _apiClient.RetryMediaProcessingAsync(_currentFileId);
+            await LoadPreviewAsync();
+        }
+        catch (Exception exception)
+        {
+            StatusLabel.Text = $"重新处理失败。{exception.Message}";
+        }
+        finally
+        {
+            RetryProcessingButton.IsEnabled = true;
+        }
     }
 
     protected override void OnDisappearing()

@@ -33,6 +33,11 @@ public static class PrivateCloudDriveDomainErrorCodes
     public const string FileCenterTagAlreadyExists = "PrivateCloudDrive:FileCenter:000025";
     public const string FileCenterTagNotFound = "PrivateCloudDrive:FileCenter:000026";
     public const string FileCenterBatchSelectionInvalid = "PrivateCloudDrive:FileCenter:000027";
+    public const string FileCenterMediaAlbumAlreadyExists = "PrivateCloudDrive:FileCenter:000028";
+    public const string FileCenterMediaAlbumNotFound = "PrivateCloudDrive:FileCenter:000029";
+    public const string FileCenterOnlyMediaFileCanBeManaged = "PrivateCloudDrive:FileCenter:000030";
+    public const string FileCenterMediaAlbumItemNotFound = "PrivateCloudDrive:FileCenter:000031";
+    public const string FileCenterMediaAssetCannotRetry = "PrivateCloudDrive:FileCenter:000032";
     public const string WeChatDisabled = "PrivateCloudDrive:MobileAuth:000001";
     public const string WeChatCodeExchangeFailed = "PrivateCloudDrive:MobileAuth:000002";
     public const string WeChatBindingRequired = "PrivateCloudDrive:MobileAuth:000003";

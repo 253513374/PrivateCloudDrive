@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -12,4 +13,12 @@ public interface IFileCenterMediaLibraryAppService : IApplicationService
     Task<PagedResultDto<FileNodeDto>> GetImagesAsync(GetMediaFilesInput input);
 
     Task<PagedResultDto<FileNodeDto>> GetVideosAsync(GetMediaFilesInput input);
+
+    Task<PagedResultDto<MediaTimelineItemDto>> GetTimelineAsync(GetMediaTimelineInput input);
+
+    Task<MediaDetailDto> GetDetailAsync(Guid fileNodeId);
+
+    Task<PagedResultDto<MediaTimelineItemDto>> GetProcessingStatusAsync(GetMediaProcessingStatusInput input);
+
+    Task<MediaDetailDto> RetryProcessingAsync(Guid fileNodeId);
 }

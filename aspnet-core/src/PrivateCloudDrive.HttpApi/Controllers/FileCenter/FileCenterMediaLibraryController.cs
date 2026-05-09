@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,5 +41,43 @@ public class FileCenterMediaLibraryController : PrivateCloudDriveController
     public virtual Task<PagedResultDto<FileNodeDto>> GetVideosAsync([FromQuery] GetMediaFilesInput input)
     {
         return _mediaLibraryAppService.GetVideosAsync(input);
+    }
+
+    /// <summary>
+    /// 查询媒体时间线。
+    /// </summary>
+    [HttpGet("timeline")]
+    public virtual Task<PagedResultDto<MediaTimelineItemDto>> GetTimelineAsync([FromQuery] GetMediaTimelineInput input)
+    {
+        return _mediaLibraryAppService.GetTimelineAsync(input);
+    }
+
+    /// <summary>
+    /// 查询媒体详情。
+    /// </summary>
+    [HttpGet("{fileNodeId:guid}/detail")]
+    public virtual Task<MediaDetailDto> GetDetailAsync(Guid fileNodeId)
+    {
+        return _mediaLibraryAppService.GetDetailAsync(fileNodeId);
+    }
+
+    /// <summary>
+    /// 查询媒体处理状态。
+    /// </summary>
+    [HttpGet("processing-status")]
+    public virtual Task<PagedResultDto<MediaTimelineItemDto>> GetProcessingStatusAsync(
+        [FromQuery] GetMediaProcessingStatusInput input)
+    {
+        return _mediaLibraryAppService.GetProcessingStatusAsync(input);
+    }
+
+    /// <summary>
+    /// 重新投递媒体处理任务。
+    /// </summary>
+    [HttpPost("{fileNodeId:guid}/retry-processing")]
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual Task<MediaDetailDto> RetryProcessingAsync(Guid fileNodeId)
+    {
+        return _mediaLibraryAppService.RetryProcessingAsync(fileNodeId);
     }
 }

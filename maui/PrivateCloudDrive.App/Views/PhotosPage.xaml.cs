@@ -11,10 +11,12 @@ namespace PrivateCloudDrive.App.Views;
 public partial class PhotosPage : ContentPage
 {
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
+    private readonly List<MediaLibraryItem> _items = [];
+    private string? _selectedMediaType;
 
-    public ObservableCollection<MediaLibraryItem> Items { get; } = [];
+    public ObservableCollection<MediaTimelineGroup> TimelineGroups { get; } = [];
 
-    public string ItemCountText => AppText.Format(nameof(AppText.PhotosCount), Items.Count);
+    public string ItemCountText => $"{_items.Count} 项媒体";
 
     /// <summary>
     /// 初始化 <see cref="PhotosPage"/> 的新实例，并注入完成业务处理所需的依赖。
@@ -28,17 +30,17 @@ public partial class PhotosPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadPhotosAsync();
+        await LoadMediaAsync();
     }
 
     private async void OnRefreshClicked(object? sender, EventArgs e)
     {
-        await LoadPhotosAsync();
+        await LoadMediaAsync();
     }
 
     private async void OnRetryClicked(object? sender, EventArgs e)
     {
-        await LoadPhotosAsync();
+        await LoadMediaAsync();
     }
 
     private async void OnPhotoSelected(object? sender, SelectionChangedEventArgs e)
@@ -49,34 +51,64 @@ public partial class PhotosPage : ContentPage
         }
 
         PhotosCollectionView.SelectedItem = null;
-        var route = $"media-preview?id={item.Id}&name={Uri.EscapeDataString(item.Name)}&kind=Image";
+        var route = $"media-preview?id={item.Id}&name={Uri.EscapeDataString(item.Name)}&kind={item.Kind}";
         await Shell.Current.GoToAsync(route, true);
     }
 
-    private async Task LoadPhotosAsync()
+    private async void OnAllMediaClicked(object? sender, EventArgs e)
+    {
+        _selectedMediaType = null;
+        await LoadMediaAsync();
+    }
+
+    private async void OnImagesClicked(object? sender, EventArgs e)
+    {
+        _selectedMediaType = "Image";
+        await LoadMediaAsync();
+    }
+
+    private async void OnVideosClicked(object? sender, EventArgs e)
+    {
+        _selectedMediaType = "Video";
+        await LoadMediaAsync();
+    }
+
+    private async void OnAlbumsClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("media-albums", true);
+    }
+
+    private async void OnProcessingClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("media-processing", true);
+    }
+
+    private async Task LoadMediaAsync()
     {
         RefreshButton.IsEnabled = false;
-        SetLoadingState(AppText.LoadingPhotos);
+        SetLoadingState("正在加载媒体...");
 
         try
         {
-            var photos = await _apiClient.GetImagesAsync();
-            Items.Clear();
+            var media = await _apiClient.GetMediaTimelineAsync(mediaType: _selectedMediaType);
+            _items.Clear();
 
-            foreach (var photo in photos)
+            foreach (var item in media)
             {
-                Items.Add(new MediaLibraryItem(photo));
+                _items.Add(new MediaLibraryItem(item));
             }
 
+            RebuildGroups();
             OnPropertyChanged(nameof(ItemCountText));
             SetIdleState();
             await LoadThumbnailsAsync();
         }
         catch (Exception exception)
         {
-            Items.Clear();
+            _items.Clear();
+            TimelineGroups.Clear();
             OnPropertyChanged(nameof(ItemCountText));
-            SetErrorState(AppText.Format(nameof(AppText.UnableToLoadPhotos), exception.Message));
+            SetErrorState($"无法加载媒体。{exception.Message}");
         }
         finally
         {
@@ -84,13 +116,35 @@ public partial class PhotosPage : ContentPage
         }
     }
 
+    private void RebuildGroups()
+    {
+        TimelineGroups.Clear();
+
+        var groups = _items
+            .GroupBy(item =>
+            {
+                var timelineTime = item.TimelineItem?.TimelineTime ?? DateTime.Now;
+                return new DateTime(timelineTime.Year, timelineTime.Month, 1);
+            })
+            .OrderByDescending(group => group.Key);
+
+        foreach (var group in groups)
+        {
+            TimelineGroups.Add(new MediaTimelineGroup(
+                group.Key,
+                group.OrderByDescending(item => item.TimelineItem?.TimelineTime ?? DateTime.MinValue)));
+        }
+    }
+
     private async Task LoadThumbnailsAsync()
     {
-        foreach (var item in Items)
+        foreach (var item in _items)
         {
             try
             {
-                var content = await GetThumbnailOrImageAsync(item.Id);
+                var content = item.IsVideo
+                    ? await _apiClient.GetFileContentAsync(item.Id, thumbnail: true)
+                    : await GetThumbnailOrImageAsync(item.Id);
                 var bytes = content.Content;
                 item.ThumbnailSource = ImageSource.FromStream(() => new MemoryStream(bytes));
             }

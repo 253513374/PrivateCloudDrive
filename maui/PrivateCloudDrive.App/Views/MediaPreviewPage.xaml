@@ -29,6 +29,21 @@
                                   ShouldShowPlaybackControls="True"
                                   IsVisible="False"
                                   BackgroundColor="{AppThemeBinding Light=#000000, Dark=#000000}" />
+            <VerticalStackLayout x:Name="StatusPanel"
+                                 IsVisible="False"
+                                 Spacing="10"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 MaximumWidthRequest="360">
+                <Label x:Name="StatusLabel"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Button x:Name="RetryProcessingButton"
+                        Text="重新处理"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnRetryProcessingClicked" />
+            </VerticalStackLayout>
             <VerticalStackLayout x:Name="ErrorPanel"
                                  IsVisible="False"
                                  Spacing="10"

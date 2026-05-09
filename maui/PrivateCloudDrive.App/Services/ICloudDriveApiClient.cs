@@ -131,6 +131,70 @@ public interface ICloudDriveApiClient
         int maxResultCount = 60,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<MediaTimelineItem>> GetMediaTimelineAsync(
+        string? mediaType = null,
+        Guid? albumId = null,
+        string? processStatus = null,
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default);
+
+    Task<MediaDetail> GetMediaDetailAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<MediaTimelineItem>> GetMediaProcessingItemsAsync(
+        string? status = null,
+        string? mediaType = null,
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default);
+
+    Task<MediaDetail> RetryMediaProcessingAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<MediaAlbum>> GetMediaAlbumsAsync(
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default);
+
+    Task<MediaAlbum> CreateMediaAlbumAsync(
+        string name,
+        string? description = null,
+        CancellationToken cancellationToken = default);
+
+    Task<MediaAlbum> UpdateMediaAlbumAsync(
+        Guid id,
+        string name,
+        string? description = null,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteMediaAlbumAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<MediaTimelineItem>> GetMediaAlbumItemsAsync(
+        Guid id,
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<MediaTimelineItem>> AddMediaAlbumItemsAsync(
+        Guid id,
+        IReadOnlyCollection<Guid> fileNodeIds,
+        CancellationToken cancellationToken = default);
+
+    Task RemoveMediaAlbumItemAsync(
+        Guid id,
+        Guid fileNodeId,
+        CancellationToken cancellationToken = default);
+
+    Task<MediaAlbum> SetMediaAlbumCoverAsync(
+        Guid id,
+        Guid fileNodeId,
+        CancellationToken cancellationToken = default);
+
     Task<WechatLoginSettings> GetWechatLoginSettingsAsync(CancellationToken cancellationToken = default);
 
     Task<WechatBinding?> GetWechatBindingAsync(CancellationToken cancellationToken = default);

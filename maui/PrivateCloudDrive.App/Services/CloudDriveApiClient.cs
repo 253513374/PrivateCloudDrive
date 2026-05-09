@@ -627,6 +627,228 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return GetMediaItemsAsync("/api/file-center/media/videos", skipCount, maxResultCount, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<MediaTimelineItem>> GetMediaTimelineAsync(
+        string? mediaType = null,
+        Guid? albumId = null,
+        string? processStatus = null,
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default)
+    {
+        var query = BuildMediaTimelineQuery(skipCount, maxResultCount, mediaType, albumId, processStatus);
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/file-center/media/timeline?" + query,
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<MediaTimelineItemDto>>(responseText, JsonOptions);
+        return result?.Items.Select(ToMediaTimelineItem).ToList() ?? [];
+    }
+
+    public async Task<MediaDetail> GetMediaDetailAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            $"/api/file-center/media/{id}/detail",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var detail = JsonSerializer.Deserialize<MediaDetailDto>(responseText, JsonOptions)
+                     ?? throw new InvalidOperationException("Media detail response is invalid.");
+        return ToMediaDetail(detail);
+    }
+
+    public async Task<IReadOnlyList<MediaTimelineItem>> GetMediaProcessingItemsAsync(
+        string? status = null,
+        string? mediaType = null,
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new List<string>
+        {
+            $"SkipCount={skipCount}",
+            $"MaxResultCount={maxResultCount}"
+        };
+        AddQuery(query, "Status", status);
+        AddQuery(query, "MediaType", mediaType);
+
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/file-center/media/processing-status?" + string.Join("&", query),
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<MediaTimelineItemDto>>(responseText, JsonOptions);
+        return result?.Items.Select(ToMediaTimelineItem).ToList() ?? [];
+    }
+
+    public async Task<MediaDetail> RetryMediaProcessingAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            $"/api/file-center/media/{id}/retry-processing",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var detail = JsonSerializer.Deserialize<MediaDetailDto>(responseText, JsonOptions)
+                     ?? throw new InvalidOperationException("Retry media processing response is invalid.");
+        return ToMediaDetail(detail);
+    }
+
+    public async Task<IReadOnlyList<MediaAlbum>> GetMediaAlbumsAsync(
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            $"/api/file-center/media/albums?SkipCount={skipCount}&MaxResultCount={maxResultCount}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<MediaAlbumDto>>(responseText, JsonOptions);
+        return result?.Items.Select(ToMediaAlbum).ToList() ?? [];
+    }
+
+    public Task<MediaAlbum> CreateMediaAlbumAsync(
+        string name,
+        string? description = null,
+        CancellationToken cancellationToken = default)
+    {
+        return SendMediaAlbumAsync(
+            HttpMethod.Post,
+            "/api/file-center/media/albums",
+            new MediaAlbumRequest { Name = name, Description = description },
+            cancellationToken);
+    }
+
+    public Task<MediaAlbum> UpdateMediaAlbumAsync(
+        Guid id,
+        string name,
+        string? description = null,
+        CancellationToken cancellationToken = default)
+    {
+        return SendMediaAlbumAsync(
+            HttpMethod.Put,
+            $"/api/file-center/media/albums/{id}",
+            new MediaAlbumRequest { Name = name, Description = description },
+            cancellationToken);
+    }
+
+    public async Task DeleteMediaAlbumAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            $"/api/file-center/media/albums/{id}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    public async Task<IReadOnlyList<MediaTimelineItem>> GetMediaAlbumItemsAsync(
+        Guid id,
+        int skipCount = 0,
+        int maxResultCount = 60,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            $"/api/file-center/media/albums/{id}/items?SkipCount={skipCount}&MaxResultCount={maxResultCount}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<MediaTimelineItemDto>>(responseText, JsonOptions);
+        return result?.Items.Select(ToMediaTimelineItem).ToList() ?? [];
+    }
+
+    public async Task<IReadOnlyList<MediaTimelineItem>> AddMediaAlbumItemsAsync(
+        Guid id,
+        IReadOnlyCollection<Guid> fileNodeIds,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            $"/api/file-center/media/albums/{id}/items",
+            cancellationToken);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(new AddMediaAlbumItemsRequest { FileNodeIds = fileNodeIds.ToList() }, JsonOptions),
+            Encoding.UTF8,
+            "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<IReadOnlyList<MediaTimelineItemDto>>(responseText, JsonOptions);
+        return result?.Select(ToMediaTimelineItem).ToList() ?? [];
+    }
+
+    public async Task RemoveMediaAlbumItemAsync(
+        Guid id,
+        Guid fileNodeId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            $"/api/file-center/media/albums/{id}/items/{fileNodeId}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    public async Task<MediaAlbum> SetMediaAlbumCoverAsync(
+        Guid id,
+        Guid fileNodeId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            $"/api/file-center/media/albums/{id}/cover",
+            cancellationToken);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(new SetMediaAlbumCoverRequest { FileNodeId = fileNodeId }, JsonOptions),
+            Encoding.UTF8,
+            "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var album = JsonSerializer.Deserialize<MediaAlbumDto>(responseText, JsonOptions)
+                    ?? throw new InvalidOperationException("Set album cover response is invalid.");
+        return ToMediaAlbum(album);
+    }
+
     /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
@@ -997,6 +1219,44 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
     }
 
+    private async Task<MediaAlbum> SendMediaAlbumAsync<TRequest>(
+        HttpMethod method,
+        string route,
+        TRequest payload,
+        CancellationToken cancellationToken)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(method, route, cancellationToken);
+        request.Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var album = JsonSerializer.Deserialize<MediaAlbumDto>(responseText, JsonOptions)
+                    ?? throw new InvalidOperationException("Media album response is invalid.");
+        return ToMediaAlbum(album);
+    }
+
+    private static string BuildMediaTimelineQuery(
+        int skipCount,
+        int maxResultCount,
+        string? mediaType,
+        Guid? albumId,
+        string? processStatus)
+    {
+        var query = new List<string>
+        {
+            $"SkipCount={skipCount}",
+            $"MaxResultCount={maxResultCount}"
+        };
+
+        AddQuery(query, "MediaType", mediaType);
+        AddQuery(query, "AlbumId", albumId?.ToString("D"));
+        AddQuery(query, "ProcessStatus", processStatus);
+
+        return string.Join("&", query);
+    }
+
     private async Task UploadSmallFileAsync(
         Guid? parentId,
         FileResult file,
@@ -1193,6 +1453,59 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             share.VisitCount,
             share.IsEnabled,
             share.IsExpired);
+    }
+
+    private static MediaTimelineItem ToMediaTimelineItem(MediaTimelineItemDto item)
+    {
+        return new MediaTimelineItem(
+            item.Id,
+            item.Name,
+            item.MediaType,
+            item.Size,
+            item.ContentType,
+            item.TimelineTime,
+            item.CreationTime,
+            item.ThumbnailBlobObjectId,
+            item.ProcessStatus,
+            item.ProcessErrorSummary,
+            item.Width,
+            item.Height,
+            item.DurationMilliseconds,
+            item.IsFavorite);
+    }
+
+    private static MediaDetail ToMediaDetail(MediaDetailDto detail)
+    {
+        return new MediaDetail(
+            detail.FileNodeId,
+            detail.Name,
+            detail.MediaType,
+            detail.Size,
+            detail.ContentType,
+            detail.Width,
+            detail.Height,
+            detail.DurationMilliseconds,
+            detail.Codec,
+            detail.TakenAt,
+            detail.ThumbnailBlobObjectId,
+            detail.PreviewBlobObjectId,
+            detail.ProcessStatus,
+            detail.ProcessErrorSummary,
+            detail.CanPreview,
+            detail.CanRetryProcessing);
+    }
+
+    private static MediaAlbum ToMediaAlbum(MediaAlbumDto album)
+    {
+        return new MediaAlbum(
+            album.Id,
+            album.Name,
+            album.Description,
+            album.CoverFileNodeId,
+            album.CoverThumbnailBlobObjectId,
+            album.ItemsCount,
+            album.CreationTime,
+            album.LastModificationTime);
     }
 
     private static WechatBinding ToWechatBinding(WechatBindingDto binding)
@@ -1418,6 +1731,108 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public DateTime CreationTime { get; init; }
 
         public DateTime? LastModificationTime { get; init; }
+    }
+
+    private sealed class MediaTimelineItemDto
+    {
+        public Guid Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public MediaAssetMediaType MediaType { get; init; }
+
+        public long Size { get; init; }
+
+        public string? ContentType { get; init; }
+
+        public DateTime TimelineTime { get; init; }
+
+        public DateTime CreationTime { get; init; }
+
+        public Guid? ThumbnailBlobObjectId { get; init; }
+
+        public MediaAssetProcessStatus ProcessStatus { get; init; }
+
+        public string? ProcessErrorSummary { get; init; }
+
+        public int? Width { get; init; }
+
+        public int? Height { get; init; }
+
+        public long? DurationMilliseconds { get; init; }
+
+        public bool IsFavorite { get; init; }
+    }
+
+    private sealed class MediaDetailDto
+    {
+        public Guid FileNodeId { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public MediaAssetMediaType MediaType { get; init; }
+
+        public long Size { get; init; }
+
+        public string? ContentType { get; init; }
+
+        public int? Width { get; init; }
+
+        public int? Height { get; init; }
+
+        public long? DurationMilliseconds { get; init; }
+
+        public string? Codec { get; init; }
+
+        public DateTime? TakenAt { get; init; }
+
+        public Guid? ThumbnailBlobObjectId { get; init; }
+
+        public Guid? PreviewBlobObjectId { get; init; }
+
+        public MediaAssetProcessStatus ProcessStatus { get; init; }
+
+        public string? ProcessErrorSummary { get; init; }
+
+        public bool CanPreview { get; init; }
+
+        public bool CanRetryProcessing { get; init; }
+    }
+
+    private sealed class MediaAlbumDto
+    {
+        public Guid Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string? Description { get; init; }
+
+        public Guid? CoverFileNodeId { get; init; }
+
+        public Guid? CoverThumbnailBlobObjectId { get; init; }
+
+        public int ItemsCount { get; init; }
+
+        public DateTime CreationTime { get; init; }
+
+        public DateTime? LastModificationTime { get; init; }
+    }
+
+    private sealed class MediaAlbumRequest
+    {
+        public string Name { get; init; } = string.Empty;
+
+        public string? Description { get; init; }
+    }
+
+    private sealed class AddMediaAlbumItemsRequest
+    {
+        public List<Guid> FileNodeIds { get; init; } = [];
+    }
+
+    private sealed class SetMediaAlbumCoverRequest
+    {
+        public Guid FileNodeId { get; init; }
     }
 
     private sealed class CreateFolderRequest
