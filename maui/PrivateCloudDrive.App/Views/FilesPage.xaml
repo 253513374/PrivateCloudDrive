@@ -6,7 +6,7 @@
              x:Class="PrivateCloudDrive.App.Views.FilesPage"
              Title="{x:Static loc:AppText.Files}"
              Shell.NavBarIsVisible="False">
-    <Grid Padding="16,14,16,18" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowSpacing="14">
+    <Grid Padding="16,14,16,18" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" RowSpacing="14">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
             <VerticalStackLayout Spacing="4">
                 <Label Text="{x:Static loc:AppText.Files}"
@@ -40,8 +40,45 @@
                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         </Grid>
 
-        <Grid Grid.Row="2"
-              ColumnDefinitions="*,*"
+        <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                <SearchBar x:Name="FilesSearchBar"
+                           Placeholder="搜索文件"
+                           SearchButtonPressed="OnSearchPressed"
+                           TextChanged="OnSearchTextChanged" />
+                <Button Grid.Column="1"
+                        Text="搜索"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnSearchClicked" />
+                <Button Grid.Column="2"
+                        Text="清除"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnClearFiltersClicked" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="10">
+                <Picker x:Name="SortPicker"
+                        Title="排序"
+                        SelectedIndexChanged="OnFilterChanged" />
+                <Picker x:Name="TypeFilterPicker"
+                        Grid.Column="1"
+                        Title="类型"
+                        SelectedIndexChanged="OnFilterChanged" />
+                <Picker x:Name="MediaFilterPicker"
+                        Grid.Column="2"
+                        Title="媒体"
+                        SelectedIndexChanged="OnFilterChanged" />
+                <HorizontalStackLayout Grid.Column="3" Spacing="6" VerticalOptions="Center">
+                    <Label Text="全部"
+                           Style="{StaticResource MetaLabel}"
+                           VerticalOptions="Center" />
+                    <Switch x:Name="SearchAllSwitch"
+                            Toggled="OnFilterChanged" />
+                </HorizontalStackLayout>
+            </Grid>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="3"
+              ColumnDefinitions="*,*,Auto"
               ColumnSpacing="10">
             <Button Text="{x:Static loc:AppText.Upload}"
                     TextColor="White"
@@ -50,10 +87,50 @@
                     Text="{x:Static loc:AppText.NewFolderLower}"
                     Style="{StaticResource SecondaryButton}"
                     Clicked="OnNewFolderClicked" />
+            <Button x:Name="SelectionModeButton"
+                    Grid.Column="2"
+                    Text="选择"
+                    Style="{StaticResource SecondaryButton}"
+                    Clicked="OnToggleSelectionModeClicked" />
         </Grid>
 
+        <Border x:Name="BatchToolbar"
+                Grid.Row="4"
+                Padding="12"
+                IsVisible="False"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                <Label x:Name="SelectedCountLabel"
+                       Text="已选择 0 项"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Button x:Name="BatchMoveRootButton"
+                        Grid.Column="1"
+                        Text="移到根目录"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnBatchMoveRootClicked" />
+                <Button Grid.Column="2"
+                        Text="收藏"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnBatchFavoriteClicked" />
+                <Button Grid.Column="3"
+                        Text="取消收藏"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnBatchUnfavoriteClicked" />
+                <Button Grid.Column="4"
+                        Text="{x:Static loc:AppText.Delete}"
+                        Style="{StaticResource DangerButton}"
+                        Clicked="OnBatchDeleteClicked" />
+            </Grid>
+        </Border>
+
         <VerticalStackLayout x:Name="UploadStatusPanel"
-                             Grid.Row="3"
+                             Grid.Row="5"
                              IsVisible="False"
                              Spacing="8">
             <Label x:Name="UploadStatusLabel"
@@ -65,7 +142,7 @@
         </VerticalStackLayout>
 
         <Border x:Name="FilesStatePanel"
-                Grid.Row="4"
+                Grid.Row="6"
                 Padding="14"
                 IsVisible="False"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
@@ -94,7 +171,7 @@
         </Border>
 
         <CollectionView x:Name="FilesCollectionView"
-                        Grid.Row="5"
+                        Grid.Row="7"
                         ItemsSource="{Binding Items}"
                         SelectionMode="Single"
                         SelectionChanged="OnFileSelected">

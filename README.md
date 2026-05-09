@@ -124,10 +124,18 @@ Compose 配置：
 docker compose config
 ```
 
-Docker 栈预检查：
+V1.0 RC 本地栈健康检查：
 
 ```powershell
-.\scripts\verify-docker-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1
 ```
 
-更多测试覆盖说明见 `docs/testing.md`。
+MAUI 顺序构建：
+
+```powershell
+.\scripts\verify-maui-build.ps1 -SkipAndroid
+.\scripts\verify-maui-build.ps1 -SkipWindows
+```
+
+更多测试覆盖说明见 `docs/testing.md`，V1.0 RC 发布验收清单见 `docs/release-notes-v1.0-rc.md`。

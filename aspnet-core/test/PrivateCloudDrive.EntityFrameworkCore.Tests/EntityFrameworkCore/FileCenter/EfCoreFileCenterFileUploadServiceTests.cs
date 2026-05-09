@@ -22,6 +22,7 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
 {
     private readonly PrivateCloudDrive.FileCenter.IFileCenterFileUploadService _fileUploadService;
     private readonly PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService _foldersAppService;
+    private readonly PrivateCloudDrive.FileCenter.IFileCenterStorageAppService _storageAppService;
     private readonly IRepository<PrivateCloudDrive.FileCenter.BlobObject, Guid> _blobObjectRepository;
     private readonly IBlobContainer<PrivateCloudDrive.FileCenter.FileCenterBlobContainer> _blobContainer;
     private readonly IDataFilter<ISoftDelete> _softDeleteFilter;
@@ -34,6 +35,7 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
     {
         _fileUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileUploadService>();
         _foldersAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService>();
+        _storageAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterStorageAppService>();
         _blobObjectRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.BlobObject, Guid>>();
         _blobContainer = GetRequiredService<IBlobContainer<PrivateCloudDrive.FileCenter.FileCenterBlobContainer>>();
         _softDeleteFilter = GetRequiredService<IDataFilter<ISoftDelete>>();
@@ -86,6 +88,48 @@ public class EfCoreFileCenterFileUploadServiceTests : PrivateCloudDriveEntityFra
             blobObject.OwnerId.ShouldBe(userId);
             blobObject.FileName.ShouldBe("note.txt");
             blobObject.Size.ShouldBe(content.Length);
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 容量统计按当前用户的 BlobObject 聚合文件大小。
+    /// </summary>
+    [Fact]
+    public async Task Should_Report_Current_User_Storage_Usage()
+    {
+        var userId = Guid.NewGuid();
+        var firstContent = Encoding.UTF8.GetBytes("first usage");
+        var secondContent = Encoding.UTF8.GetBytes("second usage file");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await using (var stream = new MemoryStream(firstContent))
+            {
+                await _fileUploadService.UploadSmallFileAsync(
+                    parentId: null,
+                    "usage-a.txt",
+                    "text/plain",
+                    stream,
+                    firstContent.Length);
+            }
+
+            await using (var stream = new MemoryStream(secondContent))
+            {
+                await _fileUploadService.UploadSmallFileAsync(
+                    parentId: null,
+                    "usage-b.txt",
+                    "text/plain",
+                    stream,
+                    secondContent.Length);
+            }
+
+            var usage = await _storageAppService.GetUsageAsync();
+
+            usage.UsedBytes.ShouldBe(firstContent.Length + secondContent.Length);
+            usage.IsQuotaConfigured.ShouldBeTrue();
+            usage.QuotaBytes.ShouldBeGreaterThan(usage.UsedBytes);
+            usage.RemainingBytes.ShouldBe(usage.QuotaBytes - usage.UsedBytes);
+            usage.UsagePercent.ShouldBeGreaterThanOrEqualTo(0);
         });
     }
 

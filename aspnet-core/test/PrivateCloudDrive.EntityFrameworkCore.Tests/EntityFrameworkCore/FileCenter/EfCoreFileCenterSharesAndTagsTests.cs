@@ -131,6 +131,21 @@ public class EfCoreFileCenterSharesAndTagsTests : PrivateCloudDriveEntityFramewo
             });
 
             disabled.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterShareNotFound);
+
+            var ownShares = await _sharesAppService.GetListAsync(
+                new Volo.Abp.Application.Dtos.PagedResultRequestDto
+                {
+                    MaxResultCount = 10
+                });
+
+            var expiredListItem = ownShares.Items.Single(item => item.Id == expiredShare.Id);
+            expiredListItem.IsEnabled.ShouldBeTrue();
+            expiredListItem.IsExpired.ShouldBeTrue();
+            expiredListItem.CreationTime.ShouldNotBe(default);
+
+            var disabledListItem = ownShares.Items.Single(item => item.Id == activeShare.Id);
+            disabledListItem.IsEnabled.ShouldBeFalse();
+            disabledListItem.IsExpired.ShouldBeFalse();
         });
     }
 

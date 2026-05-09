@@ -59,6 +59,27 @@
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="存储容量" Style="{StaticResource SectionTitleLabel}" />
+                        <Label x:Name="StorageUsageLabel"
+                               Text="正在读取容量"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                        <ProgressBar x:Name="StorageProgressBar"
+                                     Progress="0"
+                                     ProgressColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                        <Label x:Name="StorageQuotaLabel"
+                               Text=""
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Padding="16"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
                     <VerticalStackLayout Spacing="6">
                         <Label Text="{x:Static loc:AppText.Security}" Style="{StaticResource SectionTitleLabel}" />
                         <Label Text="{x:Static loc:AppText.LocalSessionProtected}"
@@ -79,7 +100,7 @@
                                    Style="{StaticResource MetaLabel}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
                             <Button Text="{x:Static loc:AppText.Trash}"
                                     Style="{StaticResource SecondaryButton}"
                                     Clicked="OnTrashClicked" />
@@ -87,6 +108,10 @@
                                     Text="{x:Static loc:AppText.OperationLogs}"
                                     Style="{StaticResource SecondaryButton}"
                                     Clicked="OnOperationLogsClicked" />
+                            <Button Grid.Column="2"
+                                    Text="我的分享"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Clicked="OnSharesClicked" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>

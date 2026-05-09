@@ -110,24 +110,30 @@ Before first deployment, run:
 docker compose config
 ```
 
-For a full preflight check:
+For V1.0 RC preflight validation, run:
 
 ```powershell
-.\scripts\verify-docker-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1 -PreflightOnly
 ```
 
-After Docker can pull the required base images, run the full stack verification:
+Preflight mode validates Docker, Compose configuration, required service definitions, and `.env` readiness without printing secret values. WARN results are acceptable for local-only validation when `.env` is intentionally absent or `PUBLIC_URL` still points to localhost; production-like RC deployment should replace template passwords and encryption passphrases before release.
+
+After Docker can pull or build the required images, run the full local stack verification:
 
 ```powershell
-.\scripts\verify-docker-stack.ps1
+.\scripts\verify-local-stack.ps1
 ```
 
-After startup, confirm:
+Full mode starts the stack unless `-SkipStart` is passed, then confirms:
 
 - `postgres` and `redis` are healthy.
 - `db-migrator` completed successfully.
-- `api` exposes `http://localhost:8080/swagger`.
+- `api` is running and exposes `http://localhost:8080/swagger`.
 - `media-worker` stays running and handles background media jobs.
+- FileCenter storage volume is mounted and writable at `/app/storage`.
+- `ffmpeg` and `ffprobe` are available in the API container.
+
+The legacy `scripts/verify-docker-stack.ps1` remains available for basic Compose startup checks, but V1.0 RC acceptance should use `scripts/verify-local-stack.ps1` because it also covers storage, media tooling, and release-configuration boundaries.
 
 ## Troubleshooting
 

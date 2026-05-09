@@ -110,13 +110,18 @@ public class EfCoreFileNodeRepository
         bool includeDeleted = false,
         Guid? tagId = null,
         bool? isFavorite = null,
+        string? searchKeyword = null,
+        FileCenterSearchScope searchScope = FileCenterSearchScope.CurrentFolder,
+        FileNodeType? nodeType = null,
+        FileCenterMediaTypeFilter? mediaType = null,
+        string? sorting = null,
         CancellationToken cancellationToken = default)
     {
         async Task<List<FileNode>> QueryAsync()
         {
-            return await (await CreateChildrenQueryAsync(ownerId, parentId, tenantId, tagId, isFavorite))
-                .OrderBy(node => node.NodeType)
-                .ThenBy(node => node.NormalizedName)
+            return await ApplySorting(
+                    await CreateChildrenQueryAsync(ownerId, parentId, tenantId, tagId, isFavorite, searchKeyword, searchScope, nodeType, mediaType),
+                    sorting)
                 .Skip(skipCount)
                 .Take(maxResultCount)
                 .ToListAsync(GetCancellationToken(cancellationToken));
@@ -142,9 +147,13 @@ public class EfCoreFileNodeRepository
         Guid? tenantId = null,
         Guid? tagId = null,
         bool? isFavorite = null,
+        string? searchKeyword = null,
+        FileCenterSearchScope searchScope = FileCenterSearchScope.CurrentFolder,
+        FileNodeType? nodeType = null,
+        FileCenterMediaTypeFilter? mediaType = null,
         CancellationToken cancellationToken = default)
     {
-        return await (await CreateChildrenQueryAsync(ownerId, parentId, tenantId, tagId, isFavorite))
+        return await (await CreateChildrenQueryAsync(ownerId, parentId, tenantId, tagId, isFavorite, searchKeyword, searchScope, nodeType, mediaType))
             .LongCountAsync(GetCancellationToken(cancellationToken));
     }
 
@@ -153,17 +162,56 @@ public class EfCoreFileNodeRepository
         Guid? parentId,
         Guid? tenantId,
         Guid? tagId,
-        bool? isFavorite)
+        bool? isFavorite,
+        string? searchKeyword,
+        FileCenterSearchScope searchScope,
+        FileNodeType? nodeType,
+        FileCenterMediaTypeFilter? mediaType)
     {
         var queryable = (await GetQueryableAsync())
             .Where(node =>
                 node.TenantId == tenantId &&
-                node.OwnerId == ownerId &&
-                node.ParentId == parentId);
+                node.OwnerId == ownerId);
+
+        if (searchScope == FileCenterSearchScope.CurrentFolder)
+        {
+            queryable = queryable.Where(node => node.ParentId == parentId);
+        }
 
         if (isFavorite.HasValue)
         {
             queryable = queryable.Where(node => node.IsFavorite == isFavorite.Value);
+        }
+
+        if (nodeType.HasValue)
+        {
+            queryable = queryable.Where(node => node.NodeType == nodeType.Value);
+        }
+
+        if (mediaType.HasValue)
+        {
+            queryable = mediaType.Value switch
+            {
+                FileCenterMediaTypeFilter.Image => queryable.Where(node =>
+                    node.NodeType == FileNodeType.File &&
+                    node.ContentType != null &&
+                    node.ContentType.StartsWith("image/")),
+                FileCenterMediaTypeFilter.Video => queryable.Where(node =>
+                    node.NodeType == FileNodeType.File &&
+                    node.ContentType != null &&
+                    node.ContentType.StartsWith("video/")),
+                FileCenterMediaTypeFilter.Other => queryable.Where(node =>
+                    node.NodeType == FileNodeType.File &&
+                    (node.ContentType == null ||
+                     (!node.ContentType.StartsWith("image/") && !node.ContentType.StartsWith("video/")))),
+                _ => queryable
+            };
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchKeyword))
+        {
+            var normalizedKeyword = FileNode.NormalizeName(searchKeyword);
+            queryable = queryable.Where(node => node.NormalizedName.Contains(normalizedKeyword));
         }
 
         if (tagId.HasValue)
@@ -180,6 +228,45 @@ public class EfCoreFileNodeRepository
         }
 
         return queryable;
+    }
+
+    private static IQueryable<FileNode> ApplySorting(IQueryable<FileNode> queryable, string? sorting)
+    {
+        var normalizedSorting = sorting?.Trim().ToLowerInvariant();
+
+        return normalizedSorting switch
+        {
+            "name desc" or "normalizedname desc" => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenByDescending(node => node.NormalizedName),
+            "size asc" => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenBy(node => node.Size)
+                .ThenBy(node => node.NormalizedName),
+            "size desc" => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenByDescending(node => node.Size)
+                .ThenBy(node => node.NormalizedName),
+            "creationtime asc" => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenBy(node => node.CreationTime)
+                .ThenBy(node => node.NormalizedName),
+            "creationtime desc" => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenByDescending(node => node.CreationTime)
+                .ThenBy(node => node.NormalizedName),
+            "lastmodificationtime asc" => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenBy(node => node.LastModificationTime ?? node.CreationTime)
+                .ThenBy(node => node.NormalizedName),
+            "lastmodificationtime desc" => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenByDescending(node => node.LastModificationTime ?? node.CreationTime)
+                .ThenBy(node => node.NormalizedName),
+            _ => queryable
+                .OrderBy(node => node.NodeType)
+                .ThenBy(node => node.NormalizedName)
+        };
     }
 
     /// <summary>

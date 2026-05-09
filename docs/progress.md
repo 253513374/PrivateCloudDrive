@@ -22,8 +22,34 @@
 | 阶段 6：MVP Core 产品体验与账号密码认证深化 | 已完成 | `de2c6f9`, `bce5e4e`, `d4f4f76`, `97e2bec` | 任务 6.1 MAUI 设计系统、任务 6.2 MVP Core 页面状态、任务 6.3 账号密码登录/Refresh Token/撤销端点、任务 6.4 移动端认证审计和账号/IP 双维度登录失败限流已落地；MVP 内测版已对齐本地化文案、Compose API 地址和 Settings 回收站入口；任务 6.5 已在 Android Emulator Pixel 9 Pro API 36 完成内测验收 | 2026-05-08：后端 build 成功；后端测试通过 63 个 EF 集成测试；临时 API 验证 password grant、refresh_token、revocation、mobile auth audit、password rate limit 和 Compose 小文件上传/Range/回收站链路；MAUI Windows/Android 构建成功；Android 模拟器完成 MVP Core 内测验收；`docs/testing.md` 已记录执行结果 |
 | 阶段 7：V1 分享、标签、收藏与操作日志 | 已完成 | `bb654ee`, `4f4f6a1`, `158cbc3`, `de2c6f9` | 分享链接、公开访问与密码校验、管理员管理所有分享、标签管理、收藏筛选、图片/视频媒体库、操作日志查询后端与 HTTP 入口已实现；MAUI 文件详情、图片页、视频页和操作日志页已接入对应入口并随收尾提交 | 2026-05-08：后端测试通过 60 个 EF 集成测试；临时 API 已验证 `/api/operation-logs`、分享/标签/收藏、`/api/file-center/media/images`、`/api/file-center/media/videos` 和 `/api/file-center/shares/all`；MAUI Windows/Android 构建通过 |
 | 阶段 8：V1 微信登录可选接入 | 进行中 | `de2c6f9`, 本次提交 | 后端 WeChat 配置、`WechatUserBinding`、绑定/解绑接口、绑定票据、OpenIddict 自定义 grant、审计记录和 MAUI 登录/设置页入口已实现；`WechatUserBinding` PostgreSQL Host/Tenant 唯一索引已加固；首次绑定已有账号和已绑定微信登录均对齐 Identity lockout；登录、绑定和解绑已接入分布式缓存限流；解绑审计已覆盖无绑定场景；Android 已接入 WeChat SDK 原生授权桥接；iOS 平台 SDK 和真实微信凭据真机验收仍待执行 | 2026-05-08：后端隔离输出 build 通过；EF 集成测试通过 63 个；Android WeChat SDK 构建通过；MAUI Windows/Android 目标框架构建通过；真实 WeChat AppId/AppSecret、Android 签名和真机授权结果待回填 |
+| 阶段 9：V1.1 文件管理体验 | 已完成，待提交 | 工作区待提交 | 文件列表搜索、排序、类型/媒体筛选、批量删除/恢复/永久删除/移动/收藏、容量统计、我的分享管理页，以及后端 API 与 MAUI 客户端对接已完成 | 2026-05-09：`dotnet build .\aspnet-core\PrivateCloudDrive.slnx` 成功；`dotnet test .\aspnet-core\PrivateCloudDrive.slnx` 通过 79 个 EF 集成测试；`.\scripts\verify-maui-build.ps1 -SkipAndroid` 通过 Windows MAUI 构建；Docker stack 验证通过，Swagger 可访问 |
 
 ## 最近验证记录
+
+### 2026-05-09
+
+- V1.1 文件管理体验
+  - 后端：文件列表支持搜索、全盘搜索、节点类型筛选、媒体类型筛选和排序；新增容量统计显式路由 `/api/file-center/storage/usage`；新增批量节点 API `/api/file-center/nodes/batch/*`；个人分享列表现在返回已禁用和已过期状态。
+  - MAUI：Files 页新增搜索、排序、类型/媒体筛选、全盘搜索开关和批量工具栏；Trash 页新增批量恢复和批量永久删除；Settings 页新增容量卡和“我的分享”入口；新增 Shares 页支持复制链接和禁用分享。
+  - 测试：新增批量节点操作、分享列表状态和容量统计测试。
+  - `dotnet build .\aspnet-core\PrivateCloudDrive.slnx`
+    - 工作目录：仓库根目录
+    - 结果：成功，0 个警告，0 个错误。
+  - `dotnet test .\aspnet-core\PrivateCloudDrive.slnx`
+    - 工作目录：仓库根目录
+    - 结果：`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 79 个测试；其它测试项目当前没有可发现测试。
+  - `.\scripts\verify-maui-build.ps1 -SkipAndroid`
+    - 工作目录：仓库根目录
+    - 结果：Windows MAUI 构建通过；Android 构建按参数跳过。
+  - `docker compose config`
+    - 工作目录：仓库根目录
+    - 结果：Compose 配置展开成功。
+  - `docker compose up -d --build`
+    - 工作目录：仓库根目录
+    - 结果：API、media-worker 和 db-migrator 镜像重建成功；PostgreSQL/Redis 复用运行中容器；db-migrator 成功退出；API 和 media-worker 启动。
+  - `.\scripts\verify-docker-stack.ps1`
+    - 工作目录：仓库根目录
+    - 结果：PostgreSQL 和 Redis healthy；db-migrator ready；API 和 media-worker ready；Swagger `http://localhost:8080/swagger/index.html` 返回可用。
 
 ### 2026-05-08
 

@@ -68,6 +68,11 @@ public partial class SettingsPage : ContentPage
         await Shell.Current.GoToAsync("trash", true);
     }
 
+    private async void OnSharesClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("shares", true);
+    }
+
     private async void OnWechatBindClicked(object? sender, EventArgs e)
     {
         await BindWechatAsync();
@@ -129,6 +134,7 @@ public partial class SettingsPage : ContentPage
             SetInfoState(isSignedIn
                 ? AppText.SignedInOnThisDevice
                 : AppText.NoValidLocalSession);
+            await LoadStorageUsageAsync(isSignedIn);
             await LoadWechatStateAsync(isSignedIn);
             await LoadExternalStateAsync(isSignedIn);
         }
@@ -138,6 +144,45 @@ public partial class SettingsPage : ContentPage
             SetWechatInfoState(AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GoogleProvider, AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GitHubProvider, AppText.Unavailable, canBind: false, canUnbind: false);
+        }
+    }
+
+    private async Task LoadStorageUsageAsync(bool isSignedIn)
+    {
+        if (!isSignedIn)
+        {
+            StorageUsageLabel.Text = AppText.SignInRequired;
+            StorageQuotaLabel.Text = string.Empty;
+            StorageProgressBar.Progress = 0;
+            return;
+        }
+
+        try
+        {
+            var usage = await _apiClient.GetStorageUsageAsync();
+            StorageUsageLabel.Text = $"{FormatBytes(usage.UsedBytes)} 已使用";
+
+            if (usage.IsQuotaConfigured)
+            {
+                StorageQuotaLabel.Text = $"配额 {FormatBytes(usage.QuotaBytes)}，剩余 {FormatBytes(usage.RemainingBytes)}";
+                StorageProgressBar.Progress = Math.Clamp((double)usage.UsagePercent / 100, 0, 1);
+            }
+            else
+            {
+                StorageQuotaLabel.Text = "未配置容量上限";
+                StorageProgressBar.Progress = 0;
+            }
+        }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
+        }
+        catch (Exception exception)
+        {
+            StorageUsageLabel.Text = $"无法读取容量：{exception.Message}";
+            StorageQuotaLabel.Text = string.Empty;
+            StorageProgressBar.Progress = 0;
         }
     }
 
@@ -451,5 +496,22 @@ public partial class SettingsPage : ContentPage
         return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
             ? AppText.UnbindGitHubQuestion
             : AppText.UnbindGoogleQuestion;
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)Math.Max(bytes, 0);
+        var unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? $"{value:0} {units[unitIndex]}"
+            : $"{value:0.##} {units[unitIndex]}";
     }
 }

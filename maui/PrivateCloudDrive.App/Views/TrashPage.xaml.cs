@@ -11,6 +11,7 @@ namespace PrivateCloudDrive.App.Views;
 public partial class TrashPage : ContentPage
 {
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
+    private bool _isSelectionMode;
 
     public ObservableCollection<CloudDriveItem> TrashItems { get; } = [];
 
@@ -104,11 +105,75 @@ public partial class TrashPage : ContentPage
         try
         {
             await _apiClient.EmptyTrashAsync();
+            SetSelectionMode(false);
             await LoadTrashAsync();
         }
         catch (Exception exception)
         {
             await ShowErrorAsync(AppText.Format(nameof(AppText.UnableToEmptyTrash), exception.Message));
+        }
+    }
+
+    private void OnToggleSelectionModeClicked(object? sender, EventArgs e)
+    {
+        SetSelectionMode(!_isSelectionMode);
+    }
+
+    private void OnTrashSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        UpdateSelectedItems();
+    }
+
+    private async void OnBatchRestoreClicked(object? sender, EventArgs e)
+    {
+        var selectedItems = GetSelectedItems();
+        if (selectedItems.Count == 0)
+        {
+            await ShowInfoAsync("请先选择回收站项目。");
+            return;
+        }
+
+        try
+        {
+            await _apiClient.RestoreTrashItemsAsync(selectedItems.Select(item => item.Id).ToList());
+            SetSelectionMode(false);
+            await LoadTrashAsync();
+        }
+        catch (Exception exception)
+        {
+            await ShowErrorAsync(exception.Message);
+        }
+    }
+
+    private async void OnBatchPermanentDeleteClicked(object? sender, EventArgs e)
+    {
+        var selectedItems = GetSelectedItems();
+        if (selectedItems.Count == 0)
+        {
+            await ShowInfoAsync("请先选择回收站项目。");
+            return;
+        }
+
+        var confirmed = await DisplayAlertAsync(
+            AppText.DeleteForever,
+            $"永久删除 {selectedItems.Count} 项？此操作不可恢复。",
+            AppText.Delete,
+            AppText.Cancel);
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        try
+        {
+            await _apiClient.PermanentlyDeleteTrashItemsAsync(selectedItems.Select(item => item.Id).ToList());
+            SetSelectionMode(false);
+            await LoadTrashAsync();
+        }
+        catch (Exception exception)
+        {
+            await ShowErrorAsync(exception.Message);
         }
     }
 
@@ -172,5 +237,30 @@ public partial class TrashPage : ContentPage
         StateLabel.Text = message;
 
         return Task.CompletedTask;
+    }
+
+    private void SetSelectionMode(bool isSelectionMode)
+    {
+        _isSelectionMode = isSelectionMode;
+        TrashSelectionModeButton.Text = _isSelectionMode ? "完成" : "选择";
+        TrashBatchToolbar.IsVisible = _isSelectionMode;
+        TrashCollectionView.SelectionMode = _isSelectionMode
+            ? SelectionMode.Multiple
+            : SelectionMode.None;
+
+        TrashCollectionView.SelectedItems.Clear();
+        UpdateSelectedItems();
+    }
+
+    private IReadOnlyList<CloudDriveItem> GetSelectedItems()
+    {
+        return TrashCollectionView.SelectedItems
+            .OfType<CloudDriveItem>()
+            .ToList();
+    }
+
+    private void UpdateSelectedItems()
+    {
+        TrashSelectedCountLabel.Text = $"已选择 {GetSelectedItems().Count} 项";
     }
 }

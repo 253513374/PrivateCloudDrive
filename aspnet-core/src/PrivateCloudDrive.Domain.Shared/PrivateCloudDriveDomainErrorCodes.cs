@@ -32,6 +32,7 @@ public static class PrivateCloudDriveDomainErrorCodes
     public const string FileCenterShareDownloadDisabled = "PrivateCloudDrive:FileCenter:000024";
     public const string FileCenterTagAlreadyExists = "PrivateCloudDrive:FileCenter:000025";
     public const string FileCenterTagNotFound = "PrivateCloudDrive:FileCenter:000026";
+    public const string FileCenterBatchSelectionInvalid = "PrivateCloudDrive:FileCenter:000027";
     public const string WeChatDisabled = "PrivateCloudDrive:MobileAuth:000001";
     public const string WeChatCodeExchangeFailed = "PrivateCloudDrive:MobileAuth:000002";
     public const string WeChatBindingRequired = "PrivateCloudDrive:MobileAuth:000003";

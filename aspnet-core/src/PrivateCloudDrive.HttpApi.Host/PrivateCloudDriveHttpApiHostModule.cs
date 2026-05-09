@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -113,6 +117,7 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         var hostingEnvironment = context.Services.GetHostingEnvironment();
 
         ConfigureAuthentication(context);
+        ConfigureApiAuthenticationResponses(context);
         ConfigureBundles();
         ConfigureUrls(configuration);
         ConfigureNavigation();
@@ -143,6 +148,42 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         {
             options.IsDynamicClaimsEnabled = true;
         });
+    }
+
+    private static void ConfigureApiAuthenticationResponses(ServiceConfigurationContext context)
+    {
+        context.Services.ConfigureApplicationCookie(options =>
+        {
+            options.Events.OnRedirectToLogin = redirectContext =>
+            {
+                if (IsApiRequest(redirectContext.Request.Path))
+                {
+                    redirectContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                }
+
+                redirectContext.Response.Redirect(redirectContext.RedirectUri);
+                return Task.CompletedTask;
+            };
+
+            options.Events.OnRedirectToAccessDenied = redirectContext =>
+            {
+                if (IsApiRequest(redirectContext.Request.Path))
+                {
+                    redirectContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                }
+
+                redirectContext.Response.Redirect(redirectContext.RedirectUri);
+                return Task.CompletedTask;
+            };
+        });
+    }
+
+    private static bool IsApiRequest(PathString path)
+    {
+        return path.StartsWithSegments("/api") ||
+               path.StartsWithSegments("/connect");
     }
 
     private void ConfigureBundles()
@@ -277,6 +318,19 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         if (!env.IsDevelopment())
         {
             app.UseErrorPage();
+            app.Use(async (httpContext, next) =>
+            {
+                if (IsApiRequest(httpContext.Request.Path))
+                {
+                    var statusCodePagesFeature = httpContext.Features.Get<IStatusCodePagesFeature>();
+                    if (statusCodePagesFeature != null)
+                    {
+                        statusCodePagesFeature.Enabled = false;
+                    }
+                }
+
+                await next();
+            });
         }
 
         app.UseCorrelationId();

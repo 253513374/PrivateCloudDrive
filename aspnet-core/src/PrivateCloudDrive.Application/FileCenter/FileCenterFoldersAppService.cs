@@ -21,6 +21,8 @@ namespace PrivateCloudDrive.FileCenter;
 [Authorize(PrivateCloudDrivePermissions.FileCenter.View)]
 public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFoldersAppService
 {
+    private const int MaxBatchItemCount = 100;
+
     private readonly IFileNodeRepository _fileNodeRepository;
     private readonly FileNodeManager _fileNodeManager;
     private readonly IRepository<BlobObject, Guid> _blobObjectRepository;
@@ -81,7 +83,11 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
             input.ParentId,
             CurrentTenant.Id,
             input.TagId,
-            input.IsFavorite);
+            input.IsFavorite,
+            input.SearchKeyword,
+            input.SearchScope,
+            input.NodeType,
+            input.MediaType);
         var items = await _fileNodeRepository.GetChildrenAsync(
             ownerId,
             input.ParentId,
@@ -89,7 +95,12 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
             input.MaxResultCount,
             CurrentTenant.Id,
             tagId: input.TagId,
-            isFavorite: input.IsFavorite);
+            isFavorite: input.IsFavorite,
+            searchKeyword: input.SearchKeyword,
+            searchScope: input.SearchScope,
+            nodeType: input.NodeType,
+            mediaType: input.MediaType,
+            sorting: input.Sorting);
 
         return new PagedResultDto<FileNodeDto>(
             totalCount,
@@ -145,6 +156,27 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
     }
 
     /// <summary>
+    /// 批量移动文件或文件夹到目标目录。
+    /// </summary>
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual async Task<IReadOnlyList<FileNodeDto>> MoveManyAsync(BatchMoveFileNodesInput input)
+    {
+        var ownerId = GetOwnerId();
+        var ids = NormalizeBatchIds(input.Ids);
+        var movedNodes = new List<FileNodeDto>();
+
+        foreach (var id in ids)
+        {
+            var node = await _fileNodeManager.GetOwnerNodeAsync(CurrentTenant.Id, ownerId, id);
+            await _fileNodeManager.MoveNodeAsync(CurrentTenant.Id, ownerId, node, input.ParentId);
+            await _fileNodeRepository.UpdateAsync(node);
+            movedNodes.Add(ToDto(node));
+        }
+
+        return movedNodes;
+    }
+
+    /// <summary>
     /// 删除指定业务资源；涉及文件中心时优先遵循回收站或安全删除语义。
     /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
@@ -154,6 +186,29 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         var folder = await _fileNodeManager.GetOwnerFolderAsync(CurrentTenant.Id, ownerId, id);
 
         await _fileNodeManager.DeleteFolderTreeAsync(CurrentTenant.Id, ownerId, folder);
+    }
+
+    /// <summary>
+    /// 批量移动到回收站，文件和文件夹共用同一入口。
+    /// </summary>
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
+    public virtual async Task DeleteManyAsync(BatchFileNodeInput input)
+    {
+        var ownerId = GetOwnerId();
+        var ids = NormalizeBatchIds(input.Ids);
+
+        foreach (var id in ids)
+        {
+            var node = await _fileNodeManager.GetOwnerNodeAsync(CurrentTenant.Id, ownerId, id);
+            if (node.NodeType == FileNodeType.Folder)
+            {
+                await _fileNodeManager.DeleteFolderTreeAsync(CurrentTenant.Id, ownerId, node);
+            }
+            else
+            {
+                await _fileNodeRepository.DeleteAsync(node);
+            }
+        }
     }
 
     /// <summary>
@@ -171,6 +226,26 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
     }
 
     /// <summary>
+    /// 批量从回收站恢复节点。
+    /// </summary>
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual async Task<IReadOnlyList<FileNodeDto>> RestoreManyAsync(BatchFileNodeInput input)
+    {
+        var ownerId = GetOwnerId();
+        var ids = NormalizeBatchIds(input.Ids);
+        var restoredNodes = new List<FileNodeDto>();
+
+        foreach (var id in ids)
+        {
+            var node = await _fileNodeManager.GetOwnerDeletedNodeAsync(CurrentTenant.Id, ownerId, id);
+            await _fileNodeManager.RestoreTreeAsync(CurrentTenant.Id, ownerId, node);
+            restoredNodes.Add(ToDto(node));
+        }
+
+        return restoredNodes;
+    }
+
+    /// <summary>
     /// 永久删除回收站节点及其子节点，删除后不可通过软删除恢复。
     /// </summary>
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
@@ -182,6 +257,46 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
 
         await CleanupPermanentDeletedFilesAsync(ownerId, deletedNodes);
         await _fileNodeManager.PermanentDeleteTreeAsync(CurrentTenant.Id, ownerId, node);
+    }
+
+    /// <summary>
+    /// 批量永久删除回收站节点及其子节点。
+    /// </summary>
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
+    public virtual async Task PermanentDeleteManyAsync(BatchFileNodeInput input)
+    {
+        var ownerId = GetOwnerId();
+        var ids = NormalizeBatchIds(input.Ids);
+
+        foreach (var id in ids)
+        {
+            var node = await _fileNodeManager.GetOwnerDeletedNodeAsync(CurrentTenant.Id, ownerId, id);
+            var deletedNodes = await GetDeletedTreeNodesAsync(ownerId, node);
+
+            await CleanupPermanentDeletedFilesAsync(ownerId, deletedNodes);
+            await _fileNodeManager.PermanentDeleteTreeAsync(CurrentTenant.Id, ownerId, node);
+        }
+    }
+
+    /// <summary>
+    /// 批量设置收藏状态。
+    /// </summary>
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual async Task<IReadOnlyList<FileNodeDto>> SetFavoriteManyAsync(BatchSetFavoriteInput input)
+    {
+        var ownerId = GetOwnerId();
+        var ids = NormalizeBatchIds(input.Ids);
+        var nodes = new List<FileNodeDto>();
+
+        foreach (var id in ids)
+        {
+            var node = await _fileNodeManager.GetOwnerNodeAsync(CurrentTenant.Id, ownerId, id);
+            node.SetFavorite(input.IsFavorite);
+            await _fileNodeRepository.UpdateAsync(node);
+            nodes.Add(ToDto(node));
+        }
+
+        return nodes;
     }
 
     /// <summary>
@@ -318,6 +433,22 @@ public class FileCenterFoldersAppService : FileCenterAppService, IFileCenterFold
         }
 
         return CurrentUser.Id.Value;
+    }
+
+    private static IReadOnlyList<Guid> NormalizeBatchIds(IReadOnlyCollection<Guid>? ids)
+    {
+        var normalizedIds = ids?
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList() ?? [];
+
+        if (normalizedIds.Count == 0 || normalizedIds.Count > MaxBatchItemCount)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterBatchSelectionInvalid)
+                .WithData("MaxCount", MaxBatchItemCount);
+        }
+
+        return normalizedIds;
     }
 
     private static FileNodeDto ToDto(FileNode node)

@@ -307,6 +307,172 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
         });
     }
 
+    /// <summary>
+    /// 验证 V1.1 当前目录搜索只返回名称匹配的直属节点。
+    /// </summary>
+    [Fact]
+    public async Task Should_Search_Folders_By_Keyword_In_Current_Folder()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Holiday Photos" });
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Work Docs" });
+
+            var result = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    SearchKeyword = "photo",
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            result.TotalCount.ShouldBe(1);
+            result.Items.Single().Name.ShouldBe("Holiday Photos");
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 全盘搜索不会返回其他用户的节点。
+    /// </summary>
+    [Fact]
+    public async Task Should_Not_Return_Other_User_Nodes_When_Searching_All()
+    {
+        var ownerId = Guid.NewGuid();
+        var otherUserId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(ownerId, async () =>
+        {
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Owner Search Target" });
+        });
+
+        await WithCurrentUserAsync(otherUserId, async () =>
+        {
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Other Search Target" });
+        });
+
+        await WithCurrentUserAsync(ownerId, async () =>
+        {
+            var result = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    SearchKeyword = "Search Target",
+                    SearchScope = PrivateCloudDrive.FileCenter.FileCenterSearchScope.All,
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            result.TotalCount.ShouldBe(1);
+            result.Items.Single().Name.ShouldBe("Owner Search Target");
+            result.Items.ShouldAllBe(item => item.OwnerId == ownerId);
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 排序参数可以按名称倒序返回列表。
+    /// </summary>
+    [Fact]
+    public async Task Should_Sort_Folders_By_Name_Descending()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Alpha" });
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Beta" });
+            await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Gamma" });
+
+            var result = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    Sorting = "name desc",
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            result.Items.Select(item => item.Name).ShouldBe(new[] { "Gamma", "Beta", "Alpha" });
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 批量移动、收藏、回收站恢复和永久删除共用同一套节点规则。
+    /// </summary>
+    [Fact]
+    public async Task Should_Batch_Move_Favorite_Delete_Restore_And_Permanent_Delete_Folders()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var target = await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Target" });
+            var first = await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "First" });
+            var second = await _foldersAppService.CreateAsync(new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Second" });
+
+            var moved = await _foldersAppService.MoveManyAsync(
+                new PrivateCloudDrive.FileCenter.BatchMoveFileNodesInput
+                {
+                    Ids = [first.Id, second.Id],
+                    ParentId = target.Id
+                });
+
+            moved.Select(item => item.ParentId).ShouldAllBe(parentId => parentId == target.Id);
+
+            var favorites = await _foldersAppService.SetFavoriteManyAsync(
+                new PrivateCloudDrive.FileCenter.BatchSetFavoriteInput
+                {
+                    Ids = [first.Id, second.Id],
+                    IsFavorite = true
+                });
+
+            favorites.ShouldAllBe(item => item.IsFavorite);
+
+            await _foldersAppService.DeleteManyAsync(
+                new PrivateCloudDrive.FileCenter.BatchFileNodeInput
+                {
+                    Ids = [first.Id, second.Id]
+                });
+
+            var deletedList = await _foldersAppService.GetDeletedListAsync(
+                new PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            deletedList.Items.Select(item => item.Id).ShouldBe([first.Id, second.Id], ignoreOrder: true);
+
+            var restored = await _foldersAppService.RestoreManyAsync(
+                new PrivateCloudDrive.FileCenter.BatchFileNodeInput
+                {
+                    Ids = [first.Id, second.Id]
+                });
+
+            restored.Select(item => item.Id).ShouldBe([first.Id, second.Id], ignoreOrder: true);
+
+            await _foldersAppService.DeleteManyAsync(
+                new PrivateCloudDrive.FileCenter.BatchFileNodeInput
+                {
+                    Ids = [first.Id, second.Id]
+                });
+            await _foldersAppService.PermanentDeleteManyAsync(
+                new PrivateCloudDrive.FileCenter.BatchFileNodeInput
+                {
+                    Ids = [first.Id, second.Id]
+                });
+
+            var afterPermanentDelete = await _foldersAppService.GetDeletedListAsync(
+                new PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+
+            afterPermanentDelete.Items.Select(item => item.Id).ShouldNotContain(first.Id);
+            afterPermanentDelete.Items.Select(item => item.Id).ShouldNotContain(second.Id);
+        });
+    }
+
     private async Task WithCurrentUserAsync(Guid userId, Func<Task> action)
     {
         var principal = new ClaimsPrincipal(

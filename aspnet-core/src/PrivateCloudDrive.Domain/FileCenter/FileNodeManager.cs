@@ -116,6 +116,19 @@ public class FileNodeManager : FileCenterDomainService
     {
         EnsureOwnerNode(tenantId, ownerId, node);
         EnsureFolderNode(node);
+        await MoveNodeAsync(tenantId, ownerId, node, parentId);
+    }
+
+    /// <summary>
+    /// 移动文件或文件夹节点到目标目录；文件夹移动时额外阻止移动到自身或子孙目录。
+    /// </summary>
+    public virtual async Task MoveNodeAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        FileNode node,
+        Guid? parentId)
+    {
+        EnsureOwnerNode(tenantId, ownerId, node);
         await EnsureCanMoveAsync(tenantId, ownerId, node, parentId);
 
         var existingNode = await _fileNodeRepository.FindByNameAsync(
@@ -250,6 +263,26 @@ public class FileNodeManager : FileCenterDomainService
         }
 
         EnsureFileNode(node);
+
+        return node;
+    }
+
+    /// <summary>
+    /// 获取当前用户拥有的任意文件中心节点；用于批量操作统一处理文件和文件夹。
+    /// </summary>
+    public virtual async Task<FileNode> GetOwnerNodeAsync(
+        Guid? tenantId,
+        Guid ownerId,
+        Guid id,
+        bool includeDeleted = false)
+    {
+        var node = await _fileNodeRepository.FindByIdAsync(id, ownerId, tenantId, includeDeleted);
+
+        if (node == null)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound)
+                .WithData("Id", id);
+        }
 
         return node;
     }

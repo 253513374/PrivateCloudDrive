@@ -9,6 +9,7 @@
 | 范围 | 覆盖点 |
 | --- | --- |
 | 文件夹管理 | 创建文件夹、同目录重名校验、分页列表、移动校验、回收站列表、恢复、永久删除、清空回收站 |
+| V1.1 文件管理体验 | 文件列表搜索、全盘搜索跨用户隔离、排序、批量移动/收藏/删除/恢复/永久删除、容量统计、分享列表禁用/过期状态 |
 | 文件节点仓储 | 子节点查询、软删除过滤、排序、父子目录约束 |
 | 小文件上传 | BlobObject 与 FileNode 创建、文件名重名校验、单文件大小限制、用户容量配额超限、删除到回收站、永久删除后释放 Blob |
 | 文件下载 | 普通下载、HTTP Range、文件夹不可下载、缩略图下载 |
@@ -32,12 +33,14 @@ dotnet build .\PrivateCloudDrive.slnx
 dotnet test .\PrivateCloudDrive.slnx --no-build
 ```
 
-MAUI 构建验证：
+MAUI 顺序构建验证：
 
 ```powershell
-dotnet build .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64
-dotnet build .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android
+.\scripts\verify-maui-build.ps1 -SkipAndroid
+.\scripts\verify-maui-build.ps1 -SkipWindows
 ```
+
+Windows 和 Android 目标必须顺序构建，避免多目标 restore/build 同时解析本机未安装的平台 workload 或 runtime。若当前机器只具备 Windows MAUI 环境，先执行 `-SkipAndroid`；Android 构建和真机验收在具备 Android SDK/JDK/workload 的环境中回填结果。
 
 Docker Compose 配置验证：
 
@@ -45,11 +48,36 @@ Docker Compose 配置验证：
 docker compose config
 ```
 
-Docker Compose 栈预检查：
+V1.0 RC 本地栈健康检查：
 
 ```powershell
-.\scripts\verify-docker-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1
 ```
+
+`verify-local-stack.ps1` 会输出 PASS/WARN/FAIL 汇总，覆盖 Docker、Compose 服务、`.env` 配置边界、PostgreSQL、Redis、db-migrator、API、media-worker、Swagger、存储目录、FFmpeg 和 FFprobe。验收记录中禁止记录密码、access token、refresh token、OAuth code、client secret 或 provider token。
+
+V1.1 文件管理体验验证：
+
+```powershell
+dotnet build .\aspnet-core\PrivateCloudDrive.slnx
+dotnet test .\aspnet-core\PrivateCloudDrive.slnx
+.\scripts\verify-maui-build.ps1 -SkipAndroid
+```
+
+2026-05-09 执行结果：后端 build 成功；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 79 个测试；MAUI Windows 构建通过，Android 按参数跳过；`docker compose config`、`docker compose up -d --build` 和 `.\scripts\verify-docker-stack.ps1` 验证通过，Swagger 可访问。
+
+## V1.1 手动验收清单
+
+| 范围 | 检查步骤 | 预期结果 |
+| --- | --- | --- |
+| 文件搜索 | Files 页输入关键字后搜索，再清除筛选。 | 列表只显示匹配项目；清除后恢复当前目录列表。 |
+| 全盘搜索 | 打开“全部”开关后搜索子目录中的文件名。 | 可以搜索当前用户全盘未删除节点，不出现其他用户数据。 |
+| 排序筛选 | 切换名称、大小、创建时间、修改时间排序，并切换文件夹/文件/图片/视频/其他过滤。 | 列表按选择条件刷新，未命中时显示空状态。 |
+| 文件页批量操作 | 点击“选择”，多选项目后执行收藏、取消收藏、移到根目录、删除。 | 每个操作都有后端结果；删除进入回收站；完成后退出选择模式并刷新列表。 |
+| 回收站批量操作 | Settings 进入 Trash，选择多个项目执行恢复和永久删除。 | 恢复回原位置；永久删除有强确认且不可恢复。 |
+| 容量卡 | Settings 查看“存储容量”。 | 显示已用、配额、剩余和进度条；API 失败时显示可读错误。 |
+| 我的分享 | Settings 进入“我的分享”，复制链接并禁用一个有效分享。 | 列表显示文件名、状态、创建/过期时间和访问次数；复制写入剪贴板；禁用后状态刷新为已禁用。 |
 
 ## 移动端真实设备手动验收清单
 

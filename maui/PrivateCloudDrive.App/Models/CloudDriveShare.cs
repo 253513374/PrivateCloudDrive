@@ -9,5 +9,9 @@ public sealed record CloudDriveShare(
     string FileName,
     string Token,
     DateTime? ExpirationTime,
+    DateTime CreationTime,
     bool AllowDownload,
-    bool RequiresPassword);
+    bool RequiresPassword,
+    int VisitCount,
+    bool IsEnabled,
+    bool IsExpired);

@@ -36,6 +36,7 @@ public sealed class MockCloudDriveApiClient
         Guid? parentId,
         int skipCount = 0,
         int maxResultCount = 50,
+        CloudDriveQueryOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<CloudDriveItem> items =

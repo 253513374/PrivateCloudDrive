@@ -35,6 +35,11 @@ public interface IFileNodeRepository : IRepository<FileNode, Guid>
         bool includeDeleted = false,
         Guid? tagId = null,
         bool? isFavorite = null,
+        string? searchKeyword = null,
+        FileCenterSearchScope searchScope = FileCenterSearchScope.CurrentFolder,
+        FileNodeType? nodeType = null,
+        FileCenterMediaTypeFilter? mediaType = null,
+        string? sorting = null,
         CancellationToken cancellationToken = default);
 
     Task<long> GetChildrenCountAsync(
@@ -43,6 +48,10 @@ public interface IFileNodeRepository : IRepository<FileNode, Guid>
         Guid? tenantId = null,
         Guid? tagId = null,
         bool? isFavorite = null,
+        string? searchKeyword = null,
+        FileCenterSearchScope searchScope = FileCenterSearchScope.CurrentFolder,
+        FileNodeType? nodeType = null,
+        FileCenterMediaTypeFilter? mediaType = null,
         CancellationToken cancellationToken = default);
 
     Task<List<FileNode>> GetDeletedRootsAsync(

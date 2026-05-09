@@ -75,7 +75,7 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
     }
 
     /// <summary>
-    /// 获取当前用户启用中的分享列表。
+    /// 获取当前用户的分享列表，包含已禁用和已过期分享，便于客户端管理。
     /// </summary>
     public virtual async Task<PagedResultDto<FileShareDto>> GetListAsync(PagedResultRequestDto input)
     {
@@ -83,8 +83,7 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         var queryable = (await _shareRepository.GetQueryableAsync())
             .Where(share =>
                 share.TenantId == CurrentTenant.Id &&
-                share.OwnerId == ownerId &&
-                share.IsEnabled)
+                share.OwnerId == ownerId)
             .OrderByDescending(share => share.CreationTime);
 
         var totalCount = await _asyncExecuter.LongCountAsync(queryable);
@@ -219,7 +218,7 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         return CurrentUser.Id.Value;
     }
 
-    private static FileShareDto ToDto(FileShare share, FileNode? node)
+    private FileShareDto ToDto(FileShare share, FileNode? node)
     {
         return new FileShareDto
         {
@@ -231,10 +230,12 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
             NodeType = node?.NodeType ?? FileNodeType.File,
             Token = share.Token,
             ExpirationTime = share.ExpirationTime,
+            CreationTime = share.CreationTime,
             AllowDownload = share.AllowDownload,
             RequiresPassword = share.RequiresPassword,
             VisitCount = share.VisitCount,
-            IsEnabled = share.IsEnabled
+            IsEnabled = share.IsEnabled,
+            IsExpired = share.ExpirationTime.HasValue && share.ExpirationTime.Value <= _clock.Now
         };
     }
 

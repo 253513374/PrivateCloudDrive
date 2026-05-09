@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -20,11 +21,21 @@ public interface IFileCenterFoldersAppService : IApplicationService
 
     Task<FileNodeDto> MoveAsync(Guid id, MoveFileNodeInput input);
 
+    Task<IReadOnlyList<FileNodeDto>> MoveManyAsync(BatchMoveFileNodesInput input);
+
     Task DeleteAsync(Guid id);
+
+    Task DeleteManyAsync(BatchFileNodeInput input);
 
     Task<FileNodeDto> RestoreAsync(Guid id);
 
+    Task<IReadOnlyList<FileNodeDto>> RestoreManyAsync(BatchFileNodeInput input);
+
     Task PermanentDeleteAsync(Guid id);
+
+    Task PermanentDeleteManyAsync(BatchFileNodeInput input);
+
+    Task<IReadOnlyList<FileNodeDto>> SetFavoriteManyAsync(BatchSetFavoriteInput input);
 
     Task EmptyTrashAsync();
 }

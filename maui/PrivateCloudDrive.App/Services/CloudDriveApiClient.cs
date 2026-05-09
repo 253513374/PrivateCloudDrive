@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -18,7 +19,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     private const long SmallUploadThreshold = 32L * 1024 * 1024;
 
     private readonly IAuthService _authService;
-    private readonly HttpClient _httpClient = new()
+    private readonly HttpClient _httpClient = new(CreateHttpClientHandler())
     {
         BaseAddress = new Uri(AppSettings.ApiBaseUrl)
     };
@@ -43,13 +44,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         Guid? parentId,
         int skipCount = 0,
         int maxResultCount = 50,
+        CloudDriveQueryOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        var path = $"/api/app/file-center-folders?SkipCount={skipCount}&MaxResultCount={maxResultCount}";
-        if (parentId.HasValue)
-        {
-            path += $"&ParentId={parentId.Value:D}";
-        }
+        var path = BuildFolderListPath(parentId, skipCount, maxResultCount, options);
 
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
@@ -59,10 +57,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException(GetApiError(responseText));
-        }
+        EnsureSuccess(response, responseText);
 
         var result = JsonSerializer.Deserialize<PagedResult<FileNodeDto>>(responseText, JsonOptions);
         return result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
@@ -136,6 +131,19 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 批量删除文件或文件夹。
+    /// </summary>
+    public Task DeleteItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        return SendBatchNoContentAsync(
+            "/api/file-center/nodes/batch/delete",
+            new BatchFileNodeRequest { Ids = ids.ToList() },
+            cancellationToken);
+    }
+
+    /// <summary>
     /// 从回收站或临时状态恢复资源，并校验恢复位置和命名冲突。
     /// </summary>
     public async Task RestoreTrashItemAsync(Guid id, CancellationToken cancellationToken = default)
@@ -151,6 +159,19 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 批量恢复回收站资源。
+    /// </summary>
+    public Task<IReadOnlyList<CloudDriveItem>> RestoreTrashItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        return SendBatchItemsAsync(
+            "/api/file-center/nodes/batch/restore",
+            new BatchFileNodeRequest { Ids = ids.ToList() },
+            cancellationToken);
+    }
+
+    /// <summary>
     /// 执行PermanentlyDeleteTrashItem操作，封装该场景下的业务规则、异常处理和结果返回。
     /// </summary>
     public async Task PermanentlyDeleteTrashItemAsync(Guid id, CancellationToken cancellationToken = default)
@@ -163,6 +184,19 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         EnsureSuccess(response, responseText);
+    }
+
+    /// <summary>
+    /// 批量永久删除回收站资源。
+    /// </summary>
+    public Task PermanentlyDeleteTrashItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        return SendBatchNoContentAsync(
+            "/api/file-center/nodes/batch/permanent-delete",
+            new BatchFileNodeRequest { Ids = ids.ToList() },
+            cancellationToken);
     }
 
     /// <summary>
@@ -224,7 +258,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         if (!response.IsSuccessStatusCode)
         {
             var responseText = Encoding.UTF8.GetString(bytes);
-            throw new InvalidOperationException(GetApiError(responseText));
+            EnsureSuccess(response, responseText);
         }
 
         return new FileContentResult
@@ -244,7 +278,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         var accessToken = await _authService.GetAccessTokenAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(accessToken))
         {
-            throw new InvalidOperationException("Sign in is required.");
+            throw new AuthSessionExpiredException(AppText.SignInRequired);
         }
 
         return new RemoteFileContentSource(
@@ -276,7 +310,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         if (!response.IsSuccessStatusCode)
         {
             var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new InvalidOperationException(GetApiError(responseText));
+            EnsureSuccess(response, responseText);
         }
 
         var localPath = BuildCacheFilePath(
@@ -395,6 +429,42 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 批量设置收藏状态。
+    /// </summary>
+    public Task<IReadOnlyList<CloudDriveItem>> SetFavoriteItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        bool isFavorite,
+        CancellationToken cancellationToken = default)
+    {
+        return SendBatchItemsAsync(
+            "/api/file-center/nodes/batch/favorite",
+            new BatchSetFavoriteRequest
+            {
+                Ids = ids.ToList(),
+                IsFavorite = isFavorite
+            },
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// 批量移动文件或文件夹。
+    /// </summary>
+    public Task<IReadOnlyList<CloudDriveItem>> MoveItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        Guid? parentId,
+        CancellationToken cancellationToken = default)
+    {
+        return SendBatchItemsAsync(
+            "/api/file-center/nodes/batch/move",
+            new BatchMoveFileNodesRequest
+            {
+                Ids = ids.ToList(),
+                ParentId = parentId
+            },
+            cancellationToken);
+    }
+
+    /// <summary>
     /// 创建新的业务资源，并在持久化前执行必要的权限和规则校验。
     /// </summary>
     public async Task<CloudDriveShare> CreateShareAsync(
@@ -434,8 +504,73 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             share.FileName,
             share.Token,
             share.ExpirationTime,
+            share.CreationTime,
             share.AllowDownload,
-            share.RequiresPassword);
+            share.RequiresPassword,
+            share.VisitCount,
+            share.IsEnabled,
+            share.IsExpired);
+    }
+
+    /// <summary>
+    /// 获取当前用户的分享管理列表。
+    /// </summary>
+    public async Task<IReadOnlyList<CloudDriveShare>> GetSharesAsync(
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            $"/api/file-center/shares?SkipCount={skipCount}&MaxResultCount={maxResultCount}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<FileShareDto>>(responseText, JsonOptions);
+        return result?.Items.Select(ToCloudDriveShare).ToList() ?? [];
+    }
+
+    /// <summary>
+    /// 禁用当前用户拥有的分享链接。
+    /// </summary>
+    public async Task DisableShareAsync(Guid shareId, CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Delete,
+            $"/api/file-center/shares/{shareId}",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    /// <summary>
+    /// 获取当前用户容量使用摘要。
+    /// </summary>
+    public async Task<StorageUsage> GetStorageUsageAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/file-center/storage/usage",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var usage = JsonSerializer.Deserialize<StorageUsageDto>(responseText, JsonOptions)
+                    ?? throw new InvalidOperationException("Storage usage response is invalid.");
+
+        return new StorageUsage(
+            usage.UsedBytes,
+            usage.QuotaBytes,
+            usage.RemainingBytes,
+            usage.UsagePercent,
+            usage.IsQuotaConfigured);
     }
 
     /// <summary>
@@ -775,6 +910,74 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return request;
     }
 
+    private async Task SendBatchNoContentAsync<TRequest>(
+        string route,
+        TRequest payload,
+        CancellationToken cancellationToken)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, route, cancellationToken);
+        request.Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+    }
+
+    private async Task<IReadOnlyList<CloudDriveItem>> SendBatchItemsAsync<TRequest>(
+        string route,
+        TRequest payload,
+        CancellationToken cancellationToken)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, route, cancellationToken);
+        request.Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<IReadOnlyList<FileNodeDto>>(responseText, JsonOptions);
+        return result?.Select(ToCloudDriveItem).ToList() ?? [];
+    }
+
+    private static string BuildFolderListPath(
+        Guid? parentId,
+        int skipCount,
+        int maxResultCount,
+        CloudDriveQueryOptions? options)
+    {
+        var query = new List<string>
+        {
+            $"SkipCount={skipCount}",
+            $"MaxResultCount={maxResultCount}"
+        };
+
+        if (parentId.HasValue)
+        {
+            AddQuery(query, "ParentId", parentId.Value.ToString("D"));
+        }
+
+        if (options != null)
+        {
+            AddQuery(query, "SearchKeyword", options.SearchKeyword);
+            AddQuery(query, "SearchScope", options.SearchScope);
+            AddQuery(query, "NodeType", options.NodeType);
+            AddQuery(query, "MediaType", options.MediaType);
+            AddQuery(query, "Sorting", options.Sorting);
+        }
+
+        return "/api/app/file-center-folders?" + string.Join("&", query);
+    }
+
+    private static void AddQuery(List<string> query, string name, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        query.Add($"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}");
+    }
+
     private async Task<IReadOnlyList<CloudDriveItem>> GetMediaItemsAsync(
         string route,
         int skipCount,
@@ -976,6 +1179,22 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             node.IsFavorite);
     }
 
+    private static CloudDriveShare ToCloudDriveShare(FileShareDto share)
+    {
+        return new CloudDriveShare(
+            share.Id,
+            share.FileNodeId,
+            share.FileName,
+            share.Token,
+            share.ExpirationTime,
+            share.CreationTime,
+            share.AllowDownload,
+            share.RequiresPassword,
+            share.VisitCount,
+            share.IsEnabled,
+            share.IsExpired);
+    }
+
     private static WechatBinding ToWechatBinding(WechatBindingDto binding)
     {
         return new WechatBinding(
@@ -1107,6 +1326,14 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         };
     }
 
+    private static HttpClientHandler CreateHttpClientHandler()
+    {
+        return new HttpClientHandler
+        {
+            AllowAutoRedirect = false
+        };
+    }
+
     private static string GetApiError(string responseText)
     {
         try
@@ -1129,10 +1356,40 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
     private static void EnsureSuccess(HttpResponseMessage response, string responseText)
     {
+        if (IsAuthenticationFailure(response))
+        {
+            throw new AuthSessionExpiredException(AppText.SignInRequired);
+        }
+
         if (!response.IsSuccessStatusCode)
         {
             throw new InvalidOperationException(GetApiError(responseText));
         }
+    }
+
+    private static bool IsAuthenticationFailure(HttpResponseMessage response)
+    {
+        return response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden ||
+               IsLoginRedirect(response);
+    }
+
+    private static bool IsLoginRedirect(HttpResponseMessage response)
+    {
+        if (response.StatusCode is not (
+                HttpStatusCode.MovedPermanently or
+                HttpStatusCode.Redirect or
+                HttpStatusCode.RedirectMethod or
+                HttpStatusCode.TemporaryRedirect or
+                HttpStatusCode.PermanentRedirect))
+        {
+            return false;
+        }
+
+        var location = response.Headers.Location?.ToString();
+        return !string.IsNullOrWhiteSpace(location) &&
+               (location.Contains("/Account/Login", StringComparison.OrdinalIgnoreCase) ||
+                location.Contains("/Error?httpStatusCode=401", StringComparison.OrdinalIgnoreCase) ||
+                location.Contains("/Error?httpStatusCode=403", StringComparison.OrdinalIgnoreCase));
     }
 
     private sealed class PagedResult<T>
@@ -1197,6 +1454,21 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public bool IsFavorite { get; init; }
     }
 
+    private class BatchFileNodeRequest
+    {
+        public List<Guid> Ids { get; init; } = [];
+    }
+
+    private sealed class BatchMoveFileNodesRequest : BatchFileNodeRequest
+    {
+        public Guid? ParentId { get; init; }
+    }
+
+    private sealed class BatchSetFavoriteRequest : BatchFileNodeRequest
+    {
+        public bool IsFavorite { get; init; }
+    }
+
     private sealed class CreateShareRequest
     {
         public Guid FileNodeId { get; init; }
@@ -1229,9 +1501,30 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
         public DateTime? ExpirationTime { get; init; }
 
+        public DateTime CreationTime { get; init; }
+
         public bool AllowDownload { get; init; }
 
         public bool RequiresPassword { get; init; }
+
+        public int VisitCount { get; init; }
+
+        public bool IsEnabled { get; init; }
+
+        public bool IsExpired { get; init; }
+    }
+
+    private sealed class StorageUsageDto
+    {
+        public long UsedBytes { get; init; }
+
+        public long QuotaBytes { get; init; }
+
+        public long RemainingBytes { get; init; }
+
+        public decimal UsagePercent { get; init; }
+
+        public bool IsQuotaConfigured { get; init; }
     }
 
     private sealed class OperationLogDto

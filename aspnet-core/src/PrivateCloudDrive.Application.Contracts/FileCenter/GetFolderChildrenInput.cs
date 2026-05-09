@@ -13,4 +13,14 @@ public class GetFolderChildrenInput : PagedResultRequestDto
     public Guid? TagId { get; set; }
 
     public bool? IsFavorite { get; set; }
+
+    public string? SearchKeyword { get; set; }
+
+    public FileCenterSearchScope SearchScope { get; set; } = FileCenterSearchScope.CurrentFolder;
+
+    public FileNodeType? NodeType { get; set; }
+
+    public FileCenterMediaTypeFilter? MediaType { get; set; }
+
+    public string? Sorting { get; set; }
 }

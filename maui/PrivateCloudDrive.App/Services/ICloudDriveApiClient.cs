@@ -12,6 +12,7 @@ public interface ICloudDriveApiClient
         Guid? parentId,
         int skipCount = 0,
         int maxResultCount = 50,
+        CloudDriveQueryOptions? options = null,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<CloudDriveItem>> GetTrashItemsAsync(
@@ -28,12 +29,24 @@ public interface ICloudDriveApiClient
         Guid id,
         CancellationToken cancellationToken = default);
 
+    Task DeleteItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default);
+
     Task RestoreTrashItemAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<CloudDriveItem>> RestoreTrashItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default);
+
     Task PermanentlyDeleteTrashItemAsync(
         Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task PermanentlyDeleteTrashItemsAsync(
+        IReadOnlyCollection<Guid> ids,
         CancellationToken cancellationToken = default);
 
     Task EmptyTrashAsync(CancellationToken cancellationToken = default);
@@ -75,12 +88,33 @@ public interface ICloudDriveApiClient
         bool isFavorite,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<CloudDriveItem>> SetFavoriteItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        bool isFavorite,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<CloudDriveItem>> MoveItemsAsync(
+        IReadOnlyCollection<Guid> ids,
+        Guid? parentId,
+        CancellationToken cancellationToken = default);
+
     Task<CloudDriveShare> CreateShareAsync(
         Guid itemId,
         DateTime? expirationTime,
         bool allowDownload,
         string? password,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<CloudDriveShare>> GetSharesAsync(
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default);
+
+    Task DisableShareAsync(
+        Guid shareId,
+        CancellationToken cancellationToken = default);
+
+    Task<StorageUsage> GetStorageUsageAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<CloudOperationLog>> GetOperationLogsAsync(
         int skipCount = 0,

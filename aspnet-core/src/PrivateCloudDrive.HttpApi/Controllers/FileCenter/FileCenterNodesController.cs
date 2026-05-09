@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -53,6 +54,17 @@ public class FileCenterNodesController : PrivateCloudDriveController
     }
 
     /// <summary>
+    /// 批量移动到回收站。
+    /// </summary>
+    [HttpPost("batch/delete")]
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
+    public virtual async Task<IActionResult> DeleteManyAsync([FromBody] BatchFileNodeInput input)
+    {
+        await _foldersAppService.DeleteManyAsync(input);
+        return NoContent();
+    }
+
+    /// <summary>
     /// 从回收站恢复指定节点。
     /// </summary>
     [HttpPost("{id}/restore")]
@@ -63,6 +75,16 @@ public class FileCenterNodesController : PrivateCloudDriveController
     }
 
     /// <summary>
+    /// 批量从回收站恢复节点。
+    /// </summary>
+    [HttpPost("batch/restore")]
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual Task<IReadOnlyList<FileNodeDto>> RestoreManyAsync([FromBody] BatchFileNodeInput input)
+    {
+        return _foldersAppService.RestoreManyAsync(input);
+    }
+
+    /// <summary>
     /// 永久删除回收站节点，删除后不可恢复。
     /// </summary>
     [HttpDelete("{id}/permanent")]
@@ -70,5 +92,36 @@ public class FileCenterNodesController : PrivateCloudDriveController
     public virtual Task PermanentDeleteAsync(Guid id)
     {
         return _foldersAppService.PermanentDeleteAsync(id);
+    }
+
+    /// <summary>
+    /// 批量永久删除回收站节点。
+    /// </summary>
+    [HttpPost("batch/permanent-delete")]
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
+    public virtual async Task<IActionResult> PermanentDeleteManyAsync([FromBody] BatchFileNodeInput input)
+    {
+        await _foldersAppService.PermanentDeleteManyAsync(input);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// 批量移动文件或文件夹。
+    /// </summary>
+    [HttpPost("batch/move")]
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual Task<IReadOnlyList<FileNodeDto>> MoveManyAsync([FromBody] BatchMoveFileNodesInput input)
+    {
+        return _foldersAppService.MoveManyAsync(input);
+    }
+
+    /// <summary>
+    /// 批量设置收藏状态。
+    /// </summary>
+    [HttpPost("batch/favorite")]
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual Task<IReadOnlyList<FileNodeDto>> SetFavoriteManyAsync([FromBody] BatchSetFavoriteInput input)
+    {
+        return _foldersAppService.SetFavoriteManyAsync(input);
     }
 }
