@@ -144,8 +144,9 @@ public sealed class OpenIddictAuthService : IAuthService
         var codeChallenge = string.IsNullOrWhiteSpace(codeVerifier)
             ? null
             : CreateCodeChallenge(codeVerifier);
-        var callbackUrl = new Uri(provider.RedirectUri);
-        var authorizationUrl = BuildExternalAuthorizeUri(provider, state, codeChallenge);
+        var redirectUri = GetExternalRedirectUri(provider.RedirectUri);
+        var callbackUrl = new Uri(redirectUri);
+        var authorizationUrl = BuildExternalAuthorizeUri(provider, state, codeChallenge, redirectUri);
 
         var result = await AuthenticateAsync(authorizationUrl, callbackUrl, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
@@ -171,7 +172,7 @@ public sealed class OpenIddictAuthService : IAuthService
             provider.Provider,
             authorizationCode,
             returnedState,
-            provider.RedirectUri,
+            redirectUri,
             codeVerifier);
     }
 
@@ -370,6 +371,15 @@ public sealed class OpenIddictAuthService : IAuthService
 #endif
     }
 
+    private static string GetExternalRedirectUri(string providerRedirectUri)
+    {
+#if WINDOWS
+        return AppSettings.WindowsOAuthRedirectUri;
+#else
+        return providerRedirectUri;
+#endif
+    }
+
     private static async Task<IReadOnlyDictionary<string, string>> AuthenticateAsync(
         Uri authorizationUrl,
         Uri callbackUrl,
@@ -503,12 +513,13 @@ public sealed class OpenIddictAuthService : IAuthService
     private static Uri BuildExternalAuthorizeUri(
         ExternalLoginProviderSettings provider,
         string state,
-        string? codeChallenge)
+        string? codeChallenge,
+        string redirectUri)
     {
         var parameters = new Dictionary<string, string>
         {
             ["client_id"] = provider.ClientId!,
-            ["redirect_uri"] = provider.RedirectUri,
+            ["redirect_uri"] = redirectUri,
             ["response_type"] = "code",
             ["state"] = state
         };

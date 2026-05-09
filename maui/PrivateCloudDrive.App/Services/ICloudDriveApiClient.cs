@@ -53,6 +53,11 @@ public interface ICloudDriveApiClient
         Guid id,
         CancellationToken cancellationToken = default);
 
+    Task<string> DownloadFileToCacheAsync(
+        Guid id,
+        string fileName,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<CloudDriveTag>> GetTagsAsync(CancellationToken cancellationToken = default);
 
     Task<CloudDriveTag> CreateTagAsync(

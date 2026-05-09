@@ -13,6 +13,7 @@ namespace PrivateCloudDrive.App.Views;
 public partial class MediaPreviewPage : ContentPage
 {
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
+    private CancellationTokenSource? _loadCancellationTokenSource;
     private bool _loaded;
 
     public string FileId { get; set; } = string.Empty;
@@ -45,6 +46,10 @@ public partial class MediaPreviewPage : ContentPage
 
     private async Task LoadPreviewAsync()
     {
+        _loadCancellationTokenSource?.Cancel();
+        _loadCancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = _loadCancellationTokenSource.Token;
+
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
         ErrorPanel.IsVisible = false;
@@ -61,16 +66,19 @@ public partial class MediaPreviewPage : ContentPage
 
             if (string.Equals(MediaKind, "Video", StringComparison.OrdinalIgnoreCase))
             {
-                var source = await _apiClient.GetRemoteFileContentSourceAsync(id);
-                VideoPlayer.Source = MediaSource.FromUri(source.Uri, source.Headers.ToDictionary());
+                VideoPlayer.Source = await CreateVideoSourceAsync(id, cancellationToken);
                 VideoPlayer.MetadataTitle = FileName;
                 VideoPlayer.IsVisible = true;
                 return;
             }
 
-            var content = await _apiClient.GetFileContentAsync(id, thumbnail: false);
+            var content = await _apiClient.GetFileContentAsync(id, thumbnail: false, cancellationToken);
             PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(content.Content));
             PreviewImage.IsVisible = true;
+        }
+        catch (OperationCanceledException)
+        {
+            // 用户离开页面或重新加载时取消旧请求，不需要显示错误。
         }
         catch (Exception exception)
         {
@@ -79,9 +87,23 @@ public partial class MediaPreviewPage : ContentPage
         }
         finally
         {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                LoadingIndicator.IsRunning = false;
+                LoadingIndicator.IsVisible = false;
+            }
         }
+    }
+
+    private async Task<MediaSource> CreateVideoSourceAsync(Guid id, CancellationToken cancellationToken)
+    {
+#if WINDOWS
+        var localPath = await _apiClient.DownloadFileToCacheAsync(id, FileName, cancellationToken);
+        return MediaSource.FromFile(localPath);
+#else
+        var source = await _apiClient.GetRemoteFileContentSourceAsync(id, cancellationToken);
+        return MediaSource.FromUri(source.Uri, source.Headers.ToDictionary());
+#endif
     }
 
     private async void OnRetryClicked(object? sender, EventArgs e)
@@ -92,6 +114,7 @@ public partial class MediaPreviewPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
+        _loadCancellationTokenSource?.Cancel();
         VideoPlayer.Stop();
         VideoPlayer.Source = null;
     }

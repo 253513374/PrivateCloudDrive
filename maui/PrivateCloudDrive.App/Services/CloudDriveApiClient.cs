@@ -256,6 +256,42 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 使用应用自己的授权请求下载文件到本地缓存，供不支持自定义请求头的系统播放器读取。
+    /// </summary>
+    public async Task<string> DownloadFileToCacheAsync(
+        Guid id,
+        string fileName,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            $"/api/file-center/files/{id}/content",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(
+            request,
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException(GetApiError(responseText));
+        }
+
+        var localPath = BuildCacheFilePath(
+            id,
+            fileName,
+            response.Content.Headers.ContentType?.MediaType);
+
+        await using var source = await response.Content.ReadAsStreamAsync(cancellationToken);
+        await using var target = File.Create(localPath);
+        await source.CopyToAsync(target, cancellationToken);
+
+        return localPath;
+    }
+
+    /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public async Task<IReadOnlyList<CloudDriveTag>> GetTagsAsync(CancellationToken cancellationToken = default)
@@ -1029,6 +1065,46 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return unitIndex == 0
             ? $"{size} {units[unitIndex]}"
             : $"{value:0.##} {units[unitIndex]}";
+    }
+
+    private static string BuildCacheFilePath(Guid id, string fileName, string? contentType)
+    {
+        var safeFileName = SanitizeCacheFileName(fileName);
+        var extension = Path.GetExtension(safeFileName);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            extension = GetExtensionFromContentType(contentType);
+        }
+
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        return Path.Combine(FileSystem.CacheDirectory, $"pcd-media-{id:N}-{timestamp}{extension}");
+    }
+
+    private static string SanitizeCacheFileName(string fileName)
+    {
+        var safeFileName = string.IsNullOrWhiteSpace(fileName)
+            ? "media"
+            : fileName;
+
+        foreach (var invalidChar in Path.GetInvalidFileNameChars())
+        {
+            safeFileName = safeFileName.Replace(invalidChar, '_');
+        }
+
+        return safeFileName;
+    }
+
+    private static string GetExtensionFromContentType(string? contentType)
+    {
+        return contentType?.ToLowerInvariant() switch
+        {
+            "video/mp4" => ".mp4",
+            "video/quicktime" => ".mov",
+            "video/webm" => ".webm",
+            "image/jpeg" => ".jpg",
+            "image/png" => ".png",
+            _ => ".bin"
+        };
     }
 
     private static string GetApiError(string responseText)
