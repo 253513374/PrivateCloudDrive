@@ -39,6 +39,8 @@ public static class AppText
         [nameof(ExternalSignInNotEnabled)] = new("\u7b2c\u4e09\u65b9\u767b\u5f55\u672a\u542f\u7528", "External sign-in is not enabled"),
         [nameof(UnableToLoadExternalSettings)] = new("\u65e0\u6cd5\u8bfb\u53d6\u7b2c\u4e09\u65b9\u767b\u5f55\u914d\u7f6e", "Unable to load external sign-in settings"),
         [nameof(Files)] = new("文件", "Files"),
+        [nameof(MediaLibrary)] = new("媒体库", "Library"),
+        [nameof(Albums)] = new("相册", "Albums"),
         [nameof(Photos)] = new("图片", "Photos"),
         [nameof(Videos)] = new("视频", "Videos"),
         [nameof(Uploads)] = new("上传", "Uploads"),
@@ -283,6 +285,14 @@ public static class AppText
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public static string Files => Get(nameof(Files));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string MediaLibrary => Get(nameof(MediaLibrary));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string Albums => Get(nameof(Albums));
     /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>

@@ -7,7 +7,7 @@
     <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="14">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
             <VerticalStackLayout Spacing="4">
-                <Label Text="处理状态" Style="{StaticResource PageTitleLabel}" />
+                <Label Text="处理队列" Style="{StaticResource PageTitleLabel}" />
                 <Label Text="{Binding ItemCountText}" Style="{StaticResource MetaLabel}" />
             </VerticalStackLayout>
             <Button Grid.Column="1"
@@ -17,10 +17,10 @@
         </Grid>
 
         <HorizontalStackLayout Grid.Row="1" Spacing="8">
-            <Button Text="未完成" Style="{StaticResource SecondaryButton}" Clicked="OnAllClicked" />
-            <Button Text="等待" Style="{StaticResource SecondaryButton}" Clicked="OnPendingClicked" />
-            <Button Text="处理中" Style="{StaticResource SecondaryButton}" Clicked="OnProcessingClicked" />
-            <Button Text="失败" Style="{StaticResource SecondaryButton}" Clicked="OnFailedClicked" />
+            <Button x:Name="AllStatusButton" Text="全部" Style="{StaticResource SegmentButtonSelected}" Clicked="OnAllClicked" />
+            <Button x:Name="ProcessingStatusButton" Text="处理中" Style="{StaticResource SegmentButton}" Clicked="OnProcessingClicked" />
+            <Button x:Name="FailedStatusButton" Text="失败" Style="{StaticResource SegmentButton}" Clicked="OnFailedClicked" />
+            <Button x:Name="CompletedStatusButton" Text="已完成" Style="{StaticResource SegmentButton}" Clicked="OnCompletedClicked" />
         </HorizontalStackLayout>
 
         <Border x:Name="StatePanel"
@@ -53,8 +53,8 @@
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="没有未完成的媒体处理" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
-                        <Label Text="后台处理中的图片和视频会显示在这里。" Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="没有匹配的处理任务" Style="{StaticResource SectionTitleLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="等待、处理中、失败和已完成的媒体任务会显示在这里。" Style="{StaticResource MetaLabel}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
             </CollectionView.EmptyView>
@@ -67,8 +67,8 @@
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
-                            <Grid ColumnDefinitions="80,*,Auto" ColumnSpacing="10">
-                                <Border WidthRequest="80" HeightRequest="56" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
+                            <Grid ColumnDefinitions="82,*,Auto" ColumnSpacing="12">
+                                <Border WidthRequest="82" HeightRequest="62" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="8" />
                                     </Border.StrokeShape>
@@ -79,12 +79,42 @@
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                                     <Label Text="{Binding Name}" FontAttributes="Bold" LineBreakMode="TailTruncation" />
-                                    <Label Text="{Binding ProcessStatusText}" TextColor="{StaticResource Danger}" />
-                                    <Label Text="{Binding SecondaryText}" Style="{StaticResource MetaLabel}" />
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Border Padding="6,2"
+                                                IsVisible="{Binding IsProcessFailed}"
+                                                BackgroundColor="{StaticResource Danger}"
+                                                StrokeThickness="0">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="8" />
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="White" />
+                                        </Border>
+                                        <Border Padding="6,2"
+                                                IsVisible="{Binding IsProcessActive}"
+                                                BackgroundColor="{StaticResource Warning}"
+                                                StrokeThickness="0">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="8" />
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="White" />
+                                        </Border>
+                                        <Border Padding="6,2"
+                                                IsVisible="{Binding IsProcessCompleted}"
+                                                BackgroundColor="{StaticResource Success}"
+                                                StrokeThickness="0">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="8" />
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="White" />
+                                        </Border>
+                                        <Label Text="{Binding DisplayKind}" Style="{StaticResource MetaLabel}" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <Label Text="{Binding StatusDetailText}" Style="{StaticResource MetaLabel}" LineBreakMode="TailTruncation" />
                                 </VerticalStackLayout>
                                 <Button Grid.Column="2"
                                         Text="重试"
                                         Style="{StaticResource SecondaryButton}"
+                                        IsVisible="{Binding IsProcessFailed}"
                                         CommandParameter="{Binding Id}"
                                         Clicked="OnRetryProcessingClicked" />
                             </Grid>

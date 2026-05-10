@@ -25,6 +25,50 @@ public partial class MediaPreviewPage : ContentPage
 
     public string MediaKind { get; set; } = string.Empty;
 
+    public string MediaKindText => _detail?.MediaType == MediaAssetMediaType.Video || MediaKind == "Video"
+        ? "视频"
+        : "图片";
+
+    public string PreviewMetaText => _detail == null
+        ? MediaKind
+        : $"{MediaKindText} · {FormatSize(_detail.Size)}";
+
+    public string PreviewDetailText
+    {
+        get
+        {
+            if (_detail == null)
+            {
+                return "正在读取媒体详情";
+            }
+
+            var shape = _detail.MediaType == MediaAssetMediaType.Video
+                ? FormatDuration(_detail.DurationMilliseconds)
+                : FormatDimensions(_detail.Width, _detail.Height);
+            var timeText = _detail.TakenAt.HasValue
+                ? $"拍摄于 {_detail.TakenAt.Value:yyyy/M/d HH:mm}"
+                : "拍摄时间未知";
+            return string.IsNullOrWhiteSpace(shape)
+                ? $"{FormatSize(_detail.Size)} · {timeText}"
+                : $"{shape} · {FormatSize(_detail.Size)} · {timeText}";
+        }
+    }
+
+    public string PreviewProcessText => _detail == null
+        ? "处理状态读取中"
+        : _detail.ProcessStatus switch
+        {
+            MediaAssetProcessStatus.Pending => "等待后台处理，完成后会生成缩略图和预览。",
+            MediaAssetProcessStatus.Processing => "后台处理中，稍后刷新可查看最新结果。",
+            MediaAssetProcessStatus.Failed => string.IsNullOrWhiteSpace(_detail.ProcessErrorSummary)
+                ? "处理失败，可以重新提交处理。"
+                : $"处理失败：{_detail.ProcessErrorSummary}",
+            MediaAssetProcessStatus.Completed => "处理完成，可正常预览。",
+            _ => "处理状态未知。"
+        };
+
+    public bool CanRetryProcessing => _detail?.CanRetryProcessing == true;
+
     /// <summary>
     /// 初始化 <see cref="MediaPreviewPage"/> 的新实例，并注入完成业务处理所需的依赖。
     /// </summary>
@@ -72,8 +116,7 @@ public partial class MediaPreviewPage : ContentPage
             _detail = await _apiClient.GetMediaDetailAsync(id, cancellationToken);
             FileName = string.IsNullOrWhiteSpace(FileName) ? _detail.Name : FileName;
             MediaKind = _detail.MediaType == MediaAssetMediaType.Video ? "Video" : "Image";
-            OnPropertyChanged(nameof(FileName));
-            OnPropertyChanged(nameof(MediaKind));
+            NotifyPreviewDetailsChanged();
 
             if (!_detail.CanPreview)
             {
@@ -155,6 +198,7 @@ public partial class MediaPreviewPage : ContentPage
         try
         {
             RetryProcessingButton.IsEnabled = false;
+            RetryProcessingDetailButton.IsEnabled = false;
             await _apiClient.RetryMediaProcessingAsync(_currentFileId);
             await LoadPreviewAsync();
         }
@@ -165,7 +209,54 @@ public partial class MediaPreviewPage : ContentPage
         finally
         {
             RetryProcessingButton.IsEnabled = true;
+            RetryProcessingDetailButton.IsEnabled = true;
         }
+    }
+
+    private void NotifyPreviewDetailsChanged()
+    {
+        OnPropertyChanged(nameof(FileName));
+        OnPropertyChanged(nameof(MediaKind));
+        OnPropertyChanged(nameof(MediaKindText));
+        OnPropertyChanged(nameof(PreviewMetaText));
+        OnPropertyChanged(nameof(PreviewDetailText));
+        OnPropertyChanged(nameof(PreviewProcessText));
+        OnPropertyChanged(nameof(CanRetryProcessing));
+    }
+
+    private static string FormatSize(long size)
+    {
+        string[] units = ["B", "KB", "MB", "GB"];
+        var value = (double)size;
+        var unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0 ? $"{size} {units[unitIndex]}" : $"{value:0.##} {units[unitIndex]}";
+    }
+
+    private static string FormatDuration(long? milliseconds)
+    {
+        if (!milliseconds.HasValue || milliseconds <= 0)
+        {
+            return string.Empty;
+        }
+
+        var duration = TimeSpan.FromMilliseconds(milliseconds.Value);
+        return duration.TotalHours >= 1
+            ? $"{(int)duration.TotalHours}:{duration.Minutes:00}:{duration.Seconds:00}"
+            : $"{duration.Minutes}:{duration.Seconds:00}";
+    }
+
+    private static string FormatDimensions(int? width, int? height)
+    {
+        return width.HasValue && height.HasValue && width > 0 && height > 0
+            ? $"{width} x {height}"
+            : string.Empty;
     }
 
     protected override void OnDisappearing()

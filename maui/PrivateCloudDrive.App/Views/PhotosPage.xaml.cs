@@ -11,12 +11,31 @@ namespace PrivateCloudDrive.App.Views;
 public partial class PhotosPage : ContentPage
 {
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
+    private readonly List<MediaLibraryItem> _allItems = [];
     private readonly List<MediaLibraryItem> _items = [];
     private string? _selectedMediaType;
+    private int _failedProcessCount;
+    private int _activeProcessCount;
 
     public ObservableCollection<MediaTimelineGroup> TimelineGroups { get; } = [];
 
     public string ItemCountText => $"{_items.Count} 项媒体";
+
+    public string LibrarySummaryText
+    {
+        get
+        {
+            var imageCount = _allItems.Count(item => !item.IsVideo);
+            var videoCount = _allItems.Count(item => item.IsVideo);
+            return $"{_allItems.Count} 项媒体 · {imageCount} 张图片 · {videoCount} 个视频";
+        }
+    }
+
+    public string ProcessingStatusEntryText => _failedProcessCount > 0
+        ? $"处理 {_failedProcessCount} 失败"
+        : _activeProcessCount > 0
+            ? $"处理中 {_activeProcessCount}"
+            : "处理";
 
     /// <summary>
     /// 初始化 <see cref="PhotosPage"/> 的新实例，并注入完成业务处理所需的依赖。
@@ -73,11 +92,6 @@ public partial class PhotosPage : ContentPage
         await LoadMediaAsync();
     }
 
-    private async void OnAlbumsClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("media-albums", true);
-    }
-
     private async void OnProcessingClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("media-processing", true);
@@ -90,30 +104,55 @@ public partial class PhotosPage : ContentPage
 
         try
         {
-            var media = await _apiClient.GetMediaTimelineAsync(mediaType: _selectedMediaType);
-            _items.Clear();
+            var media = await _apiClient.GetMediaTimelineAsync(maxResultCount: 200);
+            _allItems.Clear();
 
             foreach (var item in media)
             {
-                _items.Add(new MediaLibraryItem(item));
+                _allItems.Add(new MediaLibraryItem(item));
             }
 
+            ApplyCurrentFilter();
+            _failedProcessCount = _allItems.Count(item => item.IsProcessFailed);
+            _activeProcessCount = _allItems.Count(item => item.IsProcessActive);
             RebuildGroups();
             OnPropertyChanged(nameof(ItemCountText));
+            OnPropertyChanged(nameof(LibrarySummaryText));
+            OnPropertyChanged(nameof(ProcessingStatusEntryText));
+            UpdateSegmentButtons();
             SetIdleState();
             await LoadThumbnailsAsync();
         }
         catch (Exception exception)
         {
+            _allItems.Clear();
             _items.Clear();
+            _failedProcessCount = 0;
+            _activeProcessCount = 0;
             TimelineGroups.Clear();
             OnPropertyChanged(nameof(ItemCountText));
+            OnPropertyChanged(nameof(LibrarySummaryText));
+            OnPropertyChanged(nameof(ProcessingStatusEntryText));
             SetErrorState($"无法加载媒体。{exception.Message}");
         }
         finally
         {
             RefreshButton.IsEnabled = true;
         }
+    }
+
+    private void ApplyCurrentFilter()
+    {
+        _items.Clear();
+
+        var items = _selectedMediaType switch
+        {
+            "Image" => _allItems.Where(item => !item.IsVideo),
+            "Video" => _allItems.Where(item => item.IsVideo),
+            _ => _allItems
+        };
+
+        _items.AddRange(items);
     }
 
     private void RebuildGroups()
@@ -138,7 +177,7 @@ public partial class PhotosPage : ContentPage
 
     private async Task LoadThumbnailsAsync()
     {
-        foreach (var item in _items)
+        foreach (var item in _allItems)
         {
             try
             {
@@ -153,6 +192,24 @@ public partial class PhotosPage : ContentPage
                 // Keep the badge fallback visible when thumbnail processing is not ready.
             }
         }
+    }
+
+    private void UpdateSegmentButtons()
+    {
+        SetSegmentButton(AllMediaButton, _selectedMediaType is null);
+        SetSegmentButton(ImagesButton, _selectedMediaType == "Image");
+        SetSegmentButton(VideosButton, _selectedMediaType == "Video");
+    }
+
+    private void SetSegmentButton(Button button, bool isSelected)
+    {
+        if (Application.Current?.Resources is null)
+        {
+            return;
+        }
+
+        button.Style = (Style)Application.Current.Resources[
+            isSelected ? "SegmentButtonSelected" : "SegmentButton"];
     }
 
     private async Task<FileContentResult> GetThumbnailOrImageAsync(Guid id)

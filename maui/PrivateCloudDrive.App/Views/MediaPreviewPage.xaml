@@ -5,15 +5,29 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="PrivateCloudDrive.App.Views.MediaPreviewPage"
              Title="{Binding FileName}">
-    <Grid Padding="18" RowDefinitions="Auto,*" RowSpacing="16">
-        <VerticalStackLayout Spacing="4">
-            <Label Text="{Binding FileName}"
-                   Style="{StaticResource PageTitleLabel}" />
-            <Label Text="{Binding MediaKind}"
-                   Style="{StaticResource MetaLabel}" />
-        </VerticalStackLayout>
+    <Grid Padding="18" RowDefinitions="Auto,*,Auto" RowSpacing="14">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding FileName}"
+                       Style="{StaticResource PageTitleLabel}"
+                       LineBreakMode="TailTruncation" />
+                <Label Text="{Binding PreviewMetaText}"
+                       Style="{StaticResource MetaLabel}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="{x:Static loc:AppText.Refresh}"
+                    Style="{StaticResource SecondaryButton}"
+                    VerticalOptions="Center"
+                    Clicked="OnRetryClicked" />
+        </Grid>
 
-        <Grid Grid.Row="1">
+        <Border Grid.Row="1"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Black}}"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid>
             <ActivityIndicator x:Name="LoadingIndicator"
                                IsRunning="True"
                                HorizontalOptions="Center"
@@ -38,7 +52,7 @@
                 <Label x:Name="StatusLabel"
                        HorizontalTextAlignment="Center"
                        LineBreakMode="WordWrap"
-                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                       TextColor="White" />
                 <Button x:Name="RetryProcessingButton"
                         Text="重新处理"
                         Style="{StaticResource SecondaryButton}"
@@ -53,11 +67,49 @@
                 <Label x:Name="ErrorLabel"
                        HorizontalTextAlignment="Center"
                        LineBreakMode="WordWrap"
-                       TextColor="{StaticResource Danger}" />
+                       TextColor="White" />
                 <Button Text="{x:Static loc:AppText.Retry}"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryClicked" />
             </VerticalStackLayout>
-        </Grid>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2"
+                Padding="14"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding FileName}" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" />
+                        <Label Text="{Binding PreviewDetailText}" Style="{StaticResource MetaLabel}" LineBreakMode="TailTruncation" />
+                    </VerticalStackLayout>
+                    <Border Grid.Column="1"
+                            Padding="8,3"
+                            BackgroundColor="{StaticResource Primary}"
+                            StrokeThickness="0"
+                            VerticalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Label Text="{Binding MediaKindText}" FontSize="11" TextColor="White" />
+                    </Border>
+                </Grid>
+                <Label Grid.Row="1"
+                       Text="{Binding PreviewProcessText}"
+                       Style="{StaticResource MetaLabel}"
+                       LineBreakMode="WordWrap" />
+                <Button x:Name="RetryProcessingDetailButton"
+                        Grid.Row="2"
+                        Text="重新处理"
+                        Style="{StaticResource SecondaryButton}"
+                        IsVisible="{Binding CanRetryProcessing}"
+                        Clicked="OnRetryProcessingClicked" />
+            </Grid>
+        </Border>
     </Grid>
 </ContentPage>

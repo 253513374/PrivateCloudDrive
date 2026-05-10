@@ -36,36 +36,15 @@ public partial class MediaAlbumDetailPage : ContentPage
         await LoadItemsAsync();
     }
 
-    private async void OnAddRecentClicked(object? sender, EventArgs e)
+    private async void OnAddMediaClicked(object? sender, EventArgs e)
     {
         if (!TryGetAlbumId(out var albumId))
         {
             return;
         }
 
-        try
-        {
-            var currentIds = Items.Select(item => item.Id).ToHashSet();
-            var candidates = await _apiClient.GetMediaTimelineAsync(maxResultCount: 40);
-            var ids = candidates
-                .Where(item => !currentIds.Contains(item.Id))
-                .Take(20)
-                .Select(item => item.Id)
-                .ToList();
-
-            if (ids.Count == 0)
-            {
-                await DisplayAlertAsync("没有可添加的媒体", "最近媒体已经在相册中。", "确定");
-                return;
-            }
-
-            await _apiClient.AddMediaAlbumItemsAsync(albumId, ids);
-            await LoadItemsAsync();
-        }
-        catch (Exception exception)
-        {
-            await DisplayAlertAsync("无法添加媒体", exception.Message, "确定");
-        }
+        var route = $"media-album-add?id={albumId}&name={Uri.EscapeDataString(AlbumName)}";
+        await Shell.Current.GoToAsync(route, true);
     }
 
     private async void OnDeleteAlbumClicked(object? sender, EventArgs e)
@@ -181,13 +160,27 @@ public partial class MediaAlbumDetailPage : ContentPage
         {
             try
             {
-                var content = await _apiClient.GetFileContentAsync(item.Id, thumbnail: true);
+                var content = item.IsVideo
+                    ? await _apiClient.GetFileContentAsync(item.Id, thumbnail: true)
+                    : await GetThumbnailOrImageAsync(item.Id);
                 item.ThumbnailSource = ImageSource.FromStream(() => new MemoryStream(content.Content));
             }
             catch
             {
                 // Keep the badge fallback visible while thumbnails are missing or processing.
             }
+        }
+    }
+
+    private async Task<FileContentResult> GetThumbnailOrImageAsync(Guid id)
+    {
+        try
+        {
+            return await _apiClient.GetFileContentAsync(id, thumbnail: true);
+        }
+        catch
+        {
+            return await _apiClient.GetFileContentAsync(id, thumbnail: false);
         }
     }
 

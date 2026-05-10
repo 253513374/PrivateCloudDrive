@@ -25,14 +25,14 @@
             Route="files" />
 
         <ShellContent
-            Title="{x:Static loc:AppText.Photos}"
+            Title="{x:Static loc:AppText.MediaLibrary}"
             ContentTemplate="{DataTemplate views:PhotosPage}"
-            Route="photos" />
+            Route="media-library" />
 
         <ShellContent
-            Title="{x:Static loc:AppText.Videos}"
-            ContentTemplate="{DataTemplate views:VideosPage}"
-            Route="videos" />
+            Title="{x:Static loc:AppText.Albums}"
+            ContentTemplate="{DataTemplate views:MediaAlbumsPage}"
+            Route="albums" />
 
         <ShellContent
             Title="{x:Static loc:AppText.Uploads}"

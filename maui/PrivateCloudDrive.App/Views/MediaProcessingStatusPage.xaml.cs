@@ -54,6 +54,12 @@ public partial class MediaProcessingStatusPage : ContentPage
         await LoadItemsAsync();
     }
 
+    private async void OnCompletedClicked(object? sender, EventArgs e)
+    {
+        _statusFilter = "Completed";
+        await LoadItemsAsync();
+    }
+
     private async void OnItemSelected(object? sender, SelectionChangedEventArgs e)
     {
         if (sender is CollectionView collectionView)
@@ -107,6 +113,7 @@ public partial class MediaProcessingStatusPage : ContentPage
             }
 
             OnPropertyChanged(nameof(ItemCountText));
+            UpdateSegmentButtons();
             SetIdleState();
             await LoadThumbnailsAsync();
         }
@@ -114,6 +121,7 @@ public partial class MediaProcessingStatusPage : ContentPage
         {
             Items.Clear();
             OnPropertyChanged(nameof(ItemCountText));
+            UpdateSegmentButtons();
             SetErrorState($"无法加载处理状态。{exception.Message}");
         }
     }
@@ -155,5 +163,24 @@ public partial class MediaProcessingStatusPage : ContentPage
         StatePanel.IsVisible = false;
         LoadingIndicator.IsRunning = false;
         LoadingIndicator.IsVisible = false;
+    }
+
+    private void UpdateSegmentButtons()
+    {
+        SetSegmentButton(AllStatusButton, _statusFilter is null);
+        SetSegmentButton(ProcessingStatusButton, _statusFilter == "Processing");
+        SetSegmentButton(FailedStatusButton, _statusFilter == "Failed");
+        SetSegmentButton(CompletedStatusButton, _statusFilter == "Completed");
+    }
+
+    private void SetSegmentButton(Button button, bool isSelected)
+    {
+        if (Application.Current?.Resources is null)
+        {
+            return;
+        }
+
+        button.Style = (Style)Application.Current.Resources[
+            isSelected ? "SegmentButtonSelected" : "SegmentButton"];
     }
 }

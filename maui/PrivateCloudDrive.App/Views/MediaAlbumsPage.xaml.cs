@@ -8,9 +8,13 @@ public partial class MediaAlbumsPage : ContentPage
 {
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
 
-    public ObservableCollection<MediaAlbum> Albums { get; } = [];
+    public ObservableCollection<MediaAlbumCard> AlbumCards { get; } = [];
 
-    public string AlbumCountText => $"{Albums.Count} 个相册";
+    public string AlbumCountText => $"{AlbumCards.Count} 个相册";
+
+    public string AlbumSummaryText => AlbumCards.Count == 0
+        ? "整理照片、视频和项目素材"
+        : $"{AlbumCards.Count} 个相册 · {AlbumCards.Sum(album => album.Album.ItemsCount)} 项媒体";
 
     public MediaAlbumsPage()
     {
@@ -50,7 +54,7 @@ public partial class MediaAlbumsPage : ContentPage
 
     private async void OnAlbumSelected(object? sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is not MediaAlbum album)
+        if (e.CurrentSelection.FirstOrDefault() is not MediaAlbumCard album)
         {
             return;
         }
@@ -67,20 +71,44 @@ public partial class MediaAlbumsPage : ContentPage
         try
         {
             var albums = await _apiClient.GetMediaAlbumsAsync();
-            Albums.Clear();
+            AlbumCards.Clear();
             foreach (var album in albums)
             {
-                Albums.Add(album);
+                AlbumCards.Add(new MediaAlbumCard(album));
             }
 
             OnPropertyChanged(nameof(AlbumCountText));
+            OnPropertyChanged(nameof(AlbumSummaryText));
             SetIdleState();
+            await LoadAlbumCoversAsync();
         }
         catch (Exception exception)
         {
-            Albums.Clear();
+            AlbumCards.Clear();
             OnPropertyChanged(nameof(AlbumCountText));
+            OnPropertyChanged(nameof(AlbumSummaryText));
             SetErrorState($"无法加载相册。{exception.Message}");
+        }
+    }
+
+    private async Task LoadAlbumCoversAsync()
+    {
+        foreach (var album in AlbumCards)
+        {
+            if (!album.CoverFileNodeId.HasValue)
+            {
+                continue;
+            }
+
+            try
+            {
+                var content = await _apiClient.GetFileContentAsync(album.CoverFileNodeId.Value, thumbnail: true);
+                album.CoverSource = ImageSource.FromStream(() => new MemoryStream(content.Content));
+            }
+            catch
+            {
+                // 相册封面缺失时保留占位图，不阻断列表浏览。
+            }
         }
     }
 

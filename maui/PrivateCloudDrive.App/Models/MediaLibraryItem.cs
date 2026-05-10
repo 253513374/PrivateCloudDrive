@@ -56,8 +56,8 @@ public sealed class MediaLibraryItem : INotifyPropertyChanged
     public string Badge => _timelineItem == null
         ? _item!.Badge
         : _timelineItem.MediaType == MediaAssetMediaType.Video
-            ? "VID"
-            : "IMG";
+            ? "视频"
+            : "图片";
 
     public bool IsFavorite => _timelineItem?.IsFavorite ?? _item!.IsFavorite;
 
@@ -75,11 +75,25 @@ public sealed class MediaLibraryItem : INotifyPropertyChanged
     public bool ShowProcessStatus => _timelineItem != null &&
                                      _timelineItem.ProcessStatus != MediaAssetProcessStatus.Completed;
 
+    public bool IsProcessFailed => _timelineItem?.ProcessStatus == MediaAssetProcessStatus.Failed;
+
+    public bool IsProcessActive => _timelineItem?.ProcessStatus is MediaAssetProcessStatus.Pending or MediaAssetProcessStatus.Processing;
+
+    public bool IsProcessCompleted => _timelineItem?.ProcessStatus == MediaAssetProcessStatus.Completed;
+
     public string DurationText => FormatDuration(_timelineItem?.DurationMilliseconds);
+
+    public bool ShowVideoDuration => IsVideo && !string.IsNullOrWhiteSpace(DurationText);
 
     public string SecondaryText => string.IsNullOrWhiteSpace(DurationText)
         ? Size
         : $"{DurationText} · {Size}";
+
+    public string TimelineMetaText => $"{DisplayKind} · {ModifiedAt}";
+
+    public string StatusDetailText => string.IsNullOrWhiteSpace(_timelineItem?.ProcessErrorSummary)
+        ? ProcessStatusText
+        : $"{ProcessStatusText} · {_timelineItem.ProcessErrorSummary}";
 
     public ImageSource? ThumbnailSource
     {
