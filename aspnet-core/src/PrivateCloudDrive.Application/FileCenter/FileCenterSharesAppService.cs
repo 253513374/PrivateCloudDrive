@@ -10,7 +10,6 @@ using PrivateCloudDrive.Permissions;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Authorization;
-using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
 using Volo.Abp.Linq;
@@ -295,7 +294,7 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
     private readonly IClock _clock;
     private readonly IRepository<FileShare, Guid> _shareRepository;
     private readonly IFileNodeRepository _fileNodeRepository;
-    private readonly IBlobContainer<FileCenterBlobContainer> _blobContainer;
+    private readonly IFileCenterBlobContentReader _blobContentReader;
 
     /// <summary>
     /// 初始化 <see cref="FileCenterPublicSharesAppService"/> 的新实例，并注入完成业务处理所需的依赖。
@@ -304,12 +303,12 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
         IClock clock,
         IRepository<FileShare, Guid> shareRepository,
         IFileNodeRepository fileNodeRepository,
-        IBlobContainer<FileCenterBlobContainer> blobContainer)
+        IFileCenterBlobContentReader blobContentReader)
     {
         _clock = clock;
         _shareRepository = shareRepository;
         _fileNodeRepository = fileNodeRepository;
-        _blobContainer = blobContainer;
+        _blobContentReader = blobContentReader;
     }
 
     /// <summary>
@@ -351,6 +350,15 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
         string? password = null,
         CancellationToken cancellationToken = default)
     {
+        return await GetDownloadAsync(token, password, range: null, cancellationToken);
+    }
+
+    public virtual async Task<FileDownloadInfo> GetDownloadAsync(
+        string token,
+        string? password,
+        FileDownloadRangeRequest? range,
+        CancellationToken cancellationToken = default)
+    {
         var (share, node) = await GetShareAndNodeAsync(token);
         EnsurePassword(share, password);
 
@@ -365,7 +373,14 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
                 .WithData("Id", node.Id);
         }
 
-        var stream = await _blobContainer.GetAsync(node.BlobName, cancellationToken: cancellationToken);
+        var normalizedRange = range?.Normalize(node.Size);
+        var stream = normalizedRange == null
+            ? await _blobContentReader.OpenReadAsync(node.BlobName, cancellationToken)
+            : await _blobContentReader.OpenReadRangeAsync(
+                node.BlobName,
+                normalizedRange.Start,
+                normalizedRange.End,
+                cancellationToken);
 
         share.IncreaseVisitCount();
         await _shareRepository.UpdateAsync(share, autoSave: true, cancellationToken);
@@ -375,7 +390,9 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
             Content = stream,
             FileName = node.Name,
             ContentType = node.ContentType ?? "application/octet-stream",
-            Size = node.Size
+            Size = normalizedRange?.Length ?? node.Size,
+            TotalSize = node.Size,
+            Range = normalizedRange
         };
     }
 

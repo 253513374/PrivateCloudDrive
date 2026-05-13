@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using PrivateCloudDrive.Controllers.FileCenter;
 using Shouldly;
 using Xunit;
@@ -47,6 +48,34 @@ public class FileCenterFilesControllerTests
         fileResult.ContentType.ShouldBe("video/mp4");
     }
 
+    [Fact]
+    public async Task Content_Should_Return_Partial_Content_For_Explicit_Range()
+    {
+        var controller = CreateController("movie.mp4", "video/mp4");
+        controller.Request.Headers[HeaderNames.Range] = "bytes=1-2";
+
+        var result = await controller.ContentAsync(Guid.NewGuid());
+        var fileResult = result.ShouldBeOfType<FileStreamResult>();
+
+        controller.Response.StatusCode.ShouldBe(StatusCodes.Status206PartialContent);
+        controller.Response.Headers[HeaderNames.ContentRange].ToString().ShouldBe("bytes 1-2/3");
+        controller.Response.ContentLength.ShouldBe(2);
+        fileResult.EnableRangeProcessing.ShouldBeFalse();
+        fileResult.FileDownloadName.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Content_Should_Reject_Invalid_Range()
+    {
+        var controller = CreateController("movie.mp4", "video/mp4");
+        controller.Request.Headers[HeaderNames.Range] = "bytes=9-10";
+
+        var result = await controller.ContentAsync(Guid.NewGuid());
+
+        result.ShouldBeOfType<StatusCodeResult>().StatusCode.ShouldBe(StatusCodes.Status416RangeNotSatisfiable);
+        controller.Response.Headers[HeaderNames.ContentRange].ToString().ShouldBe("bytes */3");
+    }
+
     private static FileCenterFilesController CreateController(string fileName, string contentType)
     {
         var controller = new FileCenterFilesController(
@@ -82,13 +111,27 @@ public class FileCenterFilesControllerTests
             Guid id,
             CancellationToken cancellationToken = default)
         {
+            return GetDownloadAsync(id, range: null, cancellationToken);
+        }
+
+        public Task<PrivateCloudDrive.FileCenter.FileDownloadInfo> GetDownloadAsync(
+            Guid id,
+            PrivateCloudDrive.FileCenter.FileDownloadRangeRequest? range,
+            CancellationToken cancellationToken = default)
+        {
+            var normalizedRange = range?.Normalize(3);
+
             return Task.FromResult(
                 new PrivateCloudDrive.FileCenter.FileDownloadInfo
                 {
                     FileName = _fileName,
                     ContentType = _contentType,
-                    Size = 3,
-                    Content = new MemoryStream(new byte[] { 1, 2, 3 })
+                    Size = normalizedRange?.Length ?? 3,
+                    TotalSize = 3,
+                    Range = normalizedRange,
+                    Content = normalizedRange == null
+                        ? new MemoryStream(new byte[] { 1, 2, 3 })
+                        : new MemoryStream(new byte[] { 2, 3 })
                 });
         }
 
@@ -105,6 +148,7 @@ public class FileCenterFilesControllerTests
                     FileName = _fileName,
                     ContentType = _contentType,
                     Size = 3,
+                    TotalSize = 3,
                     Content = new MemoryStream(new byte[] { 1, 2, 3 })
                 });
         }

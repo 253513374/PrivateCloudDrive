@@ -27,7 +27,8 @@ V1 WeChat, Google, and GitHub login stay disabled by default. When enabling WeCh
 
 - PostgreSQL data: `privateclouddrive_stack_postgres_data`
 - Redis data: `privateclouddrive_stack_redis_data`
-- FileCenter blobs, upload temp files, thumbnails, and video covers: `privateclouddrive_stack_storage`
+- FileCenter local blobs, upload temp files, thumbnails, and video covers when `FILECENTER_STORAGE_PROVIDER=FileSystem`: `privateclouddrive_stack_storage`
+- FileCenter upload temp files and media-processing temp files when `FILECENTER_STORAGE_PROVIDER=AliyunOss`: `privateclouddrive_stack_storage`
 - Optional MinIO data: `privateclouddrive_stack_minio_data`
 
 ## Media Processing
@@ -43,6 +44,28 @@ docker compose --profile minio up -d --build
 ```
 
 The current default FileCenter storage still uses the local filesystem volume at `/app/storage`.
+
+## Optional Aliyun OSS
+
+FileCenter can store new blobs in a private Aliyun OSS bucket while keeping the same backend upload, download, thumbnail, video cover, and MAUI API flow. Existing local blobs are not migrated automatically; do not switch a production database with existing local files to OSS without a separate migration plan.
+
+Set these variables in `.env`:
+
+```env
+FILECENTER_STORAGE_PROVIDER=AliyunOss
+ALIYUN_OSS_ACCESS_KEY_ID=your-ram-access-key-id
+ALIYUN_OSS_ACCESS_KEY_SECRET=your-ram-access-key-secret
+ALIYUN_OSS_ENDPOINT=oss-cn-hangzhou.aliyuncs.com
+ALIYUN_OSS_REGION_ID=cn-hangzhou
+ALIYUN_OSS_BUCKET=privateclouddrive
+ALIYUN_OSS_CREATE_BUCKET=false
+```
+
+The bucket should stay private. File access still goes through the backend API so authentication, permissions, quota checks, public-share rules, and HTTP Range playback remain enforced by PrivateCloudDrive. The Aliyun AccessKey values are passed only to the API and media-worker containers and must not be copied into the MAUI app.
+
+Recommended RAM policy scope for the bucket is limited to the configured bucket and should include object read/write/delete plus bucket existence checks. If `ALIYUN_OSS_CREATE_BUCKET=true`, the credential also needs permission to create the bucket; production deployments should normally create the bucket explicitly and keep this value `false`.
+
+Keep the `/app/storage` volume mounted even when OSS is enabled. It remains the local work area for chunk upload merge files and FFmpeg/FFprobe temporary media-processing files.
 
 ## MAUI Client
 
@@ -61,7 +84,14 @@ The MVP app enters Trash from Settings. WeChat, Google, and GitHub login are opt
 | `POSTGRES_PASSWORD` | PostgreSQL password |
 | `STRING_ENCRYPTION_PASSPHRASE` | ABP string encryption passphrase; replace the template value before production use |
 | `PUBLIC_URL` | Public API/AuthServer URL used by Swagger and OpenIddict |
+| `FILECENTER_STORAGE_PROVIDER` | `FileSystem` by default; set `AliyunOss` to store new FileCenter blobs in Aliyun OSS |
 | `FILECENTER_STORAGE_PATH` | Container path for FileCenter blob, thumbnail, cover, and temp upload storage |
+| `ALIYUN_OSS_ACCESS_KEY_ID` | Aliyun RAM AccessKey ID, backend only |
+| `ALIYUN_OSS_ACCESS_KEY_SECRET` | Aliyun RAM AccessKey secret, backend only |
+| `ALIYUN_OSS_ENDPOINT` | OSS endpoint, for example `oss-cn-hangzhou.aliyuncs.com` |
+| `ALIYUN_OSS_REGION_ID` | STS region ID used by the ABP Aliyun provider, for example `cn-hangzhou` |
+| `ALIYUN_OSS_BUCKET` | Private OSS bucket used by FileCenter |
+| `ALIYUN_OSS_CREATE_BUCKET` | Whether the provider may create the bucket if missing; keep `false` for production |
 | `PASSWORD_LOGIN_RATE_LIMIT_ENABLED` | Enables account-password login failure rate limiting |
 | `PASSWORD_LOGIN_RATE_LIMIT_MAX_FAILED_ATTEMPTS` | Maximum failed password-login attempts per username and IP window |
 | `PASSWORD_LOGIN_RATE_LIMIT_WINDOW_MINUTES` | Password-login failure rate-limit window |
@@ -130,8 +160,10 @@ Full mode starts the stack unless `-SkipStart` is passed, then confirms:
 - `db-migrator` completed successfully.
 - `api` is running and exposes `http://localhost:8080/swagger`.
 - `media-worker` stays running and handles background media jobs.
-- FileCenter storage volume is mounted and writable at `/app/storage`.
+- FileCenter local/temp storage volume is mounted and writable at `/app/storage`.
 - `ffmpeg` and `ffprobe` are available in the API container.
+
+When `.env` sets `FILECENTER_STORAGE_PROVIDER=AliyunOss`, preflight validation also checks that all required Aliyun OSS variables are present without printing secret values. Full OSS smoke validation still requires real credentials and should confirm upload, thumbnail generation, video cover generation, download, HTTP Range playback, and permanent delete against the configured bucket.
 
 The legacy `scripts/verify-docker-stack.ps1` remains available for basic Compose startup checks, but V1.0 RC acceptance should use `scripts/verify-local-stack.ps1` because it also covers storage, media tooling, and release-configuration boundaries.
 

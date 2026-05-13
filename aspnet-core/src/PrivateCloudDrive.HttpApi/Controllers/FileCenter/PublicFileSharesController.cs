@@ -51,15 +51,27 @@ public class PublicFileSharesController : PrivateCloudDriveController
         string token,
         [FromQuery] string? password = null)
     {
-        var file = await _publicSharesAppService.GetDownloadAsync(
-            token,
-            password,
-            HttpContext.RequestAborted);
-
-        return new FileStreamResult(file.Content, file.ContentType)
+        if (!FileCenterFileResultHelper.TryCreateRangeRequest(
+                Request,
+                out var range,
+                out var errorResult))
         {
-            EnableRangeProcessing = true,
-            FileDownloadName = file.FileName
-        };
+            return errorResult!;
+        }
+
+        try
+        {
+            var file = await _publicSharesAppService.GetDownloadAsync(
+                token,
+                password,
+                range,
+                HttpContext.RequestAborted);
+
+            return FileCenterFileResultHelper.CreateFileResult(HttpContext, file, asAttachment: true);
+        }
+        catch (FileDownloadRangeNotSatisfiableException exception)
+        {
+            return FileCenterFileResultHelper.CreateRangeNotSatisfiableResult(HttpContext, exception);
+        }
     }
 }

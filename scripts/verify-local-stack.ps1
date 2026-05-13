@@ -177,6 +177,38 @@ function Test-EnvConfiguration {
             Add-CheckResult "PASS" "env:$key" "Configured. Value hidden."
         }
     }
+
+    $storageProvider = "FileSystem"
+    if ($envValues.ContainsKey("FILECENTER_STORAGE_PROVIDER") -and
+        -not [string]::IsNullOrWhiteSpace($envValues["FILECENTER_STORAGE_PROVIDER"])) {
+        $storageProvider = $envValues["FILECENTER_STORAGE_PROVIDER"].Trim()
+    }
+
+    if ($storageProvider -notin @("FileSystem", "AliyunOss")) {
+        Add-CheckResult "FAIL" "env:FILECENTER_STORAGE_PROVIDER" "Unsupported value. Use FileSystem or AliyunOss."
+        return
+    }
+
+    Add-CheckResult "PASS" "env:FILECENTER_STORAGE_PROVIDER" ("Using {0}." -f $storageProvider)
+
+    if ($storageProvider -eq "AliyunOss") {
+        $ossRequiredKeys = @(
+            "ALIYUN_OSS_ACCESS_KEY_ID",
+            "ALIYUN_OSS_ACCESS_KEY_SECRET",
+            "ALIYUN_OSS_ENDPOINT",
+            "ALIYUN_OSS_REGION_ID",
+            "ALIYUN_OSS_BUCKET"
+        )
+
+        foreach ($key in $ossRequiredKeys) {
+            if (-not $envValues.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($envValues[$key])) {
+                Add-CheckResult "FAIL" "env:$key" "Required when FILECENTER_STORAGE_PROVIDER=AliyunOss."
+            }
+            else {
+                Add-CheckResult "PASS" "env:$key" "Configured. Value hidden."
+            }
+        }
+    }
 }
 
 function Test-ContainerHealthy {

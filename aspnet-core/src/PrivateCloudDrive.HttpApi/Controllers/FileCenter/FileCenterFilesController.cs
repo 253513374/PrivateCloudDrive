@@ -56,13 +56,24 @@ public class FileCenterFilesController : PrivateCloudDriveController
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Download)]
     public virtual async Task<IActionResult> DownloadAsync(Guid id)
     {
-        var file = await _fileDownloadService.GetDownloadAsync(id, HttpContext.RequestAborted);
-
-        return new FileStreamResult(file.Content, file.ContentType)
+        if (!FileCenterFileResultHelper.TryCreateRangeRequest(
+                Request,
+                out var range,
+                out var errorResult))
         {
-            EnableRangeProcessing = true,
-            FileDownloadName = file.FileName
-        };
+            return errorResult!;
+        }
+
+        try
+        {
+            var file = await _fileDownloadService.GetDownloadAsync(id, range, HttpContext.RequestAborted);
+
+            return FileCenterFileResultHelper.CreateFileResult(HttpContext, file, asAttachment: true);
+        }
+        catch (FileDownloadRangeNotSatisfiableException exception)
+        {
+            return FileCenterFileResultHelper.CreateRangeNotSatisfiableResult(HttpContext, exception);
+        }
     }
 
     /// <summary>
@@ -72,12 +83,24 @@ public class FileCenterFilesController : PrivateCloudDriveController
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Download)]
     public virtual async Task<IActionResult> ContentAsync(Guid id)
     {
-        var file = await _fileDownloadService.GetDownloadAsync(id, HttpContext.RequestAborted);
-
-        return new FileStreamResult(file.Content, file.ContentType)
+        if (!FileCenterFileResultHelper.TryCreateRangeRequest(
+                Request,
+                out var range,
+                out var errorResult))
         {
-            EnableRangeProcessing = true
-        };
+            return errorResult!;
+        }
+
+        try
+        {
+            var file = await _fileDownloadService.GetDownloadAsync(id, range, HttpContext.RequestAborted);
+
+            return FileCenterFileResultHelper.CreateFileResult(HttpContext, file, asAttachment: false);
+        }
+        catch (FileDownloadRangeNotSatisfiableException exception)
+        {
+            return FileCenterFileResultHelper.CreateRangeNotSatisfiableResult(HttpContext, exception);
+        }
     }
 
     /// <summary>
@@ -89,7 +112,7 @@ public class FileCenterFilesController : PrivateCloudDriveController
     {
         var file = await _fileDownloadService.GetThumbnailAsync(id, HttpContext.RequestAborted);
 
-        return new FileStreamResult(file.Content, file.ContentType);
+        return FileCenterFileResultHelper.CreateFileResult(HttpContext, file, asAttachment: false);
     }
 
     /// <summary>

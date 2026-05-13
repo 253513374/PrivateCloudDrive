@@ -59,7 +59,14 @@ services:
       App__CorsOrigins: ${PUBLIC_URL:-http://localhost:8080}
       AuthServer__Authority: ${PUBLIC_URL:-http://localhost:8080}
       AuthServer__RequireHttpsMetadata: "false"
+      FileCenter__StorageProvider: ${FILECENTER_STORAGE_PROVIDER:-FileSystem}
       FileCenter__StorageRootPath: ${FILECENTER_STORAGE_PATH:-/app/storage}
+      FileCenter__AliyunOss__AccessKeyId: ${ALIYUN_OSS_ACCESS_KEY_ID:-}
+      FileCenter__AliyunOss__AccessKeySecret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:-}
+      FileCenter__AliyunOss__Endpoint: ${ALIYUN_OSS_ENDPOINT:-}
+      FileCenter__AliyunOss__RegionId: ${ALIYUN_OSS_REGION_ID:-}
+      FileCenter__AliyunOss__BucketName: ${ALIYUN_OSS_BUCKET:-}
+      FileCenter__AliyunOss__CreateBucketIfNotExists: ${ALIYUN_OSS_CREATE_BUCKET:-false}
       FileCenter__MediaProcessing__FfprobePath: "ffprobe"
       FileCenter__MediaProcessing__FfmpegPath: "ffmpeg"
       FileCenter__MediaProcessing__VideoThumbnailWidth: "320"
@@ -120,7 +127,14 @@ services:
       Redis__Configuration: "redis:6379"
       AuthServer__Authority: ${PUBLIC_URL:-http://localhost:8080}
       AuthServer__RequireHttpsMetadata: "false"
+      FileCenter__StorageProvider: ${FILECENTER_STORAGE_PROVIDER:-FileSystem}
       FileCenter__StorageRootPath: ${FILECENTER_STORAGE_PATH:-/app/storage}
+      FileCenter__AliyunOss__AccessKeyId: ${ALIYUN_OSS_ACCESS_KEY_ID:-}
+      FileCenter__AliyunOss__AccessKeySecret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:-}
+      FileCenter__AliyunOss__Endpoint: ${ALIYUN_OSS_ENDPOINT:-}
+      FileCenter__AliyunOss__RegionId: ${ALIYUN_OSS_REGION_ID:-}
+      FileCenter__AliyunOss__BucketName: ${ALIYUN_OSS_BUCKET:-}
+      FileCenter__AliyunOss__CreateBucketIfNotExists: ${ALIYUN_OSS_CREATE_BUCKET:-false}
       FileCenter__MediaProcessing__FfprobePath: "ffprobe"
       FileCenter__MediaProcessing__FfmpegPath: "ffmpeg"
       FileCenter__MediaProcessing__VideoThumbnailWidth: "320"

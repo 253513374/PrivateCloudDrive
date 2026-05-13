@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.BlobStoring;
+using Volo.Abp.BlobStoring.Aliyun;
 using Volo.Abp.BlobStoring.FileSystem;
 using Volo.Abp.Modularity;
 
@@ -12,6 +13,7 @@ namespace PrivateCloudDrive.FileCenter;
 [DependsOn(
     typeof(PrivateCloudDriveFileCenterDomainModule),
     typeof(PrivateCloudDriveFileCenterApplicationContractsModule),
+    typeof(AbpBlobStoringAliyunModule),
     typeof(AbpBlobStoringFileSystemModule)
 )]
 public class PrivateCloudDriveFileCenterApplicationModule : AbpModule
@@ -23,6 +25,7 @@ public class PrivateCloudDriveFileCenterApplicationModule : AbpModule
     {
         var configuration = context.Services.GetConfiguration();
         var storageRootPath = FileCenterBlobStoragePath.GetFullPath(configuration);
+        var storageProvider = FileCenterStorageProviderNames.Normalize(configuration["FileCenter:StorageProvider"]);
 
         Configure<FileCenterMediaProcessingOptions>(
             configuration.GetSection("FileCenter:MediaProcessing"));
@@ -31,6 +34,23 @@ public class PrivateCloudDriveFileCenterApplicationModule : AbpModule
         {
             options.Containers.Configure<FileCenterBlobContainer>(container =>
             {
+                if (storageProvider == FileCenterStorageProviderNames.AliyunOss)
+                {
+                    var aliyunOptions = FileCenterAliyunOssOptions.FromConfiguration(configuration);
+
+                    container.UseAliyun(aliyun =>
+                    {
+                        aliyun.AccessKeyId = aliyunOptions.AccessKeyId;
+                        aliyun.AccessKeySecret = aliyunOptions.AccessKeySecret;
+                        aliyun.Endpoint = aliyunOptions.Endpoint;
+                        aliyun.RegionId = aliyunOptions.RegionId;
+                        aliyun.ContainerName = aliyunOptions.BucketName;
+                        aliyun.CreateContainerIfNotExists = aliyunOptions.CreateBucketIfNotExists;
+                    });
+
+                    return;
+                }
+
                 container.UseFileSystem(fileSystem =>
                 {
                     fileSystem.BasePath = storageRootPath;

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using PrivateCloudDrive.Permissions;
 using Volo.Abp;
 using Volo.Abp.Authorization;
-using Volo.Abp.BlobStoring;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.MultiTenancy;
@@ -24,7 +23,7 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
 
     private readonly ICurrentUser _currentUser;
     private readonly ICurrentTenant _currentTenant;
-    private readonly IBlobContainer<FileCenterBlobContainer> _blobContainer;
+    private readonly IFileCenterBlobContentReader _blobContentReader;
     private readonly IRepository<BlobObject, Guid> _blobObjectRepository;
     private readonly IRepository<MediaAsset, Guid> _mediaAssetRepository;
     private readonly FileNodeManager _fileNodeManager;
@@ -35,14 +34,14 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
     public FileCenterFileDownloadService(
         ICurrentUser currentUser,
         ICurrentTenant currentTenant,
-        IBlobContainer<FileCenterBlobContainer> blobContainer,
+        IFileCenterBlobContentReader blobContentReader,
         IRepository<BlobObject, Guid> blobObjectRepository,
         IRepository<MediaAsset, Guid> mediaAssetRepository,
         FileNodeManager fileNodeManager)
     {
         _currentUser = currentUser;
         _currentTenant = currentTenant;
-        _blobContainer = blobContainer;
+        _blobContentReader = blobContentReader;
         _blobObjectRepository = blobObjectRepository;
         _mediaAssetRepository = mediaAssetRepository;
         _fileNodeManager = fileNodeManager;
@@ -54,6 +53,15 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
     [UnitOfWork]
     public virtual async Task<FileDownloadInfo> GetDownloadAsync(
         Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await GetDownloadAsync(id, range: null, cancellationToken);
+    }
+
+    [UnitOfWork]
+    public virtual async Task<FileDownloadInfo> GetDownloadAsync(
+        Guid id,
+        FileDownloadRangeRequest? range,
         CancellationToken cancellationToken = default)
     {
         var ownerId = GetOwnerId();
@@ -78,13 +86,22 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
                 .WithData("BlobName", fileNode.BlobName);
         }
 
-        var stream = await _blobContainer.GetAsync(blobObject.BlobName, cancellationToken);
+        var normalizedRange = range?.Normalize(blobObject.Size);
+        var stream = normalizedRange == null
+            ? await _blobContentReader.OpenReadAsync(blobObject.BlobName, cancellationToken)
+            : await _blobContentReader.OpenReadRangeAsync(
+                blobObject.BlobName,
+                normalizedRange.Start,
+                normalizedRange.End,
+                cancellationToken);
 
         return new FileDownloadInfo
         {
             FileName = fileNode.Name,
             ContentType = blobObject.ContentType ?? fileNode.ContentType ?? DefaultContentType,
-            Size = blobObject.Size,
+            Size = normalizedRange?.Length ?? blobObject.Size,
+            TotalSize = blobObject.Size,
+            Range = normalizedRange,
             Content = stream
         };
     }
@@ -125,13 +142,14 @@ public class FileCenterFileDownloadService : IFileCenterFileDownloadService, ITr
                 .WithData("ThumbnailBlobObjectId", mediaAsset.ThumbnailBlobObjectId.Value);
         }
 
-        var stream = await _blobContainer.GetAsync(blobObject.BlobName, cancellationToken);
+        var stream = await _blobContentReader.OpenReadAsync(blobObject.BlobName, cancellationToken);
 
         return new FileDownloadInfo
         {
             FileName = $"{Path.GetFileNameWithoutExtension(fileNode.Name)}.thumbnail.jpg",
             ContentType = blobObject.ContentType ?? "image/jpeg",
             Size = blobObject.Size,
+            TotalSize = blobObject.Size,
             Content = stream
         };
     }
