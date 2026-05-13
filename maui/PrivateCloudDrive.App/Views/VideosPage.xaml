@@ -15,7 +15,7 @@
             <Button x:Name="RefreshButton"
                     Grid.Column="1"
                     Text="{x:Static loc:AppText.Refresh}"
-                    TextColor="White"
+                    TextColor="{StaticResource DoodleInk}"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
         </Grid>
@@ -25,7 +25,7 @@
                 Padding="14"
                 IsVisible="False"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                StrokeThickness="1">
+                StrokeThickness="2">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
             </Border.StrokeShape>
@@ -57,7 +57,7 @@
             <CollectionView.EmptyView>
                 <Border Padding="18"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        StrokeThickness="1">
+                        StrokeThickness="2">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
@@ -72,12 +72,12 @@
                     <Grid Padding="0,0,0,10">
                         <Border Padding="12"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                StrokeThickness="1">
+                                StrokeThickness="2">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
                             <Grid ColumnDefinitions="96,*,Auto" ColumnSpacing="12">
-                                <Border WidthRequest="96" HeightRequest="64" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
+                                <Border WidthRequest="96" HeightRequest="64" StrokeThickness="2" Stroke="{AppThemeBinding Light={StaticResource DoodleInk}, Dark={StaticResource BorderDark}}" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="8" />
                                     </Border.StrokeShape>

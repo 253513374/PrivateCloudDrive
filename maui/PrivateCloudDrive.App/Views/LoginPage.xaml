@@ -2,129 +2,287 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="PrivateCloudDrive.App.Views.LoginPage"
              Title="{x:Static loc:AppText.SignIn}"
              Shell.NavBarIsVisible="False">
     <ScrollView>
-        <Grid Padding="24" RowDefinitions="*,Auto,*" MinimumHeightRequest="640">
+        <Grid Padding="42,24,42,28"
+              RowDefinitions="1.15*,Auto,0.85*"
+              MinimumHeightRequest="760">
             <VerticalStackLayout Grid.Row="1"
-                                 Spacing="20"
-                                 MaximumWidthRequest="420"
+                                 Spacing="24"
+                                 MaximumWidthRequest="560"
                                  HorizontalOptions="Fill">
-                <VerticalStackLayout Spacing="10">
-                    <Border HeightRequest="64"
-                            WidthRequest="64"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                            StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="16" />
-                        </Border.StrokeShape>
-                        <Label Text="PCD"
-                               TextColor="White"
-                               FontFamily="OpenSansSemibold"
-                               FontSize="18"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
-                    </Border>
-                    <Label Text="PrivateCloudDrive"
-                           FontFamily="OpenSansSemibold"
-                           FontSize="26"
-                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-                    <Label Text="私有文件与媒体"
-                           Style="{StaticResource MetaLabel}" />
-                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="8"
+                                     HorizontalOptions="Center">
+                    <Image Source="privateclouddrive_mark.png"
+                           Aspect="AspectFit"
+                           HeightRequest="76"
+                           WidthRequest="76"
+                           SemanticProperties.Description="PrivateCloudDrive" />
 
-                <Border Padding="18"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        StrokeThickness="1">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="14">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="账号密码登录"
-                                   Style="{StaticResource SectionTitleLabel}" />
-                            <Label Text="{Binding ApiBaseUrl}"
-                                   Style="{StaticResource MetaLabel}"
-                                   LineBreakMode="TailTruncation" />
-                        </VerticalStackLayout>
-                        <Border Padding="12,0"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
-                                StrokeThickness="0">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8" />
-                            </Border.StrokeShape>
-                            <Entry x:Name="UserNameEntry"
-                                   Placeholder="{x:Static loc:AppText.UserNameOrEmail}"
-                                   ReturnType="Next" />
-                        </Border>
-                        <Border Padding="12,0"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
-                                StrokeThickness="0">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8" />
-                            </Border.StrokeShape>
-                            <Entry x:Name="PasswordEntry"
-                                   Placeholder="{x:Static loc:AppText.Password}"
-                                   IsPassword="True"
-                                   ReturnType="Done"
-                                   Completed="OnPasswordCompleted" />
-                        </Border>
-                        <Button x:Name="SignInButton"
-                                Text="{x:Static loc:AppText.SignInAction}"
-                                TextColor="White"
-                                Margin="0,4,0,0"
-                                Clicked="OnSignInClicked" />
-                        <Button x:Name="WechatSignInButton"
-                                Text="{x:Static loc:AppText.SignInWithWechat}"
-                                Style="{StaticResource SecondaryButton}"
-                                IsEnabled="False"
-                                Clicked="OnWechatSignInClicked" />
-                        <Label x:Name="WechatStatusLabel"
-                               Style="{StaticResource MetaLabel}"
-                               LineBreakMode="WordWrap" />
-                        <Button x:Name="GoogleSignInButton"
-                                Text="{x:Static loc:AppText.SignInWithGoogle}"
-                                Style="{StaticResource SecondaryButton}"
-                                IsEnabled="False"
-                                Clicked="OnGoogleSignInClicked" />
-                        <Label x:Name="GoogleStatusLabel"
-                               Style="{StaticResource MetaLabel}"
-                               LineBreakMode="WordWrap" />
-                        <Button x:Name="GitHubSignInButton"
-                                Text="{x:Static loc:AppText.SignInWithGitHub}"
-                                Style="{StaticResource SecondaryButton}"
-                                IsEnabled="False"
-                                Clicked="OnGitHubSignInClicked" />
-                        <Label x:Name="GitHubStatusLabel"
-                               Style="{StaticResource MetaLabel}"
-                               LineBreakMode="WordWrap" />
-                        <HorizontalStackLayout x:Name="SignInLoadingPanel"
-                                               IsVisible="False"
-                                               Spacing="8"
-                                               HorizontalOptions="Center">
-                            <ActivityIndicator x:Name="SignInLoadingIndicator"
-                                               WidthRequest="18"
-                                               HeightRequest="18"
-                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                            <Label Text="{x:Static loc:AppText.SigningIn}"
-                                   Style="{StaticResource MetaLabel}"
-                                   VerticalOptions="Center" />
-                            <Button x:Name="SignInCancelButton"
-                                    Text="{x:Static loc:AppText.Cancel}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Padding="12,4"
-                                    HeightRequest="32"
-                                    IsVisible="False"
-                                    Clicked="OnCancelSignInClicked" />
-                        </HorizontalStackLayout>
-                        <Label x:Name="ValidationLabel"
-                               IsVisible="False"
-                               TextColor="{StaticResource Danger}"
-                               FontSize="13"
+                    <VerticalStackLayout Spacing="2"
+                                         HorizontalOptions="Center">
+                        <Label Text="PrivateCloudDrive"
+                               FontFamily="DeliusSwashCaps"
+                               FontSize="28"
+                               HorizontalTextAlignment="Center"
+                               LineBreakMode="NoWrap"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label Text="访问你的私有文件与媒体"
+                               FontSize="16"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
                                LineBreakMode="WordWrap" />
                     </VerticalStackLayout>
-                </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="账号登录"
+                           FontFamily="DeliusSwashCaps"
+                           FontSize="31"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+
+                    <VerticalStackLayout Spacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="用户名或邮箱"
+                                   FontFamily="DeliusSwashCaps"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Border Padding="14,0"
+                                    HeightRequest="52"
+                                    BackgroundColor="Transparent"
+                                    Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource BorderDark}}"
+                                    StrokeThickness="1.2">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="6" />
+                                </Border.StrokeShape>
+                                <Grid ColumnDefinitions="28,*"
+                                      ColumnSpacing="12">
+                                    <Grid HeightRequest="28"
+                                          WidthRequest="28"
+                                          VerticalOptions="Center">
+                                        <shapes:Path Aspect="Uniform"
+                                                     Stroke="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                                     StrokeThickness="1.9"
+                                                     StrokeLineCap="Round"
+                                                     StrokeLineJoin="Round"
+                                                     Data="M14,14 C17,14 19.5,11.5 19.5,8.5 C19.5,5.5 17,3 14,3 C11,3 8.5,5.5 8.5,8.5 C8.5,11.5 11,14 14,14 Z M5,26 C5.7,20.5 9,17.5 14,17.5 C19,17.5 22.3,20.5 23,26"
+                                                     HeightRequest="24"
+                                                     WidthRequest="24"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center" />
+                                    </Grid>
+                                    <Entry x:Name="UserNameEntry"
+                                           Grid.Column="1"
+                                           Placeholder="{x:Static loc:AppText.UserNameOrEmail}"
+                                           ReturnType="Next" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="密码"
+                                   FontFamily="DeliusSwashCaps"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Border Padding="14,0"
+                                    HeightRequest="52"
+                                    BackgroundColor="Transparent"
+                                    Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource BorderDark}}"
+                                    StrokeThickness="1.2">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="6" />
+                                </Border.StrokeShape>
+                                <Grid ColumnDefinitions="28,*,32"
+                                      ColumnSpacing="12">
+                                    <Grid HeightRequest="28"
+                                          WidthRequest="28"
+                                          VerticalOptions="Center">
+                                        <shapes:Path Aspect="Uniform"
+                                                     Stroke="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                                     StrokeThickness="1.9"
+                                                     StrokeLineCap="Round"
+                                                     StrokeLineJoin="Round"
+                                                     Data="M6,13 L6,26 L22,26 L22,13 Z M9,13 L9,9 C9,5.8 11,4 14,4 C17,4 19,5.8 19,9 L19,13"
+                                                     HeightRequest="24"
+                                                     WidthRequest="24"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center" />
+                                    </Grid>
+                                    <Entry x:Name="PasswordEntry"
+                                           Grid.Column="1"
+                                           Placeholder="{x:Static loc:AppText.Password}"
+                                           IsPassword="True"
+                                           ReturnType="Done"
+                                           Completed="OnPasswordCompleted" />
+                                    <Grid x:Name="PasswordVisibilityToggle"
+                                          Grid.Column="2"
+                                          SemanticProperties.Description="显示或隐藏密码"
+                                          HeightRequest="32"
+                                          WidthRequest="32"
+                                          VerticalOptions="Center">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnTogglePasswordVisibilityTapped" />
+                                        </Grid.GestureRecognizers>
+                                        <shapes:Path x:Name="PasswordHiddenIcon"
+                                                     Aspect="Uniform"
+                                                     Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                                     StrokeThickness="1.7"
+                                                     StrokeLineCap="Round"
+                                                     StrokeLineJoin="Round"
+                                                     Data="M3,14 C6.2,9 10,6.5 14,6.5 C18,6.5 21.8,9 25,14 C23.7,16 22.1,17.7 20.2,18.9 M16.4,20.2 C15.6,20.4 14.8,20.5 14,20.5 C10,20.5 6.2,18 3,14 M5,4 L24,23"
+                                                     HeightRequest="24"
+                                                     WidthRequest="24"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center" />
+                                        <shapes:Path x:Name="PasswordVisibleIcon"
+                                                     IsVisible="False"
+                                                     Aspect="Uniform"
+                                                     Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                                     StrokeThickness="1.7"
+                                                     StrokeLineCap="Round"
+                                                     StrokeLineJoin="Round"
+                                                     Data="M3,14 C6.2,9 10,6.5 14,6.5 C18,6.5 21.8,9 25,14 C21.8,19 18,21.5 14,21.5 C10,21.5 6.2,19 3,14 Z M14,10.2 C16.1,10.2 17.8,11.9 17.8,14 C17.8,16.1 16.1,17.8 14,17.8 C11.9,17.8 10.2,16.1 10.2,14 C10.2,11.9 11.9,10.2 14,10.2 Z"
+                                                     HeightRequest="24"
+                                                     WidthRequest="24"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <Button x:Name="SignInButton"
+                            Text="{x:Static loc:AppText.SignInAction}"
+                            TextColor="{StaticResource DoodleInk}"
+                            HeightRequest="52"
+                            FontSize="17"
+                            Clicked="OnSignInClicked" />
+
+                    <HorizontalStackLayout x:Name="SignInLoadingPanel"
+                                           IsVisible="False"
+                                           Spacing="12"
+                                           HorizontalOptions="Center">
+                        <ActivityIndicator x:Name="SignInLoadingIndicator"
+                                           WidthRequest="22"
+                                           HeightRequest="22"
+                                           Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                           VerticalOptions="Center" />
+                        <Label Text="{x:Static loc:AppText.SigningIn}"
+                               FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                               VerticalOptions="Center" />
+                        <Button x:Name="SignInCancelButton"
+                                Text="{x:Static loc:AppText.Cancel}"
+                                Style="{StaticResource SecondaryButton}"
+                                Padding="12,4"
+                                HeightRequest="32"
+                                IsVisible="False"
+                                Clicked="OnCancelSignInClicked" />
+                    </HorizontalStackLayout>
+
+                    <Label x:Name="ValidationLabel"
+                           IsVisible="False"
+                           TextColor="{StaticResource Danger}"
+                           FontSize="13"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout x:Name="ExternalSignInPanel"
+                                     Spacing="15"
+                                     Margin="0,2,0,0">
+                    <Grid ColumnDefinitions="*,Auto,*"
+                          ColumnSpacing="14">
+                        <BoxView HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                 VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="其他登录方式"
+                               FontFamily="DeliusSwashCaps"
+                               FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        <BoxView Grid.Column="2"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                 VerticalOptions="Center" />
+                    </Grid>
+
+                    <HorizontalStackLayout Spacing="24"
+                                           HorizontalOptions="Center">
+                        <VerticalStackLayout x:Name="WechatSignInEntry"
+                                             Spacing="6">
+                            <ImageButton x:Name="WechatSignInButton"
+                                         Source="icon_wechat.png"
+                                         SemanticProperties.Description="{x:Static loc:AppText.SignInWithWechat}"
+                                         BackgroundColor="{StaticResource SurfaceLight}"
+                                         BorderColor="{StaticResource BorderLight}"
+                                         BorderWidth="1"
+                                         CornerRadius="8"
+                                         Padding="12"
+                                         HeightRequest="54"
+                                         WidthRequest="54"
+                                         IsEnabled="True"
+                                         InputTransparent="True"
+                                         Opacity="0.65"
+                                         Clicked="OnWechatSignInClicked" />
+                            <Label x:Name="WechatStatusLabel"
+                                   IsVisible="False"
+                                   Style="{StaticResource MetaLabel}"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout x:Name="GoogleSignInEntry"
+                                             Spacing="6">
+                            <ImageButton x:Name="GoogleSignInButton"
+                                         Source="icon_google.png"
+                                         SemanticProperties.Description="{x:Static loc:AppText.SignInWithGoogle}"
+                                         BackgroundColor="{StaticResource SurfaceLight}"
+                                         BorderColor="{StaticResource BorderLight}"
+                                         BorderWidth="1"
+                                         CornerRadius="8"
+                                         Padding="12"
+                                         HeightRequest="54"
+                                         WidthRequest="54"
+                                         IsEnabled="True"
+                                         InputTransparent="True"
+                                         Opacity="0.65"
+                                         Clicked="OnGoogleSignInClicked" />
+                            <Label x:Name="GoogleStatusLabel"
+                                   IsVisible="False"
+                                   Style="{StaticResource MetaLabel}"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout x:Name="GitHubSignInEntry"
+                                             Spacing="6">
+                            <ImageButton x:Name="GitHubSignInButton"
+                                         Source="icon_github.png"
+                                         SemanticProperties.Description="{x:Static loc:AppText.SignInWithGitHub}"
+                                         BackgroundColor="{StaticResource SurfaceLight}"
+                                         BorderColor="{StaticResource BorderLight}"
+                                         BorderWidth="1"
+                                         CornerRadius="8"
+                                         Padding="12"
+                                         HeightRequest="54"
+                                         WidthRequest="54"
+                                         IsEnabled="True"
+                                         InputTransparent="True"
+                                         Opacity="0.65"
+                                         Clicked="OnGitHubSignInClicked" />
+                            <Label x:Name="GitHubStatusLabel"
+                                   IsVisible="False"
+                                   Style="{StaticResource MetaLabel}"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
             </VerticalStackLayout>
         </Grid>
     </ScrollView>

@@ -6,21 +6,12 @@
              Shell.NavBarIsVisible="False">
     <Grid Padding="28" RowDefinitions="*,Auto,*">
         <VerticalStackLayout Grid.Row="1" Spacing="18" HorizontalOptions="Center">
-            <Border HeightRequest="72"
-                    WidthRequest="72"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                    StrokeThickness="0"
-                    HorizontalOptions="Center">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="18" />
-                </Border.StrokeShape>
-                <Label Text="PCD"
-                       TextColor="White"
-                       FontAttributes="Bold"
-                       FontSize="20"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
+            <Image Source="privateclouddrive_mark.png"
+                   HeightRequest="88"
+                   WidthRequest="88"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"
+                   SemanticProperties.Description="PrivateCloudDrive" />
             <Label Text="PrivateCloudDrive"
                    Style="{StaticResource PageTitleLabel}"
                    HorizontalTextAlignment="Center" />
@@ -35,7 +26,7 @@
                     Padding="14"
                     IsVisible="False"
                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                    StrokeThickness="1"
+                    StrokeThickness="2"
                     MaximumWidthRequest="360">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="8" />

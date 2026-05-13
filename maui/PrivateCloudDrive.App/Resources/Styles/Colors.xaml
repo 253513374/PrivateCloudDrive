@@ -3,30 +3,35 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <Color x:Key="PageBackgroundLight">#F7F9FC</Color>
-    <Color x:Key="PageBackgroundDark">#0F1720</Color>
+    <Color x:Key="PageBackgroundLight">#FFFFFF</Color>
+    <Color x:Key="PageBackgroundDark">#101827</Color>
     <Color x:Key="SurfaceLight">#FFFFFF</Color>
-    <Color x:Key="SurfaceDark">#161F2A</Color>
-    <Color x:Key="SurfaceAltLight">#F1F5F9</Color>
-    <Color x:Key="SurfaceAltDark">#1F2937</Color>
-    <Color x:Key="TextPrimaryLight">#17202A</Color>
+    <Color x:Key="SurfaceDark">#172033</Color>
+    <Color x:Key="SurfaceAltLight">#EAF8FE</Color>
+    <Color x:Key="SurfaceAltDark">#203047</Color>
+    <Color x:Key="TextPrimaryLight">#111827</Color>
     <Color x:Key="TextPrimaryDark">#F8FAFC</Color>
-    <Color x:Key="TextSecondaryLight">#607083</Color>
-    <Color x:Key="TextSecondaryDark">#B6C2CF</Color>
-    <Color x:Key="TextTertiaryLight">#8A98A8</Color>
-    <Color x:Key="TextTertiaryDark">#7C8896</Color>
-    <Color x:Key="BorderLight">#E2E8F0</Color>
-    <Color x:Key="BorderDark">#2D3748</Color>
-    <Color x:Key="Primary">#1F7A5C</Color>
-    <Color x:Key="PrimaryDark">#7EC9B0</Color>
-    <Color x:Key="PrimarySoftLight">#D8EFE7</Color>
-    <Color x:Key="PrimarySoftDark">#183E34</Color>
-    <Color x:Key="Info">#275B89</Color>
-    <Color x:Key="Warning">#B76E00</Color>
-    <Color x:Key="Danger">#B42318</Color>
-    <Color x:Key="DangerSoftLight">#FDECEC</Color>
-    <Color x:Key="DangerSoftDark">#3A1D1A</Color>
-    <Color x:Key="Success">#15803D</Color>
+    <Color x:Key="TextSecondaryLight">#263D5B</Color>
+    <Color x:Key="TextSecondaryDark">#D5E6F7</Color>
+    <Color x:Key="TextTertiaryLight">#586A82</Color>
+    <Color x:Key="TextTertiaryDark">#AAB7C8</Color>
+    <Color x:Key="BorderLight">#263D5B</Color>
+    <Color x:Key="BorderDark">#D5E6F7</Color>
+    <Color x:Key="Primary">#49B6E5</Color>
+    <Color x:Key="PrimaryDark">#7FD5F6</Color>
+    <Color x:Key="PrimarySoftLight">#DDF5FD</Color>
+    <Color x:Key="PrimarySoftDark">#173A4C</Color>
+    <Color x:Key="Info">#49B6E5</Color>
+    <Color x:Key="Warning">#D97706</Color>
+    <Color x:Key="Danger">#DC2626</Color>
+    <Color x:Key="DangerSoftLight">#FDE8E8</Color>
+    <Color x:Key="DangerSoftDark">#4A1E25</Color>
+    <Color x:Key="Success">#16A34A</Color>
+    <Color x:Key="SuccessSoftLight">#DCFCE7</Color>
+    <Color x:Key="WarningSoftLight">#FEF3C7</Color>
+    <Color x:Key="DoodleInk">#263D5B</Color>
+    <Color x:Key="DoodlePaper">#FFFFFF</Color>
+    <Color x:Key="DoodleShadow">#B8E8F8</Color>
 
     <Color x:Key="White">#FFFFFF</Color>
     <Color x:Key="Black">#000000</Color>
@@ -36,8 +41,8 @@
     <Color x:Key="Gray400">#64748B</Color>
     <Color x:Key="Gray500">#475569</Color>
     <Color x:Key="Gray600">#334155</Color>
-    <Color x:Key="Gray900">#17202A</Color>
-    <Color x:Key="Gray950">#0F1720</Color>
+    <Color x:Key="Gray900">#111827</Color>
+    <Color x:Key="Gray950">#101827</Color>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceLight}" />

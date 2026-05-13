@@ -2,232 +2,559 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="PrivateCloudDrive.App.Views.SettingsPage"
              Title="{x:Static loc:AppText.Settings}"
              Shell.NavBarIsVisible="False">
-    <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="16">
-        <VerticalStackLayout Spacing="4">
-            <Label Text="{x:Static loc:AppText.Settings}" Style="{StaticResource PageTitleLabel}" />
-            <Label Text="{x:Static loc:AppText.AccountServerPreferences}" Style="{StaticResource MetaLabel}" />
-        </VerticalStackLayout>
-
-        <Border x:Name="SettingsStatePanel"
-                Grid.Row="1"
-                Padding="14"
-                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                StrokeThickness="1">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="8" />
-            </Border.StrokeShape>
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                <ActivityIndicator x:Name="SettingsLoadingIndicator"
-                                   WidthRequest="20"
-                                   HeightRequest="20"
-                                   Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                <Label x:Name="SettingsStateLabel"
-                       Grid.Column="1"
-                       VerticalOptions="Center"
-                       FontSize="13"
-                       LineBreakMode="WordWrap"
-                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-                <Button x:Name="SettingsRetryButton"
-                        Grid.Column="2"
-                        Text="{x:Static loc:AppText.Retry}"
-                        IsVisible="False"
-                        Style="{StaticResource SecondaryButton}"
-                        Clicked="OnRetryClicked" />
+    <ScrollView>
+        <VerticalStackLayout Padding="18,20,18,28"
+                             Spacing="16">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{x:Static loc:AppText.Settings}"
+                           Style="{StaticResource PageTitleLabel}"
+                           FontSize="28" />
+                    <Label Text="账号、空间和私有部署状态"
+                           Style="{StaticResource MetaLabel}"
+                           FontSize="14" />
+                </VerticalStackLayout>
+                <Border Grid.Column="1"
+                        HeightRequest="44"
+                        WidthRequest="44"
+                        Padding="8"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                        StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <Image Source="privateclouddrive_mark.png"
+                           Aspect="AspectFit"
+                           SemanticProperties.Description="PrivateCloudDrive" />
+                </Border>
             </Grid>
-        </Border>
 
-        <ScrollView Grid.Row="2">
-            <VerticalStackLayout Spacing="12">
-                <Border Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="{x:Static loc:AppText.Server}" Style="{StaticResource SectionTitleLabel}" />
-                        <Label Text="{Binding ApiBaseUrl}"
-                               Style="{StaticResource MetaLabel}"
-                               LineBreakMode="TailTruncation" />
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="存储容量" Style="{StaticResource SectionTitleLabel}" />
-                        <Label x:Name="StorageUsageLabel"
-                               Text="正在读取容量"
-                               Style="{StaticResource MetaLabel}"
-                               LineBreakMode="WordWrap" />
-                        <ProgressBar x:Name="StorageProgressBar"
-                                     Progress="0"
-                                     ProgressColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                        <Label x:Name="StorageQuotaLabel"
-                               Text=""
-                               Style="{StaticResource MetaLabel}"
-                               LineBreakMode="WordWrap" />
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="{x:Static loc:AppText.Security}" Style="{StaticResource SectionTitleLabel}" />
-                        <Label Text="{x:Static loc:AppText.LocalSessionProtected}"
-                               Style="{StaticResource MetaLabel}"
-                               LineBreakMode="WordWrap" />
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="10">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="数据与记录" Style="{StaticResource SectionTitleLabel}" />
-                            <Label Text="回收站、操作日志和本机内测诊断入口。"
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10" />
+                </Border.StrokeShape>
+                <Grid RowDefinitions="Auto,Auto"
+                      RowSpacing="14">
+                    <Grid ColumnDefinitions="Auto,*,Auto"
+                          ColumnSpacing="14">
+                        <Border HeightRequest="58"
+                                WidthRequest="58"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <shapes:Path Aspect="Uniform"
+                                         Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                         StrokeThickness="1.9"
+                                         StrokeLineCap="Round"
+                                         StrokeLineJoin="Round"
+                                         Data="M14,14 C17,14 19.5,11.5 19.5,8.5 C19.5,5.5 17,3 14,3 C11,3 8.5,5.5 8.5,8.5 C8.5,11.5 11,14 14,14 Z M5,26 C5.7,20.5 9,17.5 14,17.5 C19,17.5 22.3,20.5 23,26"
+                                         HeightRequest="30"
+                                         WidthRequest="30"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="本机账号"
+                                   FontFamily="DeliusSwashCaps"
+                                   FontSize="20"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label Text="账号密码登录始终可用"
                                    Style="{StaticResource MetaLabel}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                            <Button Text="{x:Static loc:AppText.Trash}"
+                        <Border Grid.Column="2"
+                                Padding="12,7"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                StrokeThickness="0"
+                                VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="18" />
+                            </Border.StrokeShape>
+                            <Label Text="私有云"
+                                   FontFamily="DeliusSwashCaps"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                        </Border>
+                    </Grid>
+
+                    <Border x:Name="SettingsStatePanel"
+                            Grid.Row="1"
+                            Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                            StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="10">
+                            <ActivityIndicator x:Name="SettingsLoadingIndicator"
+                                               WidthRequest="20"
+                                               HeightRequest="20"
+                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                               VerticalOptions="Center" />
+                            <Label x:Name="SettingsStateLabel"
+                                   Grid.Column="1"
+                                   VerticalOptions="Center"
+                                   FontSize="13"
+                                   LineBreakMode="WordWrap"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Button x:Name="SettingsRetryButton"
+                                    Grid.Column="2"
+                                    Text="{x:Static loc:AppText.Retry}"
+                                    IsVisible="False"
                                     Style="{StaticResource SecondaryButton}"
-                                    Clicked="OnTrashClicked" />
-                            <Button Grid.Column="1"
-                                    Text="{x:Static loc:AppText.OperationLogs}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Clicked="OnOperationLogsClicked" />
-                            <Button Grid.Column="2"
-                                    Text="我的分享"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Clicked="OnSharesClicked" />
+                                    Padding="12,6"
+                                    MinimumHeightRequest="36"
+                                    Clicked="OnRetryClicked" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Padding="18"
+                    StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10" />
+                </Border.StrokeShape>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0"
+                                         EndPoint="1,1">
+                        <GradientStop Color="{StaticResource PrimarySoftLight}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource Primary}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="存储空间"
+                                   FontFamily="DeliusSwashCaps"
+                                   FontSize="17"
+                                   TextColor="{StaticResource DoodleInk}" />
+                            <Label x:Name="StorageUsageLabel"
+                                   Text="正在读取容量"
+                                   FontFamily="DeliusSwashCaps"
+                                   FontSize="26"
+                                   TextColor="{StaticResource DoodleInk}"
+                                   LineBreakMode="WordWrap" />
+                            <Label x:Name="StorageQuotaLabel"
+                                   Text=""
+                                   FontSize="13"
+                                   TextColor="{StaticResource DoodleInk}"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="{x:Static loc:AppText.Trash}"
+                                BackgroundColor="{StaticResource SurfaceLight}"
+                                TextColor="{StaticResource DoodleInk}"
+                                BorderWidth="2"
+                                BorderColor="{StaticResource DoodleInk}"
+                                Padding="12,8"
+                                MinimumHeightRequest="40"
+                                VerticalOptions="End"
+                                Clicked="OnTrashClicked" />
+                    </Grid>
+                    <ProgressBar x:Name="StorageProgressBar"
+                                 Progress="0"
+                                 HeightRequest="8"
+                                 ProgressColor="{StaticResource DoodleInk}"
+                                 BackgroundColor="#33FFFFFF" />
+                </VerticalStackLayout>
+            </Border>
+
+            <VerticalStackLayout Spacing="10">
+                <Label Text="常用管理"
+                       Style="{StaticResource SectionTitleLabel}" />
+                <Border Padding="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnTrashClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42"
+                                    WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                             StrokeThickness="1.9"
+                                             StrokeLineCap="Round"
+                                             StrokeLineJoin="Round"
+                                             Data="M7,8 L21,8 M9,8 L10,24 L18,24 L19,8 M11,5 L17,5 L18,8"
+                                             HeightRequest="24"
+                                             WidthRequest="24"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{x:Static loc:AppText.Trash}"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
+                                <Label Text="查看已删除文件"
+                                       Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="›"
+                                   FontSize="28"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSharesClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42"
+                                    WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                             StrokeThickness="1.9"
+                                             StrokeLineCap="Round"
+                                             StrokeLineJoin="Round"
+                                             Data="M8,8 L20,8 M8,14 L20,14 M8,20 L16,20 M6,4 L22,4 L22,24 L6,24 Z"
+                                             HeightRequest="24"
+                                             WidthRequest="24"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="我的分享"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
+                                <Label Text="管理分享链接"
+                                       Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="›"
+                                   FontSize="28"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnOperationLogsClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42"
+                                    WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                             StrokeThickness="1.9"
+                                             StrokeLineCap="Round"
+                                             StrokeLineJoin="Round"
+                                             Data="M7,7 L21,7 M7,14 L21,14 M7,21 L16,21"
+                                             HeightRequest="24"
+                                             WidthRequest="24"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{x:Static loc:AppText.OperationLogs}"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
+                                <Label Text="登录与文件记录"
+                                       Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="›"
+                                   FontSize="28"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
+            </VerticalStackLayout>
 
-                <Border Padding="16"
+            <VerticalStackLayout Spacing="10">
+                <Label Text="登录方式"
+                       Style="{StaticResource SectionTitleLabel}" />
+                <Border Padding="0"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
+                        <RoundRectangle CornerRadius="10" />
                     </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="10">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="{x:Static loc:AppText.Wechat}" Style="{StaticResource SectionTitleLabel}" />
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="82">
+                            <Border HeightRequest="42"
+                                    WidthRequest="42"
+                                    BackgroundColor="#E9F8F0"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <Label Text="微"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="17"
+                                       TextColor="{StaticResource Primary}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{x:Static loc:AppText.Wechat}"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
                                 <Label x:Name="WechatStatusLabel"
                                        Text="{x:Static loc:AppText.Checking}"
                                        Style="{StaticResource MetaLabel}"
                                        LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
-                            <ActivityIndicator x:Name="WechatLoadingIndicator"
-                                               Grid.Column="1"
-                                               WidthRequest="20"
-                                               HeightRequest="20"
-                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                            <Grid Grid.Column="2"
+                                  ColumnDefinitions="Auto,Auto,Auto"
+                                  ColumnSpacing="8"
+                                  VerticalOptions="Center">
+                                <ActivityIndicator x:Name="WechatLoadingIndicator"
+                                                   WidthRequest="20"
+                                                   HeightRequest="20"
+                                                   Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                                   VerticalOptions="Center" />
+                                <Button x:Name="WechatBindButton"
+                                        Grid.Column="1"
+                                        Text="{x:Static loc:AppText.BindWechat}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Padding="12,6"
+                                        MinimumHeightRequest="36"
+                                        IsVisible="False"
+                                        Clicked="OnWechatBindClicked" />
+                                <Button x:Name="WechatUnbindButton"
+                                        Grid.Column="2"
+                                        Text="{x:Static loc:AppText.Unbind}"
+                                        Style="{StaticResource DangerButton}"
+                                        Padding="12,6"
+                                        MinimumHeightRequest="36"
+                                        IsVisible="False"
+                                        Clicked="OnWechatUnbindClicked" />
+                            </Grid>
                         </Grid>
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                            <Button x:Name="WechatBindButton"
-                                    Text="{x:Static loc:AppText.BindWechat}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    IsVisible="False"
-                                    Clicked="OnWechatBindClicked" />
-                            <Button x:Name="WechatUnbindButton"
-                                    Grid.Column="1"
-                                    Text="{x:Static loc:AppText.Unbind}"
-                                    Style="{StaticResource DangerButton}"
-                                    IsVisible="False"
-                                    Clicked="OnWechatUnbindClicked" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="10">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="{x:Static loc:AppText.Google}" Style="{StaticResource SectionTitleLabel}" />
+                        <BoxView Margin="72,0,16,0"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="82">
+                            <Border HeightRequest="42"
+                                    WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <Label Text="G"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="18"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource TextSecondaryDark}}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{x:Static loc:AppText.Google}"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
                                 <Label x:Name="GoogleStatusLabel"
                                        Text="{x:Static loc:AppText.Checking}"
                                        Style="{StaticResource MetaLabel}"
                                        LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
-                            <ActivityIndicator x:Name="GoogleLoadingIndicator"
-                                               Grid.Column="1"
-                                               WidthRequest="20"
-                                               HeightRequest="20"
-                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                            <Grid Grid.Column="2"
+                                  ColumnDefinitions="Auto,Auto,Auto"
+                                  ColumnSpacing="8"
+                                  VerticalOptions="Center">
+                                <ActivityIndicator x:Name="GoogleLoadingIndicator"
+                                                   WidthRequest="20"
+                                                   HeightRequest="20"
+                                                   Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                                   VerticalOptions="Center" />
+                                <Button x:Name="GoogleBindButton"
+                                        Grid.Column="1"
+                                        Text="{x:Static loc:AppText.BindGoogle}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Padding="12,6"
+                                        MinimumHeightRequest="36"
+                                        IsVisible="False"
+                                        Clicked="OnGoogleBindClicked" />
+                                <Button x:Name="GoogleUnbindButton"
+                                        Grid.Column="2"
+                                        Text="{x:Static loc:AppText.Unbind}"
+                                        Style="{StaticResource DangerButton}"
+                                        Padding="12,6"
+                                        MinimumHeightRequest="36"
+                                        IsVisible="False"
+                                        Clicked="OnGoogleUnbindClicked" />
+                            </Grid>
                         </Grid>
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                            <Button x:Name="GoogleBindButton"
-                                    Text="{x:Static loc:AppText.BindGoogle}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    IsVisible="False"
-                                    Clicked="OnGoogleBindClicked" />
-                            <Button x:Name="GoogleUnbindButton"
-                                    Grid.Column="1"
-                                    Text="{x:Static loc:AppText.Unbind}"
-                                    Style="{StaticResource DangerButton}"
-                                    IsVisible="False"
-                                    Clicked="OnGoogleUnbindClicked" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="10">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="{x:Static loc:AppText.GitHub}" Style="{StaticResource SectionTitleLabel}" />
+                        <BoxView Margin="72,0,16,0"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="82">
+                            <Border HeightRequest="42"
+                                    WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <Label Text="GH"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource TextPrimaryDark}}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{x:Static loc:AppText.GitHub}"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
                                 <Label x:Name="GitHubStatusLabel"
                                        Text="{x:Static loc:AppText.Checking}"
                                        Style="{StaticResource MetaLabel}"
                                        LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
-                            <ActivityIndicator x:Name="GitHubLoadingIndicator"
-                                               Grid.Column="1"
-                                               WidthRequest="20"
-                                               HeightRequest="20"
-                                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                            <Button x:Name="GitHubBindButton"
-                                    Text="{x:Static loc:AppText.BindGitHub}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    IsVisible="False"
-                                    Clicked="OnGitHubBindClicked" />
-                            <Button x:Name="GitHubUnbindButton"
-                                    Grid.Column="1"
-                                    Text="{x:Static loc:AppText.Unbind}"
-                                    Style="{StaticResource DangerButton}"
-                                    IsVisible="False"
-                                    Clicked="OnGitHubUnbindClicked" />
+                            <Grid Grid.Column="2"
+                                  ColumnDefinitions="Auto,Auto,Auto"
+                                  ColumnSpacing="8"
+                                  VerticalOptions="Center">
+                                <ActivityIndicator x:Name="GitHubLoadingIndicator"
+                                                   WidthRequest="20"
+                                                   HeightRequest="20"
+                                                   Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                                   VerticalOptions="Center" />
+                                <Button x:Name="GitHubBindButton"
+                                        Grid.Column="1"
+                                        Text="{x:Static loc:AppText.BindGitHub}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Padding="12,6"
+                                        MinimumHeightRequest="36"
+                                        IsVisible="False"
+                                        Clicked="OnGitHubBindClicked" />
+                                <Button x:Name="GitHubUnbindButton"
+                                        Grid.Column="2"
+                                        Text="{x:Static loc:AppText.Unbind}"
+                                        Style="{StaticResource DangerButton}"
+                                        Padding="12,6"
+                                        MinimumHeightRequest="36"
+                                        IsVisible="False"
+                                        Clicked="OnGitHubUnbindClicked" />
+                            </Grid>
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
-
-                <Button Text="{x:Static loc:AppText.SignOut}"
-                        Style="{StaticResource DangerButton}"
-                        Clicked="OnSignOutClicked" />
             </VerticalStackLayout>
-        </ScrollView>
-    </Grid>
+
+            <VerticalStackLayout Spacing="10">
+                <Label Text="服务与安全"
+                       Style="{StaticResource SectionTitleLabel}" />
+                <Border Padding="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="*,Auto"
+                              ColumnSpacing="12"
+                              MinimumHeightRequest="70">
+                            <VerticalStackLayout Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{x:Static loc:AppText.Server}"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
+                                <Label Text="{Binding ApiBaseUrl}"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="TailTruncation" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="›"
+                                   FontSize="28"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="16,0"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <Grid Padding="16,14"
+                              MinimumHeightRequest="70">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{x:Static loc:AppText.Security}"
+                                       FontFamily="DeliusSwashCaps"
+                                       FontSize="16" />
+                                <Label Text="{x:Static loc:AppText.LocalSessionProtected}"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <Button Text="{x:Static loc:AppText.SignOut}"
+                    Style="{StaticResource DangerButton}"
+                    HeightRequest="50"
+                    Clicked="OnSignOutClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

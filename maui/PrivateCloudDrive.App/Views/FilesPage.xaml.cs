@@ -31,6 +31,10 @@ public partial class FilesPage : ContentPage
 
     public bool ShowCurrentPath => CanGoBack;
 
+    public string ItemCountText => Items.Count == 0
+        ? "暂无项目"
+        : $"{Items.Count} 个项目";
+
     /// <summary>
     /// 初始化 <see cref="FilesPage"/> 的新实例，并注入完成业务处理所需的依赖。
     /// </summary>
@@ -574,17 +578,20 @@ public partial class FilesPage : ContentPage
                 Items.Add(item);
             }
 
+            OnPropertyChanged(nameof(ItemCountText));
             SetFilesIdleState();
         }
         catch (AuthSessionExpiredException)
         {
             Items.Clear();
+            OnPropertyChanged(nameof(ItemCountText));
             await _authService.SignOutAsync();
             await Shell.Current.GoToAsync("//login", true);
         }
         catch (Exception exception)
         {
             Items.Clear();
+            OnPropertyChanged(nameof(ItemCountText));
             SetFilesErrorState(AppText.Format(nameof(AppText.UnableToLoadFiles), exception.Message));
         }
         finally

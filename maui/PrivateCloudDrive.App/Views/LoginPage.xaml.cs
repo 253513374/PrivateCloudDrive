@@ -16,11 +16,11 @@ public partial class LoginPage : ContentPage
     private WechatLoginSettings? _wechatSettings;
     private ExternalLoginSettings? _externalSettings;
     private bool _isWechatAvailable;
+    private bool _isPasswordVisible;
     private CancellationTokenSource? _externalSignInCancellation;
     private const string GoogleProvider = "Google";
     private const string GitHubProvider = "GitHub";
 
-    public string ApiBaseUrl => AppSettings.ApiBaseUrl;
     public string ClientId => AppSettings.OAuthClientId;
 
     /// <summary>
@@ -63,6 +63,14 @@ public partial class LoginPage : ContentPage
     private async void OnPasswordCompleted(object? sender, EventArgs e)
     {
         await SignInAsync();
+    }
+
+    private void OnTogglePasswordVisibilityTapped(object? sender, TappedEventArgs e)
+    {
+        _isPasswordVisible = !_isPasswordVisible;
+        PasswordEntry.IsPassword = !_isPasswordVisible;
+        PasswordHiddenIcon.IsVisible = !_isPasswordVisible;
+        PasswordVisibleIcon.IsVisible = _isPasswordVisible;
     }
 
     private void OnCancelSignInClicked(object? sender, EventArgs e)
@@ -310,9 +318,17 @@ public partial class LoginPage : ContentPage
         UserNameEntry.IsEnabled = enabled;
         PasswordEntry.IsEnabled = enabled;
         SignInButton.IsEnabled = enabled;
-        WechatSignInButton.IsEnabled = enabled && _wechatSettings?.IsEnabled == true && _isWechatAvailable;
-        GoogleSignInButton.IsEnabled = enabled && IsExternalProviderEnabled(GoogleProvider);
-        GitHubSignInButton.IsEnabled = enabled && IsExternalProviderEnabled(GitHubProvider);
+        SetExternalButtonAvailability(
+            WechatSignInButton,
+            enabled &&
+            _wechatSettings?.IsEnabled == true &&
+            _isWechatAvailable);
+        SetExternalButtonAvailability(
+            GoogleSignInButton,
+            enabled && IsExternalProviderEnabled(GoogleProvider));
+        SetExternalButtonAvailability(
+            GitHubSignInButton,
+            enabled && IsExternalProviderEnabled(GitHubProvider));
         SignInButton.Text = enabled ? AppText.SignInAction : AppText.SigningIn;
         SignInLoadingPanel.IsVisible = !enabled;
         SignInLoadingIndicator.IsRunning = !enabled;
@@ -322,20 +338,16 @@ public partial class LoginPage : ContentPage
 
     private void SetWechatEntryState(bool canSignIn, string? statusMessage)
     {
-        WechatSignInButton.IsVisible = true;
-        WechatSignInButton.IsEnabled = canSignIn;
+        SetExternalButtonAvailability(WechatSignInButton, canSignIn);
         WechatStatusLabel.Text = statusMessage ?? string.Empty;
-        WechatStatusLabel.IsVisible = !string.IsNullOrWhiteSpace(statusMessage);
+        WechatStatusLabel.IsVisible = false;
     }
 
     private void SetExternalEntryState(string provider)
     {
         var providerSettings = _externalSettings?.GetProvider(provider);
         var canSignIn = providerSettings?.IsEnabled == true;
-        SetExternalEntryState(
-            provider,
-            canSignIn,
-            canSignIn ? null : AppText.ExternalSignInNotEnabled);
+        SetExternalEntryState(provider, canSignIn, null);
     }
 
     private void SetExternalEntryState(string provider, bool canSignIn, string? statusMessage)
@@ -343,10 +355,9 @@ public partial class LoginPage : ContentPage
         var button = GetExternalSignInButton(provider);
         var label = GetExternalStatusLabel(provider);
 
-        button.IsVisible = true;
-        button.IsEnabled = canSignIn;
+        SetExternalButtonAvailability(button, canSignIn);
         label.Text = statusMessage ?? string.Empty;
-        label.IsVisible = !string.IsNullOrWhiteSpace(statusMessage);
+        label.IsVisible = false;
     }
 
     private bool IsExternalProviderEnabled(string provider)
@@ -354,7 +365,7 @@ public partial class LoginPage : ContentPage
         return _externalSettings?.GetProvider(provider)?.IsEnabled == true;
     }
 
-    private Button GetExternalSignInButton(string provider)
+    private ImageButton GetExternalSignInButton(string provider)
     {
         return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
             ? GitHubSignInButton
@@ -367,4 +378,12 @@ public partial class LoginPage : ContentPage
             ? GitHubStatusLabel
             : GoogleStatusLabel;
     }
+
+    private void SetExternalButtonAvailability(ImageButton button, bool canSignIn)
+    {
+        button.IsEnabled = true;
+        button.InputTransparent = !canSignIn;
+        button.Opacity = canSignIn ? 1 : 0.65;
+    }
+
 }

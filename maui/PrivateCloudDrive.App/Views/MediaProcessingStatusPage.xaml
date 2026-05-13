@@ -28,7 +28,7 @@
                 Padding="14"
                 IsVisible="False"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                StrokeThickness="1">
+                StrokeThickness="2">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
             </Border.StrokeShape>
@@ -48,7 +48,7 @@
             <CollectionView.EmptyView>
                 <Border Padding="18"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        StrokeThickness="1">
+                        StrokeThickness="2">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
@@ -63,12 +63,12 @@
                     <Grid Padding="0,0,0,10">
                         <Border Padding="12"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                StrokeThickness="1">
+                                StrokeThickness="2">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>
                             <Grid ColumnDefinitions="82,*,Auto" ColumnSpacing="12">
-                                <Border WidthRequest="82" HeightRequest="62" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
+                                <Border WidthRequest="82" HeightRequest="62" StrokeThickness="2" Stroke="{AppThemeBinding Light={StaticResource DoodleInk}, Dark={StaticResource BorderDark}}" BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="8" />
                                     </Border.StrokeShape>
@@ -87,7 +87,7 @@
                                             <Border.StrokeShape>
                                                 <RoundRectangle CornerRadius="8" />
                                             </Border.StrokeShape>
-                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="White" />
+                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="{StaticResource DoodleInk}" />
                                         </Border>
                                         <Border Padding="6,2"
                                                 IsVisible="{Binding IsProcessActive}"
@@ -96,7 +96,7 @@
                                             <Border.StrokeShape>
                                                 <RoundRectangle CornerRadius="8" />
                                             </Border.StrokeShape>
-                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="White" />
+                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="{StaticResource DoodleInk}" />
                                         </Border>
                                         <Border Padding="6,2"
                                                 IsVisible="{Binding IsProcessCompleted}"
@@ -105,7 +105,7 @@
                                             <Border.StrokeShape>
                                                 <RoundRectangle CornerRadius="8" />
                                             </Border.StrokeShape>
-                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="White" />
+                                            <Label Text="{Binding ProcessStatusText}" FontSize="11" TextColor="{StaticResource DoodleInk}" />
                                         </Border>
                                         <Label Text="{Binding DisplayKind}" Style="{StaticResource MetaLabel}" VerticalOptions="Center" />
                                     </HorizontalStackLayout>
