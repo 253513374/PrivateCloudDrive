@@ -40,9 +40,23 @@ function Invoke-External {
         [string[]]$Arguments
     )
 
-    $output = & $FilePath @Arguments 2>&1
+    # Docker Compose writes normal progress lines to stderr. With the script-level
+    # ErrorActionPreference=Stop, PowerShell can promote those native stderr lines
+    # to terminating NativeCommandError records before we can inspect LASTEXITCODE.
+    # Capture both streams while temporarily allowing native stderr output, then
+    # make the pass/fail decision from the real process exit code.
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $output = & $FilePath @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+
     return [pscustomobject]@{
-        ExitCode = $LASTEXITCODE
+        ExitCode = $exitCode
         Output = ($output -join [Environment]::NewLine)
     }
 }

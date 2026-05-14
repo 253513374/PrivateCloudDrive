@@ -29,6 +29,17 @@
 
 ### 2026-05-14
 
+- V1.2 RC 本地栈健康检查脚本修复与复验
+  - 问题：`scripts/verify-local-stack.ps1` 在完整模式执行 `docker compose up -d --build` 时，Docker Compose 将正常构建进度写入 stderr；脚本级 `$ErrorActionPreference = "Stop"` 会把这些 native stderr 行提升为 `NativeCommandError`，导致尚未读取真实 `$LASTEXITCODE` 就提前失败。
+  - 修复：`Invoke-External` 在捕获外部命令 stdout/stderr 时临时将 `$ErrorActionPreference` 调整为 `Continue`，再用真实退出码决定 PASS/FAIL，避免把 Compose 进度输出误判为脚本失败。
+  - PowerShell 语法检查：通过。
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/verify-local-stack.ps1 -PreflightOnly`
+    - 结果：PASS 10 / WARN 3 / FAIL 0；WARN 均为本地 `.env` 使用模板加密短语、默认 PostgreSQL 密码和 localhost `PUBLIC_URL`，不打印任何 secret。
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/verify-local-stack.ps1 -SkipStart`
+    - 结果：PASS 19 / WARN 4 / FAIL 0；当前容器 PostgreSQL、Redis、db-migrator、API、media-worker、Swagger、`/app/storage`、ffmpeg、ffprobe 均可用。
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/verify-local-stack.ps1`
+    - 结果：PASS 20 / WARN 3 / FAIL 0；脚本可正常启动/更新 Compose 栈并完成完整健康检查。
+
 - MAUI 产品化 UI 第一轮落地收口
   - 范围：延续 `docs/ui-redesign-master-plan.md` 的“安静、可信、专业、内容优先”方向，收口 Login、Files、Settings、媒体、相册、上传、分享、回收站、日志等页面的未提交 UI 改造。
   - 设计系统：`Colors.xaml` / `Styles.xaml` 已形成专业蓝 + 中性灰色板、现代按钮、卡片、输入容器、标题/元信息字体层级，并保留旧 `Doodle*` key 作为兼容别名。
