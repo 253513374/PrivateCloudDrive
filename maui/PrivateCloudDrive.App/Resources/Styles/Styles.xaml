@@ -184,6 +184,7 @@
         <Setter Property="FontSize" Value="15" />
         <Setter Property="MinimumHeightRequest" Value="44" />
         <Setter Property="MinimumWidthRequest" Value="44" />
+        <Setter Property="Visual" Value="Default" />
     </Style>
 
     <Style TargetType="Editor">

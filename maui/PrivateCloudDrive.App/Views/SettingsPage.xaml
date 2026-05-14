@@ -66,7 +66,7 @@
                                              Spacing="3"
                                              VerticalOptions="Center">
                             <Label Text="本机账号"
-                                   FontFamily="DeliusSwashCaps"
+                                   FontFamily="OpenSansSemibold"
                                    FontSize="20"
                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                             <Label Text="账号密码登录始终可用"
@@ -82,7 +82,7 @@
                                 <RoundRectangle CornerRadius="18" />
                             </Border.StrokeShape>
                             <Label Text="私有云"
-                                   FontFamily="DeliusSwashCaps"
+                                   FontFamily="OpenSansSemibold"
                                    FontSize="12"
                                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
                         </Border>
@@ -139,27 +139,27 @@
                           ColumnSpacing="12">
                         <VerticalStackLayout Spacing="6">
                             <Label Text="存储空间"
-                                   FontFamily="DeliusSwashCaps"
+                                   FontFamily="OpenSansSemibold"
                                    FontSize="17"
-                                   TextColor="{StaticResource DoodleInk}" />
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                             <Label x:Name="StorageUsageLabel"
                                    Text="正在读取容量"
-                                   FontFamily="DeliusSwashCaps"
+                                   FontFamily="OpenSansSemibold"
                                    FontSize="26"
-                                   TextColor="{StaticResource DoodleInk}"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                    LineBreakMode="WordWrap" />
                             <Label x:Name="StorageQuotaLabel"
                                    Text=""
                                    FontSize="13"
-                                   TextColor="{StaticResource DoodleInk}"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
                         <Button Grid.Column="1"
                                 Text="{x:Static loc:AppText.Trash}"
                                 BackgroundColor="{StaticResource SurfaceLight}"
-                                TextColor="{StaticResource DoodleInk}"
-                                BorderWidth="2"
-                                BorderColor="{StaticResource DoodleInk}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                BorderWidth="1"
+                                BorderColor="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
                                 Padding="12,8"
                                 MinimumHeightRequest="40"
                                 VerticalOptions="End"
@@ -168,7 +168,7 @@
                     <ProgressBar x:Name="StorageProgressBar"
                                  Progress="0"
                                  HeightRequest="8"
-                                 ProgressColor="{StaticResource DoodleInk}"
+                                 ProgressColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                                  BackgroundColor="#33FFFFFF" />
                 </VerticalStackLayout>
             </Border>
@@ -212,7 +212,7 @@
                                                  Spacing="2"
                                                  VerticalOptions="Center">
                                 <Label Text="{x:Static loc:AppText.Trash}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label Text="查看已删除文件"
                                        Style="{StaticResource MetaLabel}" />
@@ -256,7 +256,7 @@
                                                  Spacing="2"
                                                  VerticalOptions="Center">
                                 <Label Text="我的分享"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label Text="管理分享链接"
                                        Style="{StaticResource MetaLabel}" />
@@ -300,7 +300,7 @@
                                                  Spacing="2"
                                                  VerticalOptions="Center">
                                 <Label Text="{x:Static loc:AppText.OperationLogs}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label Text="登录与文件记录"
                                        Style="{StaticResource MetaLabel}" />
@@ -337,7 +337,7 @@
                                     <RoundRectangle CornerRadius="9" />
                                 </Border.StrokeShape>
                                 <Label Text="微"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="17"
                                        TextColor="{StaticResource Primary}"
                                        HorizontalOptions="Center"
@@ -347,7 +347,7 @@
                                                  Spacing="2"
                                                  VerticalOptions="Center">
                                 <Label Text="{x:Static loc:AppText.Wechat}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label x:Name="WechatStatusLabel"
                                        Text="{x:Static loc:AppText.Checking}"
@@ -397,7 +397,7 @@
                                     <RoundRectangle CornerRadius="9" />
                                 </Border.StrokeShape>
                                 <Label Text="G"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="18"
                                        TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource TextSecondaryDark}}"
                                        HorizontalOptions="Center"
@@ -407,7 +407,7 @@
                                                  Spacing="2"
                                                  VerticalOptions="Center">
                                 <Label Text="{x:Static loc:AppText.Google}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label x:Name="GoogleStatusLabel"
                                        Text="{x:Static loc:AppText.Checking}"
@@ -457,7 +457,7 @@
                                     <RoundRectangle CornerRadius="9" />
                                 </Border.StrokeShape>
                                 <Label Text="GH"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="14"
                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource TextPrimaryDark}}"
                                        HorizontalOptions="Center"
@@ -467,7 +467,7 @@
                                                  Spacing="2"
                                                  VerticalOptions="Center">
                                 <Label Text="{x:Static loc:AppText.GitHub}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label x:Name="GitHubStatusLabel"
                                        Text="{x:Static loc:AppText.Checking}"
@@ -521,7 +521,7 @@
                             <VerticalStackLayout Spacing="2"
                                                  VerticalOptions="Center">
                                 <Label Text="{x:Static loc:AppText.Server}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label Text="{Binding ApiBaseUrl}"
                                        Style="{StaticResource MetaLabel}"
@@ -540,7 +540,7 @@
                               MinimumHeightRequest="70">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="{x:Static loc:AppText.Security}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16" />
                                 <Label Text="{x:Static loc:AppText.LocalSessionProtected}"
                                        Style="{StaticResource MetaLabel}"

@@ -77,15 +77,15 @@
                     <Border HeightRequest="34"
                             WidthRequest="34"
                             BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
-                            Stroke="{AppThemeBinding Light={StaticResource DoodleInk}, Dark={StaticResource BorderDark}}"
-                            StrokeThickness="1.5"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                            StrokeThickness="1"
                             VerticalOptions="Center">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="10" />
                         </Border.StrokeShape>
                         <shapes:Path Aspect="Uniform"
                                      Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                     StrokeThickness="2"
+                                     StrokeThickness="1"
                                      StrokeLineCap="Round"
                                      StrokeLineJoin="Round"
                                      Data="M4,9 L11,9 L13,12 L24,12 L24,24 L4,24 Z M4,9 L4,24 M8,16 L20,16"
@@ -175,7 +175,7 @@
                         <Border Padding="10,0"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceAltDark}}"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                                StrokeThickness="1.5">
+                                StrokeThickness="1">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
@@ -227,7 +227,7 @@
                     IsVisible="False"
                     BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
                     Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                    StrokeThickness="2">
+                    StrokeThickness="1">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12" />
                 </Border.StrokeShape>
@@ -279,7 +279,7 @@
                     IsVisible="False"
                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                     Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                    StrokeThickness="2">
+                    StrokeThickness="1">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12" />
                 </Border.StrokeShape>
@@ -298,7 +298,7 @@
                     IsVisible="False"
                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                     Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                    StrokeThickness="2">
+                    StrokeThickness="1">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12" />
                 </Border.StrokeShape>
@@ -337,7 +337,7 @@
                         HeightRequest="230"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                         Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                        StrokeThickness="2">
+                        StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="12" />
                     </Border.StrokeShape>
@@ -347,15 +347,15 @@
                         <Border HeightRequest="56"
                                 WidthRequest="56"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
-                                Stroke="{AppThemeBinding Light={StaticResource DoodleInk}, Dark={StaticResource BorderDark}}"
-                                StrokeThickness="2"
+                                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                StrokeThickness="1"
                                 HorizontalOptions="Center">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="14" />
                             </Border.StrokeShape>
                             <shapes:Path Aspect="Uniform"
                                          Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                         StrokeThickness="2"
+                                         StrokeThickness="1"
                                          StrokeLineCap="Round"
                                          StrokeLineJoin="Round"
                                          Data="M6,10 L12,10 L14,13 L24,13 L24,24 L6,24 Z"
@@ -393,7 +393,7 @@
                     <Border Padding="10,8"
                             BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                             Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                            StrokeThickness="1.5">
+                            StrokeThickness="1">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="12" />
                         </Border.StrokeShape>
@@ -402,8 +402,8 @@
                             <Border HeightRequest="40"
                                     WidthRequest="40"
                                     BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
-                                    Stroke="{AppThemeBinding Light={StaticResource DoodleInk}, Dark={StaticResource BorderDark}}"
-                                    StrokeThickness="1.5"
+                                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                    StrokeThickness="1"
                                     VerticalOptions="Center">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="12" />

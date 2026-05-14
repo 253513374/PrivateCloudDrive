@@ -7,7 +7,7 @@
     <Grid Padding="18" RowDefinitions="Auto,Auto,*" RowSpacing="14">
         <Border Padding="14"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                StrokeThickness="2">
+                StrokeThickness="1">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
             </Border.StrokeShape>
@@ -18,7 +18,7 @@
                 </VerticalStackLayout>
                 <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
                     <Button Text="添加媒体"
-                            TextColor="{StaticResource DoodleInk}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                             Clicked="OnAddMediaClicked" />
                     <Button Text="刷新"
                             Style="{StaticResource SecondaryButton}"
@@ -35,7 +35,7 @@
                 Padding="14"
                 IsVisible="False"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                StrokeThickness="2">
+                StrokeThickness="1">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
             </Border.StrokeShape>
@@ -62,7 +62,7 @@
             <CollectionView.EmptyView>
                 <Border Padding="18"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        StrokeThickness="2">
+                        StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
@@ -75,7 +75,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:MediaLibraryItem">
                     <Border BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                            StrokeThickness="2">
+                            StrokeThickness="1">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
@@ -98,7 +98,7 @@
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="8" />
                                     </Border.StrokeShape>
-                                    <Label Text="{Binding DurationText}" FontSize="10" TextColor="{StaticResource DoodleInk}" />
+                                    <Label Text="{Binding DurationText}" FontSize="10" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                                 </Border>
                             </Grid>
                             <VerticalStackLayout Grid.Row="1" Padding="10,8,10,4" Spacing="2">

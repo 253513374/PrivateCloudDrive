@@ -26,7 +26,7 @@
                     Padding="14"
                     IsVisible="False"
                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                    StrokeThickness="2"
+                    StrokeThickness="1"
                     MaximumWidthRequest="360">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="8" />

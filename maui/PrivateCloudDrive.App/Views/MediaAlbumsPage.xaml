@@ -63,7 +63,7 @@
                                      Spacing="3"
                                      VerticalOptions="Center">
                     <Label Text="{Binding AlbumCountText}"
-                           FontFamily="DeliusSwashCaps"
+                           FontFamily="OpenSansSemibold"
                            FontSize="22"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                     <Label Text="{Binding AlbumSummaryText}"
@@ -193,7 +193,7 @@
                                                  Padding="12"
                                                  Spacing="4">
                                 <Label Text="{Binding Name}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="16"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                        LineBreakMode="TailTruncation" />

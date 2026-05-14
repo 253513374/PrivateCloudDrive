@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Handlers;
 
 using CommunityToolkit.Maui;
 using PrivateCloudDrive.App.Services;
@@ -15,6 +16,8 @@ public static class MauiProgram
 	/// </summary>
 	public static MauiApp CreateMauiApp()
 	{
+		ConfigureNativeControlStyling();
+
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
@@ -23,7 +26,6 @@ public static class MauiProgram
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-				fonts.AddFont("DeliusSwashCaps-Regular.ttf", "DeliusSwashCaps");
 				fonts.AddFont("JetBrainsMono-wght.ttf", "JetBrainsMono");
 			});
 
@@ -44,5 +46,24 @@ public static class MauiProgram
 		AppServices.Initialize(app.Services);
 
 		return app;
+	}
+
+	private static void ConfigureNativeControlStyling()
+	{
+#if ANDROID
+		EntryHandler.Mapper.AppendToMapping("NoDefaultUnderline", (handler, _) =>
+		{
+			handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+			handler.PlatformView.Background = null;
+			handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+		});
+
+		EditorHandler.Mapper.AppendToMapping("NoDefaultUnderline", (handler, _) =>
+		{
+			handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+			handler.PlatformView.Background = null;
+			handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+		});
+#endif
 	}
 }

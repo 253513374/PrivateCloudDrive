@@ -14,7 +14,7 @@
             <Button x:Name="RefreshButton"
                     Grid.Column="1"
                     Text="{x:Static loc:AppText.Refresh}"
-                    TextColor="{StaticResource DoodleInk}"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
         </Grid>
@@ -24,7 +24,7 @@
                 Padding="14"
                 IsVisible="False"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                StrokeThickness="2">
+                StrokeThickness="1">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
             </Border.StrokeShape>
@@ -53,7 +53,7 @@
             <CollectionView.EmptyView>
                 <Border Padding="18"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        StrokeThickness="2">
+                        StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
@@ -72,7 +72,7 @@
                     <Grid Padding="0,0,0,10">
                         <Border Padding="14"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                StrokeThickness="2">
+                                StrokeThickness="1">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8" />
                             </Border.StrokeShape>

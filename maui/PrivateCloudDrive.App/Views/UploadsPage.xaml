@@ -53,7 +53,7 @@
                                      Spacing="3"
                                      VerticalOptions="Center">
                     <Label Text="上传队列"
-                           FontFamily="DeliusSwashCaps"
+                           FontFamily="OpenSansSemibold"
                            FontSize="22"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                     <Label x:Name="QueueStateLabel"
@@ -153,7 +153,7 @@
                                   ColumnSpacing="10">
                                 <VerticalStackLayout Spacing="3">
                                     <Label Text="{Binding FileName}"
-                                           FontFamily="DeliusSwashCaps"
+                                           FontFamily="OpenSansSemibold"
                                            FontSize="16"
                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                            LineBreakMode="TailTruncation" />
@@ -170,7 +170,7 @@
                                         <RoundRectangle CornerRadius="14" />
                                     </Border.StrokeShape>
                                     <Label Text="{Binding StatusText}"
-                                           FontFamily="DeliusSwashCaps"
+                                           FontFamily="OpenSansSemibold"
                                            FontSize="12"
                                            TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
                                 </Border>
@@ -185,7 +185,7 @@
                                              VerticalOptions="Center" />
                                 <Label Grid.Column="1"
                                        Text="{Binding ProgressText}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="12"
                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
                                        VerticalOptions="Center" />

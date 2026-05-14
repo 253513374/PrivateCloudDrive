@@ -8,9 +8,9 @@
              Title="{x:Static loc:AppText.SignIn}"
              Shell.NavBarIsVisible="False">
     <ScrollView>
-        <Grid Padding="24"
-              RowDefinitions="*,Auto,*"
-              MinimumHeightRequest="760">
+        <Grid Padding="24,40,24,24"
+              RowDefinitions="Auto"
+              MinimumHeightRequest="720">
             <Border Grid.Row="1"
                     Style="{StaticResource Card}"
                     MaximumWidthRequest="520"
@@ -18,11 +18,11 @@
                 <VerticalStackLayout Spacing="24">
                     <VerticalStackLayout Spacing="14"
                                          HorizontalOptions="Center">
-                        <Border HeightRequest="86"
-                                WidthRequest="86"
+                        <Border HeightRequest="72"
+                                WidthRequest="72"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
                                 StrokeThickness="0"
-                                Padding="15">
+                                Padding="13">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="24" />
                             </Border.StrokeShape>
@@ -34,19 +34,21 @@
                         <VerticalStackLayout Spacing="6"
                                              HorizontalOptions="Center">
                             <Label Text="PrivateCloudDrive"
-                                   Style="{StaticResource PageTitleLabel}"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="24"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                    HorizontalTextAlignment="Center"
                                    LineBreakMode="NoWrap" />
-                            <Label Text="连接你的私有云盘，安全访问文件与媒体"
+                            <Label Text="安全访问你的私有文件与媒体"
                                    Style="{StaticResource MetaLabel}"
-                                   FontSize="15"
+                                   FontSize="14"
                                    HorizontalTextAlignment="Center"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
                     </VerticalStackLayout>
 
                     <Border Style="{StaticResource SoftCard}"
-                            Padding="14,12">
+                            Padding="12,10">
                         <Grid ColumnDefinitions="Auto,*"
                               ColumnSpacing="12">
                             <Border HeightRequest="36"
@@ -83,7 +85,7 @@
                         <VerticalStackLayout Spacing="4">
                             <Label Text="账号登录"
                                    Style="{StaticResource SectionTitleLabel}" />
-                            <Label Text="使用你的账号密码进入私有云盘。第三方登录仅在服务端启用后可用。"
+                            <Label Text="使用你的账号密码进入私有云盘。当前设备仅连接你信任的服务。"
                                    Style="{StaticResource MetaLabel}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
@@ -179,9 +181,21 @@
 
                         <Button x:Name="SignInButton"
                                 Text="{x:Static loc:AppText.SignInAction}"
-                                HeightRequest="52"
+                                HeightRequest="50"
                                 FontSize="16"
                                 Clicked="OnSignInClicked" />
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              Margin="0,-6,0,0">
+                            <Label Text="请联系管理员创建账号"
+                                   Style="{StaticResource MetaLabel}"
+                                   FontSize="13" />
+                            <Label Grid.Column="1"
+                                   Text="忘记密码？"
+                                   Style="{StaticResource MetaLabel}"
+                                   FontSize="13"
+                                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                        </Grid>
 
                         <HorizontalStackLayout x:Name="SignInLoadingPanel"
                                                IsVisible="False"

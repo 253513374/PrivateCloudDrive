@@ -27,6 +27,24 @@
 
 ## 最近验证记录
 
+### 2026-05-14
+
+- MAUI 产品化 UI 第一轮落地收口
+  - 范围：延续 `docs/ui-redesign-master-plan.md` 的“安静、可信、专业、内容优先”方向，收口 Login、Files、Settings、媒体、相册、上传、分享、回收站、日志等页面的未提交 UI 改造。
+  - 设计系统：`Colors.xaml` / `Styles.xaml` 已形成专业蓝 + 中性灰色板、现代按钮、卡片、输入容器、标题/元信息字体层级，并保留旧 `Doodle*` key 作为兼容别名。
+  - Android 输入框：`MauiProgram.cs` 移除 Delius 字体注册，并在 Android `Entry` / `Editor` handler 中清空原生背景，降低自定义输入容器内出现系统下划线/双边框的风险。
+  - 页面清理：文件页、视频页、媒体处理页和设置页不再直接使用 `DoodleInk` 作为边框或进度色，改为设计系统中的 `Border` / `Primary` 语义色。
+  - `grep -RIn "DeliusSwashCaps\|DoodleInk" maui/PrivateCloudDrive.App/Resources maui/PrivateCloudDrive.App/Views maui/PrivateCloudDrive.App/MauiProgram.cs`
+    - 结果：仅剩 `Colors.xaml` 中 `DoodleInk` 兼容色定义，业务页面与启动代码不再引用 Delius/DoodleInk。
+  - XAML 解析检查
+    - 结果：18 个 Views/Styles XAML 文件解析通过。
+  - `git diff --check`
+    - 结果：未发现空白错误；仅输出 LF/CRLF 工作区换行提示。
+  - `dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0 -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifier=win-x64 -p:OutDir=D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-ui-windows/`
+    - 结果：成功，0 个警告，0 个错误。
+  - `dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -p:TargetFrameworks=net10.0-android -f net10.0-android -p:OutDir=D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-ui-android/`
+    - 结果：成功，0 个警告，0 个错误。
+
 ### 2026-05-09
 
 - V1.2 媒体库体验

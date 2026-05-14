@@ -52,7 +52,7 @@
                 <Label x:Name="StatusLabel"
                        HorizontalTextAlignment="Center"
                        LineBreakMode="WordWrap"
-                       TextColor="{StaticResource DoodleInk}" />
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button x:Name="RetryProcessingButton"
                         Text="重新处理"
                         Style="{StaticResource SecondaryButton}"
@@ -67,7 +67,7 @@
                 <Label x:Name="ErrorLabel"
                        HorizontalTextAlignment="Center"
                        LineBreakMode="WordWrap"
-                       TextColor="{StaticResource DoodleInk}" />
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button Text="{x:Static loc:AppText.Retry}"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryClicked" />
@@ -78,7 +78,7 @@
         <Border Grid.Row="2"
                 Padding="14"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                StrokeThickness="2">
+                StrokeThickness="1">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
             </Border.StrokeShape>
@@ -96,7 +96,7 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
-                        <Label Text="{Binding MediaKindText}" FontSize="11" TextColor="{StaticResource DoodleInk}" />
+                        <Label Text="{Binding MediaKindText}" FontSize="11" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                     </Border>
                 </Grid>
                 <Label Grid.Row="1"

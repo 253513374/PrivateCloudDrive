@@ -64,7 +64,7 @@
                                      Spacing="3"
                                      VerticalOptions="Center">
                     <Label Text="{Binding ItemCountText}"
-                           FontFamily="DeliusSwashCaps"
+                           FontFamily="OpenSansSemibold"
                            FontSize="22"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                     <Label Text="{Binding LibrarySummaryText}"
@@ -221,7 +221,7 @@
                                        IsVisible="{Binding HasThumbnail}" />
                                 <Label Text="{Binding Badge}"
                                        IsVisible="{Binding ShowBadge}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="13"
                                        TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                                        HorizontalOptions="Center"
@@ -238,7 +238,7 @@
                                         </Border.StrokeShape>
                                         <Label Text="{Binding ProcessStatusText}"
                                                FontSize="10"
-                                               TextColor="{StaticResource DoodleInk}" />
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                                     </Border>
                                     <Border HorizontalOptions="End"
                                             VerticalOptions="End"
@@ -251,7 +251,7 @@
                                         </Border.StrokeShape>
                                         <Label Text="{Binding DurationText}"
                                                FontSize="10"
-                                               TextColor="{StaticResource DoodleInk}" />
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                                     </Border>
                                     <Border HorizontalOptions="Start"
                                             VerticalOptions="End"
@@ -264,7 +264,7 @@
                                         </Border.StrokeShape>
                                         <Label Text="{x:Static loc:AppText.Videos}"
                                                FontSize="10"
-                                               TextColor="{StaticResource DoodleInk}" />
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
                                     </Border>
                                 </Grid>
                             </Grid>
@@ -272,7 +272,7 @@
                                                  Padding="8,7,8,8"
                                                  Spacing="1">
                                 <Label Text="{Binding Name}"
-                                       FontFamily="DeliusSwashCaps"
+                                       FontFamily="OpenSansSemibold"
                                        FontSize="12"
                                        LineBreakMode="TailTruncation" />
                                 <Label Text="{Binding TimelineMetaText}"
