@@ -21,26 +21,31 @@
     <TabBar Route="main">
         <ShellContent
             Title="{x:Static loc:AppText.Files}"
+            Icon="tab_files.png"
             ContentTemplate="{DataTemplate views:FilesPage}"
             Route="files" />
 
         <ShellContent
             Title="{x:Static loc:AppText.MediaLibrary}"
+            Icon="tab_media.png"
             ContentTemplate="{DataTemplate views:PhotosPage}"
             Route="media-library" />
 
         <ShellContent
             Title="{x:Static loc:AppText.Albums}"
+            Icon="tab_albums.png"
             ContentTemplate="{DataTemplate views:MediaAlbumsPage}"
             Route="albums" />
 
         <ShellContent
             Title="{x:Static loc:AppText.Uploads}"
+            Icon="tab_uploads.png"
             ContentTemplate="{DataTemplate views:UploadsPage}"
             Route="uploads" />
 
         <ShellContent
             Title="{x:Static loc:AppText.Settings}"
+            Icon="tab_settings.png"
             ContentTemplate="{DataTemplate views:SettingsPage}"
             Route="settings" />
     </TabBar>

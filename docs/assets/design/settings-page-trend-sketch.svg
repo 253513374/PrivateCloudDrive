@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" version="1.1" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+    <title id="title">PrivateCloudDrive 设置页趋势化草图</title>
+    <desc id="desc">A mobile settings page sketch integrating adaptive status, quiet interface, storage story, and grouped account bindings.</desc>
+    <defs>
+        <linearGradient id="pageBg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#F5FAF8"/>
+            <stop offset="55%" stop-color="#F7F9FC"/>
+            <stop offset="100%" stop-color="#EEF5F2"/>
+        </linearGradient>
+        <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.92"/>
+            <stop offset="100%" stop-color="#DDF2EB" stop-opacity="0.92"/>
+        </linearGradient>
+        <linearGradient id="storage" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1F7A5C"/>
+            <stop offset="100%" stop-color="#2EA37A"/>
+        </linearGradient>
+        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#153D38" flood-opacity="0.12"/>
+        </filter>
+        <style>
+            .title { font: 700 54px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #17231F; }
+            .h2 { font: 700 34px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #17231F; }
+            .h3 { font: 700 28px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #17231F; }
+            .body { font: 400 25px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #62716B; }
+            .meta { font: 400 22px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #76847E; }
+            .strong { font: 700 42px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #FFFFFF; }
+            .whiteBody { font: 400 25px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #DDF2EB; }
+            .pill { font: 700 21px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #1F7A5C; }
+            .danger { font: 700 30px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #B42318; }
+            .chev { font: 400 32px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #8B9892; }
+        </style>
+    </defs>
+
+    <rect width="1080" height="1920" fill="url(#pageBg)"/>
+    <rect x="56" y="58" width="968" height="1804" rx="48" fill="#F9FBFA" stroke="#E0E8E4"/>
+
+    <text x="96" y="150" class="title">设置</text>
+    <text x="96" y="194" class="body">账号、空间和私有部署状态</text>
+    <circle cx="946" cy="145" r="34" fill="#E7F4EF"/>
+    <path d="M929 145h34M946 128v34" stroke="#1F7A5C" stroke-width="5" stroke-linecap="round"/>
+
+    <rect x="96" y="236" width="888" height="238" rx="28" fill="url(#hero)" filter="url(#softShadow)" stroke="#FFFFFF"/>
+    <rect x="132" y="284" width="88" height="88" rx="28" fill="#1F7A5C"/>
+    <path d="M156 339c-13 0-23 10-23 23s10 23 23 23h77c15 0 27-12 27-27s-12-27-27-27c-2 0-5 0-7 1-6-14-20-24-36-24-19 0-35 13-39 31h5z" transform="scale(.72) translate(72 98)" fill="#FFFFFF"/>
+    <text x="248" y="320" class="h2">张三</text>
+    <text x="248" y="359" class="body">已登录 · 家庭云盘</text>
+    <rect x="248" y="384" width="318" height="44" rx="22" fill="#E5F5EE"/>
+    <text x="274" y="414" class="pill">服务正常 · 10.0.2.2:8080</text>
+    <rect x="662" y="288" width="270" height="122" rx="24" fill="#FFFFFF" fill-opacity="0.74" stroke="#DDEBE6"/>
+    <text x="690" y="331" class="meta">本机会话</text>
+    <text x="690" y="374" class="h3">SecureStorage</text>
+    <circle cx="910" cy="350" r="14" fill="#1F7A5C"/>
+
+    <rect x="96" y="512" width="888" height="296" rx="30" fill="url(#storage)" filter="url(#softShadow)"/>
+    <text x="136" y="576" class="whiteBody">存储空间</text>
+    <text x="136" y="644" class="strong">128.4 GB / 512 GB</text>
+    <text x="136" y="690" class="whiteBody">照片、视频和文件会占用此空间</text>
+    <rect x="136" y="724" width="590" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.28"/>
+    <rect x="136" y="724" width="184" height="18" rx="9" fill="#FFFFFF"/>
+    <rect x="744" y="694" width="176" height="72" rx="20" fill="#FFFFFF" fill-opacity="0.18" stroke="#FFFFFF" stroke-opacity="0.36"/>
+    <text x="779" y="739" class="whiteBody">回收站</text>
+
+    <text x="96" y="875" class="h2">常用管理</text>
+    <rect x="96" y="914" width="888" height="276" rx="26" fill="#FFFFFF" stroke="#E3EAE6"/>
+    <g transform="translate(132 946)">
+        <circle cx="35" cy="35" r="28" fill="#E7F4EF"/>
+        <path d="M23 31h24M28 31v25h14V31M30 24h10l3 7H27z" fill="none" stroke="#1F7A5C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="88" y="31" class="h3">回收站</text>
+        <text x="88" y="68" class="meta">查看已删除文件</text>
+        <text x="788" y="52" class="chev">›</text>
+    </g>
+    <line x1="132" y1="1032" x2="948" y2="1032" stroke="#EDF2F0"/>
+    <g transform="translate(132 1054)">
+        <circle cx="35" cy="35" r="28" fill="#F5FAF8"/>
+        <path d="M24 33h23M24 45h16M24 57h26M28 23h24v44H28z" fill="none" stroke="#1F7A5C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="88" y="31" class="h3">我的分享</text>
+        <text x="88" y="68" class="meta">管理分享链接</text>
+        <text x="788" y="52" class="chev">›</text>
+    </g>
+    <line x1="132" y1="1140" x2="948" y2="1140" stroke="#EDF2F0"/>
+    <g transform="translate(132 1162)">
+        <circle cx="35" cy="35" r="28" fill="#F5FAF8"/>
+        <path d="M25 27h28M25 40h28M25 53h20" fill="none" stroke="#1F7A5C" stroke-width="4" stroke-linecap="round"/>
+        <text x="88" y="31" class="h3">操作日志</text>
+        <text x="88" y="68" class="meta">登录与文件记录</text>
+        <text x="788" y="52" class="chev">›</text>
+    </g>
+
+    <text x="96" y="1265" class="h2">登录方式</text>
+    <rect x="96" y="1304" width="888" height="316" rx="26" fill="#FFFFFF" stroke="#E3EAE6"/>
+    <g transform="translate(132 1344)">
+        <circle cx="32" cy="32" r="32" fill="#E9F8F0"/>
+        <text x="19" y="42" font-size="28" fill="#1F7A5C" font-family="Segoe UI, sans-serif">微</text>
+        <text x="86" y="27" class="h3">微信</text>
+        <text x="86" y="64" class="meta">用于移动端快捷登录</text>
+        <rect x="692" y="10" width="110" height="44" rx="22" fill="#E7F4EF"/>
+        <text x="725" y="39" class="pill">绑定</text>
+    </g>
+    <line x1="132" y1="1440" x2="948" y2="1440" stroke="#EDF2F0"/>
+    <g transform="translate(132 1464)">
+        <circle cx="32" cy="32" r="32" fill="#F5F6F8"/>
+        <text x="20" y="43" font-size="34" fill="#5F6368" font-family="Segoe UI, sans-serif">G</text>
+        <text x="86" y="27" class="h3">Google</text>
+        <text x="86" y="64" class="meta">未绑定</text>
+        <rect x="682" y="10" width="120" height="44" rx="22" fill="#F1F3F4"/>
+        <text x="707" y="39" class="meta">未启用</text>
+    </g>
+    <line x1="132" y1="1560" x2="948" y2="1560" stroke="#EDF2F0"/>
+    <g transform="translate(132 1584)">
+        <circle cx="32" cy="32" r="32" fill="#F2F3F4"/>
+        <text x="20" y="43" font-size="34" fill="#23272F" font-family="Segoe UI, sans-serif">GH</text>
+        <text x="86" y="27" class="h3">GitHub</text>
+        <text x="86" y="64" class="meta">已绑定：dev@example.com</text>
+        <rect x="682" y="10" width="120" height="44" rx="22" fill="#E7F4EF"/>
+        <text x="707" y="39" class="pill">已绑定</text>
+    </g>
+
+    <text x="96" y="1675" class="h2">服务与安全</text>
+    <rect x="96" y="1714" width="888" height="84" rx="24" fill="#FFFFFF" stroke="#E3EAE6"/>
+    <text x="132" y="1766" class="h3">服务地址</text>
+    <text x="356" y="1766" class="body">http://10.0.2.2:8080</text>
+    <text x="914" y="1766" class="chev">›</text>
+
+    <rect x="96" y="1824" width="888" height="64" rx="22" fill="#FFF0EE"/>
+    <text x="446" y="1866" class="danger">退出登录</text>
+</svg>

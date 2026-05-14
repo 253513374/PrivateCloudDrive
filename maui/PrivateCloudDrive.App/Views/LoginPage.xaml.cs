@@ -76,8 +76,7 @@ public partial class LoginPage : ContentPage
     private void OnCancelSignInClicked(object? sender, EventArgs e)
     {
         _externalSignInCancellation?.Cancel();
-        ValidationLabel.Text = AppText.ExternalSignInCanceled;
-        ValidationLabel.IsVisible = true;
+        ShowValidation(AppText.ExternalSignInCanceled);
         SetFormEnabled(true);
     }
 
@@ -88,13 +87,12 @@ public partial class LoginPage : ContentPage
 
         if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
         {
-            ValidationLabel.Text = AppText.EnterUserNameAndPassword;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(AppText.EnterUserNameAndPassword);
             return;
         }
 
         SetFormEnabled(false);
-        ValidationLabel.IsVisible = false;
+        HideValidation();
 
         try
         {
@@ -105,8 +103,7 @@ public partial class LoginPage : ContentPage
         catch (Exception exception)
         {
             PasswordEntry.Text = string.Empty;
-            ValidationLabel.Text = exception.Message;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(exception.Message);
         }
         finally
         {
@@ -122,7 +119,7 @@ public partial class LoginPage : ContentPage
         }
 
         SetFormEnabled(false);
-        ValidationLabel.IsVisible = false;
+        HideValidation();
 
         try
         {
@@ -154,8 +151,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ValidationLabel.Text = exception.Message;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(exception.Message);
         }
         finally
         {
@@ -172,8 +168,7 @@ public partial class LoginPage : ContentPage
             string.IsNullOrWhiteSpace(userName) ||
             string.IsNullOrWhiteSpace(password))
         {
-            ValidationLabel.Text = AppText.EnterUserNamePasswordThenWechat;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(AppText.EnterUserNamePasswordThenWechat);
             return;
         }
 
@@ -198,7 +193,7 @@ public partial class LoginPage : ContentPage
         _externalSignInCancellation = cancellation;
 
         SetFormEnabled(false, canCancel: true);
-        ValidationLabel.IsVisible = false;
+        HideValidation();
 
         try
         {
@@ -228,18 +223,15 @@ public partial class LoginPage : ContentPage
         }
         catch (OperationCanceledException)
         {
-            ValidationLabel.Text = AppText.ExternalSignInCanceled;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(AppText.ExternalSignInCanceled);
         }
         catch (TimeoutException)
         {
-            ValidationLabel.Text = AppText.ExternalSignInTimedOut;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(AppText.ExternalSignInTimedOut);
         }
         catch (Exception exception)
         {
-            ValidationLabel.Text = exception.Message;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(exception.Message);
         }
         finally
         {
@@ -261,8 +253,7 @@ public partial class LoginPage : ContentPage
             string.IsNullOrWhiteSpace(userName) ||
             string.IsNullOrWhiteSpace(password))
         {
-            ValidationLabel.Text = AppText.EnterUserNamePasswordThenExternal;
-            ValidationLabel.IsVisible = true;
+            ShowValidation(AppText.EnterUserNamePasswordThenExternal);
             return;
         }
 
@@ -270,6 +261,20 @@ public partial class LoginPage : ContentPage
         await _authService.SignInAsync(userName, password);
         PasswordEntry.Text = string.Empty;
         await Shell.Current.GoToAsync("//files", true);
+    }
+
+
+    private void ShowValidation(string message)
+    {
+        ValidationLabel.Text = message;
+        ValidationLabel.IsVisible = true;
+        ValidationPanel.IsVisible = true;
+    }
+
+    private void HideValidation()
+    {
+        ValidationLabel.IsVisible = false;
+        ValidationPanel.IsVisible = false;
     }
 
     private async Task LoadWechatSettingsAsync()
