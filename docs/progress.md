@@ -23,11 +23,19 @@
 | 阶段 7：V1 分享、标签、收藏与操作日志 | 已完成 | `bb654ee`, `4f4f6a1`, `158cbc3`, `de2c6f9` | 分享链接、公开访问与密码校验、管理员管理所有分享、标签管理、收藏筛选、图片/视频媒体库、操作日志查询后端与 HTTP 入口已实现；MAUI 文件详情、图片页、视频页和操作日志页已接入对应入口并随收尾提交 | 2026-05-08：后端测试通过 60 个 EF 集成测试；临时 API 已验证 `/api/operation-logs`、分享/标签/收藏、`/api/file-center/media/images`、`/api/file-center/media/videos` 和 `/api/file-center/shares/all`；MAUI Windows/Android 构建通过 |
 | 阶段 8：V1 微信登录可选接入 | 进行中 | `de2c6f9`, 本次提交 | 后端 WeChat 配置、`WechatUserBinding`、绑定/解绑接口、绑定票据、OpenIddict 自定义 grant、审计记录和 MAUI 登录/设置页入口已实现；`WechatUserBinding` PostgreSQL Host/Tenant 唯一索引已加固；首次绑定已有账号和已绑定微信登录均对齐 Identity lockout；登录、绑定和解绑已接入分布式缓存限流；解绑审计已覆盖无绑定场景；Android 已接入 WeChat SDK 原生授权桥接；iOS 平台 SDK 和真实微信凭据真机验收仍待执行 | 2026-05-08：后端隔离输出 build 通过；EF 集成测试通过 63 个；Android WeChat SDK 构建通过；MAUI Windows/Android 目标框架构建通过；真实 WeChat AppId/AppSecret、Android 签名和真机授权结果待回填 |
 | 阶段 9：V1.1 文件管理体验 | 已完成 | `a3394ce` | 文件列表搜索、排序、类型/媒体筛选、批量删除/恢复/永久删除/移动/收藏、容量统计、我的分享管理页，以及后端 API 与 MAUI 客户端对接已完成 | 2026-05-09：`dotnet build .\aspnet-core\PrivateCloudDrive.slnx` 成功；`dotnet test .\aspnet-core\PrivateCloudDrive.slnx` 通过 79 个 EF 集成测试；`.\scripts\verify-maui-build.ps1 -SkipAndroid` 通过 Windows MAUI 构建；Docker stack 验证通过，Swagger 可访问 |
-| 阶段 10：V1.2 媒体库体验 | 已完成，待提交 | 本次提交 | 媒体时间线、详情、处理状态、相册 CRUD/成员管理/封面、失败重试 API 与迁移已完成；MAUI 媒体库时间线、相册、处理状态和预览页状态体验已接入 | 2026-05-09：后端 build 成功；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 91 个 EF 集成测试；MAUI Windows 隔离输出构建成功；普通 MAUI 默认输出构建因正在运行的 App 锁定 EXE 未作为代码失败处理 |
+| 阶段 10：V1.2 媒体库体验 | 已完成，RC 已验证，待提交 | 本次提交 | 媒体时间线、详情、处理状态、相册 CRUD/成员管理/封面、失败重试 API 与迁移已完成；MAUI 媒体库时间线、相册、处理状态和预览页状态体验已接入；V1.2 RC 发布说明和测试记录已补齐 | 2026-05-14：后端 solution build 成功，0 警告 0 错误；`dotnet test` 通过，`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 101 个测试；MAUI Windows/Android 顺序构建通过，PASS 4 / WARN 0 / FAIL 0；Android Debug Signed APK 已生成到 `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk`；当前无 adb 设备，APK 安装与截图验收待设备可用后回填 |
 
 ## 最近验证记录
 
 ### 2026-05-14
+
+- V1.2 RC 发布候选质量闸门
+  - 后端构建：`dotnet build /d/Devs/Projects/Personal/PrivateCloudDrive/aspnet-core/PrivateCloudDrive.slnx -p:OutDir=D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-v12-rc-backend-build/` 成功，0 警告，0 错误。
+  - 后端测试：`dotnet test /d/Devs/Projects/Personal/PrivateCloudDrive/aspnet-core/PrivateCloudDrive.slnx --no-build -p:OutDir=D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-v12-rc-backend-build/ --logger "trx;LogFilePrefix=v12-rc-backend" --results-directory D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/test-results/v12-rc-backend` 通过；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 101 个测试，其它测试项目当前没有可发现测试。
+  - MAUI 顺序构建：`powershell -NoProfile -ExecutionPolicy Bypass -File D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/verify-maui-build.ps1 -Configuration Debug` 通过，Windows 与 Android 目标均 PASS，汇总 PASS 4 / WARN 0 / FAIL 0。
+  - Android APK：`dotnet publish` 已生成 Debug Signed APK，并复制到 `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk`。
+  - 设备边界：`adb devices` 当前未列出设备或模拟器，因此未执行 APK 安装、启动截图和触控验收；后续在 Android 设备可用时按 `docs/testing.md` 的 V1.2 手动验收清单回填。
+  - 文档：新增 `docs/release-notes-v1.2-rc.md`，并更新 `docs/testing.md` 与本进度记录。
 
 - V1.2 RC 本地栈健康检查脚本修复与复验
   - 问题：`scripts/verify-local-stack.ps1` 在完整模式执行 `docker compose up -d --build` 时，Docker Compose 将正常构建进度写入 stderr；脚本级 `$ErrorActionPreference = "Stop"` 会把这些 native stderr 行提升为 `NativeCommandError`，导致尚未读取真实 `$LASTEXITCODE` 就提前失败。

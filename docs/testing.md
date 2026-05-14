@@ -80,6 +80,16 @@ dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0 -p:Ou
 
 2026-05-09 执行结果：后端 build 成功；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 91 个 EF 集成测试；MAUI Windows 隔离输出构建成功，0 警告 0 错误。默认 MAUI 输出目录当前被运行中的 `PrivateCloudDrive.App (75188)` 锁定，因此使用隔离输出目录验证。
 
+V1.2 RC 发布候选验证：
+```powershell
+dotnet build D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-v12-rc-backend-build\
+dotnet test D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\PrivateCloudDrive.slnx --no-build -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-v12-rc-backend-build\ --logger "trx;LogFilePrefix=v12-rc-backend" --results-directory D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\test-results\v12-rc-backend
+.\scripts\verify-maui-build.ps1 -Configuration Debug
+dotnet publish .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -f net10.0-android -c Debug -p:TargetFrameworks=net10.0-android -p:AndroidPackageFormat=apk
+```
+
+2026-05-14 执行结果：后端 solution build 成功，0 警告 0 错误；`dotnet test` 通过，`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 101 个测试，其它测试项目当前没有可发现测试；`.\scripts\verify-maui-build.ps1 -Configuration Debug` 顺序验证 Windows 与 Android 构建均通过，PASS 4 / WARN 0 / FAIL 0；Android Debug Signed APK 已生成并复制到 `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk`。当前 `adb devices` 未检测到已连接设备或模拟器，因此 APK 安装、启动截图和触控验收未执行，需在可用 Android 设备上按下方手动清单回填。
+
 ## V1.2 手动验收清单
 
 | 范围 | 检查步骤 | 预期结果 |
