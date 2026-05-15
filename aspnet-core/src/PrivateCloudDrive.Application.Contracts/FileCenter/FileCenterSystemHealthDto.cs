@@ -45,6 +45,16 @@ public class FileCenterSystemHealthDto
     public FileCenterSystemHealthStatus StorageStatus { get; set; }
 
     /// <summary>
+    /// FFmpeg 可用性配置状态。
+    /// </summary>
+    public FileCenterSystemHealthStatus FfmpegStatus { get; set; }
+
+    /// <summary>
+    /// FFprobe 可用性配置状态。
+    /// </summary>
+    public FileCenterSystemHealthStatus FfprobeStatus { get; set; }
+
+    /// <summary>
     /// 当前配置的文件中心存储 Provider。
     /// </summary>
     public string StorageProvider { get; set; } = string.Empty;

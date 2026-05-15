@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using PrivateCloudDrive.Permissions;
 using PrivateCloudDrive.Settings;
 using Volo.Abp.Authorization;
@@ -26,6 +27,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
     private readonly IAsyncQueryableExecuter _asyncExecuter;
     private readonly ISettingProvider _settingProvider;
     private readonly IConfiguration _configuration;
+    private readonly FileCenterMediaProcessingOptions _mediaProcessingOptions;
     private readonly IClock _clock;
 
     /// <summary>
@@ -36,12 +38,14 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         IAsyncQueryableExecuter asyncExecuter,
         ISettingProvider settingProvider,
         IConfiguration configuration,
+        IOptions<FileCenterMediaProcessingOptions> mediaProcessingOptions,
         IClock clock)
     {
         _blobObjectRepository = blobObjectRepository;
         _asyncExecuter = asyncExecuter;
         _settingProvider = settingProvider;
         _configuration = configuration;
+        _mediaProcessingOptions = mediaProcessingOptions.Value;
         _clock = clock;
     }
 
@@ -54,6 +58,8 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         var diagnostics = new List<string> { "API 可访问" };
         var storageProvider = FileCenterStorageProviderNames.Normalize(_configuration["FileCenter:StorageProvider"]);
         var storageStatus = ResolveStorageStatus(storageProvider, diagnostics);
+        var ffmpegStatus = ResolveToolStatus(_mediaProcessingOptions.FfmpegPath, "FFmpeg", diagnostics);
+        var ffprobeStatus = ResolveToolStatus(_mediaProcessingOptions.FfprobePath, "FFprobe", diagnostics);
         var usedBytes = await GetUsedStorageSizeAsync(ownerId);
         var quotaBytes = await GetLongSettingAsync(
             PrivateCloudDriveSettings.FileCenter.UserStorageQuotaInBytes,
@@ -67,9 +73,11 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
 
         return new FileCenterSystemHealthDto
         {
-            OverallStatus = ResolveOverallStatus(storageStatus),
+            OverallStatus = ResolveOverallStatus(storageStatus, ffmpegStatus, ffprobeStatus),
             ApiStatus = FileCenterSystemHealthStatus.Healthy,
             StorageStatus = storageStatus,
+            FfmpegStatus = ffmpegStatus,
+            FfprobeStatus = ffprobeStatus,
             StorageProvider = storageProvider,
             StorageUsedBytes = usedBytes,
             StorageQuotaBytes = quotaBytes,
@@ -100,11 +108,32 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         return FileCenterSystemHealthStatus.Healthy;
     }
 
-    private static FileCenterSystemHealthStatus ResolveOverallStatus(FileCenterSystemHealthStatus storageStatus)
+    private static FileCenterSystemHealthStatus ResolveOverallStatus(
+        params FileCenterSystemHealthStatus[] componentStatuses)
     {
-        return storageStatus == FileCenterSystemHealthStatus.Unhealthy
-            ? FileCenterSystemHealthStatus.Unhealthy
+        if (componentStatuses.Any(status => status == FileCenterSystemHealthStatus.Unhealthy))
+        {
+            return FileCenterSystemHealthStatus.Unhealthy;
+        }
+
+        return componentStatuses.Any(status => status == FileCenterSystemHealthStatus.Degraded)
+            ? FileCenterSystemHealthStatus.Degraded
             : FileCenterSystemHealthStatus.Healthy;
+    }
+
+    private static FileCenterSystemHealthStatus ResolveToolStatus(
+        string? executablePath,
+        string displayName,
+        ICollection<string> diagnostics)
+    {
+        if (string.IsNullOrWhiteSpace(executablePath))
+        {
+            diagnostics.Add($"{displayName} 未配置");
+            return FileCenterSystemHealthStatus.Degraded;
+        }
+
+        diagnostics.Add($"{displayName} 已配置");
+        return FileCenterSystemHealthStatus.Healthy;
     }
 
     private async Task<long> GetUsedStorageSizeAsync(Guid ownerId)

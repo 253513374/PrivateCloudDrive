@@ -594,6 +594,8 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             health.OverallStatus,
             health.ApiStatus,
             health.StorageStatus,
+            health.FfmpegStatus,
+            health.FfprobeStatus,
             health.StorageProvider,
             health.StorageUsedBytes,
             health.StorageQuotaBytes,
@@ -1978,6 +1980,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public SystemHealthStatus ApiStatus { get; init; }
 
         public SystemHealthStatus StorageStatus { get; init; }
+
+        public SystemHealthStatus FfmpegStatus { get; init; }
+
+        public SystemHealthStatus FfprobeStatus { get; init; }
 
         public string StorageProvider { get; init; } = string.Empty;
 

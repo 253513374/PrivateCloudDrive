@@ -17,6 +17,8 @@ public sealed record SystemHealthSummary(
     SystemHealthStatus OverallStatus,
     SystemHealthStatus ApiStatus,
     SystemHealthStatus StorageStatus,
+    SystemHealthStatus FfmpegStatus,
+    SystemHealthStatus FfprobeStatus,
     string StorageProvider,
     long StorageUsedBytes,
     long StorageQuotaBytes,

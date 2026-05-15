@@ -32,15 +32,19 @@
 - 设置页系统健康摘要闭环
   - 范围：新增 `IFileCenterSystemHealthAppService`、`FileCenterSystemHealthAppService`、`/api/file-center/system-health/summary` 显式 HTTP 入口和 `FileCenterSystemHealthDto`，向已登录用户返回 API、存储 Provider、当前用户容量配额与安全诊断信息；MAUI `SettingsPage` 新增“系统健康”卡片，展示 API/存储状态、Provider 和诊断摘要。
   - TDD：先新增 `EfCoreFileCenterSystemHealthAppServiceTests.Should_Return_System_Health_Summary_For_Current_User` 并确认缺少 `IFileCenterSystemHealthAppService` 时编译失败，再实现应用服务与 DTO。
+  - FFmpeg/FFprobe 增强：系统健康 DTO 和 MAUI 模型新增 `FfmpegStatus`、`FfprobeStatus`；后端根据媒体处理配置返回 FFmpeg/FFprobe 已配置/未配置诊断，任一媒体工具未配置时整体状态降级；设置页健康详情展示 API、存储、FFmpeg 和 FFprobe 四项状态，不暴露可执行文件物理路径或敏感配置。
   - `dotnet test test/PrivateCloudDrive.EntityFrameworkCore.Tests/PrivateCloudDrive.EntityFrameworkCore.Tests.csproj --filter FullyQualifiedName~EfCoreFileCenterSystemHealthAppServiceTests`
-    - 结果：通过 1 个系统健康集成测试。
-  - `dotnet build src/PrivateCloudDrive.HttpApi.Host/PrivateCloudDrive.HttpApi.Host.csproj`
-    - 结果：成功，0 个警告，0 个错误。
-  - `dotnet build PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0`
-    - 工作目录：`maui/PrivateCloudDrive.App`
-    - 结果：成功，0 个警告，0 个错误。
+    - 结果：通过 2 个系统健康集成测试，覆盖默认健康状态和媒体工具未配置降级。
+  - `dotnet build PrivateCloudDrive.slnx --no-restore && dotnet test PrivateCloudDrive.slnx --no-build --filter EfCoreFileCenterSystemHealthAppServiceTests`
+    - 工作目录：`aspnet-core`
+    - 结果：后端解决方案构建成功，0 个警告，0 个错误；系统健康筛选测试通过 2 个。
+  - `dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0 -p:TargetFrameworks=net10.0-windows10.0.19041.0 -p:OutputPath=artifacts/verify-health-ffmpeg-maui-windows/`
+    - 结果：MAUI Windows 构建成功，0 个警告，0 个错误。
   - `dotnet test test/PrivateCloudDrive.EntityFrameworkCore.Tests/PrivateCloudDrive.EntityFrameworkCore.Tests.csproj --no-restore`
-    - 结果：通过 105 个 EF 集成测试。
+    - 结果：通过 106 个 EF 集成测试。
+  - `dotnet build ../maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-android -p:TargetFrameworks=net10.0-android -p:OutputPath=../artifacts/verify-health-ffmpeg-maui-android/`
+    - 工作目录：`aspnet-core`
+    - 结果：MAUI Android 构建成功，0 个警告，0 个错误。
 
 - V1.2 RC / V1.3 运维前置：本地栈备份与恢复演练说明
   - 范围：新增 `scripts/backup-local-stack.ps1` 与 `scripts/restore-local-stack.ps1`。备份脚本覆盖 PostgreSQL custom dump、`privateclouddrive_stack_storage` volume 归档、可选 Redis/MinIO/`.env` 处理和不含明文 secret 的 `manifest.json`；恢复脚本默认 dry-run，只有显式传入 `-ConfirmDestructiveRestore` 才会覆盖目标数据库与 storage volume；`docs/deployment.md` 补齐备份组成、恢复演练步骤、`.env` 敏感边界和 OSS bucket 额外备份责任。
