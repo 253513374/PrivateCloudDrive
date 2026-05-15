@@ -53,17 +53,31 @@ public static class MauiProgram
 #if ANDROID
 		EntryHandler.Mapper.AppendToMapping("NoDefaultUnderline", (handler, _) =>
 		{
-			handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
-			handler.PlatformView.Background = null;
-			handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+			ClearAndroidTextInputBackground(handler.PlatformView);
 		});
 
 		EditorHandler.Mapper.AppendToMapping("NoDefaultUnderline", (handler, _) =>
 		{
-			handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
-			handler.PlatformView.Background = null;
-			handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+			ClearAndroidTextInputBackground(handler.PlatformView);
 		});
 #endif
 	}
+
+#if ANDROID
+	private static void ClearAndroidTextInputBackground(Android.Widget.TextView textView)
+	{
+		ApplyAndroidTextInputBackgroundFix(textView);
+		textView.Post(() => ApplyAndroidTextInputBackgroundFix(textView));
+	}
+
+	private static void ApplyAndroidTextInputBackgroundFix(Android.Widget.TextView textView)
+	{
+		textView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+		textView.BackgroundTintMode = Android.Graphics.PorterDuff.Mode.Clear;
+		textView.Background = null;
+		textView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+		textView.SetPadding(textView.PaddingLeft, 0, textView.PaddingRight, 0);
+		textView.Invalidate();
+	}
+#endif
 }

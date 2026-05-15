@@ -60,3 +60,6 @@ project.lock.json
 *.pfx
 *.pem
 *.key
+
+# Local Hermes agent workspace
+.hermes/

@@ -138,4 +138,4 @@ MAUI 顺序构建：
 .\scripts\verify-maui-build.ps1 -SkipWindows
 ```
 
-更多测试覆盖说明见 `docs/testing.md`，V1.0 RC 发布验收清单见 `docs/release-notes-v1.0-rc.md`。
+更多测试覆盖说明见 `docs/testing.md`；基础私有部署验收见 `docs/release-notes-v1.0-rc.md`，当前媒体库发布候选验收见 `docs/release-notes-v1.2-rc.md`。

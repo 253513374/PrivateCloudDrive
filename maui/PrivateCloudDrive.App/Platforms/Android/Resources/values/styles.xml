@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="PrivateCloudDriveTheme" parent="Maui.SplashTheme">
+        <item name="android:editTextStyle">@style/PrivateCloudDriveEditTextStyle</item>
+    </style>
+
+    <style name="PrivateCloudDriveEditTextStyle" parent="android:style/Widget.EditText">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:backgroundTint">@android:color/transparent</item>
+        <item name="android:colorAccent">@android:color/transparent</item>
+    </style>
+</resources>

@@ -1,6 +1,6 @@
 # PrivateCloudDrive V1.2 RC Release Notes
 
-发布日期：2026-05-14
+发布日期：2026-05-15
 发布类型：V1.2 Release Candidate
 
 ## 产品定位
@@ -52,7 +52,7 @@ V1.2 RC 将 PrivateCloudDrive 从“文件型私有云盘”推进到“移动�
 - AI 自动分类、人物识别、OCR 或语义搜索。
 - 视频多码率转码、在线播放自适应码率或服务端转封装。
 - NAS 协议、桌面同步、多节点高可用。
-- iOS/真实 Android 设备完整回归；当前 RC 以 Windows/Android 构建与 APK 产物为工程闸门，交互验收需在可用设备上继续回填。
+- iOS/真实 Android 设备完整回归；当前 RC 已完成 Android Emulator 启动与登录页视觉闸门，真实设备媒体库全流程仍需按发布需要继续回填。
 
 ## RC 验证结果
 
@@ -60,14 +60,20 @@ V1.2 RC 将 PrivateCloudDrive 从“文件型私有云盘”推进到“移动�
 | --- | --- | --- |
 | 后端构建 | `dotnet build /d/Devs/Projects/Personal/PrivateCloudDrive/aspnet-core/PrivateCloudDrive.slnx -p:OutDir=D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-v12-rc-backend-build/` | 通过，0 警告，0 错误 |
 | 后端测试 | `dotnet test /d/Devs/Projects/Personal/PrivateCloudDrive/aspnet-core/PrivateCloudDrive.slnx --no-build -p:OutDir=D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-v12-rc-backend-build/ --logger "trx;LogFilePrefix=v12-rc-backend" --results-directory D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/test-results/v12-rc-backend` | 通过；`PrivateCloudDrive.EntityFrameworkCore.Tests` 101 个测试通过，其它测试项目当前无可发现测试 |
+| 本地栈健康检查 | `powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/verify-local-stack.ps1 -SkipStart -TimeoutSeconds 120` | 通过；Docker/Compose、PostgreSQL、Redis、db-migrator、API、media-worker、Swagger、`/app/storage`、ffmpeg、ffprobe 均 PASS；本机 `.env` 模板口令、默认数据库口令、localhost 地址保留为本地验证 WARN，不视为产品缺陷 |
 | MAUI 顺序构建 | `powershell -NoProfile -ExecutionPolicy Bypass -File D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/verify-maui-build.ps1 -Configuration Debug` | Windows 与 Android 目标均通过，PASS 4 / WARN 0 / FAIL 0 |
 | Android APK 产物 | `dotnet publish ... -f net10.0-android -c Debug -p:TargetFrameworks=net10.0-android -p:AndroidPackageFormat=apk` | 已生成 Signed APK |
-| APK 路径 | `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk` | 约 17 MB |
-| 设备检测 | `adb devices` | 当前无已连接 Android 设备/模拟器，未执行安装与截图验收 |
+| APK 路径 | `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk` | 约 96 MB；2026-05-15 09:53:29 +0800 重新生成，启用 `EmbedAssembliesIntoApk=true` 避免 clean install 后 fast deployment 依赖缺失 |
+| Android 模拟器安装启动 | `adb install artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk`；`adb shell am start -W -n com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity` | 通过；Pixel 9 Pro API 36 模拟器，Android 16 / SDK 36；`firstInstallTime=2026-05-15 01:02:51`，登录页可见，未出现崩溃；09:54 复验时本机暂无已连接设备/模拟器，归类为环境边界 |
+| Android 登录页视觉闸门 | 截图 `artifacts/runtime/v12-rc-android/13-am-start-themed.png` | 通过；最新卡片式登录 UI 可见，Android 原生 Entry 下划线/双边框已消除，未发现裁切或溢出 |
+| Android 键盘边界 | 截图 `artifacts/runtime/v12-rc-android/16-keyboard-hardkeyboard-enabled.png` 与 `adb shell dumpsys input_method` | 未完成；模拟器当前 `mInputShown=false`，软键盘未弹出，因此键盘遮挡仍需真机或可弹出软键盘的模拟器继续回填 |
+| 本轮 RC 复验 | `git diff --check`；PowerShell 脚本 Parser；`docker compose config`；`verify-local-stack.ps1 -PreflightOnly`；`verify-local-stack.ps1 -SkipStart -TimeoutSeconds 120`；后端 build/test；`verify-maui-build.ps1 -Configuration Debug`；Android APK publish | 通过；diff 无空白错误，脚本语法通过，Compose 配置通过，后端 0 警告/0 错误且 101 个 EF 测试通过，MAUI Windows/Android 顺序构建 PASS 4 / WARN 0 / FAIL 0；本地栈预检 PASS 10 / WARN 3 / FAIL 0，SkipStart 全栈健康检查 PASS 19 / WARN 4 / FAIL 0；WARN 仅为本机 `.env` 模板/localhost 与跳过启动的发布前确认项 |
 
 ## 已知边界与发布风险
 
-- 当前机器未检测到 Android 设备或模拟器，因此 APK 安装、启动截图和真实触控链路尚未完成。
+- Android 模拟器已完成 clean install、启动和登录页视觉闸门；真实 Android 设备、iOS 与媒体库全流程触控回归仍需在对应设备上执行。
+- 模拟器键盘验证未完成：当前 Pixel 9 Pro API 36 环境点击输入框后 `mInputShown=false`，软键盘未弹出；需在真机或调整输入法/硬件键盘设置后的模拟器上继续验证键盘遮挡。
+- 本机 Docker 栈可用；生产化部署前仍必须把 `.env` 中模板口令、默认数据库口令和 localhost 公网地址替换为部署环境值。
 - 本轮后端测试统计为 101 个 EF 集成测试通过；部分测试程序集没有可发现测试，属于当前测试项目结构现状，不视为失败。
 - MAUI `-NoRestore` 在 assets 未包含目标框架时会失败；RC 构建应允许脚本自行 restore，或先显式 restore 对应目标框架。
 - Android/iOS 微信登录仍依赖真实开放平台配置、包名签名、设备安装微信和可访问后端地址。
@@ -75,7 +81,8 @@ V1.2 RC 将 PrivateCloudDrive 从“文件型私有云盘”推进到“移动�
 
 ## 验收建议
 
-1. 在 Android Emulator 或真机上安装 `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk`。
+1. 使用 `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk` 在 Android Emulator 或真机执行 clean install；Debug APK 发布时保留 `-p:EmbedAssembliesIntoApk=true`，避免卸载重装后缺少 fast deployment assemblies。
 2. 启动本地 Docker Compose 后端，并确保 Android 端可访问 `http://10.0.2.2:8080` 或局域网 API 地址。
 3. 按 `docs/testing.md` 的 V1.2 手动验收清单回归媒体时间线、相册、处理状态、视频详情和重新处理。
-4. 回填设备型号、系统版本、App 构建号、后端提交和结果；禁止记录密码、access token、refresh token、AppSecret 或微信 token。
+4. 在可弹出软键盘的设备上补充账号/密码输入、键盘遮挡和登录按钮可达性验证。
+5. 回填设备型号、系统版本、App 构建号、后端提交和结果；禁止记录密码、access token、refresh token、AppSecret 或微信 token。

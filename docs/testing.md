@@ -94,6 +94,8 @@ dotnet publish .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -f net1
 
 | 范围 | 检查步骤 | 预期结果 |
 | --- | --- | --- |
+| Android 模拟器登录页视觉闸门 | 在 Pixel 9 Pro API 36 模拟器 clean install 最新 APK，启动 App。 | App 不崩溃；进入最新卡片式登录页；`http://10.0.2.2:8080` 连接提示可见；Android 原生 Entry 下划线/双边框不可见；无裁切或溢出。 |
+| Android 键盘遮挡 | 点击用户名/密码输入框并弹出软键盘。 | 当前模拟器 `mInputShown=false` 未能弹出软键盘，需真机或可弹出软键盘环境继续验证；通过标准为输入框可读、登录按钮可达、内容不被系统键盘遮挡。 |
 | 媒体时间线 | 进入 Photos/媒体库页，切换全部、图片、视频筛选。 | 媒体按月份分组并按时间倒序展示；图片筛选不显示视频，视频筛选不显示图片。 |
 | 状态可见 | 上传图片/视频后，在后台处理完成前刷新媒体库和处理状态页。 | Pending/Processing/Failed 不显示为空白卡片，卡片或详情页展示清晰状态。 |
 | 相册 | 进入媒体库的“相册”，新建相册，进入详情页后使用“添加媒体”勾选图片/视频加入相册，移除媒体，设置封面。 | 相册列表显示数量；添加媒体不依赖自动最近列表；移除媒体不删除原文件；封面设置成功。 |
@@ -141,6 +143,8 @@ MVP 内测默认连接 Docker Compose API：Windows 为 `http://localhost:8080`�
 | 日期 | 平台与设备 | 系统版本 | App 构建号 | 后端提交 | 测试账号 | 结果 | 问题与备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-05-08 | Android Emulator Pixel 9 Pro | API 36 | 1.0 (1) | `97e2bec` | admin | 通过 | 已完成 MVP Core 内测验收：账号密码登录、文件页加载、上传入口、回收站入口和 Compose API 访问可用；未记录密码或 token。iOS/真实设备验收后续按发布需要补充。 |
+| 2026-05-15 | Android Emulator Pixel 9 Pro / sdk_gphone64_x86_64 | Android 16 / API 36 | 1.0 (1) | `4b56ff2` | 未登录 | 部分通过 | V1.2 RC APK clean install 后通过显式 Activity 启动；登录页截图 `artifacts/runtime/v12-rc-android/13-am-start-themed.png` 通过视觉闸门，原生 Entry 下划线/双边框已消除，无裁切或溢出；软键盘在该模拟器中未弹出，`mInputShown=false`，键盘遮挡待真机或可弹软键盘环境补验。 |
+| 2026-05-15 | RC 自动复验 / Windows Host | .NET SDK 10.0.204 | MAUI Debug / Android APK | 本轮 RC 收口提交 | 未登录 | 通过 | `git diff --check`、PowerShell 脚本 Parser、`docker compose config`、本地栈 Preflight、SkipStart 全栈健康检查、后端 build/test、MAUI Windows/Android 顺序构建、Android APK publish 均通过；09:54 复验时 `adb devices` 无已连接设备/模拟器，设备安装启动沿用同日 Pixel 9 Pro 视觉闸门证据，真机键盘遮挡仍为环境边界。 |
 
 ## V1 微信登录真实设备验收清单
 
