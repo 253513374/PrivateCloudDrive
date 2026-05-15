@@ -135,12 +135,14 @@ public partial class SettingsPage : ContentPage
                 ? AppText.SignedInOnThisDevice
                 : AppText.NoValidLocalSession);
             await LoadStorageUsageAsync(isSignedIn);
+            await LoadSystemHealthAsync(isSignedIn);
             await LoadWechatStateAsync(isSignedIn);
             await LoadExternalStateAsync(isSignedIn);
         }
         catch (Exception exception)
         {
             SetErrorState(AppText.Format(nameof(AppText.UnableToReadLocalSession), exception.Message));
+            SetSystemHealthUnavailable(exception.Message);
             SetWechatInfoState(AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GoogleProvider, AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GitHubProvider, AppText.Unavailable, canBind: false, canUnbind: false);
@@ -183,6 +185,42 @@ public partial class SettingsPage : ContentPage
             StorageUsageLabel.Text = $"无法读取容量：{exception.Message}";
             StorageQuotaLabel.Text = string.Empty;
             StorageProgressBar.Progress = 0;
+        }
+    }
+
+    private async Task LoadSystemHealthAsync(bool isSignedIn)
+    {
+        if (!isSignedIn)
+        {
+            SystemHealthStatusLabel.Text = AppText.SignInRequired;
+            SystemHealthDetailLabel.Text = "登录后可查看 API、存储和容量健康状态";
+            SystemHealthDiagnosticsLabel.Text = string.Empty;
+            return;
+        }
+
+        try
+        {
+            var health = await _apiClient.GetSystemHealthSummaryAsync();
+            SystemHealthStatusLabel.Text = health.OverallStatus switch
+            {
+                SystemHealthStatus.Healthy => "运行正常",
+                SystemHealthStatus.Degraded => "部分降级",
+                SystemHealthStatus.Unhealthy => "需要处理",
+                _ => AppText.Unknown
+            };
+            SystemHealthDetailLabel.Text = $"API {FormatHealthStatus(health.ApiStatus)} · 存储 {health.StorageProvider} {FormatHealthStatus(health.StorageStatus)}";
+            SystemHealthDiagnosticsLabel.Text = health.Diagnostics.Count == 0
+                ? $"更新时间 {health.GeneratedAt:yyyy-MM-dd HH:mm}"
+                : string.Join("；", health.Diagnostics.Take(2));
+        }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
+        }
+        catch (Exception exception)
+        {
+            SetSystemHealthUnavailable(exception.Message);
         }
     }
 
@@ -404,6 +442,24 @@ public partial class SettingsPage : ContentPage
         SettingsLoadingIndicator.IsVisible = false;
         SettingsRetryButton.IsVisible = true;
         SettingsStateLabel.Text = message;
+    }
+
+    private void SetSystemHealthUnavailable(string message)
+    {
+        SystemHealthStatusLabel.Text = "无法读取系统健康状态";
+        SystemHealthDetailLabel.Text = message;
+        SystemHealthDiagnosticsLabel.Text = string.Empty;
+    }
+
+    private static string FormatHealthStatus(SystemHealthStatus status)
+    {
+        return status switch
+        {
+            SystemHealthStatus.Healthy => "正常",
+            SystemHealthStatus.Degraded => "降级",
+            SystemHealthStatus.Unhealthy => "异常",
+            _ => AppText.Unknown
+        };
     }
 
     private void SetWechatLoadingState()

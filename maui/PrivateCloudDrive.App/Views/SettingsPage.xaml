@@ -537,6 +537,31 @@
                                  HeightRequest="1"
                                  Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
                         <Grid Padding="16,14"
+                              MinimumHeightRequest="86">
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="系统健康"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="16" />
+                                <Label x:Name="SystemHealthStatusLabel"
+                                       Text="正在读取系统健康状态"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                       LineBreakMode="WordWrap" />
+                                <Label x:Name="SystemHealthDetailLabel"
+                                       Text=""
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                                <Label x:Name="SystemHealthDiagnosticsLabel"
+                                       Text=""
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <BoxView Margin="16,0"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <Grid Padding="16,14"
                               MinimumHeightRequest="70">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="{x:Static loc:AppText.Security}"

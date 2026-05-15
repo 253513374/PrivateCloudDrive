@@ -574,6 +574,35 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 获取文件中心系统健康摘要。
+    /// </summary>
+    public async Task<SystemHealthSummary> GetSystemHealthSummaryAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/file-center/system-health/summary",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var health = JsonSerializer.Deserialize<SystemHealthDto>(responseText, JsonOptions)
+                     ?? throw new InvalidOperationException("System health response is invalid.");
+
+        return new SystemHealthSummary(
+            health.OverallStatus,
+            health.ApiStatus,
+            health.StorageStatus,
+            health.StorageProvider,
+            health.StorageUsedBytes,
+            health.StorageQuotaBytes,
+            health.IsQuotaConfigured,
+            health.GeneratedAt,
+            health.Diagnostics);
+    }
+
+    /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public async Task<IReadOnlyList<CloudOperationLog>> GetOperationLogsAsync(
@@ -1940,6 +1969,27 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public decimal UsagePercent { get; init; }
 
         public bool IsQuotaConfigured { get; init; }
+    }
+
+    private sealed class SystemHealthDto
+    {
+        public SystemHealthStatus OverallStatus { get; init; }
+
+        public SystemHealthStatus ApiStatus { get; init; }
+
+        public SystemHealthStatus StorageStatus { get; init; }
+
+        public string StorageProvider { get; init; } = string.Empty;
+
+        public long StorageUsedBytes { get; init; }
+
+        public long StorageQuotaBytes { get; init; }
+
+        public bool IsQuotaConfigured { get; init; }
+
+        public DateTime GeneratedAt { get; init; }
+
+        public List<string> Diagnostics { get; init; } = [];
     }
 
     private sealed class OperationLogDto
