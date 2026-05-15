@@ -31,6 +31,48 @@ V1 WeChat, Google, and GitHub login stay disabled by default. When enabling WeCh
 - FileCenter upload temp files and media-processing temp files when `FILECENTER_STORAGE_PROVIDER=AliyunOss`: `privateclouddrive_stack_storage`
 - Optional MinIO data: `privateclouddrive_stack_minio_data`
 
+## Backup and Restore Drill
+
+PrivateCloudDrive 的最小可恢复备份由三部分组成：
+
+1. PostgreSQL 逻辑备份：账号、权限、文件索引、分享、相册、媒体处理状态和审计日志。
+2. FileCenter storage volume：本地文件、上传临时文件、缩略图、视频封面和媒体处理临时文件。
+3. 与实例匹配的 `.env`：数据库密码、加密短语、公开 URL、存储提供商和外部登录密钥。默认备份命令不会复制 `.env`，因为它包含敏感信息。
+
+创建本地栈备份：
+
+```powershell
+.\scripts\backup-local-stack.ps1
+```
+
+可选参数：
+
+```powershell
+.\scripts\backup-local-stack.ps1 -OutputDirectory .\artifacts\backups -IncludeRedis -IncludeMinio
+.\scripts\backup-local-stack.ps1 -IncludeEnv
+```
+
+`-IncludeRedis` 只用于需要缓存、限流计数或临时登录票据时间点快照的排障场景；正常灾备恢复可以不包含 Redis。`-IncludeEnv` 会把 `.env` 复制为 `.env.secret`，该备份目录必须放入加密、访问受控的存储，且禁止提交到 Git。
+
+备份目录包含：
+
+- `postgres.dump`：`pg_dump --format=custom` 生成的数据库备份。
+- `storage.tar.gz`：`privateclouddrive_stack_storage` volume 归档。
+- `manifest.json`：提交号、备份时间、文件清单和 PASS/WARN/FAIL 汇总，不包含明文 secret。
+- `ENVIRONMENT-REQUIRED.md` 或 `.env.secret`：恢复时的环境变量说明或敏感环境文件副本。
+
+恢复演练建议在全新的测试机器或测试 Compose project 中执行，不要直接覆盖生产实例。高层步骤：
+
+1. 停止目标栈：`docker compose down`。
+2. 准备与备份匹配的 `.env`，尤其是 `POSTGRES_DB`、`POSTGRES_USER`、`POSTGRES_PASSWORD`、`STRING_ENCRYPTION_PASSPHRASE`、`PUBLIC_URL` 和存储提供商配置。
+3. 启动 PostgreSQL/Redis：`docker compose up -d postgres redis`，等待 PostgreSQL healthy。
+4. 将 `postgres.dump` 复制进 PostgreSQL 容器，并用 `pg_restore --clean --if-exists --no-owner --no-privileges` 恢复到目标数据库。
+5. 用临时 Alpine 容器把 `storage.tar.gz` 解包回 `privateclouddrive_stack_storage` volume；这是破坏性操作，执行前必须确认目标 volume 可清空。
+6. 启动完整栈：`docker compose up -d --build`。
+7. 运行 `.\scripts\verify-local-stack.ps1 -SkipStart`，再用测试账号验证登录、文件列表、下载/预览、媒体缩略图和分享链接。
+
+如果 `FILECENTER_STORAGE_PROVIDER=AliyunOss`，`storage.tar.gz` 只覆盖本地临时区，不包含 OSS bucket 内对象。OSS bucket 需要按云厂商能力单独开启版本控制、跨区域复制或定期对象备份；切换本地/OSS 存储前必须先制定迁移与回滚计划。
+
 ## Media Processing
 
 The Docker image installs `ffmpeg` and `ffprobe`. The API host disables background job execution, while the `media-worker` service enables it so media thumbnail and metadata jobs are handled separately from HTTP traffic.

@@ -27,6 +27,14 @@
 
 ## 最近验证记录
 
+### 2026-05-15
+
+- V1.2 RC / V1.3 运维前置：本地栈备份与恢复演练说明
+  - 范围：新增 `scripts/backup-local-stack.ps1`，覆盖 PostgreSQL custom dump、`privateclouddrive_stack_storage` volume 归档、可选 Redis/MinIO/`.env` 处理和不含明文 secret 的 `manifest.json`；`docs/deployment.md` 补齐备份组成、恢复演练步骤、`.env` 敏感边界和 OSS bucket 额外备份责任。
+  - PowerShell 语法检查：通过。
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/backup-local-stack.ps1 -OutputDirectory D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-backup-local-stack`
+    - 结果：PASS 6 / WARN 1 / FAIL 0；已生成 `postgres.dump`、`storage.tar.gz` 和 `manifest.json`，Redis 按默认策略未备份并输出 WARN 提示；备份输出位于 ignored artifacts 目录，未进入 Git。
+
 ### 2026-05-14
 
 - V1.2 RC 发布候选质量闸门
