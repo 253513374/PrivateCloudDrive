@@ -103,12 +103,24 @@ public partial class LoginPage : ContentPage
         catch (Exception exception)
         {
             PasswordEntry.Text = string.Empty;
-            ShowValidation(exception.Message);
+            ShowValidation(GetUserFacingSignInError(exception));
         }
         finally
         {
             SetFormEnabled(true);
         }
+    }
+
+    private static string GetUserFacingSignInError(Exception exception)
+    {
+        var message = exception.Message;
+        if (message.Contains("Invalid username or password", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase))
+        {
+            return AppText.InvalidUserNameOrPassword;
+        }
+
+        return message;
     }
 
     private async Task SignInWithWechatAsync()

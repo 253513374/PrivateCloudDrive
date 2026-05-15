@@ -44,6 +44,11 @@ public partial class UploadsPage : ContentPage
         UpdateQueueState();
     }
 
+    private async void OnGoToFilesClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//files", true);
+    }
+
     private void OnUploadItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.OldItems != null)

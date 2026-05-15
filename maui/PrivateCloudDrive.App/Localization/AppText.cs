@@ -26,6 +26,7 @@ public static class AppText
         [nameof(UserNameOrEmail)] = new("用户名或邮箱", "Username or email"),
         [nameof(Password)] = new("密码", "Password"),
         [nameof(EnterUserNameAndPassword)] = new("请输入用户名和密码。", "Enter username and password."),
+        [nameof(InvalidUserNameOrPassword)] = new("用户名或密码错误，请检查大小写后重试。", "Invalid username or password. Check capitalization and try again."),
         [nameof(EnterUserNamePasswordThenWechat)] = new("请输入用户名和密码，然后再次使用微信完成绑定。", "Enter username and password, then use WeChat again to bind."),
         [nameof(EnterUserNamePasswordThenExternal)] = new("\u8bf7\u8f93\u5165\u7528\u6237\u540d\u548c\u5bc6\u7801\uff0c\u7136\u540e\u518d\u6b21\u4f7f\u7528\u7b2c\u4e09\u65b9\u8d26\u53f7\u5b8c\u6210\u7ed1\u5b9a\u3002", "Enter username and password, then use the external account again to bind."),
         [nameof(WechatSignInCanceled)] = new("微信登录已取消。", "WeChat sign-in was canceled."),
@@ -97,6 +98,7 @@ public static class AppText
         [nameof(ActiveFailedCompletedUploads)] = new("活跃、失败和已完成的上传任务。", "Active, failed, and completed upload tasks."),
         [nameof(NoUploadTasks)] = new("暂无上传任务", "No upload tasks"),
         [nameof(NoUploadTasksHelp)] = new("从文件页开始上传。等待、上传中、失败和已完成的任务会显示在这里。", "Start uploads from Files. Waiting, uploading, failed, and completed tasks will appear here."),
+        [nameof(GoToFilesToUpload)] = new("去文件页上传", "Go to Files to upload"),
         [nameof(ClearDone)] = new("清除已完成", "Clear Done"),
         [nameof(UploadQueueEmpty)] = new("上传队列为空。", "Upload queue is empty."),
         [nameof(UploadQueueSummary)] = new("{0} 个上传中，{1} 个等待，{2} 个失败，{3} 个已完成。", "{0} uploading, {1} waiting, {2} failed, {3} completed."),
@@ -233,6 +235,10 @@ public static class AppText
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public static string EnterUserNameAndPassword => Get(nameof(EnterUserNameAndPassword));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string InvalidUserNameOrPassword => Get(nameof(InvalidUserNameOrPassword));
     /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
@@ -517,6 +523,10 @@ public static class AppText
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public static string NoUploadTasksHelp => Get(nameof(NoUploadTasksHelp));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string GoToFilesToUpload => Get(nameof(GoToFilesToUpload));
     /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>

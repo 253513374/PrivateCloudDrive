@@ -115,6 +115,12 @@
                                Style="{StaticResource MetaLabel}"
                                HorizontalTextAlignment="Center"
                                LineBreakMode="WordWrap" />
+                        <Button Text="{x:Static loc:AppText.GoToFilesToUpload}"
+                                FontFamily="OpenSansSemibold"
+                                Padding="18,8"
+                                HeightRequest="42"
+                                HorizontalOptions="Center"
+                                Clicked="OnGoToFilesClicked" />
                     </VerticalStackLayout>
                 </Border>
             </CollectionView.EmptyView>
