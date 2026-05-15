@@ -28,6 +28,7 @@ App：`com.companyname.privateclouddrive.app`
 | 登录错误中文化复验 | `artifacts/android-ui/login-invalid-error.png` |
 | 上传页空状态入口复验 | `artifacts/android-ui/upload-empty-with-entry.png` |
 | 最新系统健康复验 | `artifacts/android-ui/settings-system-health-latest.png` |
+| 媒体库移除常驻处理按钮复验 | `artifacts/android-ui/media-library-no-process-button.png` |
 
 ## 产品验收结论
 
@@ -110,6 +111,12 @@ adb install -r maui/PrivateCloudDrive.App/bin/Debug/net10.0-android/com.companyn
 | 登录错误中文化 | 输入错误账号密码后显示“用户名或密码错误，请检查大小写后重试。” | `artifacts/android-ui/login-invalid-error.png` |
 | 上传页入口 | 上传页空状态显示“去文件页上传”按钮 | `artifacts/android-ui/upload-empty-with-entry.png` |
 | 设置页系统健康 | 系统健康显示“运行正常”，API、DB、Redis、存储、FFmpeg、FFprobe 均正常 | `artifacts/android-ui/settings-system-health-latest.png` |
+
+## 媒体库操作区补充改进（2026-05-15）
+
+产品/设计复盘后确认：“刷新”是重新加载当前媒体列表，“处理”是后台媒体加工/任务状态入口，两者不应作为同级主按钮并列展示。最新改动已移除媒体库页常驻“处理”按钮，仅保留“刷新”；媒体状态卡显示“已更新 · 2 项媒体 · 2 张图片 · 0 个视频”。当存在处理中或失败任务时，才显示状态驱动入口“查看任务/查看失败项”。
+
+Android 复验证据：`artifacts/android-ui/media-library-no-process-button.png`。
 
 ## 下一步收口建议
 

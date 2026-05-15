@@ -27,15 +27,22 @@ public partial class PhotosPage : ContentPage
         {
             var imageCount = _allItems.Count(item => !item.IsVideo);
             var videoCount = _allItems.Count(item => item.IsVideo);
-            return $"{_allItems.Count} 项媒体 · {imageCount} 张图片 · {videoCount} 个视频";
+            var statusText = _activeProcessCount > 0 || _failedProcessCount > 0 ? "有任务需关注" : "已更新";
+            return $"{statusText} · {_allItems.Count} 项媒体 · {imageCount} 张图片 · {videoCount} 个视频";
         }
     }
 
-    public string ProcessingStatusEntryText => _failedProcessCount > 0
-        ? $"处理 {_failedProcessCount} 失败"
-        : _activeProcessCount > 0
-            ? $"处理中 {_activeProcessCount}"
-            : "处理";
+    public bool IsProcessingEntryVisible => _failedProcessCount > 0 || _activeProcessCount > 0;
+
+    public string ProcessingStatusTitle => _failedProcessCount > 0
+        ? $"{_failedProcessCount} 个媒体处理失败"
+        : $"{_activeProcessCount} 个媒体正在生成预览";
+
+    public string ProcessingStatusDescription => _failedProcessCount > 0
+        ? "可能是格式暂不支持、文件损坏或后台服务异常。请进入任务页查看并重试。"
+        : "系统正在后台整理媒体，缩略图和视频封面完成后会自动显示。";
+
+    public string ProcessingStatusEntryText => _failedProcessCount > 0 ? "查看失败项" : "查看任务";
 
     /// <summary>
     /// 初始化 <see cref="PhotosPage"/> 的新实例，并注入完成业务处理所需的依赖。
@@ -116,9 +123,7 @@ public partial class PhotosPage : ContentPage
             _failedProcessCount = _allItems.Count(item => item.IsProcessFailed);
             _activeProcessCount = _allItems.Count(item => item.IsProcessActive);
             RebuildGroups();
-            OnPropertyChanged(nameof(ItemCountText));
-            OnPropertyChanged(nameof(LibrarySummaryText));
-            OnPropertyChanged(nameof(ProcessingStatusEntryText));
+            NotifyMediaSummaryChanged();
             UpdateSegmentButtons();
             SetIdleState();
             await LoadThumbnailsAsync();
@@ -130,9 +135,7 @@ public partial class PhotosPage : ContentPage
             _failedProcessCount = 0;
             _activeProcessCount = 0;
             TimelineGroups.Clear();
-            OnPropertyChanged(nameof(ItemCountText));
-            OnPropertyChanged(nameof(LibrarySummaryText));
-            OnPropertyChanged(nameof(ProcessingStatusEntryText));
+            NotifyMediaSummaryChanged();
             SetErrorState($"无法加载媒体。{exception.Message}");
         }
         finally
@@ -222,6 +225,16 @@ public partial class PhotosPage : ContentPage
         {
             return await _apiClient.GetFileContentAsync(id, thumbnail: false);
         }
+    }
+
+    private void NotifyMediaSummaryChanged()
+    {
+        OnPropertyChanged(nameof(ItemCountText));
+        OnPropertyChanged(nameof(LibrarySummaryText));
+        OnPropertyChanged(nameof(IsProcessingEntryVisible));
+        OnPropertyChanged(nameof(ProcessingStatusTitle));
+        OnPropertyChanged(nameof(ProcessingStatusDescription));
+        OnPropertyChanged(nameof(ProcessingStatusEntryText));
     }
 
     private void SetLoadingState(string message)

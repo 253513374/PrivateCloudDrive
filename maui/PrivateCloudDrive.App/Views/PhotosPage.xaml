@@ -8,7 +8,7 @@
              Title="{x:Static loc:AppText.MediaLibrary}"
              Shell.NavBarIsVisible="False">
     <Grid Padding="18,18,18,16"
-          RowDefinitions="Auto,Auto,Auto,Auto,*"
+          RowDefinitions="Auto,Auto,Auto,Auto,Auto,*"
           RowSpacing="10">
         <Grid ColumnDefinitions="*,Auto"
               ColumnSpacing="12">
@@ -16,7 +16,7 @@
                 <Label Text="{x:Static loc:AppText.MediaLibrary}"
                        Style="{StaticResource PageTitleLabel}"
                        FontSize="28" />
-                <Label Text="按时间线查看图片、视频和处理状态"
+                <Label Text="自动整理你的照片和视频"
                        Style="{StaticResource MetaLabel}"
                        FontSize="14"
                        LineBreakMode="WordWrap" />
@@ -39,7 +39,7 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="10" />
             </Border.StrokeShape>
-            <Grid ColumnDefinitions="Auto,*,Auto"
+            <Grid ColumnDefinitions="Auto,*"
                   ColumnSpacing="14">
                 <Border HeightRequest="50"
                         WidthRequest="50"
@@ -71,19 +71,42 @@
                            Style="{StaticResource MetaLabel}"
                            LineBreakMode="WordWrap" />
                 </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2"
+                Padding="14"
+                IsVisible="{Binding IsProcessingEntryVisible}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
+                <VerticalStackLayout Spacing="3"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding ProcessingStatusTitle}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="15"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    <Label Text="{Binding ProcessingStatusDescription}"
+                           Style="{StaticResource MetaLabel}"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
                 <Button x:Name="ProcessingButton"
-                        Grid.Column="2"
+                        Grid.Column="1"
                         Text="{Binding ProcessingStatusEntryText}"
                         Style="{StaticResource SecondaryButton}"
                         Padding="12,8"
-                        HeightRequest="44"
-                        WidthRequest="92"
+                        HeightRequest="42"
+                        MinimumWidthRequest="96"
                         VerticalOptions="Center"
                         Clicked="OnProcessingClicked" />
             </Grid>
         </Border>
 
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 Padding="7"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
@@ -110,7 +133,7 @@
         </Border>
 
         <Border x:Name="PhotosStatePanel"
-                Grid.Row="3"
+                Grid.Row="4"
                 Padding="14"
                 IsVisible="False"
                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
@@ -142,7 +165,7 @@
         </Border>
 
         <CollectionView x:Name="PhotosCollectionView"
-                        Grid.Row="4"
+                        Grid.Row="5"
                         ItemsSource="{Binding TimelineGroups}"
                         IsGrouped="True"
                         SelectionMode="Single"
