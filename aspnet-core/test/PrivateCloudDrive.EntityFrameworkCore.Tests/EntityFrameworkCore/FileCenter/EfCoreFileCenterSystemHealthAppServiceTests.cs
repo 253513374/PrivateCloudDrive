@@ -44,6 +44,8 @@ public class EfCoreFileCenterSystemHealthAppServiceTests : PrivateCloudDriveEnti
 
             result.OverallStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
             result.ApiStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
+            result.DatabaseStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
+            result.RedisStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
             result.StorageStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
             result.FfmpegStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
             result.FfprobeStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
@@ -52,6 +54,8 @@ public class EfCoreFileCenterSystemHealthAppServiceTests : PrivateCloudDriveEnti
             result.StorageQuotaBytes.ShouldBeGreaterThan(0);
             result.GeneratedAt.ShouldBeGreaterThan(DateTime.MinValue);
             result.Diagnostics.ShouldContain("API 可访问");
+            result.Diagnostics.ShouldContain("数据库可访问");
+            result.Diagnostics.ShouldContain("Redis/分布式缓存可访问");
             result.Diagnostics.ShouldContain("存储后端 FileSystem 已配置");
             result.Diagnostics.ShouldContain("FFmpeg 已配置");
             result.Diagnostics.ShouldContain("FFprobe 已配置");

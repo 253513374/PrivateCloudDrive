@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using PrivateCloudDrive.Permissions;
 using PrivateCloudDrive.Settings;
 using Volo.Abp.Authorization;
+using Volo.Abp.Caching;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Linq;
 using Volo.Abp.Settings;
@@ -25,6 +27,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
 
     private readonly IRepository<BlobObject, Guid> _blobObjectRepository;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
+    private readonly IDistributedCache<FileCenterSystemHealthCacheItem, string> _cache;
     private readonly ISettingProvider _settingProvider;
     private readonly IConfiguration _configuration;
     private readonly FileCenterMediaProcessingOptions _mediaProcessingOptions;
@@ -36,6 +39,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
     public FileCenterSystemHealthAppService(
         IRepository<BlobObject, Guid> blobObjectRepository,
         IAsyncQueryableExecuter asyncExecuter,
+        IDistributedCache<FileCenterSystemHealthCacheItem, string> cache,
         ISettingProvider settingProvider,
         IConfiguration configuration,
         IOptions<FileCenterMediaProcessingOptions> mediaProcessingOptions,
@@ -43,6 +47,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
     {
         _blobObjectRepository = blobObjectRepository;
         _asyncExecuter = asyncExecuter;
+        _cache = cache;
         _settingProvider = settingProvider;
         _configuration = configuration;
         _mediaProcessingOptions = mediaProcessingOptions.Value;
@@ -61,6 +66,9 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         var ffmpegStatus = ResolveToolStatus(_mediaProcessingOptions.FfmpegPath, "FFmpeg", diagnostics);
         var ffprobeStatus = ResolveToolStatus(_mediaProcessingOptions.FfprobePath, "FFprobe", diagnostics);
         var usedBytes = await GetUsedStorageSizeAsync(ownerId);
+        var databaseStatus = FileCenterSystemHealthStatus.Healthy;
+        diagnostics.Add("数据库可访问");
+        var redisStatus = await ResolveRedisStatusAsync(diagnostics);
         var quotaBytes = await GetLongSettingAsync(
             PrivateCloudDriveSettings.FileCenter.UserStorageQuotaInBytes,
             DefaultUserStorageQuotaInBytes);
@@ -73,8 +81,10 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
 
         return new FileCenterSystemHealthDto
         {
-            OverallStatus = ResolveOverallStatus(storageStatus, ffmpegStatus, ffprobeStatus),
+            OverallStatus = ResolveOverallStatus(databaseStatus, redisStatus, storageStatus, ffmpegStatus, ffprobeStatus),
             ApiStatus = FileCenterSystemHealthStatus.Healthy,
+            DatabaseStatus = databaseStatus,
+            RedisStatus = redisStatus,
             StorageStatus = storageStatus,
             FfmpegStatus = ffmpegStatus,
             FfprobeStatus = ffprobeStatus,
@@ -136,6 +146,36 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         return FileCenterSystemHealthStatus.Healthy;
     }
 
+    private async Task<FileCenterSystemHealthStatus> ResolveRedisStatusAsync(ICollection<string> diagnostics)
+    {
+        var cacheKey = $"system-health:{Guid.NewGuid():N}";
+        var item = new FileCenterSystemHealthCacheItem
+        {
+            ProbeId = cacheKey,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _cache.SetAsync(
+            cacheKey,
+            item,
+            new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
+            });
+
+        var restored = await _cache.GetAsync(cacheKey);
+        await _cache.RemoveAsync(cacheKey);
+
+        if (restored?.ProbeId != cacheKey)
+        {
+            diagnostics.Add("Redis/分布式缓存探针读写不一致");
+            return FileCenterSystemHealthStatus.Degraded;
+        }
+
+        diagnostics.Add("Redis/分布式缓存可访问");
+        return FileCenterSystemHealthStatus.Healthy;
+    }
+
     private async Task<long> GetUsedStorageSizeAsync(Guid ownerId)
     {
         var queryable = await _blobObjectRepository.GetQueryableAsync();
@@ -165,4 +205,14 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
 
         return CurrentUser.Id.Value;
     }
+}
+
+/// <summary>
+/// 文件中心系统健康缓存探针，仅用于验证分布式缓存读写链路。
+/// </summary>
+public class FileCenterSystemHealthCacheItem
+{
+    public string ProbeId { get; set; } = string.Empty;
+
+    public DateTime CreatedAt { get; set; }
 }

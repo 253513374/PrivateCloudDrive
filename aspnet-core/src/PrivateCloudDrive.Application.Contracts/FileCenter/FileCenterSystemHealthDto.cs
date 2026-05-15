@@ -40,6 +40,16 @@ public class FileCenterSystemHealthDto
     public FileCenterSystemHealthStatus ApiStatus { get; set; }
 
     /// <summary>
+    /// 数据库健康状态。
+    /// </summary>
+    public FileCenterSystemHealthStatus DatabaseStatus { get; set; }
+
+    /// <summary>
+    /// Redis/分布式缓存健康状态。
+    /// </summary>
+    public FileCenterSystemHealthStatus RedisStatus { get; set; }
+
+    /// <summary>
     /// 存储后端健康状态。
     /// </summary>
     public FileCenterSystemHealthStatus StorageStatus { get; set; }

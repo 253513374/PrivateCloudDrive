@@ -593,6 +593,8 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         return new SystemHealthSummary(
             health.OverallStatus,
             health.ApiStatus,
+            health.DatabaseStatus,
+            health.RedisStatus,
             health.StorageStatus,
             health.FfmpegStatus,
             health.FfprobeStatus,
@@ -1978,6 +1980,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public SystemHealthStatus OverallStatus { get; init; }
 
         public SystemHealthStatus ApiStatus { get; init; }
+
+        public SystemHealthStatus DatabaseStatus { get; init; }
+
+        public SystemHealthStatus RedisStatus { get; init; }
 
         public SystemHealthStatus StorageStatus { get; init; }
 

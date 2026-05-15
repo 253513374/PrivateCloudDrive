@@ -209,11 +209,12 @@ public partial class SettingsPage : ContentPage
                 _ => AppText.Unknown
             };
             SystemHealthDetailLabel.Text =
-                $"API {FormatHealthStatus(health.ApiStatus)} · 存储 {health.StorageProvider} {FormatHealthStatus(health.StorageStatus)} · " +
+                $"API {FormatHealthStatus(health.ApiStatus)} · DB {FormatHealthStatus(health.DatabaseStatus)} · Redis {FormatHealthStatus(health.RedisStatus)} · " +
+                $"存储 {health.StorageProvider} {FormatHealthStatus(health.StorageStatus)} · " +
                 $"FFmpeg {FormatHealthStatus(health.FfmpegStatus)} · FFprobe {FormatHealthStatus(health.FfprobeStatus)}";
             SystemHealthDiagnosticsLabel.Text = health.Diagnostics.Count == 0
                 ? $"更新时间 {health.GeneratedAt:yyyy-MM-dd HH:mm}"
-                : string.Join("；", health.Diagnostics.Take(4));
+                : string.Join("；", health.Diagnostics.Take(6));
         }
         catch (AuthSessionExpiredException)
         {

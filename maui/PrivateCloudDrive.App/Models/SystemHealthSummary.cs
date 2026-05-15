@@ -16,6 +16,8 @@ public enum SystemHealthStatus
 public sealed record SystemHealthSummary(
     SystemHealthStatus OverallStatus,
     SystemHealthStatus ApiStatus,
+    SystemHealthStatus DatabaseStatus,
+    SystemHealthStatus RedisStatus,
     SystemHealthStatus StorageStatus,
     SystemHealthStatus FfmpegStatus,
     SystemHealthStatus FfprobeStatus,
