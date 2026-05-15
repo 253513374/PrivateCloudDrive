@@ -7,17 +7,23 @@ public static class AppSettings
 {
     private const string AndroidEmulatorApiBaseUrl = "http://10.0.2.2:8080";
     private const string AndroidDeviceApiBaseUrl = "http://192.168.1.94:8080";
+    private const string DevelopmentWindowsApiBaseUrl = "http://localhost:8080";
+    private const string ProductionApiBaseUrl = "https://privateclouddrive.example.com";
 
     public static string ApiBaseUrl
     {
         get
         {
+#if DEBUG
 #if ANDROID
             return Microsoft.Maui.Devices.DeviceInfo.Current.DeviceType == Microsoft.Maui.Devices.DeviceType.Virtual
                 ? AndroidEmulatorApiBaseUrl
                 : AndroidDeviceApiBaseUrl;
 #else
-            return "http://localhost:8080";
+            return DevelopmentWindowsApiBaseUrl;
+#endif
+#else
+            return ProductionApiBaseUrl;
 #endif
         }
     }

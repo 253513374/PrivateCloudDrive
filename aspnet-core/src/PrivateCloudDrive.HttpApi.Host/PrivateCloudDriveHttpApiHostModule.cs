@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -118,15 +121,20 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
 
         ConfigureAuthentication(context);
         ConfigureApiAuthenticationResponses(context);
+        ValidateProductionSecuritySettings(configuration, hostingEnvironment);
         ConfigureBundles();
         ConfigureUrls(configuration);
         ConfigureNavigation();
         ConfigureConventionalControllers();
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
+        ConfigurePublicShareRateLimiting(context, configuration);
         ConfigureBackgroundJobs(configuration);
         ConfigureTokenExtensionGrants();
-        ConfigureSwaggerServices(context, configuration);
+        if (IsSwaggerEnabled(configuration, hostingEnvironment))
+        {
+            ConfigureSwaggerServices(context, configuration);
+        }
     }
 
     private void ConfigureTokenExtensionGrants()
@@ -264,6 +272,90 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         });
     }
 
+    private static void ConfigurePublicShareRateLimiting(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        var permitLimit = configuration.GetValue("Security:PublicSharePasswordRateLimit:PermitLimit", 10);
+        var windowMinutes = configuration.GetValue("Security:PublicSharePasswordRateLimit:WindowMinutes", 10);
+        var queueLimit = configuration.GetValue("Security:PublicSharePasswordRateLimit:QueueLimit", 0);
+
+        context.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddPolicy("PublicSharePassword", httpContext =>
+            {
+                var token = httpContext.Request.RouteValues.TryGetValue("token", out var routeToken)
+                    ? Convert.ToString(routeToken, CultureInfo.InvariantCulture)
+                    : "unknown-token";
+                var remoteAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
+                var partitionKey = $"{remoteAddress}:{token}";
+
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey,
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = permitLimit,
+                        Window = TimeSpan.FromMinutes(windowMinutes),
+                        QueueLimit = queueLimit,
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+                    });
+            });
+        });
+    }
+
+    private static bool IsSwaggerEnabled(IConfiguration configuration, IHostEnvironment hostingEnvironment)
+    {
+        return configuration.GetValue<bool?>("Swagger:Enabled") ?? hostingEnvironment.IsDevelopment();
+    }
+
+    private static bool AllowsInsecureLocalValidation(IConfiguration configuration)
+    {
+        return configuration.GetValue("Security:AllowInsecureTransportForLocalValidation", false);
+    }
+
+    private static void ValidateProductionSecuritySettings(IConfiguration configuration, IHostEnvironment hostingEnvironment)
+    {
+        if (!hostingEnvironment.IsProduction() || AllowsInsecureLocalValidation(configuration))
+        {
+            return;
+        }
+
+        var failures = new List<string>();
+        if (!configuration.GetValue("AuthServer:RequireHttpsMetadata", true))
+        {
+            failures.Add("AuthServer:RequireHttpsMetadata=false is forbidden in Production.");
+        }
+
+        foreach (var urlKey in new[] { "App:SelfUrl", "AuthServer:Authority" })
+        {
+            var configuredUrl = configuration[urlKey];
+            if (!string.IsNullOrWhiteSpace(configuredUrl) && configuredUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            {
+                failures.Add($"{urlKey} must use https:// in Production.");
+            }
+        }
+
+        var connectionString = configuration.GetConnectionString("Default") ?? string.Empty;
+        if (connectionString.Contains("Password=myPassword", StringComparison.OrdinalIgnoreCase) ||
+            connectionString.Contains("Password=privateclouddrive", StringComparison.OrdinalIgnoreCase))
+        {
+            failures.Add("ConnectionStrings:Default uses a template/default database password.");
+        }
+
+        var passPhrase = configuration["StringEncryption:DefaultPassPhrase"];
+        if (string.IsNullOrWhiteSpace(passPhrase) ||
+            string.Equals(passPhrase, "NWdpATI5trUHk4X2", StringComparison.Ordinal) ||
+            string.Equals(passPhrase, "change-this-32-character-secret", StringComparison.OrdinalIgnoreCase))
+        {
+            failures.Add("StringEncryption:DefaultPassPhrase must be replaced with a deployment secret.");
+        }
+
+        if (failures.Count > 0)
+        {
+            throw new InvalidOperationException(
+                "PrivateCloudDrive refused to start with insecure Production settings: " + string.Join(" ", failures));
+        }
+    }
+
     private static void ConfigureSwaggerServices(ServiceConfigurationContext context, IConfiguration configuration)
     {
         context.Services.AddAbpSwaggerGenWithOAuth(
@@ -337,6 +429,7 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         app.MapAbpStaticAssets();
         app.UseRouting();
         app.UseCors();
+        app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAbpOpenIddictValidation();
 
@@ -348,15 +441,18 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
         app.UseDynamicClaims();
         app.UseAuthorization();
 
-        app.UseSwagger();
-        app.UseAbpSwaggerUI(c =>
+        if (IsSwaggerEnabled(context.ServiceProvider.GetRequiredService<IConfiguration>(), env))
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "PrivateCloudDrive API");
+            app.UseSwagger();
+            app.UseAbpSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "PrivateCloudDrive API");
 
-            var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
-            c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
-            c.OAuthScopes("PrivateCloudDrive");
-        });
+                var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
+                c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
+                c.OAuthScopes("PrivateCloudDrive");
+            });
+        }
 
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();

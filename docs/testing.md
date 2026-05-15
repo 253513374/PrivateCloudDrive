@@ -19,7 +19,7 @@
 | 标签和收藏 | 创建标签、重复标签校验、绑定/解绑标签、收藏状态、按标签和收藏筛选 |
 | 媒体库入口 | 图片/视频媒体库分离查询、收藏媒体筛选、媒体库 HTTP 入口 |
 | V1.2 媒体库体验 | 混合媒体时间线、TakenAt 优先排序、类型筛选、用户隔离、媒体详情与处理状态、错误摘要脱敏、相册创建/去重/成员添加/成员移除/删除不删文件/封面设置 |
-| HTTP 控制器 | 文件下载和缩略图 Range 响应头、上传表单参数传递 |
+| HTTP 控制器 | 文件下载和缩略图 Range 响应头、上传表单参数传递、公开分享密码请求头与限速策略 |
 | 移动认证审计 | 匿名记录登录审计、管理员分页查询审计日志、确认审计输入和 DTO 不包含密码或令牌字段 |
 | 微信登录可选接入 | 未绑定登录返回绑定票据、绑定已有账号、错误密码接入 Identity access-failed/lockout 且不消费绑定票据、已锁定用户不能通过已绑定微信登录、禁止迁移已绑定微信、解绑后保留密码登录能力、无绑定解绑也记录审计、登录/绑定/解绑基于分布式缓存限流、WeChat 交换失败审计脱敏、输出 DTO 不包含 AppSecret/OpenId/UnionId/access token、PostgreSQL Host/Tenant 部分唯一索引避免空 TenantId 绕过绑定唯一性 |
 | 操作日志查询 | 聚合移动认证审计、ABP 审计动作和安全日志；支持来源、操作类型、用户和时间范围筛选；确认查询契约不包含密码、令牌、AppSecret、请求参数或异常详情 |
@@ -89,6 +89,8 @@ dotnet publish .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -f net1
 ```
 
 2026-05-14 执行结果：后端 solution build 成功，0 警告 0 错误；`dotnet test` 通过，`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 101 个测试，其它测试项目当前没有可发现测试；`.\scripts\verify-maui-build.ps1 -Configuration Debug` 顺序验证 Windows 与 Android 构建均通过，PASS 4 / WARN 0 / FAIL 0；Android Debug Signed APK 已生成并复制到 `artifacts/verify-v12-rc-maui-apk/com.companyname.privateclouddrive.app-Signed.apk`。当前 `adb devices` 未检测到已连接设备或模拟器，因此 APK 安装、启动截图和触控验收未执行，需在可用 Android 设备上按下方手动清单回填。
+
+2026-05-15 安全加固复验：`dotnet build /d/Devs/Projects/Personal/PrivateCloudDrive/aspnet-core/PrivateCloudDrive.slnx --no-restore -p:OutDir=D:/Devs/Projects/Personal/PrivateCloudDrive/artifacts/verify-security-hardening-build/` 通过，0 警告 0 错误；`dotnet test ... --filter PublicFileSharesControllerSecurityTests` 通过 3/3；`docker compose config` 通过；`git diff --check` 无空白错误。该轮验证覆盖公开分享密码不再使用 URL Query、`X-Share-Password` 请求头绑定、密码校验/下载入口 `PublicSharePassword` 限速策略、生产 HTTPS/default secret fail-fast 和生产 Swagger 默认关闭。
 
 ## V1.2 手动验收清单
 

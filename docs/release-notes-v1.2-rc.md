@@ -68,12 +68,15 @@ V1.2 RC 将 PrivateCloudDrive 从“文件型私有云盘”推进到“移动�
 | Android 登录页视觉闸门 | 截图 `artifacts/runtime/v12-rc-android/13-am-start-themed.png` | 通过；最新卡片式登录 UI 可见，Android 原生 Entry 下划线/双边框已消除，未发现裁切或溢出 |
 | Android 键盘边界 | 截图 `artifacts/runtime/v12-rc-android/16-keyboard-hardkeyboard-enabled.png` 与 `adb shell dumpsys input_method` | 未完成；模拟器当前 `mInputShown=false`，软键盘未弹出，因此键盘遮挡仍需真机或可弹出软键盘的模拟器继续回填 |
 | 本轮 RC 复验 | `git diff --check`；PowerShell 脚本 Parser；`docker compose config`；`verify-local-stack.ps1 -PreflightOnly`；`verify-local-stack.ps1 -SkipStart -TimeoutSeconds 120`；后端 build/test；`verify-maui-build.ps1 -Configuration Debug`；Android APK publish | 通过；diff 无空白错误，脚本语法通过，Compose 配置通过，后端 0 警告/0 错误且 101 个 EF 测试通过，MAUI Windows/Android 顺序构建 PASS 4 / WARN 0 / FAIL 0；本地栈预检 PASS 10 / WARN 3 / FAIL 0，SkipStart 全栈健康检查 PASS 19 / WARN 4 / FAIL 0；WARN 仅为本机 `.env` 模板/localhost 与跳过启动的发布前确认项 |
+| 安全加固复验 | `dotnet build ... -p:OutDir=artifacts/verify-security-hardening-build/`；`dotnet test ... --filter PublicFileSharesControllerSecurityTests`；`docker compose config`；`git diff --check` | 通过；后端 0 警告/0 错误，公开分享密码入口新增 3 个安全回归测试并全部通过；Docker Compose 配置有效；公开分享密码改为 `X-Share-Password` 请求头，密码校验/下载入口启用 `PublicSharePassword` 限速；生产启动新增 HTTPS、默认口令、默认加密口令 fail-fast 门禁；生产 Swagger 默认关闭，Docker 本地验证显式开启 |
 
 ## 已知边界与发布风险
 
 - Android 模拟器已完成 clean install、启动和登录页视觉闸门；真实 Android 设备、iOS 与媒体库全流程触控回归仍需在对应设备上执行。
 - 模拟器键盘验证未完成：当前 Pixel 9 Pro API 36 环境点击输入框后 `mInputShown=false`，软键盘未弹出；需在真机或调整输入法/硬件键盘设置后的模拟器上继续验证键盘遮挡。
-- 本机 Docker 栈可用；生产化部署前仍必须把 `.env` 中模板口令、默认数据库口令和 localhost 公网地址替换为部署环境值。
+- 本机 Docker 栈可用；生产化部署前仍必须把 `.env` 中模板口令、默认数据库口令和 localhost 公网地址替换为部署环境值；后端已加入生产启动 fail-fast 门禁，未显式标记本地验证时会拒绝 `RequireHttpsMetadata=false`、HTTP Authority/SelfUrl、默认数据库口令和默认加密口令。
+- 生产 Swagger 默认关闭；本地 Docker Compose 为健康检查显式设置 `Swagger__Enabled=true`，真实生产环境应保持关闭或仅在内网/VPN/管理员通道开放。
+- 公开分享密码不再通过 URL Query 传递；受密码保护的公开下载必须使用 `X-Share-Password` 请求头，且密码校验/下载入口受 `PublicSharePassword` 限速策略保护。
 - 本轮后端测试统计为 101 个 EF 集成测试通过；部分测试程序集没有可发现测试，属于当前测试项目结构现状，不视为失败。
 - MAUI `-NoRestore` 在 assets 未包含目标框架时会失败；RC 构建应允许脚本自行 restore，或先显式 restore 对应目标框架。
 - Android/iOS 微信登录仍依赖真实开放平台配置、包名签名、设备安装微信和可访问后端地址。

@@ -15,9 +15,9 @@ Copy-Item .env.example .env
 docker compose up -d --build
 ```
 
-4. Open Swagger at `http://localhost:8080/swagger`.
+4. For local validation, open Swagger at `http://localhost:8080/swagger`. For production, set `SWAGGER_ENABLED=false` unless Swagger is protected by an internal network, VPN, or administrator-only gateway.
 
-The Compose stack contains PostgreSQL, Redis, an API host, a database migrator, a media-worker process for ABP background jobs, and an optional MinIO service behind the `minio` profile.
+The Compose stack contains PostgreSQL, Redis, an API host, a database migrator, a media-worker process for ABP background jobs, and an optional MinIO service behind the `minio` profile. The checked-in Compose defaults are production-safe for Swagger and insecure-local-validation switches; `.env.example` explicitly enables the local HTTP/Swagger settings needed by the bundled health checks.
 
 The `db-migrator` service runs before the API and applies database migrations plus ABP data seed. The seed creates the OpenIddict Swagger client and the MAUI client `PrivateCloudDrive_App`.
 
@@ -83,7 +83,12 @@ The MVP app enters Trash from Settings. WeChat, Google, and GitHub login are opt
 | `POSTGRES_USER` | PostgreSQL user |
 | `POSTGRES_PASSWORD` | PostgreSQL password |
 | `STRING_ENCRYPTION_PASSPHRASE` | ABP string encryption passphrase; replace the template value before production use |
-| `PUBLIC_URL` | Public API/AuthServer URL used by Swagger and OpenIddict |
+| `PUBLIC_URL` | Public API/AuthServer URL used by Swagger and OpenIddict; production/RC network deployments must use `https://` |
+| `AUTH_SERVER_REQUIRE_HTTPS_METADATA` | Whether OpenIddict metadata must be fetched over HTTPS. Local `.env.example` sets `false`; production should set or inherit `true` |
+| `SWAGGER_ENABLED` | Enables Swagger UI/API docs. Local `.env.example` sets `true` for validation; production should set or inherit `false` unless access is otherwise protected |
+| `ALLOW_INSECURE_LOCAL_VALIDATION` | Explicitly allows local HTTP/default-secret validation. Local `.env.example` sets `true`; production must set or inherit `false` so the API fail-fast security gate is active |
+| `PUBLIC_SHARE_PASSWORD_RATE_LIMIT_PERMIT_LIMIT` | Max attempts per IP+share-token window for public share password verification/download |
+| `PUBLIC_SHARE_PASSWORD_RATE_LIMIT_WINDOW_MINUTES` | Rate-limit window for password-protected public share endpoints |
 | `FILECENTER_STORAGE_PROVIDER` | `FileSystem` by default; set `AliyunOss` to store new FileCenter blobs in Aliyun OSS |
 | `FILECENTER_STORAGE_PATH` | Container path for FileCenter blob, thumbnail, cover, and temp upload storage |
 | `ALIYUN_OSS_ACCESS_KEY_ID` | Aliyun RAM AccessKey ID, backend only |

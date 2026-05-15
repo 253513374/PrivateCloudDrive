@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PrivateCloudDrive.FileCenter;
 
 namespace PrivateCloudDrive.Controllers.FileCenter;
@@ -33,9 +34,10 @@ public class PublicFileSharesController : PrivateCloudDriveController
     }
 
     /// <summary>
-    /// 校验公开分享密码。明文密码仅通过请求体传入并交由应用服务即时比对。
+    /// 校验公开分享密码。明文密码仅通过请求体传入并交由应用服务即时比对；失败尝试受限速策略保护。
     /// </summary>
     [HttpPost("{token}/verify-password")]
+    [EnableRateLimiting("PublicSharePassword")]
     public virtual Task<PublicFileShareDto> VerifyPasswordAsync(
         string token,
         VerifySharePasswordInput input)
@@ -45,11 +47,13 @@ public class PublicFileSharesController : PrivateCloudDriveController
 
     /// <summary>
     /// 下载公开分享文件。应用服务会校验 token、密码需求、过期时间和 AllowDownload。
+    /// 受密码保护的分享必须通过 X-Share-Password 请求头传入密码，避免密码进入 URL、代理日志或浏览器历史。
     /// </summary>
     [HttpGet("{token}/download")]
+    [EnableRateLimiting("PublicSharePassword")]
     public virtual async Task<IActionResult> DownloadAsync(
         string token,
-        [FromQuery] string? password = null)
+        [FromHeader(Name = "X-Share-Password")] string? password = null)
     {
         if (!FileCenterFileResultHelper.TryCreateRangeRequest(
                 Request,
