@@ -277,20 +277,39 @@
             <Border x:Name="UploadStatusPanel"
                     Padding="10"
                     IsVisible="False"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
                     Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
                     StrokeThickness="1">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12" />
                 </Border.StrokeShape>
-                <VerticalStackLayout Spacing="8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnOpenUploadsTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="*,Auto"
+                      RowDefinitions="Auto,Auto"
+                      ColumnSpacing="10"
+                      RowSpacing="8">
                     <Label x:Name="UploadStatusLabel"
-                           Style="{StaticResource MetaLabel}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           VerticalOptions="Center"
                            LineBreakMode="TailTruncation" />
+                    <Button Grid.Column="1"
+                            Text="查看任务"
+                            Style="{StaticResource SecondaryButton}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="12"
+                            Padding="10,5"
+                            MinimumHeightRequest="34"
+                            Clicked="OnOpenUploadsClicked" />
                     <ProgressBar x:Name="UploadProgressBar"
+                                 Grid.Row="1"
+                                 Grid.ColumnSpan="2"
                                  Progress="0"
                                  HeightRequest="6" />
-                </VerticalStackLayout>
+                </Grid>
             </Border>
 
             <Border x:Name="FilesStatePanel"

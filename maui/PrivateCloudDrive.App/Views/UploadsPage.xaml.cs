@@ -85,8 +85,11 @@ public partial class UploadsPage : ContentPage
         var failed = UploadItems.Count(item => item.Status == UploadQueueStatus.Failed);
         var completed = UploadItems.Count(item => item.Status == UploadQueueStatus.Completed);
 
+        QueueStatePanel.IsVisible = UploadItems.Count > 0;
+        ClearCompletedButton.IsVisible = completed > 0;
+
         QueueStateLabel.Text = UploadItems.Count == 0
-            ? AppText.UploadQueueEmpty
+            ? string.Empty
             : AppText.Format(nameof(AppText.UploadQueueSummary), uploading, waiting, failed, completed);
     }
 }

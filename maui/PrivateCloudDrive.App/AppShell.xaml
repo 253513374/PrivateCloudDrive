@@ -38,12 +38,6 @@
             Route="albums" />
 
         <ShellContent
-            Title="{x:Static loc:AppText.Uploads}"
-            Icon="tab_uploads.png"
-            ContentTemplate="{DataTemplate views:UploadsPage}"
-            Route="uploads" />
-
-        <ShellContent
             Title="{x:Static loc:AppText.Settings}"
             Icon="tab_settings.png"
             ContentTemplate="{DataTemplate views:SettingsPage}"

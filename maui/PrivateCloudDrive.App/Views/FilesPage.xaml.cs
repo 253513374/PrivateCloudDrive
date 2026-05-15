@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Models;
 using PrivateCloudDrive.App.Services;
@@ -43,11 +45,14 @@ public partial class FilesPage : ContentPage
         InitializeComponent();
         BindingContext = this;
         InitializeFilterPickers();
+        UploadItemsSubscribe();
+        UpdateUploadTaskPanel();
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        UpdateUploadTaskPanel();
         await LoadItemsAsync();
     }
 
@@ -109,6 +114,7 @@ public partial class FilesPage : ContentPage
             }
 
             UploadStatusPanel.IsVisible = true;
+            UpdateUploadTaskPanel();
 
             var failedUploads = new List<string>();
 
@@ -118,6 +124,7 @@ public partial class FilesPage : ContentPage
                 UploadProgressBar.Progress = 0;
                 var queueItem = _uploadQueueService.Enqueue(file, CurrentPath);
                 queueItem.MarkUploading();
+                UpdateUploadTaskPanel();
 
                 var progress = new Progress<double>(value =>
                 {
@@ -158,9 +165,109 @@ public partial class FilesPage : ContentPage
         }
         finally
         {
-            UploadStatusPanel.IsVisible = false;
-            UploadProgressBar.Progress = 0;
+            UpdateUploadTaskPanel();
         }
+    }
+
+    private async void OnOpenUploadsClicked(object? sender, EventArgs e)
+    {
+        await OpenUploadsAsync();
+    }
+
+    private async void OnOpenUploadsTapped(object? sender, TappedEventArgs e)
+    {
+        await OpenUploadsAsync();
+    }
+
+    private static Task OpenUploadsAsync()
+    {
+        return Shell.Current.GoToAsync("uploads", true);
+    }
+
+    private void UploadItemsSubscribe()
+    {
+        _uploadQueueService.Items.CollectionChanged += OnUploadItemsChanged;
+
+        foreach (var item in _uploadQueueService.Items)
+        {
+            item.PropertyChanged += OnUploadItemPropertyChanged;
+        }
+    }
+
+    private void OnUploadItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.OldItems != null)
+        {
+            foreach (UploadQueueItem item in e.OldItems)
+            {
+                item.PropertyChanged -= OnUploadItemPropertyChanged;
+            }
+        }
+
+        if (e.NewItems != null)
+        {
+            foreach (UploadQueueItem item in e.NewItems)
+            {
+                item.PropertyChanged += OnUploadItemPropertyChanged;
+            }
+        }
+
+        UpdateUploadTaskPanel();
+    }
+
+    private void OnUploadItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(UploadQueueItem.Status) or nameof(UploadQueueItem.Progress) or nameof(UploadQueueItem.ErrorMessage))
+        {
+            UpdateUploadTaskPanel();
+        }
+    }
+
+    private void UpdateUploadTaskPanel()
+    {
+        var items = _uploadQueueService.Items;
+        if (items.Count == 0)
+        {
+            UploadStatusPanel.IsVisible = false;
+            UploadStatusLabel.Text = string.Empty;
+            UploadProgressBar.Progress = 0;
+            return;
+        }
+
+        var waiting = items.Count(item => item.Status == UploadQueueStatus.Waiting);
+        var uploading = items.Count(item => item.Status == UploadQueueStatus.Uploading);
+        var failed = items.Count(item => item.Status == UploadQueueStatus.Failed);
+        var completed = items.Count(item => item.Status == UploadQueueStatus.Completed);
+        var active = waiting + uploading;
+
+        UploadStatusPanel.IsVisible = true;
+
+        if (failed > 0)
+        {
+            UploadStatusLabel.Text = failed == 1
+                ? "1 个文件上传失败，点击查看并重试"
+                : $"{failed} 个文件上传失败，点击查看并重试";
+            UploadProgressBar.Progress = 0;
+            return;
+        }
+
+        if (active > 0)
+        {
+            var activeItems = items.Where(item => item.Status is UploadQueueStatus.Waiting or UploadQueueStatus.Uploading).ToList();
+            var current = activeItems.FirstOrDefault(item => item.Status == UploadQueueStatus.Uploading) ?? activeItems[0];
+            var averageProgress = activeItems.Count == 0 ? 0 : activeItems.Average(item => item.Progress);
+
+            UploadStatusLabel.Text = active == 1
+                ? $"正在上传 {current.FileName} · {current.Progress:P0}"
+                : $"正在上传 {uploading} 个 · 等待 {waiting} 个 · {averageProgress:P0}";
+            UploadProgressBar.Progress = averageProgress;
+            return;
+        }
+
+        UploadStatusLabel.Text = completed == 1
+            ? "已完成 1 个上传，点击查看记录"
+            : $"已完成 {completed} 个上传，点击查看记录";
+        UploadProgressBar.Progress = 1;
     }
 
     private async void OnRetryLoadClicked(object? sender, EventArgs e)
