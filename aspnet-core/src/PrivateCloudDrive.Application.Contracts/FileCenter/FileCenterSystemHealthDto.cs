@@ -80,6 +80,16 @@ public class FileCenterSystemHealthDto
     public long StorageQuotaBytes { get; set; }
 
     /// <summary>
+    /// 存储所在磁盘可用空间。对象存储或不可读取时为 0。
+    /// </summary>
+    public long StorageDiskAvailableBytes { get; set; }
+
+    /// <summary>
+    /// 存储所在磁盘总空间。对象存储或不可读取时为 0。
+    /// </summary>
+    public long StorageDiskTotalBytes { get; set; }
+
+    /// <summary>
     /// 是否配置了有效容量配额。
     /// </summary>
     public bool IsQuotaConfigured { get; set; }

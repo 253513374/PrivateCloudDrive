@@ -52,11 +52,14 @@ public class EfCoreFileCenterSystemHealthAppServiceTests : PrivateCloudDriveEnti
             result.StorageProvider.ShouldBe(FileCenterStorageProviderNames.FileSystem);
             result.StorageUsedBytes.ShouldBe(0);
             result.StorageQuotaBytes.ShouldBeGreaterThan(0);
+            result.StorageDiskAvailableBytes.ShouldBeGreaterThan(0);
+            result.StorageDiskTotalBytes.ShouldBeGreaterThan(0);
             result.GeneratedAt.ShouldBeGreaterThan(DateTime.MinValue);
             result.Diagnostics.ShouldContain("API 可访问");
             result.Diagnostics.ShouldContain("数据库可访问");
             result.Diagnostics.ShouldContain("Redis/分布式缓存可访问");
             result.Diagnostics.ShouldContain("存储后端 FileSystem 已配置");
+            result.Diagnostics.ShouldContain("存储磁盘空间可读取");
             result.Diagnostics.ShouldContain("FFmpeg 已配置");
             result.Diagnostics.ShouldContain("FFprobe 已配置");
         });

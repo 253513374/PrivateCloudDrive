@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -63,6 +64,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         var diagnostics = new List<string> { "API 可访问" };
         var storageProvider = FileCenterStorageProviderNames.Normalize(_configuration["FileCenter:StorageProvider"]);
         var storageStatus = ResolveStorageStatus(storageProvider, diagnostics);
+        var (storageDiskAvailableBytes, storageDiskTotalBytes) = ResolveStorageDiskSpace(storageProvider, diagnostics);
         var ffmpegStatus = ResolveToolStatus(_mediaProcessingOptions.FfmpegPath, "FFmpeg", diagnostics);
         var ffprobeStatus = ResolveToolStatus(_mediaProcessingOptions.FfprobePath, "FFprobe", diagnostics);
         var usedBytes = await GetUsedStorageSizeAsync(ownerId);
@@ -91,6 +93,8 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
             StorageProvider = storageProvider,
             StorageUsedBytes = usedBytes,
             StorageQuotaBytes = quotaBytes,
+            StorageDiskAvailableBytes = storageDiskAvailableBytes,
+            StorageDiskTotalBytes = storageDiskTotalBytes,
             IsQuotaConfigured = isQuotaConfigured,
             GeneratedAt = _clock.Now,
             Diagnostics = diagnostics
@@ -116,6 +120,37 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
 
         diagnostics.Add($"存储后端 {FileCenterStorageProviderNames.FileSystem} 已配置");
         return FileCenterSystemHealthStatus.Healthy;
+    }
+
+    private (long AvailableBytes, long TotalBytes) ResolveStorageDiskSpace(
+        string storageProvider,
+        ICollection<string> diagnostics)
+    {
+        if (storageProvider == FileCenterStorageProviderNames.AliyunOss)
+        {
+            diagnostics.Add("对象存储不适用本地磁盘空间");
+            return (0, 0);
+        }
+
+        var storageRootPath = FileCenterBlobStoragePath.GetFullPath(_configuration);
+        if (string.IsNullOrWhiteSpace(storageRootPath))
+        {
+            return (0, 0);
+        }
+
+        var probePath = Directory.Exists(storageRootPath)
+            ? storageRootPath
+            : Path.GetPathRoot(Path.GetFullPath(storageRootPath));
+
+        if (string.IsNullOrWhiteSpace(probePath))
+        {
+            diagnostics.Add("存储磁盘空间不可读取");
+            return (0, 0);
+        }
+
+        var drive = new DriveInfo(probePath);
+        diagnostics.Add("存储磁盘空间可读取");
+        return (drive.AvailableFreeSpace, drive.TotalSize);
     }
 
     private static FileCenterSystemHealthStatus ResolveOverallStatus(

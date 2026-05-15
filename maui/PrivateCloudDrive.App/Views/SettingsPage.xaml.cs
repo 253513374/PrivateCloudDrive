@@ -214,7 +214,7 @@ public partial class SettingsPage : ContentPage
                 $"FFmpeg {FormatHealthStatus(health.FfmpegStatus)} · FFprobe {FormatHealthStatus(health.FfprobeStatus)}";
             SystemHealthDiagnosticsLabel.Text = health.Diagnostics.Count == 0
                 ? $"更新时间 {health.GeneratedAt:yyyy-MM-dd HH:mm}"
-                : string.Join("；", health.Diagnostics.Take(6));
+                : $"{FormatStorageDiskSpace(health)}；{string.Join("；", health.Diagnostics.Take(6))}";
         }
         catch (AuthSessionExpiredException)
         {
@@ -555,6 +555,16 @@ public partial class SettingsPage : ContentPage
         return string.Equals(provider, GitHubProvider, StringComparison.OrdinalIgnoreCase)
             ? AppText.UnbindGitHubQuestion
             : AppText.UnbindGoogleQuestion;
+    }
+
+    private static string FormatStorageDiskSpace(SystemHealthSummary health)
+    {
+        if (health.StorageDiskTotalBytes <= 0)
+        {
+            return "存储磁盘空间不适用";
+        }
+
+        return $"存储磁盘剩余 {FormatBytes(health.StorageDiskAvailableBytes)} / {FormatBytes(health.StorageDiskTotalBytes)}";
     }
 
     private static string FormatBytes(long bytes)

@@ -24,6 +24,8 @@ public sealed record SystemHealthSummary(
     string StorageProvider,
     long StorageUsedBytes,
     long StorageQuotaBytes,
+    long StorageDiskAvailableBytes,
+    long StorageDiskTotalBytes,
     bool IsQuotaConfigured,
     DateTime GeneratedAt,
     IReadOnlyList<string> Diagnostics);

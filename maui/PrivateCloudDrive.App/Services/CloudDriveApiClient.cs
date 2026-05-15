@@ -601,6 +601,8 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             health.StorageProvider,
             health.StorageUsedBytes,
             health.StorageQuotaBytes,
+            health.StorageDiskAvailableBytes,
+            health.StorageDiskTotalBytes,
             health.IsQuotaConfigured,
             health.GeneratedAt,
             health.Diagnostics);
@@ -1996,6 +1998,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public long StorageUsedBytes { get; init; }
 
         public long StorageQuotaBytes { get; init; }
+
+        public long StorageDiskAvailableBytes { get; init; }
+
+        public long StorageDiskTotalBytes { get; init; }
 
         public bool IsQuotaConfigured { get; init; }
 
