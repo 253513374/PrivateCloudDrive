@@ -61,15 +61,27 @@ PrivateCloudDrive 的最小可恢复备份由三部分组成：
 - `manifest.json`：提交号、备份时间、文件清单和 PASS/WARN/FAIL 汇总，不包含明文 secret。
 - `ENVIRONMENT-REQUIRED.md` 或 `.env.secret`：恢复时的环境变量说明或敏感环境文件副本。
 
-恢复演练建议在全新的测试机器或测试 Compose project 中执行，不要直接覆盖生产实例。高层步骤：
+恢复演练先执行 dry-run，确认备份文件、Compose 配置和破坏性操作范围：
 
-1. 停止目标栈：`docker compose down`。
-2. 准备与备份匹配的 `.env`，尤其是 `POSTGRES_DB`、`POSTGRES_USER`、`POSTGRES_PASSWORD`、`STRING_ENCRYPTION_PASSPHRASE`、`PUBLIC_URL` 和存储提供商配置。
-3. 启动 PostgreSQL/Redis：`docker compose up -d postgres redis`，等待 PostgreSQL healthy。
-4. 将 `postgres.dump` 复制进 PostgreSQL 容器，并用 `pg_restore --clean --if-exists --no-owner --no-privileges` 恢复到目标数据库。
-5. 用临时 Alpine 容器把 `storage.tar.gz` 解包回 `privateclouddrive_stack_storage` volume；这是破坏性操作，执行前必须确认目标 volume 可清空。
-6. 启动完整栈：`docker compose up -d --build`。
-7. 运行 `.\scripts\verify-local-stack.ps1 -SkipStart`，再用测试账号验证登录、文件列表、下载/预览、媒体缩略图和分享链接。
+```powershell
+.\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\20260515-141611
+```
+
+确认要覆盖目标测试栈后，再显式加上确认开关：
+
+```powershell
+.\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\20260515-141611 -ConfirmDestructiveRestore
+```
+
+恢复建议在全新的测试机器或测试 Compose project 中执行，不要直接覆盖生产实例。`restore-local-stack.ps1` 的破坏性恢复会：
+
+1. 停止 API、media-worker、db-migrator 和 MinIO，避免恢复时仍有进程读写数据库或 storage volume。
+2. 启动 PostgreSQL/Redis。
+3. 将 `postgres.dump` 复制进 PostgreSQL 容器，并用 `pg_restore --clean --if-exists --no-owner --no-privileges` 恢复到当前 Compose 目标数据库。
+4. 用临时 Alpine 容器清空并解包 `storage.tar.gz` 到 `privateclouddrive_stack_storage` volume。
+5. 可选恢复 `redis-dump.rdb` 和 `minio.tar.gz`；Redis 恢复后会用 `redis-cli ping` 验证。
+6. 默认启动完整栈并运行 `.\scripts\verify-local-stack.ps1 -SkipStart`。
+7. 恢复后仍需用测试账号验证登录、文件列表、下载/预览、媒体缩略图和分享链接。
 
 如果 `FILECENTER_STORAGE_PROVIDER=AliyunOss`，`storage.tar.gz` 只覆盖本地临时区，不包含 OSS bucket 内对象。OSS bucket 需要按云厂商能力单独开启版本控制、跨区域复制或定期对象备份；切换本地/OSS 存储前必须先制定迁移与回滚计划。
 
