@@ -17,7 +17,7 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("media-album-detail", typeof(Views.MediaAlbumDetailPage));
 		Routing.RegisterRoute("media-album-add", typeof(Views.AddMediaToAlbumPage));
 		Routing.RegisterRoute("media-processing", typeof(Views.MediaProcessingStatusPage));
-		Routing.RegisterRoute("uploads", typeof(Views.UploadsPage));
+		Routing.RegisterRoute("shares", typeof(Views.SharesPage));
 		Routing.RegisterRoute("operation-logs", typeof(Views.OperationLogsPage));
 		Routing.RegisterRoute("trash", typeof(Views.TrashPage));
 	}

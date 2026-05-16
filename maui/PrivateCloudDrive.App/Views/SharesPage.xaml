@@ -14,7 +14,7 @@
             <VerticalStackLayout Spacing="4">
                 <Label Text="{x:Static loc:AppText.Shares}"
                        Style="{StaticResource PageTitleLabel}"
-                       FontSize="28" />
+                       FontSize="26" />
                 <Label Text="管理已创建的分享链接、访问状态和失效风险"
                        Style="{StaticResource MetaLabel}"
                        FontSize="14"

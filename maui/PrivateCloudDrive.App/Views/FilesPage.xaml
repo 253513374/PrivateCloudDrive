@@ -11,7 +11,7 @@
         <Style TargetType="Border" x:Key="FilesPanel">
             <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
             <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-            <Setter Property="StrokeThickness" Value="2" />
+            <Setter Property="StrokeThickness" Value="1" />
             <Setter Property="Padding" Value="14" />
         </Style>
 

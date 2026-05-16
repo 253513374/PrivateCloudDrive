@@ -14,8 +14,8 @@
                 <VerticalStackLayout Spacing="4">
                     <Label Text="{x:Static loc:AppText.Settings}"
                            Style="{StaticResource PageTitleLabel}"
-                           FontSize="28" />
-                    <Label Text="账号、空间和私有部署状态"
+                           FontSize="26" />
+                    <Label Text="账号、服务、安全和私有部署状态"
                            Style="{StaticResource MetaLabel}"
                            FontSize="14" />
                 </VerticalStackLayout>
@@ -65,11 +65,11 @@
                         <VerticalStackLayout Grid.Column="1"
                                              Spacing="3"
                                              VerticalOptions="Center">
-                            <Label Text="本机账号"
+                            <Label Text="当前账号"
                                    FontFamily="OpenSansSemibold"
                                    FontSize="20"
                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-                            <Label Text="账号密码登录始终可用"
+                            <Label Text="本地会话已保护，账号密码登录始终可用"
                                    Style="{StaticResource MetaLabel}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
@@ -81,7 +81,7 @@
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="18" />
                             </Border.StrokeShape>
-                            <Label Text="私有云"
+                            <Label Text="在线"
                                    FontFamily="OpenSansSemibold"
                                    FontSize="12"
                                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
@@ -123,17 +123,12 @@
             </Border>
 
             <Border Padding="18"
-                    StrokeThickness="0">
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                    StrokeThickness="1">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="10" />
+                    <RoundRectangle CornerRadius="18" />
                 </Border.StrokeShape>
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0"
-                                         EndPoint="1,1">
-                        <GradientStop Color="{StaticResource PrimarySoftLight}" Offset="0.0" />
-                        <GradientStop Color="{StaticResource Primary}" Offset="1.0" />
-                    </LinearGradientBrush>
-                </Border.Background>
                 <VerticalStackLayout Spacing="12">
                     <Grid ColumnDefinitions="*,Auto"
                           ColumnSpacing="12">
@@ -151,15 +146,12 @@
                             <Label x:Name="StorageQuotaLabel"
                                    Text=""
                                    FontSize="13"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
                         <Button Grid.Column="1"
                                 Text="{x:Static loc:AppText.Trash}"
-                                BackgroundColor="{StaticResource SurfaceLight}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                BorderWidth="1"
-                                BorderColor="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                Style="{StaticResource SecondaryButton}"
                                 Padding="12,8"
                                 MinimumHeightRequest="40"
                                 VerticalOptions="End"
@@ -169,7 +161,7 @@
                                  Progress="0"
                                  HeightRequest="8"
                                  ProgressColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                                 BackgroundColor="#33FFFFFF" />
+                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}" />
                 </VerticalStackLayout>
             </Border>
 
@@ -219,7 +211,7 @@
                             </VerticalStackLayout>
                             <Label Grid.Column="2"
                                    Text="›"
-                                   FontSize="28"
+                                   FontSize="26"
                                    TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
                                    VerticalOptions="Center" />
                         </Grid>
@@ -263,7 +255,7 @@
                             </VerticalStackLayout>
                             <Label Grid.Column="2"
                                    Text="›"
-                                   FontSize="28"
+                                   FontSize="26"
                                    TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
                                    VerticalOptions="Center" />
                         </Grid>
@@ -307,7 +299,7 @@
                             </VerticalStackLayout>
                             <Label Grid.Column="2"
                                    Text="›"
-                                   FontSize="28"
+                                   FontSize="26"
                                    TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
                                    VerticalOptions="Center" />
                         </Grid>
@@ -529,7 +521,7 @@
                             </VerticalStackLayout>
                             <Label Grid.Column="1"
                                    Text="›"
-                                   FontSize="28"
+                                   FontSize="26"
                                    TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
                                    VerticalOptions="Center" />
                         </Grid>

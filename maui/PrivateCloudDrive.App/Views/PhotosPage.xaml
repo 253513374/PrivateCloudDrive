@@ -15,8 +15,8 @@
             <VerticalStackLayout Spacing="4">
                 <Label Text="{x:Static loc:AppText.MediaLibrary}"
                        Style="{StaticResource PageTitleLabel}"
-                       FontSize="28" />
-                <Label Text="自动整理你的照片和视频"
+                       FontSize="26" />
+                <Label Text="按时间线整理你的照片和视频"
                        Style="{StaticResource MetaLabel}"
                        FontSize="14"
                        LineBreakMode="WordWrap" />

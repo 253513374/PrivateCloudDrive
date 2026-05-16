@@ -5,7 +5,7 @@
 
     <!-- Design tokens -->
     <x:Double x:Key="FontSizeDisplay">32</x:Double>
-    <x:Double x:Key="FontSizeTitle1">28</x:Double>
+    <x:Double x:Key="FontSizeTitle1">26</x:Double>
     <x:Double x:Key="FontSizeTitle2">22</x:Double>
     <x:Double x:Key="FontSizeTitle3">18</x:Double>
     <x:Double x:Key="FontSizeBody">15</x:Double>
@@ -215,7 +215,7 @@
 
     <Style TargetType="Label" x:Key="PageTitleLabel">
         <Setter Property="FontFamily" Value="OpenSansSemibold" />
-        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontSize" Value="26" />
         <Setter Property="LineHeight" Value="1.1" />
         <Setter Property="LineBreakMode" Value="WordWrap" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
