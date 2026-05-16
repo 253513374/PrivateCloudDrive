@@ -104,6 +104,11 @@ public partial class PhotosPage : ContentPage
         await Shell.Current.GoToAsync("media-processing", true);
     }
 
+    private async void OnAlbumsClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("media-albums", true);
+    }
+
     private async Task LoadMediaAsync()
     {
         RefreshButton.IsEnabled = false;

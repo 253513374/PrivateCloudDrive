@@ -42,6 +42,7 @@ public static class AppText
         [nameof(Files)] = new("文件", "Files"),
         [nameof(MediaLibrary)] = new("媒体库", "Library"),
         [nameof(Albums)] = new("相册", "Albums"),
+        [nameof(Shares)] = new("共享", "Shared"),
         [nameof(Photos)] = new("图片", "Photos"),
         [nameof(Videos)] = new("视频", "Videos"),
         [nameof(Uploads)] = new("上传", "Uploads"),
@@ -299,6 +300,10 @@ public static class AppText
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public static string Albums => Get(nameof(Albums));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string Shares => Get(nameof(Shares));
     /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>

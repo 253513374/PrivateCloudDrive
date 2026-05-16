@@ -10,7 +10,7 @@
     <Grid Padding="18,18,18,16"
           RowDefinitions="Auto,Auto,Auto,Auto,Auto,*"
           RowSpacing="10">
-        <Grid ColumnDefinitions="*,Auto"
+        <Grid ColumnDefinitions="*,Auto,Auto"
               ColumnSpacing="12">
             <VerticalStackLayout Spacing="4">
                 <Label Text="{x:Static loc:AppText.MediaLibrary}"
@@ -30,6 +30,14 @@
                     WidthRequest="86"
                     VerticalOptions="Center"
                     Clicked="OnRefreshClicked" />
+            <Button Grid.Column="2"
+                    Text="{x:Static loc:AppText.Albums}"
+                    Style="{StaticResource SecondaryButton}"
+                    Padding="14,8"
+                    HeightRequest="46"
+                    WidthRequest="86"
+                    VerticalOptions="Center"
+                    Clicked="OnAlbumsClicked" />
         </Grid>
 
         <Border Grid.Row="1"

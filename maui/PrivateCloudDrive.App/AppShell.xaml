@@ -32,10 +32,10 @@
             Route="media-library" />
 
         <ShellContent
-            Title="{x:Static loc:AppText.Albums}"
-            Icon="tab_albums.png"
-            ContentTemplate="{DataTemplate views:MediaAlbumsPage}"
-            Route="albums" />
+            Title="{x:Static loc:AppText.Shares}"
+            Icon="tab_shares.png"
+            ContentTemplate="{DataTemplate views:SharesPage}"
+            Route="shares" />
 
         <ShellContent
             Title="{x:Static loc:AppText.Settings}"

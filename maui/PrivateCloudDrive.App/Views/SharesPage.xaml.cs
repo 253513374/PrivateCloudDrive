@@ -106,7 +106,7 @@ public partial class SharesPage : ContentPage
         catch (Exception exception)
         {
             Shares.Clear();
-            await ShowErrorAsync(exception.Message);
+            await ShowErrorAsync($"无法读取共享链接。{exception.Message} 请检查网络或服务器状态后重试。");
         }
     }
 
