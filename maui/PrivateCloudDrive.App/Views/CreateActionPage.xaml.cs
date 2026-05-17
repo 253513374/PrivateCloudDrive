@@ -22,7 +22,7 @@ public partial class CreateActionPage : ContentPage
 
     private async void OnUploadActionClicked(object? sender, EventArgs e)
     {
-        await DisplayAlertAsync("继续上传", "请在文件页点击上传按钮选择本机文件。", "知道了");
+        await DisplayAlertAsync("继续备份", "请在文件页点击上传按钮选择照片或本机文件，备份进度会显示在“备份”页。", "知道了");
         await GoToFilesAsync();
     }
 

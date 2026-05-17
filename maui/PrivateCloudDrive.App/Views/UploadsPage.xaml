@@ -11,10 +11,10 @@
           RowDefinitions="Auto,Auto,*"
           RowSpacing="10">
         <VerticalStackLayout Spacing="4">
-            <Label Text="传输"
+            <Label Text="备份队列"
                    Style="{StaticResource PageTitleLabel}"
                    FontSize="26" />
-            <Label Text="上传、等待、失败和完成任务的可诊断队列"
+            <Label Text="照片、文件备份的等待、上传、失败和完成状态"
                    Style="{StaticResource MetaLabel}"
                    FontSize="14"
                    LineBreakMode="WordWrap" />
@@ -52,7 +52,7 @@
                 <VerticalStackLayout Grid.Column="1"
                                      Spacing="3"
                                      VerticalOptions="Center">
-                    <Label Text="当前队列"
+                    <Label Text="当前备份队列"
                            FontFamily="OpenSansSemibold"
                            FontSize="22"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
@@ -112,11 +112,11 @@
                         <Label Text="{x:Static loc:AppText.NoUploadTasks}"
                                Style="{StaticResource SectionTitleLabel}"
                                HorizontalTextAlignment="Center" />
-                        <Label Text="从文件页选择文件上传后，进度会显示在这里。上传失败时可以在这里重试。"
+                        <Label Text="从文件页选择照片或文件备份后，进度会显示在这里；失败任务可用于诊断和重试。"
                                Style="{StaticResource MetaLabel}"
                                HorizontalTextAlignment="Center"
                                LineBreakMode="WordWrap" />
-                        <Button Text="去文件页选择"
+                        <Button Text="去文件页备份"
                                 FontFamily="OpenSansSemibold"
                                 Padding="18,8"
                                 HeightRequest="42"

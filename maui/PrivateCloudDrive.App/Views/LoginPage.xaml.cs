@@ -30,11 +30,13 @@ public partial class LoginPage : ContentPage
     {
         InitializeComponent();
         BindingContext = this;
+        LoadApiBaseUrlState();
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        LoadApiBaseUrlState();
         await Task.WhenAll(
             LoadWechatSettingsAsync(),
             LoadExternalSettingsAsync());
@@ -58,6 +60,29 @@ public partial class LoginPage : ContentPage
     private async void OnGitHubSignInClicked(object? sender, EventArgs e)
     {
         await SignInWithExternalAsync(GitHubProvider);
+    }
+
+    private async void OnSaveApiBaseUrlClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            AppSettings.SetApiBaseUrl(LoginApiBaseUrlEntry.Text ?? string.Empty);
+            await _authService.SignOutAsync();
+            LoadApiBaseUrlState();
+            ShowValidation("后端地址已切换，请使用该服务器账号登录。");
+        }
+        catch (Exception exception)
+        {
+            ShowValidation(exception.Message);
+        }
+    }
+
+    private async void OnResetApiBaseUrlClicked(object? sender, EventArgs e)
+    {
+        AppSettings.ResetApiBaseUrl();
+        await _authService.SignOutAsync();
+        LoadApiBaseUrlState();
+        ShowValidation("已恢复默认后端地址。");
     }
 
     private async void OnPasswordCompleted(object? sender, EventArgs e)
@@ -287,6 +312,15 @@ public partial class LoginPage : ContentPage
     {
         ValidationLabel.IsVisible = false;
         ValidationPanel.IsVisible = false;
+    }
+
+    private void LoadApiBaseUrlState()
+    {
+        var apiBaseUrl = AppSettings.ApiBaseUrl;
+        CurrentApiBaseUrlLabel.Text = AppSettings.HasCustomApiBaseUrl
+            ? $"自定义服务器 · {apiBaseUrl}"
+            : $"默认服务器 · {apiBaseUrl}";
+        LoginApiBaseUrlEntry.Text = apiBaseUrl;
     }
 
     private async Task LoadWechatSettingsAsync()

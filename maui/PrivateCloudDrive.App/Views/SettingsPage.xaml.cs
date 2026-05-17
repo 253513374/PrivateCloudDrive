@@ -28,6 +28,7 @@ public partial class SettingsPage : ContentPage
     {
         InitializeComponent();
         BindingContext = this;
+        LoadApiBaseUrlState();
     }
 
     protected override async void OnAppearing()
@@ -76,6 +77,31 @@ public partial class SettingsPage : ContentPage
     private async void OnStorageUsageClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("storage-usage", true);
+    }
+
+    private async void OnSaveApiBaseUrlClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            AppSettings.SetApiBaseUrl(ApiBaseUrlEntry.Text ?? string.Empty);
+            await _authService.SignOutAsync();
+            LoadApiBaseUrlState();
+            await DisplayAlertAsync("后端地址已保存", "请使用当前私有备份服务器的账号重新登录。", "知道了");
+            await Shell.Current.GoToAsync("//login", true);
+        }
+        catch (Exception exception)
+        {
+            await DisplayAlertAsync("后端地址无效", exception.Message, "知道了");
+        }
+    }
+
+    private async void OnResetApiBaseUrlClicked(object? sender, EventArgs e)
+    {
+        AppSettings.ResetApiBaseUrl();
+        await _authService.SignOutAsync();
+        LoadApiBaseUrlState();
+        await DisplayAlertAsync("已恢复默认后端", "请使用默认私有备份服务器重新登录。", "知道了");
+        await Shell.Current.GoToAsync("//login", true);
     }
 
     private async void OnWechatBindClicked(object? sender, EventArgs e)
@@ -132,6 +158,7 @@ public partial class SettingsPage : ContentPage
     private async Task LoadSettingsStateAsync()
     {
         SetLoadingState(AppText.CheckingLocalSession);
+        LoadApiBaseUrlState();
 
         try
         {
@@ -432,6 +459,14 @@ public partial class SettingsPage : ContentPage
         SettingsLoadingIndicator.IsRunning = true;
         SettingsRetryButton.IsVisible = false;
         SettingsStateLabel.Text = message;
+    }
+
+    private void LoadApiBaseUrlState()
+    {
+        ApiBaseUrlEntry.Text = AppSettings.ApiBaseUrl;
+        ApiBaseUrlStatusLabel.Text = AppSettings.HasCustomApiBaseUrl
+            ? $"自定义后端：{AppSettings.ApiBaseUrl}"
+            : $"默认后端：{AppSettings.ApiBaseUrl}";
     }
 
     private void SetInfoState(string message)

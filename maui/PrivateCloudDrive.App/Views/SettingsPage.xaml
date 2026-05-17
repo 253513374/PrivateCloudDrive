@@ -566,7 +566,7 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="10">
-                <Label Text="服务与安全"
+                <Label Text="私有备份服务"
                        Style="{StaticResource SectionTitleLabel}" />
                 <Border Padding="0"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
@@ -575,23 +575,33 @@
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="0">
                         <Grid Padding="16,14"
-                              ColumnDefinitions="*,Auto"
-                              ColumnSpacing="12"
-                              MinimumHeightRequest="70">
-                            <VerticalStackLayout Spacing="2"
-                                                 VerticalOptions="Center">
-                                <Label Text="{x:Static loc:AppText.Server}"
+                              RowDefinitions="Auto,Auto,Auto"
+                              RowSpacing="10"
+                              MinimumHeightRequest="132">
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="后端地址"
                                        FontFamily="OpenSansSemibold"
                                        FontSize="16" />
-                                <Label Text="{Binding ApiBaseUrl}"
+                                <Label x:Name="ApiBaseUrlStatusLabel"
+                                       Text="当前连接的私有备份服务器"
                                        Style="{StaticResource MetaLabel}"
-                                       LineBreakMode="TailTruncation" />
+                                       LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
-                            <Label Grid.Column="1"
-                                   Text="›"
-                                   FontSize="26"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
-                                   VerticalOptions="Center" />
+                            <Entry x:Name="ApiBaseUrlEntry"
+                                   Grid.Row="1"
+                                   Placeholder="http://192.168.1.10:8080"
+                                   Keyboard="Url"
+                                   ClearButtonVisibility="WhileEditing" />
+                            <Grid Grid.Row="2"
+                                  ColumnDefinitions="*,*"
+                                  ColumnSpacing="10">
+                                <Button Text="保存并重新登录"
+                                        Clicked="OnSaveApiBaseUrlClicked" />
+                                <Button Grid.Column="1"
+                                        Text="恢复默认"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Clicked="OnResetApiBaseUrlClicked" />
+                            </Grid>
                         </Grid>
                         <BoxView Margin="16,0"
                                  HeightRequest="1"
@@ -627,7 +637,7 @@
                                 <Label Text="{x:Static loc:AppText.Security}"
                                        FontFamily="OpenSansSemibold"
                                        FontSize="16" />
-                                <Label Text="{x:Static loc:AppText.LocalSessionProtected}"
+                                <Label Text="数据会备份到上方后端地址对应的服务器；真实磁盘目录和剩余空间以服务器健康状态为准。"
                                        Style="{StaticResource MetaLabel}"
                                        LineBreakMode="WordWrap" />
                             </VerticalStackLayout>

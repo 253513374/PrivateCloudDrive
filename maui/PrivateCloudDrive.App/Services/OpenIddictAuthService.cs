@@ -289,6 +289,7 @@ public sealed class OpenIddictAuthService : IAuthService
                         ["token_type_hint"] = "refresh_token"
                     });
 
+                EnsureBaseAddressCurrent();
                 using var response = await _httpClient.PostAsync("connect/revocation", content, cancellationToken);
                 _ = response;
             }
@@ -540,6 +541,7 @@ public sealed class OpenIddictAuthService : IAuthService
         CancellationToken cancellationToken)
     {
         using var content = new FormUrlEncodedContent(parameters);
+        EnsureBaseAddressCurrent();
         using var response = await _httpClient.PostAsync("connect/token", content, cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
 
@@ -583,6 +585,7 @@ public sealed class OpenIddictAuthService : IAuthService
                 Encoding.UTF8,
                 "application/json");
 
+            EnsureBaseAddressCurrent();
             using var response = await _httpClient.PostAsync(
                 "api/mobile-auth/audit-logs",
                 content,
@@ -592,6 +595,15 @@ public sealed class OpenIddictAuthService : IAuthService
         catch
         {
             // Authentication flow must not fail only because audit reporting is unavailable.
+        }
+    }
+
+    private void EnsureBaseAddressCurrent()
+    {
+        var currentBaseAddress = new Uri(AppSettings.ApiBaseUrl.TrimEnd('/') + "/");
+        if (_httpClient.BaseAddress != currentBaseAddress)
+        {
+            _httpClient.BaseAddress = currentBaseAddress;
         }
     }
 

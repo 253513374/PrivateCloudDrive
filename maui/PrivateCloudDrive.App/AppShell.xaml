@@ -38,7 +38,7 @@
             Route="create" />
 
         <ShellContent
-            Title="动态"
+            Title="备份"
             Icon="tab_uploads.png"
             ContentTemplate="{DataTemplate views:UploadsPage}"
             Route="uploads" />

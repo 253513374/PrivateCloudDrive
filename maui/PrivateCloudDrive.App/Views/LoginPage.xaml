@@ -49,34 +49,54 @@
 
                     <Border Style="{StaticResource SoftCard}"
                             Padding="12,10">
-                        <Grid ColumnDefinitions="Auto,*"
-                              ColumnSpacing="12">
-                            <Border HeightRequest="36"
-                                    WidthRequest="36"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource SuccessSoftLight}, Dark={StaticResource SuccessSoftDark}}"
-                                    StrokeThickness="0">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="12" />
-                                </Border.StrokeShape>
-                                <shapes:Path Aspect="Uniform"
-                                             Stroke="{StaticResource Success}"
-                                             StrokeThickness="1.8"
-                                             StrokeLineCap="Round"
-                                             StrokeLineJoin="Round"
-                                             Data="M4,14 L10,20 L22,8"
-                                             HeightRequest="20"
-                                             WidthRequest="20"
-                                             HorizontalOptions="Center"
-                                             VerticalOptions="Center" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1"
-                                                 Spacing="2"
-                                                 VerticalOptions="Center">
-                                <Label Text="当前连接"
-                                       Style="{StaticResource CaptionLabel}" />
-                                <Label Text="{x:Static services:AppSettings.ApiBaseUrl}"
-                                       Style="{StaticResource MonoMetaLabel}"
-                                       LineBreakMode="TailTruncation" />
+                        <Grid RowDefinitions="Auto,Auto"
+                              RowSpacing="10">
+                            <Grid ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="12">
+                                <Border HeightRequest="36"
+                                        WidthRequest="36"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource SuccessSoftLight}, Dark={StaticResource SuccessSoftDark}}"
+                                        StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <shapes:Path Aspect="Uniform"
+                                                 Stroke="{StaticResource Success}"
+                                                 StrokeThickness="1.8"
+                                                 StrokeLineCap="Round"
+                                                 StrokeLineJoin="Round"
+                                                 Data="M4,14 L10,20 L22,8"
+                                                 HeightRequest="20"
+                                                 WidthRequest="20"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="2"
+                                                     VerticalOptions="Center">
+                                    <Label Text="当前连接"
+                                           Style="{StaticResource CaptionLabel}" />
+                                    <Label x:Name="CurrentApiBaseUrlLabel"
+                                           Style="{StaticResource MonoMetaLabel}"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <VerticalStackLayout Grid.Row="1"
+                                                 Spacing="8">
+                                <Entry x:Name="LoginApiBaseUrlEntry"
+                                       Placeholder="http://192.168.1.10:8080"
+                                       Keyboard="Url"
+                                       ClearButtonVisibility="WhileEditing" />
+                                <Grid ColumnDefinitions="*,*"
+                                      ColumnSpacing="10">
+                                    <Button Text="切换服务器"
+                                            Style="{StaticResource SecondaryButton}"
+                                            Clicked="OnSaveApiBaseUrlClicked" />
+                                    <Button Grid.Column="1"
+                                            Text="恢复默认"
+                                            Style="{StaticResource GhostButton}"
+                                            Clicked="OnResetApiBaseUrlClicked" />
+                                </Grid>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>

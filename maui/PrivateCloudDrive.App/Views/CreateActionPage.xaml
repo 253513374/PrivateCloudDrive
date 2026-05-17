@@ -8,9 +8,9 @@
     <Grid RowDefinitions="*,Auto"
           Padding="18,24,18,18">
         <VerticalStackLayout Spacing="10">
-            <Label Text="快速创建"
+            <Label Text="开始备份"
                    Style="{StaticResource PageTitleLabel}" />
-            <Label Text="从这里把新的照片、文件和灵感放进你的私有云。"
+            <Label Text="把手机照片和本机文件备份到你配置的私有服务器。"
                    Style="{StaticResource MetaLabel}"
                    LineBreakMode="WordWrap" />
         </VerticalStackLayout>
@@ -26,10 +26,10 @@
             <VerticalStackLayout Spacing="14">
                 <Grid ColumnDefinitions="*,Auto">
                     <VerticalStackLayout Spacing="2">
-                        <Label Text="新建"
+                            <Label Text="备份"
                                Style="{StaticResource PageTitleLabel}"
                                FontSize="24" />
-                        <Label Text="选择一个动作继续"
+                        <Label Text="选择要备份到私有服务器的来源"
                                Style="{StaticResource MetaLabel}" />
                     </VerticalStackLayout>
                     <Button Grid.Column="1"
@@ -38,15 +38,15 @@
                             Clicked="OnCloseClicked" />
                 </Grid>
 
-                <Button Text="拍照"
+                <Button Text="备份照片"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"
                         Clicked="OnUploadActionClicked" />
-                <Button Text="从相册选择"
+                <Button Text="从相册选择备份"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"
                         Clicked="OnUploadActionClicked" />
-                <Button Text="本机文件"
+                <Button Text="备份本机文件"
                         HorizontalOptions="Fill"
                         Clicked="OnUploadActionClicked" />
                 <Button Text="扫描文档（即将推出）"

@@ -1161,7 +1161,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             throw new InvalidOperationException("Sign in is required.");
         }
 
-        var request = new HttpRequestMessage(method, requestUri);
+        var absoluteRequestUri = new Uri(
+            new Uri(AppSettings.ApiBaseUrl.TrimEnd('/') + "/"),
+            requestUri.TrimStart('/'));
+        var request = new HttpRequestMessage(method, absoluteRequestUri);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         return request;
