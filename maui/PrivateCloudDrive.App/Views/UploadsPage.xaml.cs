@@ -96,12 +96,30 @@ public partial class UploadsPage : ContentPage
         var uploading = UploadItems.Count(item => item.Status == UploadQueueStatus.Uploading);
         var failed = UploadItems.Count(item => item.Status == UploadQueueStatus.Failed);
         var completed = UploadItems.Count(item => item.Status == UploadQueueStatus.Completed);
+        var latestCompletedAt = UploadItems
+            .Where(item => item.Status == UploadQueueStatus.Completed && item.CompletedAt.HasValue)
+            .Select(item => item.CompletedAt!.Value)
+            .OrderByDescending(value => value)
+            .FirstOrDefault();
 
         QueueStatePanel.IsVisible = UploadItems.Count > 0;
         ClearCompletedButton.IsVisible = completed > 0;
 
-        QueueStateLabel.Text = UploadItems.Count == 0
-            ? string.Empty
-            : AppText.Format(nameof(AppText.UploadQueueSummary), uploading, waiting, failed, completed);
+        if (UploadItems.Count == 0)
+        {
+            QueueStateLabel.Text = string.Empty;
+            return;
+        }
+
+        var summary = AppText.Format(nameof(AppText.UploadQueueSummary), uploading, waiting, failed, completed);
+        if (failed > 0)
+        {
+            QueueStateLabel.Text = $"{summary} · 有失败任务待重试";
+            return;
+        }
+
+        QueueStateLabel.Text = completed > 0 && latestCompletedAt != default
+            ? $"{summary} · 上次成功 {latestCompletedAt.LocalDateTime:HH:mm}"
+            : summary;
     }
 }

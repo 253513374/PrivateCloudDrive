@@ -14,6 +14,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     private UploadQueueStatus _status = UploadQueueStatus.Waiting;
     private string? _errorMessage;
     private DateTimeOffset? _lastAttemptAt;
+    private DateTimeOffset? _completedAt;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -106,6 +107,22 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
         }
     }
 
+    public DateTimeOffset? CompletedAt
+    {
+        get => _completedAt;
+        private set
+        {
+            if (_completedAt == value)
+            {
+                return;
+            }
+
+            _completedAt = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CompletedAtText));
+        }
+    }
+
     public string StatusText => AppText.UploadStatus(Status);
 
     public string ProgressText => Status == UploadQueueStatus.Completed
@@ -117,6 +134,10 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     public bool IsCompleted => Status == UploadQueueStatus.Completed;
 
     public bool CanRetry => Status == UploadQueueStatus.Failed;
+
+    public string CompletedAtText => CompletedAt.HasValue
+        ? $"完成时间：{CompletedAt.Value.LocalDateTime:MM-dd HH:mm}"
+        : string.Empty;
 
     public string FailureHint => IsFailed
         ? LastAttemptAt.HasValue
@@ -130,6 +151,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     public void MarkUploading()
     {
         LastAttemptAt = DateTimeOffset.Now;
+        CompletedAt = null;
         Progress = 0;
         ErrorMessage = null;
         Status = UploadQueueStatus.Uploading;
@@ -150,6 +172,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     {
         Progress = 1;
         ErrorMessage = null;
+        CompletedAt = DateTimeOffset.Now;
         Status = UploadQueueStatus.Completed;
     }
 

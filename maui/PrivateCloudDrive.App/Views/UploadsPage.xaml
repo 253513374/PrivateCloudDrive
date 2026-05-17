@@ -218,7 +218,7 @@
                                         HeightRequest="38"
                                         HorizontalOptions="Start"
                                         Clicked="OnRetryBackupClicked" />
-                                <Label Text="已完成"
+                                <Label Text="{Binding CompletedAtText}"
                                        IsVisible="{Binding IsCompleted}"
                                        FontSize="12"
                                        TextColor="{StaticResource Success}" />

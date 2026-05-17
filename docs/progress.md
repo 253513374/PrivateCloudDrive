@@ -29,6 +29,15 @@
 
 ### 2026-05-17
 
+- Private Backup MVP：备份队列成功时间与失败优先摘要
+  - 范围：MAUI 备份队列项新增 `CompletedAt`/`CompletedAtText`，完成后显示“完成时间”；队列摘要在存在失败任务时优先提示“有失败任务待重试”，无失败且存在完成任务时展示“上次成功 HH:mm”，帮助用户判断最近一次备份是否成功。
+  - 多 Agent 复核：代码复核通过，确认 XAML `CompletedAtText` 绑定有效、重试上传会清空旧成功时间、失败提示优先级符合产品目标。
+  - `dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-android -c Debug -p:EmbedAssembliesIntoApk=true -p:AndroidFastDeploymentType=None --no-restore`
+    - 工作目录：项目根目录
+    - 结果：MAUI Android Debug APK 构建成功，0 个错误；存在既有 AndroidX NU1608/XA1037 警告。
+  - Android 启动验收：安装最新 Debug APK 后执行 `adb shell pm clear com.companyname.privateclouddrive.app` 清理数据并启动 App；前台 Activity 为 `com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity`，logcat 未发现 `FATAL EXCEPTION` / AndroidRuntime 崩溃。
+  - 截图证据：`docs/validation/app-startup-queue-summary-2026-05-17.png`。截图确认最新包可正常进入 PrivateCloudDrive 登录页，无崩溃弹窗、黑屏或系统错误覆盖。
+
 - Private Backup MVP：设置页存储信任边界说明
   - 范围：系统健康 DTO/API 新增存储位置说明、恢复备份范围和隐私边界说明；后端根据 FileSystem/AliyunOss Provider 输出安全可展示文案，不暴露本地绝对路径、OSS Bucket 名、连接串、AccessKey 或 token；MAUI 设置页系统健康卡片同步展示“数据存放/恢复备份/隐私边界”，未登录或健康摘要不可用时显示保守提示。
   - TDD：新增 `EfCoreFileCenterSystemHealthAppServiceTests.Should_Return_Provider_Aware_Backup_Scope_For_Aliyun_Oss`，先确认对象存储模式会因展示 Bucket 名和备份范围误导失败，再实现 Provider-aware 文案与 Bucket 名隐藏。
