@@ -99,13 +99,14 @@ PrivateCloudDrive 的核心 App UI 应遵循：
 主设计文档优先级：
 
 1. `docs/product-planning-hub.md`：最高产品决策入口。
-2. `docs/product-feature-map.md`：长期功能地图、版本边界与 Now/Next/Later 分层依据。
-3. `docs/open-design-ui-redesign.md`：经用户指定的 Open Design / Claude Design 新 UI 方向与页面规范。
-4. `docs/prototypes/open-design-mobile-prototype.html`：Open Design 高保真移动端原型，用于视觉对齐与实现验收。
-5. `docs/product-ui-baseline.md`：历史/保守 UI 基线；若与 Open Design 冲突，以 Open Design 文档为准。
-6. `docs/ui-design.md`：具体 UI 规范与页面设计；需要逐步按 Open Design 更新。
-7. `docs/plans/*.md`：单页面或单任务设计计划。
-8. `docs/design-explorations/*`：探索稿，不直接作为开发依据。
+2. `docs/market-feasibility-meeting-2026-05-17.md`：市场可行性、是否继续开发、产品偏差诊断与“手机优先私有备份网盘”转向结论。
+3. `docs/product-feature-map.md`：长期功能地图、版本边界与 Now/Next/Later 分层依据。
+4. `docs/open-design-ui-redesign.md`：经用户指定的 Open Design / Claude Design 新 UI 方向与页面规范。
+5. `docs/prototypes/open-design-mobile-prototype.html`：Open Design 高保真移动端原型，用于视觉对齐与实现验收。
+6. `docs/product-ui-baseline.md`：历史/保守 UI 基线；若与 Open Design 冲突，以 Open Design 文档为准。
+7. `docs/ui-design.md`：具体 UI 规范与页面设计；需要逐步按 Open Design 更新。
+8. `docs/plans/*.md`：单页面或单任务设计计划。
+9. `docs/design-explorations/*`：探索稿，不直接作为开发依据。
 
 ### 5.2 Doodle / 手绘风格处理原则
 
