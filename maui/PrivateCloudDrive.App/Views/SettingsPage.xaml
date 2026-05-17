@@ -92,7 +92,8 @@
                           ColumnDefinitions="*,*,*"
                           ColumnSpacing="10">
                         <VerticalStackLayout Spacing="2">
-                            <Label Text="2.4K"
+                            <Label x:Name="AccountFilesStatLabel"
+                                   Text="--"
                                    FontFamily="OpenSansSemibold"
                                    FontSize="18" />
                             <Label Text="文件"
@@ -100,15 +101,17 @@
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1"
                                              Spacing="2">
-                            <Label Text="86"
+                            <Label x:Name="AccountMemoriesStatLabel"
+                                   Text="真实"
                                    FontFamily="OpenSansSemibold"
                                    FontSize="18" />
-                            <Label Text="记忆"
+                            <Label Text="数据"
                                    Style="{StaticResource CaptionLabel}" />
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="2"
                                              Spacing="2">
-                            <Label Text="62%"
+                            <Label x:Name="AccountCapacityStatLabel"
+                                   Text="--"
                                    FontFamily="OpenSansSemibold"
                                    FontSize="18" />
                             <Label Text="容量"

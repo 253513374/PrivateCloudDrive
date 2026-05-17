@@ -185,6 +185,9 @@ public partial class SettingsPage : ContentPage
     {
         if (!isSignedIn)
         {
+            AccountFilesStatLabel.Text = "--";
+            AccountMemoriesStatLabel.Text = "未登录";
+            AccountCapacityStatLabel.Text = "--";
             StorageUsageLabel.Text = AppText.SignInRequired;
             StorageQuotaLabel.Text = string.Empty;
             StorageProgressBar.Progress = 0;
@@ -194,15 +197,19 @@ public partial class SettingsPage : ContentPage
         try
         {
             var usage = await _apiClient.GetStorageUsageAsync();
+            AccountFilesStatLabel.Text = "在线";
+            AccountMemoriesStatLabel.Text = "真实";
             StorageUsageLabel.Text = $"{FormatBytes(usage.UsedBytes)} 已使用";
 
             if (usage.IsQuotaConfigured)
             {
+                AccountCapacityStatLabel.Text = $"{usage.UsagePercent:0.#}%";
                 StorageQuotaLabel.Text = $"配额 {FormatBytes(usage.QuotaBytes)}，剩余 {FormatBytes(usage.RemainingBytes)}";
                 StorageProgressBar.Progress = Math.Clamp((double)usage.UsagePercent / 100, 0, 1);
             }
             else
             {
+                AccountCapacityStatLabel.Text = "无限";
                 StorageQuotaLabel.Text = "未配置容量上限";
                 StorageProgressBar.Progress = 0;
             }
@@ -214,6 +221,9 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
+            AccountFilesStatLabel.Text = "异常";
+            AccountMemoriesStatLabel.Text = "待重试";
+            AccountCapacityStatLabel.Text = "--";
             StorageUsageLabel.Text = $"无法读取容量：{exception.Message}";
             StorageQuotaLabel.Text = string.Empty;
             StorageProgressBar.Progress = 0;

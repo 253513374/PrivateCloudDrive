@@ -19,14 +19,14 @@
                                      VerticalOptions="Center">
                     <Label Text="存储用量"
                            Style="{StaticResource PageTitleLabel}" />
-                    <Label Text="Open Design 容量、分类和清理建议"
+                    <Label Text="来自当前私有备份服务器的真实容量和健康状态"
                            Style="{StaticResource MetaLabel}" />
                 </VerticalStackLayout>
             </Grid>
 
             <Border Padding="22"
-                    BackgroundColor="{StaticResource SurfaceLight}"
-                    Stroke="{StaticResource BorderLight}">
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="24" />
                 </Border.StrokeShape>
@@ -34,8 +34,8 @@
                       ColumnSpacing="18">
                     <Border HeightRequest="118"
                             WidthRequest="118"
-                            BackgroundColor="{StaticResource PrimarySoftLight}"
-                            Stroke="{StaticResource Primary}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                             StrokeThickness="8">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="59" />
@@ -43,11 +43,12 @@
                         <VerticalStackLayout HorizontalOptions="Center"
                                              VerticalOptions="Center"
                                              Spacing="0">
-                            <Label Text="62%"
+                            <Label x:Name="UsagePercentLabel"
+                                   Text="--"
                                    FontFamily="OpenSansSemibold"
-                                   FontSize="28"
+                                   FontSize="24"
                                    HorizontalTextAlignment="Center" />
-                            <Label Text="已用"
+                            <Label Text="状态"
                                    Style="{StaticResource CaptionLabel}"
                                    HorizontalTextAlignment="Center" />
                         </VerticalStackLayout>
@@ -55,68 +56,85 @@
                     <VerticalStackLayout Grid.Column="1"
                                          Spacing="8"
                                          VerticalOptions="Center">
-                        <Label Text="128 GB / 206 GB"
+                        <Label x:Name="UsageAmountLabel"
+                               Text="正在读取容量"
                                Style="{StaticResource SectionTitleLabel}"
-                               FontSize="22" />
-                        <Label Text="剩余 78 GB · 当前家庭私有云运行健康"
+                               FontSize="22"
+                               LineBreakMode="WordWrap" />
+                        <Label x:Name="UsageDetailLabel"
+                               Text="连接当前私有备份服务器，读取真实容量和健康状态。"
                                Style="{StaticResource MetaLabel}"
                                LineBreakMode="WordWrap" />
-                        <ProgressBar Progress="0.62"
+                        <ProgressBar x:Name="UsageProgressBar"
+                                     Progress="0"
                                      HeightRequest="8" />
                     </VerticalStackLayout>
                 </Grid>
             </Border>
 
-            <Label Text="分类"
+            <Label Text="服务器可信状态"
                    Style="{StaticResource SectionTitleLabel}" />
 
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="14">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="照片与视频"
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+                        <Label Text="存"
                                Style="{StaticResource BodyStrongLabel}" />
-                        <Label Grid.Column="1"
-                               Text="72 GB"
-                               Style="{StaticResource MonoMetaLabel}" />
+                        <Label x:Name="StorageProviderLabel"
+                               Grid.Column="1"
+                               Text="后端存储：读取中"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="文档"
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+                        <Label Text="盘"
                                Style="{StaticResource BodyStrongLabel}" />
-                        <Label Grid.Column="1"
-                               Text="24 GB"
-                               Style="{StaticResource MonoMetaLabel}" />
+                        <Label x:Name="DiskSpaceLabel"
+                               Grid.Column="1"
+                               Text="磁盘空间：读取中"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="离线与导入"
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+                        <Label Text="额"
                                Style="{StaticResource BodyStrongLabel}" />
-                        <Label Grid.Column="1"
-                               Text="18 GB"
-                               Style="{StaticResource MonoMetaLabel}" />
+                        <Label x:Name="QuotaStateLabel"
+                               Grid.Column="1"
+                               Text="容量策略：读取中"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="回收站"
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+                        <Label Text="健"
                                Style="{StaticResource BodyStrongLabel}" />
-                        <Label Grid.Column="1"
-                               Text="14 GB"
-                               Style="{StaticResource MonoMetaLabel}" />
+                        <Label x:Name="StorageHealthLabel"
+                               Grid.Column="1"
+                               Text="健康状态：读取中"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>
 
             <Border Padding="18"
-                    BackgroundColor="{StaticResource PrimarySoftLight}"
-                    Stroke="{StaticResource Primary}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                     StrokeThickness="1">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="22" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="AI 清理建议"
+                    <Label Text="备份建议"
                            Style="{StaticResource SectionTitleLabel}" />
-                    <Label Text="发现 14 GB 可安全检查的回收站内容，以及 3 组疑似重复视频。建议先查看回收站，再整理相册中的重复片段。"
+                    <Label x:Name="StorageSuggestionLabel"
+                           Text="正在检查私有备份空间。"
                            Style="{StaticResource MetaLabel}"
                            LineBreakMode="WordWrap" />
-                    <Button Text="开始智能整理"
+                    <Button Text="了解智能整理"
                             HorizontalOptions="Fill"
                             Clicked="OnAiCleanupClicked" />
                 </VerticalStackLayout>
