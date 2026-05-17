@@ -36,6 +36,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IAuthService, OpenIddictAuthService>();
 		builder.Services.AddSingleton<ICloudDriveApiClient, CloudDriveApiClient>();
 		builder.Services.AddSingleton<IUploadQueueService, UploadQueueService>();
+		builder.Services.AddSingleton<IBackupTransferService, BackupTransferService>();
 #if ANDROID
 		builder.Services.AddSingleton<IWechatPlatformAuthService, AndroidWechatPlatformAuthService>();
 #else

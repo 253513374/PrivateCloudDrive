@@ -216,19 +216,19 @@
                       RowSpacing="10">
                     <Grid ColumnDefinitions="*,Auto">
                         <VerticalStackLayout Spacing="2">
-                            <Label Text="安全空间"
+                            <Label Text="私有备份空间"
                                    Style="{StaticResource BodyStrongLabel}" />
-                            <Label Text="128 GB 已用 · AI 为你整理最近访问"
+                            <Label Text="备份到当前服务器 · 容量以设置页实时状态为准"
                                    Style="{StaticResource MetaLabel}" />
                         </VerticalStackLayout>
                         <Label Grid.Column="1"
-                               Text="62%"
+                               Text="可信"
                                FontFamily="OpenSansSemibold"
                                FontSize="24"
                                TextColor="{StaticResource Primary}" />
                     </Grid>
                     <ProgressBar Grid.Row="1"
-                                 Progress="0.62"
+                                 Progress="1"
                                  HeightRequest="7" />
                 </Grid>
             </Border>
@@ -324,7 +324,7 @@
                            VerticalOptions="Center"
                            LineBreakMode="TailTruncation" />
                     <Button Grid.Column="1"
-                            Text="查看任务"
+                            Text="查看备份"
                             Style="{StaticResource SecondaryButton}"
                             FontFamily="OpenSansSemibold"
                             FontSize="12"

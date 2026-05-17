@@ -41,14 +41,14 @@
                 <Button Text="备份照片"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"
-                        Clicked="OnUploadActionClicked" />
+                        Clicked="OnBackupMediaClicked" />
                 <Button Text="从相册选择备份"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"
-                        Clicked="OnUploadActionClicked" />
+                        Clicked="OnBackupMediaClicked" />
                 <Button Text="备份本机文件"
                         HorizontalOptions="Fill"
-                        Clicked="OnUploadActionClicked" />
+                        Clicked="OnBackupFilesClicked" />
                 <Button Text="扫描文档（即将推出）"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"

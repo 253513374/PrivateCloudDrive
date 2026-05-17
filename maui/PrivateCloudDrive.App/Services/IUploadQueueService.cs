@@ -11,7 +11,7 @@ public interface IUploadQueueService
 {
     ObservableCollection<UploadQueueItem> Items { get; }
 
-    UploadQueueItem Enqueue(FileResult file, string targetPath);
+    UploadQueueItem Enqueue(FileResult file, string targetPath, Guid? targetFolderId);
 
     void ClearCompleted();
 }

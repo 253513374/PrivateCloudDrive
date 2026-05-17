@@ -19,11 +19,12 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     /// <summary>
     /// 初始化 <see cref="UploadQueueItem"/> 的新实例，并注入完成业务处理所需的依赖。
     /// </summary>
-    public UploadQueueItem(FileResult file, string targetPath)
+    public UploadQueueItem(FileResult file, string targetPath, Guid? targetFolderId)
     {
         File = file;
         FileName = file.FileName;
         TargetPath = targetPath;
+        TargetFolderId = targetFolderId;
     }
 
     public Guid Id { get; } = Guid.NewGuid();
@@ -33,6 +34,8 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     public string FileName { get; }
 
     public string TargetPath { get; }
+
+    public Guid? TargetFolderId { get; }
 
     public double Progress
     {
@@ -65,6 +68,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
             OnPropertyChanged(nameof(StatusText));
             OnPropertyChanged(nameof(IsFailed));
             OnPropertyChanged(nameof(IsCompleted));
+            OnPropertyChanged(nameof(CanRetry));
         }
     }
 
@@ -94,11 +98,14 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
 
     public bool IsCompleted => Status == UploadQueueStatus.Completed;
 
+    public bool CanRetry => Status == UploadQueueStatus.Failed;
+
     /// <summary>
     /// 执行MarkUploading操作，封装该场景下的业务规则、异常处理和结果返回。
     /// </summary>
     public void MarkUploading()
     {
+        Progress = 0;
         ErrorMessage = null;
         Status = UploadQueueStatus.Uploading;
     }

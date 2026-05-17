@@ -18,6 +18,7 @@ public partial class FilesPage : ContentPage
     private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
     private readonly IUploadQueueService _uploadQueueService = AppServices.GetRequiredService<IUploadQueueService>();
+    private readonly IBackupTransferService _backupTransferService = AppServices.GetRequiredService<IBackupTransferService>();
     private readonly List<PathSegment> _path = [new(null, AppText.Files)];
     private Guid? _currentFolderId;
     private bool _filtersInitialized;
@@ -116,36 +117,13 @@ public partial class FilesPage : ContentPage
             UploadStatusPanel.IsVisible = true;
             UpdateUploadTaskPanel();
 
-            var failedUploads = new List<string>();
-
-            foreach (var file in files)
-            {
-                UploadStatusLabel.Text = file.FileName;
-                UploadProgressBar.Progress = 0;
-                var queueItem = _uploadQueueService.Enqueue(file, CurrentPath);
-                queueItem.MarkUploading();
-                UpdateUploadTaskPanel();
-
-                var progress = new Progress<double>(value =>
-                {
-                    UploadProgressBar.Progress = Math.Clamp(value, 0, 1);
-                    queueItem.UpdateProgress(value);
-                });
-
-                try
-                {
-                    await _apiClient.UploadFileAsync(_currentFolderId, file, progress);
-                    queueItem.MarkCompleted();
-                }
-                catch (Exception exception)
-                {
-                    var message = await WriteUploadErrorAsync(exception);
-                    queueItem.MarkFailed(message);
-                    failedUploads.Add($"{file.FileName}: {message}");
-                }
-            }
-
+            var queueItems = await _backupTransferService.BackupFilesAsync(_currentFolderId, CurrentPath, files);
             await LoadItemsAsync();
+
+            var failedUploads = queueItems
+                .Where(item => item.IsFailed)
+                .Select(item => $"{item.FileName}: {item.ErrorMessage}")
+                .ToList();
 
             if (failedUploads.Count > 0)
             {
@@ -160,8 +138,7 @@ public partial class FilesPage : ContentPage
         }
         catch (Exception exception)
         {
-            var message = await WriteUploadErrorAsync(exception);
-            await DisplayAlertAsync(AppText.UploadFailed, message, "OK");
+            await DisplayAlertAsync(AppText.UploadFailed, exception.Message, "OK");
         }
         finally
         {
@@ -181,7 +158,7 @@ public partial class FilesPage : ContentPage
 
     private static Task OpenUploadsAsync()
     {
-        return Shell.Current.GoToAsync("uploads", true);
+        return Shell.Current.GoToAsync("//main/uploads", true);
     }
 
     private void UploadItemsSubscribe()
@@ -245,8 +222,8 @@ public partial class FilesPage : ContentPage
         if (failed > 0)
         {
             UploadStatusLabel.Text = failed == 1
-                ? "1 个文件上传失败，点击查看并重试"
-                : $"{failed} 个文件上传失败，点击查看并重试";
+                ? "1 个文件备份失败，点击查看并重试"
+                : $"{failed} 个文件备份失败，点击查看并重试";
             UploadProgressBar.Progress = 0;
             return;
         }
@@ -310,26 +287,6 @@ public partial class FilesPage : ContentPage
         };
     }
 
-    private static async Task<string> WriteUploadErrorAsync(Exception exception)
-    {
-        var message = string.IsNullOrWhiteSpace(exception.Message)
-            ? AppText.Format(nameof(AppText.UploadFailedBeforeRequest), exception.GetType().Name)
-            : exception.Message;
-
-        try
-        {
-            var logPath = Path.Combine(FileSystem.AppDataDirectory, "upload-errors.log");
-            await File.AppendAllTextAsync(
-                logPath,
-                $"[{DateTimeOffset.Now:O}] {exception}{Environment.NewLine}{Environment.NewLine}");
-        }
-        catch
-        {
-            // The UI message is more important than diagnostic logging.
-        }
-
-        return message;
-    }
 
 #if WINDOWS
     private static class NativeFileDialog

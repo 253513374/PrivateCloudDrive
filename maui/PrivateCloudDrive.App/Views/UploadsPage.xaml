@@ -206,6 +206,13 @@
                                        FontSize="12"
                                        TextColor="{StaticResource Danger}"
                                        LineBreakMode="WordWrap" />
+                                <Button Text="重试备份"
+                                        IsVisible="{Binding CanRetry}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Padding="14,6"
+                                        HeightRequest="38"
+                                        HorizontalOptions="Start"
+                                        Clicked="OnRetryBackupClicked" />
                                 <Label Text="已完成"
                                        IsVisible="{Binding IsCompleted}"
                                        FontSize="12"

@@ -14,9 +14,9 @@ public sealed class UploadQueueService : IUploadQueueService
     /// <summary>
     /// 执行Enqueue操作，封装该场景下的业务规则、异常处理和结果返回。
     /// </summary>
-    public UploadQueueItem Enqueue(FileResult file, string targetPath)
+    public UploadQueueItem Enqueue(FileResult file, string targetPath, Guid? targetFolderId)
     {
-        var item = new UploadQueueItem(file, targetPath);
+        var item = new UploadQueueItem(file, targetPath, targetFolderId);
         Items.Insert(0, item);
         return item;
     }

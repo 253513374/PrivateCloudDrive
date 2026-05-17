@@ -13,6 +13,7 @@ namespace PrivateCloudDrive.App.Views;
 public partial class UploadsPage : ContentPage
 {
     private readonly IUploadQueueService _uploadQueueService = AppServices.GetRequiredService<IUploadQueueService>();
+    private readonly IBackupTransferService _backupTransferService = AppServices.GetRequiredService<IBackupTransferService>();
 
     public ObservableCollection<UploadQueueItem> UploadItems => _uploadQueueService.Items;
 
@@ -46,7 +47,18 @@ public partial class UploadsPage : ContentPage
 
     private async void OnGoToFilesClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("//files", true);
+        await Shell.Current.GoToAsync("//main/files", true);
+    }
+
+    private async void OnRetryBackupClicked(object? sender, EventArgs e)
+    {
+        if ((sender as BindableObject)?.BindingContext is not UploadQueueItem item)
+        {
+            return;
+        }
+
+        await _backupTransferService.RetryAsync(item);
+        UpdateQueueState();
     }
 
     private void OnUploadItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
