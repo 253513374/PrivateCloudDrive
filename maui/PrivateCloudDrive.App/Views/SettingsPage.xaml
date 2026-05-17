@@ -629,6 +629,18 @@
                                        Text=""
                                        Style="{StaticResource MetaLabel}"
                                        LineBreakMode="WordWrap" />
+                                <Label x:Name="StorageLocationLabel"
+                                       Text="存储位置：正在读取"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                                <Label x:Name="BackupScopeLabel"
+                                       Text="恢复边界：正在读取"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
+                                <Label x:Name="PrivacyBoundaryLabel"
+                                       Text="隐私边界：正在读取"
+                                       Style="{StaticResource MetaLabel}"
+                                       LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
                         </Grid>
                         <BoxView Margin="16,0"

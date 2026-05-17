@@ -27,6 +27,23 @@
 
 ## 最近验证记录
 
+### 2026-05-17
+
+- Private Backup MVP：设置页存储信任边界说明
+  - 范围：系统健康 DTO/API 新增存储位置说明、恢复备份范围和隐私边界说明；后端根据 FileSystem/AliyunOss Provider 输出安全可展示文案，不暴露本地绝对路径、OSS Bucket 名、连接串、AccessKey 或 token；MAUI 设置页系统健康卡片同步展示“数据存放/恢复备份/隐私边界”，未登录或健康摘要不可用时显示保守提示。
+  - TDD：新增 `EfCoreFileCenterSystemHealthAppServiceTests.Should_Return_Provider_Aware_Backup_Scope_For_Aliyun_Oss`，先确认对象存储模式会因展示 Bucket 名和备份范围误导失败，再实现 Provider-aware 文案与 Bucket 名隐藏。
+  - 多 Agent 复核：spec review 和 code review 均指出 Aliyun OSS 备份范围不能复用本地 `FileCenter 存储目录` 且 Bucket 名应避免在 App 展示；已按复核意见修正并补充对象存储测试。
+  - `dotnet test test/PrivateCloudDrive.EntityFrameworkCore.Tests/PrivateCloudDrive.EntityFrameworkCore.Tests.csproj --filter FullyQualifiedName~EfCoreFileCenterSystemHealthAppServiceTests`
+    - 工作目录：`aspnet-core`
+    - 结果：通过 3 个系统健康集成测试，覆盖默认 FileSystem 健康状态、媒体工具降级和 Aliyun OSS 存储/恢复边界文案。
+  - `dotnet build aspnet-core/PrivateCloudDrive.slnx --no-restore`
+    - 工作目录：项目根目录
+    - 结果：后端解决方案构建成功，0 个警告，0 个错误。
+  - `dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-android -c Debug -p:EmbedAssembliesIntoApk=true -p:AndroidFastDeploymentType=None --no-restore`
+    - 工作目录：项目根目录
+    - 结果：MAUI Android Debug APK 构建成功，0 个错误；存在既有 AndroidX NU1608/XA1037 警告。
+  - 设备边界：`adb devices -l` 当前未列出设备或模拟器，因此本轮无法安装启动 App 截图；待设备可用后按“启动后端 -> 清理 App 数据 -> 安装 embedded-assemblies Debug APK -> 启动设置页截图”的验收流程回填。
+
 ### 2026-05-15
 
 - 设置页系统健康摘要闭环

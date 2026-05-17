@@ -237,6 +237,9 @@ public partial class SettingsPage : ContentPage
             SystemHealthStatusLabel.Text = AppText.SignInRequired;
             SystemHealthDetailLabel.Text = "登录后可查看 API、存储和容量健康状态";
             SystemHealthDiagnosticsLabel.Text = string.Empty;
+            StorageLocationLabel.Text = "存储位置：登录后读取";
+            BackupScopeLabel.Text = "恢复边界：登录后读取";
+            PrivacyBoundaryLabel.Text = "隐私边界：登录后读取";
             return;
         }
 
@@ -257,6 +260,15 @@ public partial class SettingsPage : ContentPage
             SystemHealthDiagnosticsLabel.Text = health.Diagnostics.Count == 0
                 ? $"更新时间 {health.GeneratedAt:yyyy-MM-dd HH:mm}"
                 : $"{FormatStorageDiskSpace(health)}；{string.Join("；", health.Diagnostics.Take(6))}";
+            StorageLocationLabel.Text = string.IsNullOrWhiteSpace(health.StorageLocationDescription)
+                ? "存储位置：服务器未返回可展示说明"
+                : $"存储位置：{health.StorageLocationDescription}";
+            BackupScopeLabel.Text = string.IsNullOrWhiteSpace(health.BackupScopeDescription)
+                ? "恢复边界：请备份数据库、文件存储和部署配置。"
+                : $"恢复边界：{health.BackupScopeDescription}";
+            PrivacyBoundaryLabel.Text = string.IsNullOrWhiteSpace(health.PrivacyBoundaryDescription)
+                ? "隐私边界：文件保存到当前连接的私有后端。"
+                : $"隐私边界：{health.PrivacyBoundaryDescription}";
         }
         catch (AuthSessionExpiredException)
         {
@@ -502,6 +514,9 @@ public partial class SettingsPage : ContentPage
         SystemHealthStatusLabel.Text = "无法读取系统健康状态";
         SystemHealthDetailLabel.Text = message;
         SystemHealthDiagnosticsLabel.Text = string.Empty;
+        StorageLocationLabel.Text = "存储位置：无法读取";
+        BackupScopeLabel.Text = "恢复边界：无法读取";
+        PrivacyBoundaryLabel.Text = "隐私边界：无法读取";
     }
 
     private static string FormatHealthStatus(SystemHealthStatus status)

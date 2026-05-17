@@ -70,6 +70,21 @@ public class FileCenterSystemHealthDto
     public string StorageProvider { get; set; } = string.Empty;
 
     /// <summary>
+    /// 面向移动端展示的存储位置说明，不包含服务器物理绝对路径或密钥。
+    /// </summary>
+    public string StorageLocationDescription { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 面向用户展示的备份恢复边界说明。
+    /// </summary>
+    public string BackupScopeDescription { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 面向用户展示的隐私与访问边界说明。
+    /// </summary>
+    public string PrivacyBoundaryDescription { get; set; } = string.Empty;
+
+    /// <summary>
     /// 当前用户已使用容量。
     /// </summary>
     public long StorageUsedBytes { get; set; }

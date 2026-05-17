@@ -599,6 +599,9 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             health.FfmpegStatus,
             health.FfprobeStatus,
             health.StorageProvider,
+            health.StorageLocationDescription,
+            health.BackupScopeDescription,
+            health.PrivacyBoundaryDescription,
             health.StorageUsedBytes,
             health.StorageQuotaBytes,
             health.StorageDiskAvailableBytes,
@@ -1997,6 +2000,12 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public SystemHealthStatus FfprobeStatus { get; init; }
 
         public string StorageProvider { get; init; } = string.Empty;
+
+        public string StorageLocationDescription { get; init; } = string.Empty;
+
+        public string BackupScopeDescription { get; init; } = string.Empty;
+
+        public string PrivacyBoundaryDescription { get; init; } = string.Empty;
 
         public long StorageUsedBytes { get; init; }
 
