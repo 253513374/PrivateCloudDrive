@@ -1158,7 +1158,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         var accessToken = await _authService.GetAccessTokenAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(accessToken))
         {
-            throw new InvalidOperationException("Sign in is required.");
+            throw new AuthSessionExpiredException(AppText.SignInRequired);
         }
 
         var absoluteRequestUri = new Uri(

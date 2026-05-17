@@ -10,6 +10,7 @@ namespace PrivateCloudDrive.App.Views;
 public partial class CreateActionPage : ContentPage
 {
     private readonly IBackupTransferService _backupTransferService = AppServices.GetRequiredService<IBackupTransferService>();
+    private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
 
     public CreateActionPage()
     {
@@ -45,6 +46,12 @@ public partial class CreateActionPage : ContentPage
     {
         try
         {
+            if (!await _authService.IsSignedInAsync())
+            {
+                await RedirectToLoginAsync();
+                return;
+            }
+
             var files = await pickFiles();
             if (files.Count == 0)
             {
@@ -70,10 +77,21 @@ public partial class CreateActionPage : ContentPage
         catch (OperationCanceledException)
         {
         }
+        catch (AuthSessionExpiredException)
+        {
+            await RedirectToLoginAsync();
+        }
         catch (Exception exception)
         {
             await DisplayAlertAsync(AppText.UploadFailed, exception.Message, "OK");
         }
+    }
+
+    private async Task RedirectToLoginAsync()
+    {
+        await _authService.SignOutAsync();
+        await DisplayAlertAsync(AppText.SignInRequired, "请先登录后再开始备份。", "OK");
+        await Shell.Current.GoToAsync("//login", true);
     }
 
     private static async Task<IReadOnlyList<FileResult>> PickFilesAsync()

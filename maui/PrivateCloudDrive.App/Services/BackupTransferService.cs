@@ -59,7 +59,7 @@ public sealed class BackupTransferService : IBackupTransferService
             await _apiClient.UploadFileAsync(item.TargetFolderId, item.File, progress, cancellationToken);
             item.MarkCompleted();
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception) when (exception is not OperationCanceledException and not AuthSessionExpiredException)
         {
             item.MarkFailed(await WriteBackupErrorAsync(exception));
         }
