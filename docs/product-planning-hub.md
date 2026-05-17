@@ -99,10 +99,11 @@ PrivateCloudDrive 的核心 App UI 应遵循：
 主设计文档优先级：
 
 1. `docs/product-planning-hub.md`：最高产品决策入口。
-2. `docs/product-ui-baseline.md`：当前 App UI 基线。
-3. `docs/ui-design.md`：具体 UI 规范与页面设计。
-4. `docs/plans/*.md`：单页面或单任务设计计划。
-5. `docs/design-explorations/*`：探索稿，不直接作为开发依据。
+2. `docs/product-feature-map.md`：长期功能地图、版本边界与 Now/Next/Later 分层依据。
+3. `docs/product-ui-baseline.md`：当前 App UI 基线。
+4. `docs/ui-design.md`：具体 UI 规范与页面设计。
+5. `docs/plans/*.md`：单页面或单任务设计计划。
+6. `docs/design-explorations/*`：探索稿，不直接作为开发依据。
 
 ### 5.2 Doodle / 手绘风格处理原则
 
@@ -442,13 +443,14 @@ P2/P3 已记录到已知问题
 1. 提交或整理本文档。
 2. 更新 `docs/progress.md`，校准阶段 10 与后续提交。
 3. 更新或重写 `docs/product-roadmap-next.md`。
-4. 分类 `Design.md` 与 `docs/assets/`。
-5. 将 `docs/plans/settings-page-trend-redesign.md` 改成可验收设计任务。
-6. 跑后端 build/test。
-7. 跑 MAUI 分平台构建。
-8. 跑 Docker/本地栈验证。
-9. 补 Android 真机验收。
-10. 输出 `docs/release-notes-v1.2-rc.md`。
+4. 用 `docs/product-feature-map.md` 校准长期功能地图、版本边界与 V2/V3 候选池。
+5. 分类 `Design.md` 与 `docs/assets/`。
+6. 将 `docs/plans/settings-page-trend-redesign.md` 改成可验收设计任务。
+7. 跑后端 build/test。
+8. 跑 MAUI 分平台构建。
+9. 跑 Docker/本地栈验证。
+10. 补 Android 真机验收。
+11. 输出 `docs/release-notes-v1.2-rc.md`。
 
 ---
 
