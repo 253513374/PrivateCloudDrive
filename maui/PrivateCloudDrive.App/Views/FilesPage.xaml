@@ -30,10 +30,10 @@
               ColumnSpacing="8">
             <VerticalStackLayout Spacing="2"
                                  VerticalOptions="Center">
-                <Label Text="{x:Static loc:AppText.Files}"
+                <Label Text="你好，小宇"
                        Style="{StaticResource PageTitleLabel}"
                        FontSize="26" />
-                <Label Text="安全管理你的私有文件、媒体和文件夹"
+                <Label Text="打开你的私有云工作台"
                        Style="{StaticResource MetaLabel}"
                        FontSize="13"
                        LineBreakMode="TailTruncation" />
@@ -129,7 +129,7 @@
                         <RoundRectangle CornerRadius="12" />
                     </Border.StrokeShape>
                     <SearchBar x:Name="FilesSearchBar"
-                               Placeholder="搜索文件、文件夹或媒体"
+                               Placeholder="搜索文件、人、地点"
                                HeightRequest="40"
                                SearchButtonPressed="OnSearchPressed"
                                TextChanged="OnSearchTextChanged" />
@@ -206,6 +206,33 @@
 
         <VerticalStackLayout Grid.Row="2"
                              Spacing="7">
+            <Border Padding="14"
+                    BackgroundColor="{StaticResource SurfaceRaisedLight}"
+                    Stroke="{StaticResource BorderLight}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="22" />
+                </Border.StrokeShape>
+                <Grid RowDefinitions="Auto,Auto"
+                      RowSpacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="安全空间"
+                                   Style="{StaticResource BodyStrongLabel}" />
+                            <Label Text="128 GB 已用 · AI 为你整理最近访问"
+                                   Style="{StaticResource MetaLabel}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1"
+                               Text="62%"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="24"
+                               TextColor="{StaticResource Primary}" />
+                    </Grid>
+                    <ProgressBar Grid.Row="1"
+                                 Progress="0.62"
+                                 HeightRequest="7" />
+                </Grid>
+            </Border>
+
             <Grid ColumnDefinitions="*,*"
                   ColumnSpacing="10">
                 <Button Text="{x:Static loc:AppText.Upload}"

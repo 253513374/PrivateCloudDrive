@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrivateCloudDrive.App.Views.CreateActionPage"
+             Title="新建"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource PageBackgroundDark}">
+    <Grid RowDefinitions="*,Auto"
+          Padding="18,24,18,18">
+        <VerticalStackLayout Spacing="10">
+            <Label Text="快速创建"
+                   Style="{StaticResource PageTitleLabel}" />
+            <Label Text="从这里把新的照片、文件和灵感放进你的私有云。"
+                   Style="{StaticResource MetaLabel}"
+                   LineBreakMode="WordWrap" />
+        </VerticalStackLayout>
+
+        <Border Grid.Row="1"
+                Padding="20"
+                BackgroundColor="{StaticResource SurfaceLight}"
+                Stroke="{StaticResource BorderLight}"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="24" />
+            </Border.StrokeShape>
+            <VerticalStackLayout Spacing="14">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="新建"
+                               Style="{StaticResource PageTitleLabel}"
+                               FontSize="24" />
+                        <Label Text="选择一个动作继续"
+                               Style="{StaticResource MetaLabel}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1"
+                            Text="关闭"
+                            Style="{StaticResource GhostButton}"
+                            Clicked="OnCloseClicked" />
+                </Grid>
+
+                <Button Text="拍照"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalOptions="Fill"
+                        Clicked="OnUploadActionClicked" />
+                <Button Text="从相册选择"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalOptions="Fill"
+                        Clicked="OnUploadActionClicked" />
+                <Button Text="本机文件"
+                        HorizontalOptions="Fill"
+                        Clicked="OnUploadActionClicked" />
+                <Button Text="扫描文档（即将推出）"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalOptions="Fill"
+                        Clicked="OnComingSoonClicked" />
+                <Button Text="新建文件夹"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalOptions="Fill"
+                        Clicked="OnNewFolderClicked" />
+                <Button Text="从链接导入（探索）"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalOptions="Fill"
+                        Clicked="OnComingSoonClicked" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

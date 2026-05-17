@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrivateCloudDrive.App.Views.StorageUsagePage"
+             Title="存储用量"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource PageBackgroundDark}">
+    <ScrollView>
+        <VerticalStackLayout Padding="18,22,18,28"
+                             Spacing="16">
+            <Grid ColumnDefinitions="Auto,*"
+                  ColumnSpacing="12">
+                <Button Text="‹"
+                        Style="{StaticResource GhostButton}"
+                        WidthRequest="46"
+                        Clicked="OnBackClicked" />
+                <VerticalStackLayout Grid.Column="1"
+                                     Spacing="2"
+                                     VerticalOptions="Center">
+                    <Label Text="存储用量"
+                           Style="{StaticResource PageTitleLabel}" />
+                    <Label Text="Open Design 容量、分类和清理建议"
+                           Style="{StaticResource MetaLabel}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Padding="22"
+                    BackgroundColor="{StaticResource SurfaceLight}"
+                    Stroke="{StaticResource BorderLight}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="18">
+                    <Border HeightRequest="118"
+                            WidthRequest="118"
+                            BackgroundColor="{StaticResource PrimarySoftLight}"
+                            Stroke="{StaticResource Primary}"
+                            StrokeThickness="8">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="59" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Spacing="0">
+                            <Label Text="62%"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="28"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="已用"
+                                   Style="{StaticResource CaptionLabel}"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1"
+                                         Spacing="8"
+                                         VerticalOptions="Center">
+                        <Label Text="128 GB / 206 GB"
+                               Style="{StaticResource SectionTitleLabel}"
+                               FontSize="22" />
+                        <Label Text="剩余 78 GB · 当前家庭私有云运行健康"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                        <ProgressBar Progress="0.62"
+                                     HeightRequest="8" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Label Text="分类"
+                   Style="{StaticResource SectionTitleLabel}" />
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="照片与视频"
+                               Style="{StaticResource BodyStrongLabel}" />
+                        <Label Grid.Column="1"
+                               Text="72 GB"
+                               Style="{StaticResource MonoMetaLabel}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="文档"
+                               Style="{StaticResource BodyStrongLabel}" />
+                        <Label Grid.Column="1"
+                               Text="24 GB"
+                               Style="{StaticResource MonoMetaLabel}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="离线与导入"
+                               Style="{StaticResource BodyStrongLabel}" />
+                        <Label Grid.Column="1"
+                               Text="18 GB"
+                               Style="{StaticResource MonoMetaLabel}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="回收站"
+                               Style="{StaticResource BodyStrongLabel}" />
+                        <Label Grid.Column="1"
+                               Text="14 GB"
+                               Style="{StaticResource MonoMetaLabel}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="18"
+                    BackgroundColor="{StaticResource PrimarySoftLight}"
+                    Stroke="{StaticResource Primary}"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="22" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="AI 清理建议"
+                           Style="{StaticResource SectionTitleLabel}" />
+                    <Label Text="发现 14 GB 可安全检查的回收站内容，以及 3 组疑似重复视频。建议先查看回收站，再整理相册中的重复片段。"
+                           Style="{StaticResource MetaLabel}"
+                           LineBreakMode="WordWrap" />
+                    <Button Text="开始智能整理"
+                            HorizontalOptions="Fill"
+                            Clicked="OnAiCleanupClicked" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

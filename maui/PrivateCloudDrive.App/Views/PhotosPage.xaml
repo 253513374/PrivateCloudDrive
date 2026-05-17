@@ -13,9 +13,15 @@
         <Grid ColumnDefinitions="*,Auto,Auto"
               ColumnSpacing="12">
             <VerticalStackLayout Spacing="4">
-                <Label Text="{x:Static loc:AppText.MediaLibrary}"
-                       Style="{StaticResource PageTitleLabel}"
-                       FontSize="26" />
+                <Label Style="{StaticResource PageTitleLabel}"
+                       FontSize="26">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="我的记忆 · " />
+                            <Span Text="{Binding ItemCountText}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
                 <Label Text="按时间线整理你的照片和视频"
                        Style="{StaticResource MetaLabel}"
                        FontSize="14"
@@ -42,23 +48,23 @@
 
         <Border Grid.Row="1"
                 Padding="14"
-                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                BackgroundColor="{StaticResource PrimarySoftLight}"
+                Stroke="{StaticResource Primary}">
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="10" />
+                <RoundRectangle CornerRadius="22" />
             </Border.StrokeShape>
             <Grid ColumnDefinitions="Auto,*"
                   ColumnSpacing="14">
                 <Border HeightRequest="50"
                         WidthRequest="50"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                        BackgroundColor="{StaticResource SurfaceLight}"
                         StrokeThickness="0"
                         VerticalOptions="Center">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="12" />
+                        <RoundRectangle CornerRadius="16" />
                     </Border.StrokeShape>
                     <shapes:Path Aspect="Uniform"
-                                 Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                 Stroke="{StaticResource Primary}"
                                  StrokeThickness="1.9"
                                  StrokeLineCap="Round"
                                  StrokeLineJoin="Round"
@@ -71,11 +77,11 @@
                 <VerticalStackLayout Grid.Column="1"
                                      Spacing="3"
                                      VerticalOptions="Center">
-                    <Label Text="{Binding ItemCountText}"
+                    <Label Text="AI 精选记忆"
                            FontFamily="OpenSansSemibold"
                            FontSize="22"
-                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-                    <Label Text="{Binding LibrarySummaryText}"
+                           TextColor="{StaticResource TextPrimaryLight}" />
+                    <Label Text="已为你聚合最近上传、人物和地点线索，继续滚动查看全部时间线。"
                            Style="{StaticResource MetaLabel}"
                            LineBreakMode="WordWrap" />
                 </VerticalStackLayout>

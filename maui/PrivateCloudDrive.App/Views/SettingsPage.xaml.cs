@@ -73,6 +73,11 @@ public partial class SettingsPage : ContentPage
         await Shell.Current.GoToAsync("shares", true);
     }
 
+    private async void OnStorageUsageClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("storage-usage", true);
+    }
+
     private async void OnWechatBindClicked(object? sender, EventArgs e)
     {
         await BindWechatAsync();

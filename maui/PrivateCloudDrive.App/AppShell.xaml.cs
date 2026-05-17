@@ -20,5 +20,6 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("shares", typeof(Views.SharesPage));
 		Routing.RegisterRoute("operation-logs", typeof(Views.OperationLogsPage));
 		Routing.RegisterRoute("trash", typeof(Views.TrashPage));
+		Routing.RegisterRoute("storage-usage", typeof(Views.StorageUsagePage));
 	}
 }

@@ -20,25 +20,30 @@
 
     <TabBar Route="main">
         <ShellContent
-            Title="{x:Static loc:AppText.Files}"
+            Title="文件"
             Icon="tab_files.png"
             ContentTemplate="{DataTemplate views:FilesPage}"
             Route="files" />
 
         <ShellContent
-            Title="{x:Static loc:AppText.MediaLibrary}"
+            Title="相册"
             Icon="tab_media.png"
             ContentTemplate="{DataTemplate views:PhotosPage}"
             Route="media-library" />
 
         <ShellContent
-            Title="{x:Static loc:AppText.Uploads}"
+            Title="+"
+            Icon="tab_uploads.png"
+            ContentTemplate="{DataTemplate views:CreateActionPage}"
+            Route="create" />
+
+        <ShellContent
+            Title="动态"
             Icon="tab_uploads.png"
             ContentTemplate="{DataTemplate views:UploadsPage}"
             Route="uploads" />
-
         <ShellContent
-            Title="{x:Static loc:AppText.Settings}"
+            Title="我的"
             Icon="tab_settings.png"
             ContentTemplate="{DataTemplate views:SettingsPage}"
             Route="settings" />

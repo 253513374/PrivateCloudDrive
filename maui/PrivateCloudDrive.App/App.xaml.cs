@@ -16,6 +16,7 @@ public partial class App : Application
 	{
 		AppText.UseDefaultCulture();
 		InitializeComponent();
+		UserAppTheme = AppTheme.Dark;
 	}
 
 	protected override Window CreateWindow(IActivationState? activationState)

@@ -4,7 +4,7 @@
              xmlns:loc="clr-namespace:PrivateCloudDrive.App.Localization"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="PrivateCloudDrive.App.Views.SettingsPage"
-             Title="{x:Static loc:AppText.Settings}"
+             Title="我的"
              Shell.NavBarIsVisible="False">
     <ScrollView>
         <VerticalStackLayout Padding="18,20,18,28"
@@ -12,10 +12,10 @@
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="12">
                 <VerticalStackLayout Spacing="4">
-                    <Label Text="{x:Static loc:AppText.Settings}"
+                    <Label Text="我的"
                            Style="{StaticResource PageTitleLabel}"
                            FontSize="26" />
-                    <Label Text="账号、服务、安全和私有部署状态"
+                    <Label Text="个人空间、容量和私有云状态"
                            Style="{StaticResource MetaLabel}"
                            FontSize="14" />
                 </VerticalStackLayout>
@@ -38,9 +38,9 @@
                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                     Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="10" />
+                    <RoundRectangle CornerRadius="22" />
                 </Border.StrokeShape>
-                <Grid RowDefinitions="Auto,Auto"
+                <Grid RowDefinitions="Auto,Auto,Auto"
                       RowSpacing="14">
                     <Grid ColumnDefinitions="Auto,*,Auto"
                           ColumnSpacing="14">
@@ -88,8 +88,36 @@
                         </Border>
                     </Grid>
 
+                    <Grid Grid.Row="1"
+                          ColumnDefinitions="*,*,*"
+                          ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="2.4K"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="18" />
+                            <Label Text="文件"
+                                   Style="{StaticResource CaptionLabel}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="2">
+                            <Label Text="86"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="18" />
+                            <Label Text="记忆"
+                                   Style="{StaticResource CaptionLabel}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2"
+                                             Spacing="2">
+                            <Label Text="62%"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="18" />
+                            <Label Text="容量"
+                                   Style="{StaticResource CaptionLabel}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
                     <Border x:Name="SettingsStatePanel"
-                            Grid.Row="1"
+                            Grid.Row="2"
                             Padding="12"
                             BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
                             StrokeThickness="0">
@@ -150,12 +178,12 @@
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
                         <Button Grid.Column="1"
-                                Text="{x:Static loc:AppText.Trash}"
+                                Text="存储用量"
                                 Style="{StaticResource SecondaryButton}"
                                 Padding="12,8"
                                 MinimumHeightRequest="40"
                                 VerticalOptions="End"
-                                Clicked="OnTrashClicked" />
+                                Clicked="OnStorageUsageClicked" />
                     </Grid>
                     <ProgressBar x:Name="StorageProgressBar"
                                  Progress="0"
@@ -174,6 +202,46 @@
                         <RoundRectangle CornerRadius="10" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="0">
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStorageUsageClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42"
+                                    WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <Label Text="容"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="17"
+                                       TextColor="{StaticResource Primary}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="存储用量"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="16" />
+                                <Label Text="查看容量分类与 AI 清理建议"
+                                       Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="›"
+                                   FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0"
+                                 HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
                         <Grid Padding="16,14"
                               ColumnDefinitions="Auto,*,Auto"
                               ColumnSpacing="14"
