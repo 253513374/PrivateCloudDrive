@@ -42,7 +42,8 @@
   - `dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-android -c Debug -p:EmbedAssembliesIntoApk=true -p:AndroidFastDeploymentType=None --no-restore`
     - 工作目录：项目根目录
     - 结果：MAUI Android Debug APK 构建成功，0 个错误；存在既有 AndroidX NU1608/XA1037 警告。
-  - 设备边界：`adb devices -l` 当前未列出设备或模拟器，因此本轮无法安装启动 App 截图；待设备可用后按“启动后端 -> 清理 App 数据 -> 安装 embedded-assemblies Debug APK -> 启动设置页截图”的验收流程回填。
+  - Android 启动验收：已启动 AVD `pixel_9_pro_-_api_36_0`，确认本地 Compose 后端 API/PostgreSQL/Redis 运行；安装 embedded-assemblies Debug APK 后执行 `adb shell pm clear com.companyname.privateclouddrive.app` 清理数据并启动 App。
+  - 截图证据：`docs/validation/app-startup-2026-05-17.png`。截图确认 PrivateCloudDrive 登录页正常显示，包含“当前连接”、默认服务器 `http://10.0.2.2:8080`、后端地址输入框、“切换服务器”、“恢复默认”和账号登录表单；前台 Activity 为 `com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity`，logcat 未发现 `FATAL EXCEPTION` / AndroidRuntime 崩溃。
 
 ### 2026-05-15
 
