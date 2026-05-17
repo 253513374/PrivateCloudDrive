@@ -206,6 +206,11 @@
                                        FontSize="12"
                                        TextColor="{StaticResource Danger}"
                                        LineBreakMode="WordWrap" />
+                                <Label Text="{Binding FailureHint}"
+                                       IsVisible="{Binding IsFailed}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                       LineBreakMode="WordWrap" />
                                 <Button Text="重试备份"
                                         IsVisible="{Binding CanRetry}"
                                         Style="{StaticResource SecondaryButton}"

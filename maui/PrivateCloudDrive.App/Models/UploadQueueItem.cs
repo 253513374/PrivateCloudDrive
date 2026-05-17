@@ -13,6 +13,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     private double _progress;
     private UploadQueueStatus _status = UploadQueueStatus.Waiting;
     private string? _errorMessage;
+    private DateTimeOffset? _lastAttemptAt;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -69,6 +70,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsFailed));
             OnPropertyChanged(nameof(IsCompleted));
             OnPropertyChanged(nameof(CanRetry));
+            OnPropertyChanged(nameof(FailureHint));
         }
     }
 
@@ -88,6 +90,22 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
         }
     }
 
+    public DateTimeOffset? LastAttemptAt
+    {
+        get => _lastAttemptAt;
+        private set
+        {
+            if (_lastAttemptAt == value)
+            {
+                return;
+            }
+
+            _lastAttemptAt = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(FailureHint));
+        }
+    }
+
     public string StatusText => AppText.UploadStatus(Status);
 
     public string ProgressText => Status == UploadQueueStatus.Completed
@@ -100,11 +118,18 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
 
     public bool CanRetry => Status == UploadQueueStatus.Failed;
 
+    public string FailureHint => IsFailed
+        ? LastAttemptAt.HasValue
+            ? $"失败任务已保留，可在确认服务器/网络恢复后重试。上次尝试：{LastAttemptAt.Value.LocalDateTime:HH:mm}"
+            : "失败任务已保留，可在确认服务器/网络恢复后重试。"
+        : string.Empty;
+
     /// <summary>
     /// 执行MarkUploading操作，封装该场景下的业务规则、异常处理和结果返回。
     /// </summary>
     public void MarkUploading()
     {
+        LastAttemptAt = DateTimeOffset.Now;
         Progress = 0;
         ErrorMessage = null;
         Status = UploadQueueStatus.Uploading;
@@ -133,6 +158,7 @@ public sealed class UploadQueueItem : INotifyPropertyChanged
     /// </summary>
     public void MarkFailed(string errorMessage)
     {
+        LastAttemptAt ??= DateTimeOffset.Now;
         ErrorMessage = errorMessage;
         Status = UploadQueueStatus.Failed;
     }
