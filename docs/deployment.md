@@ -27,8 +27,8 @@ V1 WeChat, Google, and GitHub login stay disabled by default. When enabling WeCh
 
 - PostgreSQL data: `privateclouddrive_stack_postgres_data`
 - Redis data: `privateclouddrive_stack_redis_data`
-- FileCenter local blobs, upload temp files, thumbnails, and video covers when `FILECENTER_STORAGE_PROVIDER=FileSystem`: `privateclouddrive_stack_storage`
-- FileCenter upload temp files and media-processing temp files when `FILECENTER_STORAGE_PROVIDER=AliyunOss`: `privateclouddrive_stack_storage`
+- FileCenter local blobs, upload temp files, thumbnails, and video covers when `FILECENTER_STORAGE_PROVIDER=FileSystem`: Compose logical volume `privateclouddrive_stack_storage`（实际 Docker volume 名会带 Compose project 前缀；脚本会从运行中容器挂载解析真实名称）
+- FileCenter upload temp files and media-processing temp files when `FILECENTER_STORAGE_PROVIDER=AliyunOss`: Compose logical volume `privateclouddrive_stack_storage`（实际 Docker volume 名会带 Compose project 前缀；脚本会从运行中容器挂载解析真实名称）
 - Optional MinIO data: `privateclouddrive_stack_minio_data`
 
 ## Backup and Restore Drill
@@ -38,6 +38,12 @@ PrivateCloudDrive 的最小可恢复备份由三部分组成：
 1. PostgreSQL 逻辑备份：账号、权限、文件索引、分享、相册、媒体处理状态和审计日志。
 2. FileCenter storage volume：本地文件、上传临时文件、缩略图、视频封面和媒体处理临时文件。
 3. 与实例匹配的 `.env`：数据库密码、加密短语、公开 URL、存储提供商和外部登录密钥。默认备份命令不会复制 `.env`，因为它包含敏感信息。
+
+推荐先执行一键非破坏性演练。该命令会创建备份、校验 `manifest.json` / `postgres.dump` / `storage.tar.gz`、执行恢复 dry-run，并在 `docs/validation/` 生成演练报告；默认不会复制 `.env` 或覆盖任何数据：
+
+```powershell
+.\scripts\run-backup-restore-drill.ps1
+```
 
 创建本地栈备份：
 
@@ -57,7 +63,7 @@ PrivateCloudDrive 的最小可恢复备份由三部分组成：
 备份目录包含：
 
 - `postgres.dump`：`pg_dump --format=custom` 生成的数据库备份。
-- `storage.tar.gz`：`privateclouddrive_stack_storage` volume 归档。
+- `storage.tar.gz`：FileCenter storage 真实 Docker volume 归档；脚本会优先读取 API 容器 `/app/storage` 挂载到的实际 volume 名，并在 `manifest.json` 的 `storage.dockerVolume` 中记录。
 - `manifest.json`：提交号、备份时间、文件清单和 PASS/WARN/FAIL 汇总，不包含明文 secret。
 - `ENVIRONMENT-REQUIRED.md` 或 `.env.secret`：恢复时的环境变量说明或敏感环境文件副本。
 
@@ -78,7 +84,7 @@ PrivateCloudDrive 的最小可恢复备份由三部分组成：
 1. 停止 API、media-worker、db-migrator 和 MinIO，避免恢复时仍有进程读写数据库或 storage volume。
 2. 启动 PostgreSQL/Redis。
 3. 将 `postgres.dump` 复制进 PostgreSQL 容器，并用 `pg_restore --clean --if-exists --no-owner --no-privileges` 恢复到当前 Compose 目标数据库。
-4. 用临时 Alpine 容器清空并解包 `storage.tar.gz` 到 `privateclouddrive_stack_storage` volume。
+4. 用临时 Alpine 容器清空并解包 `storage.tar.gz` 到备份 manifest 记录或当前 API 容器 `/app/storage` 挂载的真实 FileCenter storage volume。
 5. 可选恢复 `redis-dump.rdb` 和 `minio.tar.gz`；Redis 恢复后会用 `redis-cli ping` 验证。
 6. 默认启动完整栈并运行 `.\scripts\verify-local-stack.ps1 -SkipStart`。
 7. 恢复后仍需用测试账号验证登录、文件列表、下载/预览、媒体缩略图和分享链接。

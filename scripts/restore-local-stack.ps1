@@ -144,6 +144,41 @@ function Read-DotEnvKeys {
     return $map
 }
 
+function Resolve-ComposeVolumeName {
+    param(
+        [string]$LogicalName,
+        [string]$Service,
+        [string]$ContainerPath,
+        [object]$ManifestVolume
+    )
+
+    if ($null -ne $ManifestVolume -and -not [string]::IsNullOrWhiteSpace($ManifestVolume.dockerVolume)) {
+        return $ManifestVolume.dockerVolume
+    }
+
+    $containerId = Get-ComposeContainerId $Service
+    if (-not [string]::IsNullOrWhiteSpace($containerId)) {
+        $mountsResult = Invoke-External "docker" @("inspect", "--format", "{{json .Mounts}}", $containerId) -AllowFailure
+        if ($mountsResult.ExitCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($mountsResult.Output)) {
+            $mounts = $mountsResult.Output | ConvertFrom-Json
+            $mount = $mounts | Where-Object { $_.Type -eq "volume" -and $_.Destination -eq $ContainerPath } | Select-Object -First 1
+            if ($null -ne $mount -and -not [string]::IsNullOrWhiteSpace($mount.Name)) {
+                return $mount.Name
+            }
+        }
+    }
+
+    $configResult = Invoke-External "docker" @("compose", "config", "--format", "json") -AllowFailure
+    if ($configResult.ExitCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($configResult.Output)) {
+        $config = $configResult.Output | ConvertFrom-Json
+        if (-not [string]::IsNullOrWhiteSpace($config.name)) {
+            return ("{0}_{1}" -f $config.name, $LogicalName)
+        }
+    }
+
+    return $LogicalName
+}
+
 function Restore-NamedVolume {
     param(
         [string]$VolumeName,
@@ -216,6 +251,11 @@ try {
         Add-CheckResult "WARN" "manifest-postgres" "Manifest does not include PostgreSQL database name; falling back to current Compose environment."
     }
 
+    $storageVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_storage" "api" "/app/storage" $manifest.storage
+    if (-not $ConfirmDestructiveRestore) {
+        Add-CheckResult "PASS" "storage-volume" ("Restore target storage volume: {0}." -f $storageVolumeName)
+    }
+
     if (-not $ConfirmDestructiveRestore) {
         Add-CheckResult "WARN" "dry-run" "No data was changed. Re-run with -ConfirmDestructiveRestore to overwrite target PostgreSQL data and storage volume."
         Write-Host ""
@@ -225,7 +265,7 @@ try {
         $restoreSteps.Add("Stop API, media-worker, db-migrator, and MinIO if they are running.") | Out-Null
         $restoreSteps.Add("Start postgres/redis if needed.") | Out-Null
         $restoreSteps.Add("Restore postgres.dump with pg_restore --clean --if-exists.") | Out-Null
-        $restoreSteps.Add("Replace privateclouddrive_stack_storage with storage.tar.gz contents.") | Out-Null
+        $restoreSteps.Add(("Replace {0} with storage.tar.gz contents." -f $storageVolumeName)) | Out-Null
         if ($RestoreRedis) { $restoreSteps.Add("Restore redis-dump.rdb if present and verify Redis PONG.") | Out-Null }
         if ($RestoreMinio) { $restoreSteps.Add("Replace privateclouddrive_stack_minio_data with minio.tar.gz contents.") | Out-Null }
         if (-not $SkipStart) { $restoreSteps.Add("Start docker compose stack.") | Out-Null }
@@ -265,8 +305,8 @@ try {
     Invoke-External "docker" @("compose", "exec", "-T", "postgres", "rm", "-f", $dumpInContainer) -AllowFailure | Out-Null
     Add-CheckResult "PASS" "postgres-restore" "Restored PostgreSQL dump."
 
-    Restore-NamedVolume "privateclouddrive_stack_storage" "storage.tar.gz" $backupPath
-    Add-CheckResult "PASS" "storage-restore" "Restored storage volume from storage.tar.gz."
+    Restore-NamedVolume $storageVolumeName "storage.tar.gz" $backupPath
+    Add-CheckResult "PASS" "storage-restore" ("Restored storage volume {0} from storage.tar.gz." -f $storageVolumeName)
 
     if ($RestoreRedis) {
         $redisDumpPath = Join-Path $backupPath "redis-dump.rdb"
@@ -305,8 +345,9 @@ try {
         $minioArchivePath = Join-Path $backupPath "minio.tar.gz"
         if (Test-Path $minioArchivePath) {
             Require-File $minioArchivePath "minio-archive"
-            Restore-NamedVolume "privateclouddrive_stack_minio_data" "minio.tar.gz" $backupPath
-            Add-CheckResult "PASS" "minio-restore" "Restored MinIO volume from minio.tar.gz."
+            $minioVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_minio_data" "minio" "/data" $null
+            Restore-NamedVolume $minioVolumeName "minio.tar.gz" $backupPath
+            Add-CheckResult "PASS" "minio-restore" ("Restored MinIO volume {0} from minio.tar.gz." -f $minioVolumeName)
         }
         else {
             Add-CheckResult "WARN" "minio-restore" "minio.tar.gz not found in backup directory."

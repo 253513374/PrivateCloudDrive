@@ -50,6 +50,16 @@
   - 登录后 Android 验收：已执行 `adb shell pm clear com.companyname.privateclouddrive.app` 清理数据并重新启动；本地 `/connect/token` 返回 Bearer/refresh token（未输出 token 明文）；App 内用 admin 登录成功后进入 StorageUsagePage；`docs/validation/android-logcat-admin-login-2026-05-18.log` 与 `docs/validation/android-logcat-storage-page-2026-05-18.log` 未发现 `FATAL EXCEPTION` / AndroidRuntime 崩溃。
   - 验收结论：StorageUsagePage App 可见验收通过；“存储位置 / 恢复边界 / 隐私边界”展示符合信任边界预期，且未发现敏感配置泄露。
 
+- Private Backup MVP：备份/恢复非破坏性演练入口与真实 storage volume 修正
+  - 范围：新增 `scripts/run-backup-restore-drill.ps1`，一键执行“创建备份 → 校验 `manifest.json` / `postgres.dump` / `storage.tar.gz` → 恢复 dry-run → 生成 `docs/validation` 演练报告”；默认不复制 `.env`，不执行破坏性恢复。同步修正 `backup-local-stack.ps1` / `restore-local-stack.ps1`，从运行中 API 容器 `/app/storage` 挂载解析真实 Docker volume 名，并把 `storage.dockerVolume` 写入 manifest，避免 Compose project 前缀导致备份到空 volume。
+  - 发现与修正：初次演练生成的 `storage.tar.gz` 仅 87 bytes；复核 API 容器挂载后确认实际 volume 为 Compose project 前缀后的 FileCenter storage volume，修正脚本后重新演练生成 `storage.tar.gz` 约 57 MB，包含 `/app/storage` 下文件负载。
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-backup-restore-drill.ps1`
+    - 工作目录：项目根目录
+    - 结果：PASS 14 / WARN 0 / FAIL 0；生成 PostgreSQL dump、真实 FileCenter storage archive、环境变量恢复清单与恢复 dry-run 报告；未复制 `.env.secret`，未覆盖任何目标数据。
+    - 报告：`docs/validation/backup-restore-drill-20260518-193513.md`。
+  - PowerShell 语法检查：`backup-local-stack.ps1`、`restore-local-stack.ps1`、`run-backup-restore-drill.ps1` 均通过 AST 解析。
+  - Git 差异检查：`git diff --check` 通过；仅存在换行符提示，无 whitespace error。
+
 ### 2026-05-17
 
 - Private Backup MVP：备份队列成功时间与失败优先摘要

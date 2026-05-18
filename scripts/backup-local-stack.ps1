@@ -141,6 +141,36 @@ function Get-ComposeServiceEnvValue {
     return $result.Output.Trim()
 }
 
+function Resolve-ComposeVolumeName {
+    param(
+        [string]$LogicalName,
+        [string]$Service,
+        [string]$ContainerPath
+    )
+
+    $containerId = Get-ComposeContainerId $Service
+    if (-not [string]::IsNullOrWhiteSpace($containerId)) {
+        $mountsResult = Invoke-External "docker" @("inspect", "--format", "{{json .Mounts}}", $containerId) -AllowFailure
+        if ($mountsResult.ExitCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($mountsResult.Output)) {
+            $mounts = $mountsResult.Output | ConvertFrom-Json
+            $mount = $mounts | Where-Object { $_.Type -eq "volume" -and $_.Destination -eq $ContainerPath } | Select-Object -First 1
+            if ($null -ne $mount -and -not [string]::IsNullOrWhiteSpace($mount.Name)) {
+                return $mount.Name
+            }
+        }
+    }
+
+    $configResult = Invoke-External "docker" @("compose", "config", "--format", "json") -AllowFailure
+    if ($configResult.ExitCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($configResult.Output)) {
+        $config = $configResult.Output | ConvertFrom-Json
+        if (-not [string]::IsNullOrWhiteSpace($config.name)) {
+            return ("{0}_{1}" -f $config.name, $LogicalName)
+        }
+    }
+
+    return $LogicalName
+}
+
 function Copy-DockerFileFromContainer {
     param(
         [string]$ContainerId,
@@ -256,9 +286,15 @@ try {
     $manifest.files.Add([ordered]@{ path = "postgres.dump"; bytes = $dbDumpSize; purpose = "PostgreSQL logical backup" }) | Out-Null
     Add-CheckResult "PASS" "postgres-dump" ("Created PostgreSQL dump ({0} bytes)." -f $dbDumpSize)
 
-    $storageArchiveSize = Backup-NamedVolume "privateclouddrive_stack_storage" "storage.tar.gz" $backupPath
-    $manifest.files.Add([ordered]@{ path = "storage.tar.gz"; bytes = $storageArchiveSize; purpose = "FileCenter local storage, upload temp files, thumbnails, and video covers" }) | Out-Null
-    Add-CheckResult "PASS" "storage-volume" ("Archived storage volume ({0} bytes)." -f $storageArchiveSize)
+    $storageVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_storage" "api" "/app/storage"
+    $manifest.storage = [ordered]@{
+        logicalVolume = "privateclouddrive_stack_storage"
+        dockerVolume = $storageVolumeName
+        mountPath = "/app/storage"
+    }
+    $storageArchiveSize = Backup-NamedVolume $storageVolumeName "storage.tar.gz" $backupPath
+    $manifest.files.Add([ordered]@{ path = "storage.tar.gz"; bytes = $storageArchiveSize; purpose = "FileCenter local storage, upload temp files, thumbnails, and video covers"; dockerVolume = $storageVolumeName }) | Out-Null
+    Add-CheckResult "PASS" "storage-volume" ("Archived storage volume {0} ({1} bytes)." -f $storageVolumeName, $storageArchiveSize)
 
     if ($IncludeRedis) {
         $redisContainerId = Get-ComposeContainerId "redis"
@@ -279,9 +315,10 @@ try {
     }
 
     if ($IncludeMinio) {
-        $minioArchiveSize = Backup-NamedVolume "privateclouddrive_stack_minio_data" "minio.tar.gz" $backupPath
-        $manifest.files.Add([ordered]@{ path = "minio.tar.gz"; bytes = $minioArchiveSize; purpose = "Optional MinIO profile data" }) | Out-Null
-        Add-CheckResult "PASS" "minio-volume" ("Archived MinIO volume ({0} bytes)." -f $minioArchiveSize)
+        $minioVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_minio_data" "minio" "/data"
+        $minioArchiveSize = Backup-NamedVolume $minioVolumeName "minio.tar.gz" $backupPath
+        $manifest.files.Add([ordered]@{ path = "minio.tar.gz"; bytes = $minioArchiveSize; purpose = "Optional MinIO profile data"; dockerVolume = $minioVolumeName }) | Out-Null
+        Add-CheckResult "PASS" "minio-volume" ("Archived MinIO volume {0} ({1} bytes)." -f $minioVolumeName, $minioArchiveSize)
     }
 
     if ($IncludeEnv) {
