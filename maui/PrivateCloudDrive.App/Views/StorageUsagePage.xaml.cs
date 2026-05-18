@@ -62,6 +62,9 @@ public partial class StorageUsagePage : ContentPage
         DiskSpaceLabel.Text = "磁盘空间：读取中";
         QuotaStateLabel.Text = "容量策略：读取中";
         StorageHealthLabel.Text = "健康状态：读取中";
+        StorageLocationLabel.Text = "存储位置：读取中";
+        BackupScopeLabel.Text = "恢复边界：读取中";
+        PrivacyBoundaryLabel.Text = "隐私边界：读取中";
         StorageSuggestionLabel.Text = "正在检查私有备份空间。";
     }
 
@@ -75,6 +78,9 @@ public partial class StorageUsagePage : ContentPage
         DiskSpaceLabel.Text = "磁盘空间：不可用";
         QuotaStateLabel.Text = "容量策略：不可用";
         StorageHealthLabel.Text = "健康状态：不可用";
+        StorageLocationLabel.Text = "存储位置：登录后读取";
+        BackupScopeLabel.Text = "恢复边界：登录后读取";
+        PrivacyBoundaryLabel.Text = "隐私边界：登录后读取";
         StorageSuggestionLabel.Text = "请先登录当前私有备份服务器。";
     }
 
@@ -99,10 +105,19 @@ public partial class StorageUsagePage : ContentPage
             : "磁盘空间：当前存储后端未提供磁盘容量";
         QuotaStateLabel.Text = usage.IsQuotaConfigured
             ? $"容量策略：已配置配额，使用 {percent:0.#}%"
-            : "容量策略：未配置容量上限，按服务器磁盘可用空间备份";
+            : FormatUnboundedQuotaPolicy(health);
         StorageHealthLabel.Text = health.Diagnostics.Count == 0
             ? $"健康状态：{FormatHealthStatus(health.OverallStatus)} · 更新时间 {health.GeneratedAt:yyyy-MM-dd HH:mm}"
             : $"健康状态：{FormatHealthStatus(health.OverallStatus)} · {string.Join("；", health.Diagnostics.Take(3))}";
+        StorageLocationLabel.Text = string.IsNullOrWhiteSpace(health.StorageLocationDescription)
+            ? "存储位置：服务器未返回可展示说明"
+            : $"存储位置：{health.StorageLocationDescription}";
+        BackupScopeLabel.Text = string.IsNullOrWhiteSpace(health.BackupScopeDescription)
+            ? "恢复边界：请同时备份数据库、文件存储和部署配置；仅备份手机 App 本机数据不能恢复服务器文件。"
+            : $"恢复边界：{health.BackupScopeDescription}";
+        PrivacyBoundaryLabel.Text = string.IsNullOrWhiteSpace(health.PrivacyBoundaryDescription)
+            ? "隐私边界：文件保存到当前连接的私有后端，分享链接会扩大访问边界。"
+            : $"隐私边界：{health.PrivacyBoundaryDescription}";
 
         StorageSuggestionLabel.Text = health.OverallStatus == SystemHealthStatus.Healthy
             ? "私有备份服务器运行正常，可以继续备份照片、视频和本机文件。"
@@ -113,13 +128,30 @@ public partial class StorageUsagePage : ContentPage
     {
         UsagePercentLabel.Text = "--";
         UsageAmountLabel.Text = "无法读取容量";
-        UsageDetailLabel.Text = message;
+        UsageDetailLabel.Text = string.IsNullOrWhiteSpace(message)
+            ? "请确认当前私有备份服务器在线后重试。"
+            : "请确认当前私有备份服务器在线，或稍后在“我的”页重新进入存储用量。";
         UsageProgressBar.Progress = 0;
         StorageProviderLabel.Text = "后端存储：读取失败";
         DiskSpaceLabel.Text = "磁盘空间：读取失败";
         QuotaStateLabel.Text = "容量策略：读取失败";
         StorageHealthLabel.Text = "健康状态：读取失败";
+        StorageLocationLabel.Text = "存储位置：读取失败，未展示服务器内部路径或存储标识";
+        BackupScopeLabel.Text = "恢复边界：读取失败，请按部署文档保守备份数据库、文件存储和部署密钥配置。";
+        PrivacyBoundaryLabel.Text = "隐私边界：读取失败，当前页面不会展示连接串、密钥、Token 或存储内部标识。";
         StorageSuggestionLabel.Text = "请确认当前私有备份服务器在线，并在“我的”页重试。";
+    }
+
+    private static string FormatUnboundedQuotaPolicy(SystemHealthSummary health)
+    {
+        if (string.Equals(health.StorageProvider, "AliyunOss", StringComparison.OrdinalIgnoreCase))
+        {
+            return "容量策略：未配置容量上限，容量受对象存储配额和计费策略影响";
+        }
+
+        return health.StorageDiskTotalBytes > 0
+            ? "容量策略：未配置容量上限，按服务器磁盘可用空间备份"
+            : "容量策略：未配置容量上限，请以当前存储后端实际限制为准";
     }
 
     private async void OnBackClicked(object? sender, EventArgs e)

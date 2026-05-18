@@ -1,0 +1,29 @@
+  PrivateCloudDrive.TestBase -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.TestBase\bin\Debug\net10.0\PrivateCloudDrive.TestBase.dll
+D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.TestBase\bin\Debug\net10.0\PrivateCloudDrive.TestBase.dll (.NETCoreApp,Version=v10.0)的测试运行
+总共 1 个测试文件与指定模式相匹配。
+  PrivateCloudDrive.Domain.Shared -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\src\PrivateCloudDrive.Domain.Shared\bin\Debug\net10.0\PrivateCloudDrive.Domain.Shared.dll
+  PrivateCloudDrive.Domain -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\src\PrivateCloudDrive.Domain\bin\Debug\net10.0\PrivateCloudDrive.Domain.dll
+D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.TestBase\bin\Debug\net10.0\PrivateCloudDrive.TestBase.dll 中没有可用测试。请确保已注册测试发现器和执行器且平台和框架版本设置合理，然后重试。
+
+此外，还可以使用 /TestAdapterPath 命令指定测试适配器的路径。示例 /TestAdapterPath:<pathToCustomAdapters>。
+  PrivateCloudDrive.Application.Contracts -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\src\PrivateCloudDrive.Application.Contracts\bin\Debug\net10.0\PrivateCloudDrive.Application.Contracts.dll
+  PrivateCloudDrive.Domain.Tests -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.Domain.Tests\bin\Debug\net10.0\PrivateCloudDrive.Domain.Tests.dll
+D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.Domain.Tests\bin\Debug\net10.0\PrivateCloudDrive.Domain.Tests.dll (.NETCoreApp,Version=v10.0)的测试运行
+  PrivateCloudDrive.Application -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\src\PrivateCloudDrive.Application\bin\Debug\net10.0\PrivateCloudDrive.Application.dll
+  PrivateCloudDrive.EntityFrameworkCore -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\src\PrivateCloudDrive.EntityFrameworkCore\bin\Debug\net10.0\PrivateCloudDrive.EntityFrameworkCore.dll
+总共 1 个测试文件与指定模式相匹配。
+D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.Domain.Tests\bin\Debug\net10.0\PrivateCloudDrive.Domain.Tests.dll 中没有可用测试。请确保已注册测试发现器和执行器且平台和框架版本设置合理，然后重试。
+
+此外，还可以使用 /TestAdapterPath 命令指定测试适配器的路径。示例 /TestAdapterPath:<pathToCustomAdapters>。
+  PrivateCloudDrive.HttpApi -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\src\PrivateCloudDrive.HttpApi\bin\Debug\net10.0\PrivateCloudDrive.HttpApi.dll
+  PrivateCloudDrive.Application.Tests -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.Application.Tests\bin\Debug\net10.0\PrivateCloudDrive.Application.Tests.dll
+D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.Application.Tests\bin\Debug\net10.0\PrivateCloudDrive.Application.Tests.dll (.NETCoreApp,Version=v10.0)的测试运行
+总共 1 个测试文件与指定模式相匹配。
+D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.Application.Tests\bin\Debug\net10.0\PrivateCloudDrive.Application.Tests.dll 中没有可用测试。请确保已注册测试发现器和执行器且平台和框架版本设置合理，然后重试。
+
+此外，还可以使用 /TestAdapterPath 命令指定测试适配器的路径。示例 /TestAdapterPath:<pathToCustomAdapters>。
+  PrivateCloudDrive.EntityFrameworkCore.Tests -> D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.EntityFrameworkCore.Tests\bin\Debug\net10.0\PrivateCloudDrive.EntityFrameworkCore.Tests.dll
+D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\test\PrivateCloudDrive.EntityFrameworkCore.Tests\bin\Debug\net10.0\PrivateCloudDrive.EntityFrameworkCore.Tests.dll (.NETCoreApp,Version=v10.0)的测试运行
+总共 1 个测试文件与指定模式相匹配。
+
+已通过! - 失败:     0，通过:   107，已跳过:     0，总计:   107，持续时间: 20 s - PrivateCloudDrive.EntityFrameworkCore.Tests.dll (net10.0)

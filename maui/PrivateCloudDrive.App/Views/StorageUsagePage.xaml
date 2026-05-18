@@ -79,6 +79,16 @@
                 <VerticalStackLayout Spacing="14">
                     <Grid ColumnDefinitions="Auto,*"
                           ColumnSpacing="12">
+                        <Label Text="位"
+                               Style="{StaticResource BodyStrongLabel}" />
+                        <Label x:Name="StorageLocationLabel"
+                               Grid.Column="1"
+                               Text="存储位置：读取中"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
                         <Label Text="存"
                                Style="{StaticResource BodyStrongLabel}" />
                         <Label x:Name="StorageProviderLabel"
@@ -114,6 +124,26 @@
                         <Label x:Name="StorageHealthLabel"
                                Grid.Column="1"
                                Text="健康状态：读取中"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+                        <Label Text="恢"
+                               Style="{StaticResource BodyStrongLabel}" />
+                        <Label x:Name="BackupScopeLabel"
+                               Grid.Column="1"
+                               Text="恢复边界：读取中"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+                        <Label Text="隐"
+                               Style="{StaticResource BodyStrongLabel}" />
+                        <Label x:Name="PrivacyBoundaryLabel"
+                               Grid.Column="1"
+                               Text="隐私边界：读取中"
                                Style="{StaticResource MetaLabel}"
                                LineBreakMode="WordWrap" />
                     </Grid>
