@@ -31,7 +31,7 @@
 
 - Private Backup MVP：存储用量页信任边界说明进入 Android 验收
   - 范围：MAUI `StorageUsagePage` 在存储健康卡片中新增“存储位置 / 恢复边界 / 隐私边界”三项；容量未配置时根据存储后端区分 FileSystem 与 AliyunOss 文案，避免将对象存储误描述为“按服务器磁盘可用空间备份”；读取失败态改为保守提示，不展示连接串、密钥、Token、服务器内部路径或存储内部标识。
-  - 内部会诊：登录后页面验收被凭据问题阻塞后，按 Identity/Auth、Backend、QA/Release 视角复核；结论为不得暴力尝试密码，不得把启动截图当作登录后页面验收证据；可记录构建、后端健康、安装启动和登录阻塞，StorageUsagePage App 内可见改动必须在拿到有效测试凭据后补验。
+  - 内部会诊：登录后页面验收最初被凭据问题阻塞后，按 Identity/Auth、Backend、QA/Release 视角复核；结论为不得暴力尝试密码，不得把启动截图当作登录后页面验收证据。随后经用户授权，仅对本地 Docker 验收库重置 admin 测试密码，并用 `/connect/token` 验证成功后补齐登录后页面验收。
   - `dotnet test PrivateCloudDrive.slnx --configuration Debug --no-restore`
     - 工作目录：`aspnet-core`
     - 结果：命令 0 退出；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 107 个测试；`TestBase`、`Domain.Tests`、`Application.Tests` 当前无可发现测试。
@@ -42,9 +42,13 @@
     - 日志：`docs/validation/maui-android-build-2026-05-18.log`。
   - 后端健康：`docker compose ps` 显示 API、media-worker、PostgreSQL、Redis 运行；`http://localhost:8080/swagger/index.html` 返回 200。
   - Android 安装启动验收：安装最新 `com.companyname.privateclouddrive.app-Signed.apk` 后执行 `adb shell pm clear com.companyname.privateclouddrive.app` 清理数据并启动 App；前台 Activity 为 `com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity`；logcat 未发现 `FATAL EXCEPTION` / AndroidRuntime 崩溃。
-  - 截图证据：`docs/validation/storage-trust-boundary-latest-2026-05-18.png`。截图确认 App 正常启动到 PrivateCloudDrive 登录页，默认服务器为 `http://10.0.2.2:8080`，无黑屏、崩溃弹窗或系统错误覆盖。
-  - 登录阻塞：`docs/auth-design.md` 示例 `admin / ChangeMe_123456` 和 ConsoleTestApp 配置 `admin / 1q2w3E*` 均被 `/connect/token` 拒绝为 `invalid_grant`；公开注册返回用户 DTO，但 token handler 日志仍显示找不到该用户名，且当前 Compose `AbpUsers` 未出现该用户。直接本地 DB 重置被工具安全策略阻止，因此本次不继续改写数据库。
-  - 未完成验收：尚未进入登录后的 StorageUsagePage，不能声称“存储位置 / 恢复边界 / 隐私边界”在 Android App 内展示通过，也不能声称读取失败态脱敏和 AliyunOss 配额文案已完成 App 可见验收；待获得有效测试账号或安全重置通道后补齐截图/录屏。
+  - 截图证据：
+    - `docs/validation/storage-trust-boundary-latest-2026-05-18.png`：首次安装启动到 PrivateCloudDrive 登录页，默认服务器为 `http://10.0.2.2:8080`，无黑屏、崩溃弹窗或系统错误覆盖。
+    - `docs/validation/storage-trust-boundary-admin-login-2026-05-18.png`：授权重置本地验收 admin 密码后，App 成功登录并进入 `MSI_MEG.jpg` 文件详情页，证明登录链路已恢复。
+    - `docs/validation/storage-trust-boundary-my-page-2026-05-18.png`：登录后“我的”页显示当前账号、在线状态、存储空间概览与“存储用量”入口。
+    - `docs/validation/storage-trust-boundary-storage-page-2026-05-18.png`：登录后进入 StorageUsagePage，可见“存储位置 / 恢复边界 / 隐私边界”文案；页面只展示概念性存储位置与后端类型，不泄露连接串、密钥、Token、服务器绝对路径或对象存储 bucket 名。
+  - 登录后 Android 验收：已执行 `adb shell pm clear com.companyname.privateclouddrive.app` 清理数据并重新启动；本地 `/connect/token` 返回 Bearer/refresh token（未输出 token 明文）；App 内用 admin 登录成功后进入 StorageUsagePage；`docs/validation/android-logcat-admin-login-2026-05-18.log` 与 `docs/validation/android-logcat-storage-page-2026-05-18.log` 未发现 `FATAL EXCEPTION` / AndroidRuntime 崩溃。
+  - 验收结论：StorageUsagePage App 可见验收通过；“存储位置 / 恢复边界 / 隐私边界”展示符合信任边界预期，且未发现敏感配置泄露。
 
 ### 2026-05-17
 
