@@ -6,6 +6,7 @@ PrivateCloudDrive 面向个人、家庭和小团队，目标是把自己的服�
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Product Stage](https://img.shields.io/badge/stage-private--backup--MVP-blue)](docs/roadmap-public.md)
+[![CI](https://github.com/253513374/PrivateCloudDrive/actions/workflows/ci.yml/badge.svg)](https://github.com/253513374/PrivateCloudDrive/actions/workflows/ci.yml)
 
 ## 为什么开源
 
