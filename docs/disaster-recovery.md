@@ -103,6 +103,15 @@ Copy-Item .env.example .env
 .\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\20260518-193510 -ConfirmDestructiveRestore
 ```
 
+如使用一次性 Compose project 名称验证恢复，请显式使用当前 Compose project 的新 volume，避免误写回备份 manifest 记录的源 volume：
+
+```powershell
+$env:COMPOSE_PROJECT_NAME = "pcd-drill-20260518"
+.\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\20260518-193510 -ConfirmDestructiveRestore -UseCurrentComposeProjectVolumes
+```
+
+`-UseCurrentComposeProjectVolumes` 会忽略备份 manifest 中记录的源 Docker volume 名，并按当前 `COMPOSE_PROJECT_NAME` / `docker compose config` 解析目标 volume。该参数只影响 volume 目标选择，不会降低 `-ConfirmDestructiveRestore` 的显式确认要求。
+
 4. 如备份中包含 Redis 或 MinIO，按需显式开启：
 
 ```powershell
@@ -144,5 +153,6 @@ Copy-Item .env.example .env
 ## 当前公开演练证据
 
 - `docs/validation/backup-restore-drill-20260518-193513.md`：已完成非破坏性备份 + 恢复 dry-run，PASS 14 / WARN 0 / FAIL 0；证明当前控制路径能生成并校验 `manifest.json`、`postgres.dump`、`storage.tar.gz` 和 `ENVIRONMENT-REQUIRED.md`。
+- `docs/validation/backup-restore-destructive-test-stack-20260521-215020.md`：已完成一次性 Compose project `pcd_drill_test` 的破坏性恢复验收，restore PASS 14 / WARN 1 / FAIL 0；恢复后红线烟测覆盖登录、文件列表、上传、Range 下载/内容预览、公开分享、回收站恢复和审计脱敏样本。
 
-该报告不是生产破坏性恢复签字。生产发布前还需要在一次性测试栈执行 `-ConfirmDestructiveRestore`，并按上方“恢复后验收清单”补充登录、文件列表、下载/预览和分享链路证据。
+以上报告证明本地 Compose 公开部署路径已具备“备份、dry-run、一次性测试栈破坏性恢复、恢复后核心链路验收”的公开证据。真实生产恢复前仍必须先保留事故现场备份，确认目标主机、Compose project、`.env` 与备份匹配，并按本 Runbook 重新执行一次面向目标环境的脱敏验收。

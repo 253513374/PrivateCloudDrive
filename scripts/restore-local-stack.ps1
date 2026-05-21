@@ -4,6 +4,7 @@ param(
     [switch]$ConfirmDestructiveRestore,
     [switch]$RestoreRedis,
     [switch]$RestoreMinio,
+    [switch]$UseCurrentComposeProjectVolumes,
     [switch]$SkipStart,
     [switch]$SkipVerify
 )
@@ -102,6 +103,33 @@ function Get-ContainerState {
     return $result.Output.Trim()
 }
 
+function Wait-ComposeServiceReady {
+    param(
+        [string]$Service,
+        [int]$TimeoutSeconds = 120
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    do {
+        $containerId = Get-ComposeContainerId $Service
+        if (-not [string]::IsNullOrWhiteSpace($containerId)) {
+            $stateResult = Invoke-External "docker" @("inspect", "--format", "{{.State.Status}}|{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}", $containerId) -AllowFailure
+            if ($stateResult.ExitCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($stateResult.Output)) {
+                $parts = $stateResult.Output.Trim() -split "\|", 2
+                $state = $parts[0]
+                $health = if ($parts.Count -gt 1) { $parts[1] } else { "none" }
+                if ($state -eq "running" -and ($health -eq "healthy" -or $health -eq "none")) {
+                    return $containerId
+                }
+            }
+        }
+
+        Start-Sleep -Seconds 2
+    } while ((Get-Date) -lt $deadline)
+
+    throw ("Timed out waiting for Compose service '{0}' to become ready." -f $Service)
+}
+
 function Get-ComposeServiceEnvValue {
     param(
         [string]$Service,
@@ -149,10 +177,11 @@ function Resolve-ComposeVolumeName {
         [string]$LogicalName,
         [string]$Service,
         [string]$ContainerPath,
-        [object]$ManifestVolume
+        [object]$ManifestVolume,
+        [switch]$IgnoreManifestVolume
     )
 
-    if ($null -ne $ManifestVolume -and -not [string]::IsNullOrWhiteSpace($ManifestVolume.dockerVolume)) {
+    if (-not $IgnoreManifestVolume -and $null -ne $ManifestVolume -and -not [string]::IsNullOrWhiteSpace($ManifestVolume.dockerVolume)) {
         return $ManifestVolume.dockerVolume
     }
 
@@ -195,7 +224,7 @@ function Restore-NamedVolume {
         "alpine:3.20",
         "sh",
         "-c",
-        ("find /volume -mindepth 1 -maxdepth 1 -exec rm -rf {} + && tar -xzf /backup/{0} -C /volume" -f $ArchiveName)
+        ("find /volume -mindepth 1 -maxdepth 1 -exec rm -rf {{}} + && tar -xzf /backup/{0} -C /volume" -f $ArchiveName)
     ) | Out-Null
 }
 
@@ -251,7 +280,11 @@ try {
         Add-CheckResult "WARN" "manifest-postgres" "Manifest does not include PostgreSQL database name; falling back to current Compose environment."
     }
 
-    $storageVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_storage" "api" "/app/storage" $manifest.storage
+    if ($UseCurrentComposeProjectVolumes) {
+        Add-CheckResult "PASS" "volume-resolution-mode" "Ignoring backup manifest docker volume names; restoring into the current Compose project volumes."
+    }
+
+    $storageVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_storage" "api" "/app/storage" $manifest.storage -IgnoreManifestVolume:$UseCurrentComposeProjectVolumes
     if (-not $ConfirmDestructiveRestore) {
         Add-CheckResult "PASS" "storage-volume" ("Restore target storage volume: {0}." -f $storageVolumeName)
     }
@@ -267,7 +300,7 @@ try {
         $restoreSteps.Add("Restore postgres.dump with pg_restore --clean --if-exists.") | Out-Null
         $restoreSteps.Add(("Replace {0} with storage.tar.gz contents." -f $storageVolumeName)) | Out-Null
         if ($RestoreRedis) { $restoreSteps.Add("Restore redis-dump.rdb if present and verify Redis PONG.") | Out-Null }
-        if ($RestoreMinio) { $restoreSteps.Add("Replace privateclouddrive_stack_minio_data with minio.tar.gz contents.") | Out-Null }
+        if ($RestoreMinio) { $restoreSteps.Add("Replace current Compose project's MinIO volume with minio.tar.gz contents.") | Out-Null }
         if (-not $SkipStart) { $restoreSteps.Add("Start docker compose stack.") | Out-Null }
         if (-not $SkipVerify) { $restoreSteps.Add("Run scripts/verify-local-stack.ps1 -SkipStart.") | Out-Null }
 
@@ -287,7 +320,8 @@ try {
     Invoke-External "docker" @("compose", "up", "-d", "postgres", "redis") | Out-Null
     Add-CheckResult "PASS" "compose-up-core" "Started postgres and redis services."
 
-    $postgresContainerId = Get-ComposeContainerId "postgres"
+    $postgresContainerId = Wait-ComposeServiceReady "postgres" 120
+    Add-CheckResult "PASS" "postgres-ready" "PostgreSQL service is running and healthy."
     if ([string]::IsNullOrWhiteSpace($postgresContainerId) -or (Get-ContainerState $postgresContainerId) -ne "running") {
         Add-CheckResult "FAIL" "postgres" "PostgreSQL container is not running after compose up."
         throw "PostgreSQL container is required for restore."
@@ -345,7 +379,7 @@ try {
         $minioArchivePath = Join-Path $backupPath "minio.tar.gz"
         if (Test-Path $minioArchivePath) {
             Require-File $minioArchivePath "minio-archive"
-            $minioVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_minio_data" "minio" "/data" $null
+            $minioVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_minio_data" "minio" "/data" $null -IgnoreManifestVolume:$UseCurrentComposeProjectVolumes
             Restore-NamedVolume $minioVolumeName "minio.tar.gz" $backupPath
             Add-CheckResult "PASS" "minio-restore" ("Restored MinIO volume {0} from minio.tar.gz." -f $minioVolumeName)
         }
