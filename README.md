@@ -163,6 +163,7 @@ MAUI 顺序构建：
 | [docs/roadmap-public.md](docs/roadmap-public.md) | 公司产品方向、版本路线和公开迭代节奏 |
 | [docs/deployment.md](docs/deployment.md) | Docker Compose 私有部署、环境变量、备份恢复 |
 | [docs/disaster-recovery.md](docs/disaster-recovery.md) | 备份恢复与灾难恢复 Runbook、恢复验收清单、演练证据规范 |
+| [docs/ci-github-actions-setup.md](docs/ci-github-actions-setup.md) | GitHub Actions CI 启用说明、workflow scope 阻塞项和待提交 workflow |
 | [docs/testing.md](docs/testing.md) | 测试范围、验证命令和验收边界 |
 | [docs/product-planning-hub.md](docs/product-planning-hub.md) | 内部产品规划中枢和版本决策依据 |
 | [docs/team-operating-model-private-backup.md](docs/team-operating-model-private-backup.md) | 多 Agent 公司组织架构与 Private Backup Sprint 作战模型 |

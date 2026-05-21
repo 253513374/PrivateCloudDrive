@@ -19,6 +19,13 @@
 
 ```
 
+## CI / 质量门禁
+
+- [ ] GitHub Actions CI 已通过，或已说明失败原因与后续修复计划。
+- [ ] `docker compose config --quiet` 已通过，或本次不涉及 Compose 且 CI 已覆盖。
+- [ ] 后端 `dotnet build` / `dotnet test` 已通过，或本次不涉及后端且 CI 已覆盖。
+- [ ] 公开 Markdown 文档命令可复制执行，未包含隐藏控制字符。
+
 ## 安全与数据检查
 
 - [ ] 未提交 `.env`、真实密钥、数据库备份或用户文件。
