@@ -64,7 +64,41 @@
 
 ---
 
-## 3. 组织结构图
+## 3. 中文姓名 / Profile 对照表
+
+以后汇报和分工优先使用中文姓名，括号中保留实际 Hermes profile，方便调用。
+
+| 编制 | 中文姓名 | Profile | 角色/责任 |
+|---|---|---|---|
+| 常驻 | 何司令 | chief-of-staff | 公司执行中枢，控节奏、防范围膨胀 |
+| 常驻 | 沈产品 | pm | 产品目标、优先级、验收口径 |
+| 常驻 | 白分析 | business-analyst | 备份场景、边界规则、异常流程 |
+| 常驻 | 游体验 | ux-designer | 首次连接、备份中心、设置/健康/恢复信息架构 |
+| 常驻 | 莫移动 | mobile-eng | Android App 备份主链路体验 |
+| 常驻 | 侯后端 | backend-eng | 备份 API、健康状态、服务端能力 |
+| 常驻 | 石存储 | storage-eng | 本地存储、容量、生命周期、恢复边界 |
+| 常驻 | 杜运维 | devops-eng | Docker、环境变量、数据目录、备份恢复脚本 |
+| 常驻 | 和隐私 | compliance-privacy | 隐私说明、数据位置、用户信任文案 |
+| 常驻 | 秦质检 | qa-eng | 端到端验收、截图证据、缺陷复现 |
+| 常驻 | 芮发布 | release-manager | 发布闸门、是否进入下一阶段 |
+| 顾问 | 顾架构 | architect | 架构边界、模块拆分、长期技术债 |
+| 顾问 | 丁数据 | db-dba | 迁移、索引、备份一致性、数据库恢复 |
+| 顾问 | 尹认证 | identity-auth-eng | 登录、Token、设备管理、权限风险 |
+| 顾问 | 齐契约 | api-contract-eng | App/后端接口契约 |
+| 顾问 | 连集成 | integration-eng | 多端联调失败、验收环境不稳定 |
+| 顾问 | 佟自动 | test-automation-eng | 核心链路稳定后的自动化回归 |
+| 顾问 | 安安全 | security-reviewer | 分享、鉴权、越权、敏感数据风险 |
+| 顾问 | 苏观测 | sre-observability | 日志、健康检查、长期运行、故障诊断 |
+| 冻结 | 吴界面 | ui-designer | 视觉/组件设计，当前冻结 |
+| 冻结 | 冯前端 | frontend-eng | Web 前端，当前冻结 |
+| 冻结 | 彭性能 | performance-eng | 性能容量，当前冻结 |
+| 冻结 | 文档张 | docs-writer | 产品化文档，当前冻结 |
+| 冻结 | 宋支持 | support-ops | 支持运营，当前冻结 |
+| 冻结 | 戴交付 | delivery-manager | 交付经理，当前由何司令兼任 |
+
+---
+
+## 4. 组织结构图
 
 ```mermaid
 flowchart TD

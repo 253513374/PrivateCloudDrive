@@ -99,15 +99,17 @@ PrivateCloudDrive 的核心 App UI 应遵循：
 主设计文档优先级：
 
 1. `docs/product-planning-hub.md`：最高产品决策入口。
-2. `docs/market-feasibility-meeting-2026-05-17.md`：市场可行性、是否继续开发、产品偏差诊断与“手机优先私有备份网盘”转向结论。
-3. `docs/team-operating-model-private-backup.md`：团队优化、11 人常驻核心小队、顾问池、冻结岗位和 2 周 Sprint 作战模型。
-4. `docs/product-feature-map.md`：长期功能地图、版本边界与 Now/Next/Later 分层依据。
-5. `docs/open-design-ui-redesign.md`：经用户指定的 Open Design / Claude Design 新 UI 方向与页面规范。
-6. `docs/prototypes/open-design-mobile-prototype.html`：Open Design 高保真移动端原型，用于视觉对齐与实现验收。
-7. `docs/product-ui-baseline.md`：历史/保守 UI 基线；若与 Open Design 冲突，以 Open Design 文档为准。
-8. `docs/ui-design.md`：具体 UI 规范与页面设计；需要逐步按 Open Design 更新。
-9. `docs/plans/*.md`：单页面或单任务设计计划。
-10. `docs/design-explorations/*`：探索稿，不直接作为开发依据。
+2. `docs/open-source.md`：开源发布、许可证、维护政策与公开仓库文档完整性要求。
+3. `docs/roadmap-public.md`：对外公开的公司产品方向、版本路线和贡献优先级。
+4. `docs/market-feasibility-meeting-2026-05-17.md`：市场可行性、是否继续开发、产品偏差诊断与“手机优先私有备份网盘”转向结论。
+5. `docs/team-operating-model-private-backup.md`：团队优化、11 人常驻核心小队、顾问池、冻结岗位和 2 周 Sprint 作战模型。
+6. `docs/product-feature-map.md`：长期功能地图、版本边界与 Now/Next/Later 分层依据。
+7. `docs/open-design-ui-redesign.md`：经用户指定的 Open Design / Claude Design 新 UI 方向与页面规范。
+8. `docs/prototypes/open-design-mobile-prototype.html`：Open Design 高保真移动端原型，用于视觉对齐与实现验收。
+9. `docs/product-ui-baseline.md`：历史/保守 UI 基线；若与 Open Design 冲突，以 Open Design 文档为准。
+10. `docs/ui-design.md`：具体 UI 规范与页面设计；需要逐步按 Open Design 更新。
+11. `docs/plans/*.md`：单页面或单任务设计计划。
+12. `docs/design-explorations/*`：探索稿，不直接作为开发依据。
 
 ### 5.2 Doodle / 手绘风格处理原则
 

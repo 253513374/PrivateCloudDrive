@@ -1,0 +1,33 @@
+name: Feature request
+说明: 提出产品需求或改进建议
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 用户问题
+      description: 这个需求解决谁的什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+  - type: dropdown
+    id: roadmap
+    attributes:
+      label: 路线图阶段
+      options:
+        - Private Backup MVP
+        - V1.0 Public RC
+        - V1.1 Operations
+        - V1.2 Media Library
+        - Later / Explore
+        - Not sure
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 怎么证明这个需求完成了？
