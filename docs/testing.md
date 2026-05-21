@@ -58,6 +58,17 @@ V1.0 RC 本地栈健康检查：
 
 `verify-local-stack.ps1` 会输出 PASS/WARN/FAIL 汇总，覆盖 Docker、Compose 服务、`.env` 配置边界、PostgreSQL、Redis、db-migrator、API、media-worker、Swagger、存储目录、FFmpeg 和 FFprobe。验收记录中禁止记录密码、access token、refresh token、OAuth code、client secret 或 provider token。
 
+备份恢复与灾难恢复验收：
+
+```powershell
+.\scripts\run-backup-restore-drill.ps1
+.\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\<timestamp>
+# 仅限一次性测试栈或明确授权的目标栈：
+.\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\<timestamp> -ConfirmDestructiveRestore
+```
+
+`run-backup-restore-drill.ps1` 会创建备份、执行恢复 dry-run，并在 `docs/validation/backup-restore-drill-*.md` 写入非破坏性演练报告。破坏性恢复通过后，还需要按 `docs/disaster-recovery.md` 的恢复后验收清单补充登录、文件列表、下载/预览、回收站恢复、分享链路和脱敏审计证据。`.env.secret`、密码、token、OAuth code、client secret 和真实私密文件内容禁止写入验收记录。
+
 V1.1 文件管理体验验证：
 
 ```powershell

@@ -33,6 +33,8 @@ V1 WeChat, Google, and GitHub login stay disabled by default. When enabling WeCh
 
 ## Backup and Restore Drill
 
+灾难恢复总入口见 [docs/disaster-recovery.md](disaster-recovery.md)。该 Runbook 定义数据资产、RPO/RTO 边界、恢复 dry-run、破坏性测试栈恢复、恢复后登录/文件/预览/分享验收清单，以及演练证据记录规范。
+
 PrivateCloudDrive 的最小可恢复备份由三部分组成：
 
 1. PostgreSQL 逻辑备份：账号、权限、文件索引、分享、相册、媒体处理状态和审计日志。
@@ -79,7 +81,7 @@ PrivateCloudDrive 的最小可恢复备份由三部分组成：
 .\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\20260515-141611 -ConfirmDestructiveRestore
 ```
 
-恢复建议在全新的测试机器或测试 Compose project 中执行，不要直接覆盖生产实例。`restore-local-stack.ps1` 的破坏性恢复会：
+恢复建议在全新的测试机器或测试 Compose project 中执行，不要直接覆盖生产实例。生产恢复前必须先保留事故现场备份，并确认目标主机、Compose project、`.env` 与备份来源一致。`restore-local-stack.ps1` 的破坏性恢复会：
 
 1. 停止 API、media-worker、db-migrator 和 MinIO，避免恢复时仍有进程读写数据库或 storage volume。
 2. 启动 PostgreSQL/Redis。
@@ -87,7 +89,7 @@ PrivateCloudDrive 的最小可恢复备份由三部分组成：
 4. 用临时 Alpine 容器清空并解包 `storage.tar.gz` 到备份 manifest 记录或当前 API 容器 `/app/storage` 挂载的真实 FileCenter storage volume。
 5. 可选恢复 `redis-dump.rdb` 和 `minio.tar.gz`；Redis 恢复后会用 `redis-cli ping` 验证。
 6. 默认启动完整栈并运行 `.\scripts\verify-local-stack.ps1 -SkipStart`。
-7. 恢复后仍需用测试账号验证登录、文件列表、下载/预览、媒体缩略图和分享链接。
+7. 恢复后仍需用测试账号验证登录、文件列表、下载/预览、媒体缩略图、回收站恢复和分享链接，并把脱敏证据写入 `docs/validation/`。
 
 如果 `FILECENTER_STORAGE_PROVIDER=AliyunOss`，`storage.tar.gz` 只覆盖本地临时区，不包含 OSS bucket 内对象。OSS bucket 需要按云厂商能力单独开启版本控制、跨区域复制或定期对象备份；切换本地/OSS 存储前必须先制定迁移与回滚计划。
 

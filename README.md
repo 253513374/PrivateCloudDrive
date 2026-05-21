@@ -162,6 +162,7 @@ MAUI 顺序构建：
 | [docs/open-source.md](docs/open-source.md) | 开源发布说明、许可证、边界和维护政策 |
 | [docs/roadmap-public.md](docs/roadmap-public.md) | 公司产品方向、版本路线和公开迭代节奏 |
 | [docs/deployment.md](docs/deployment.md) | Docker Compose 私有部署、环境变量、备份恢复 |
+| [docs/disaster-recovery.md](docs/disaster-recovery.md) | 备份恢复与灾难恢复 Runbook、恢复验收清单、演练证据规范 |
 | [docs/testing.md](docs/testing.md) | 测试范围、验证命令和验收边界 |
 | [docs/product-planning-hub.md](docs/product-planning-hub.md) | 内部产品规划中枢和版本决策依据 |
 | [docs/team-operating-model-private-backup.md](docs/team-operating-model-private-backup.md) | 多 Agent 公司组织架构与 Private Backup Sprint 作战模型 |
@@ -201,8 +202,8 @@ http://localhost:8080/swagger
 ### 4. 验证本地栈
 
 ```powershell
-.\scriptserify-local-stack.ps1 -PreflightOnly
-.\scriptserify-local-stack.ps1
+.\scripts\verify-local-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1
 ```
 
 ### 5. 构建后端
@@ -216,8 +217,8 @@ dotnet test .\PrivateCloudDrive.slnx --no-build
 ### 6. 构建 MAUI 客户端
 
 ```powershell
-.\scriptserify-maui-build.ps1 -SkipAndroid
-.\scriptserify-maui-build.ps1 -SkipWindows
+.\scripts\verify-maui-build.ps1 -SkipAndroid
+.\scripts\verify-maui-build.ps1 -SkipWindows
 ```
 
 Android Debug APK 手工验收建议使用完整嵌入程序集构建，避免 Fast Deployment 缺少 assembly 导致启动崩溃：

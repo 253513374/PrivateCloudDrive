@@ -249,6 +249,12 @@ $($fileRows -join [Environment]::NewLine)
 - The restore script was executed without `-ConfirmDestructiveRestore`, so no target data was overwritten.
 - A real disaster recovery exercise must run destructive restore only against a disposable test stack or test machine, then verify login, file list, file preview/download, thumbnails, and sharing behavior.
 - `.env` remains operator-owned sensitive configuration. This drill intentionally writes `ENVIRONMENT-REQUIRED.md` instead of copying secrets.
+
+## Next Required Evidence Before Production Sign-off
+
+- Run `restore-local-stack.ps1 -ConfirmDestructiveRestore` only against a disposable test stack or explicitly authorized target.
+- After destructive restore, follow `docs/disaster-recovery.md` and record redacted evidence for login, file list, download/preview, media thumbnails, trash restore, sharing links, and audit/security checks.
+- Do not paste `.env.secret`, passwords, access tokens, refresh tokens, OAuth codes, provider tokens, client secrets, or private file contents into this report.
 "@
 
     Set-Content -Path $reportPath -Value $report -Encoding UTF8

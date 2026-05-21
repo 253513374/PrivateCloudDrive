@@ -43,14 +43,14 @@ Docker Compose：
 
 ```powershell
 docker compose config
-.\scriptserify-local-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1 -PreflightOnly
 ```
 
 MAUI：
 
 ```powershell
-.\scriptserify-maui-build.ps1 -SkipAndroid
-.\scriptserify-maui-build.ps1 -SkipWindows
+.\scripts\verify-maui-build.ps1 -SkipAndroid
+.\scripts\verify-maui-build.ps1 -SkipWindows
 ```
 
 ## 提交信息
