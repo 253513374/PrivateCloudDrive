@@ -84,8 +84,8 @@ create_isolated_workspace() {
 
     if [ -d "$workspace/.git" ]; then
         # 工作区已存在，fetch 更新
-        git -C "$workspace" fetch origin main 2>/dev/null && \
-            git -C "$workspace" reset --hard origin/main 2>/dev/null && \
+        git -C "$workspace" fetch -q origin main 2>/dev/null && \
+            git -C "$workspace" reset --hard -q origin/main 2>/dev/null && \
             log "复用已有工作区: $workspace" && \
             echo "$workspace" && return 0
         # 复用失败，清理重建
