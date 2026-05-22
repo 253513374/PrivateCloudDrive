@@ -7,6 +7,23 @@ namespace PrivateCloudDrive.App.Services;
 /// </summary>
 public sealed class MockCloudDriveApiClient
 {
+    private sealed record MockUploadSession(
+        string StatusReason,
+        string NextAction,
+        string? FailureReason,
+        int UploadedChunkCount,
+        long UploadedBytes,
+        decimal ProgressPercent,
+        bool IsRetryable);
+
+    private static readonly MockUploadSession[] MockUploadSessions =
+    [
+        new("WaitingForChunks", "UploadMissingChunks", null, 2, 16 * 1024 * 1024, 25, true),
+        new("Completed", "OpenFile", null, 8, 64 * 1024 * 1024, 100, false),
+        new("Cancelled", "StartNewUploadSession", "PrivateCloudDrive:FileCenter:000033", 0, 0, 0, false),
+        new("ServerVendorPaused", "VendorSpecificAction", "UnknownVendorReason", 1, 4 * 1024 * 1024, 8, true)
+    ];
+
     private static bool _isSignedIn;
 
     public bool IsSignedIn => _isSignedIn;

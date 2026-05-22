@@ -201,6 +201,24 @@
                                                  Grid.Column="1"
                                                  Margin="0,8,0,0"
                                                  Spacing="4">
+                                <Label Text="{Binding ServerStateText}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                       LineBreakMode="WordWrap" />
+                                <Label Text="{Binding RecoveryActionText}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                       LineBreakMode="WordWrap" />
+                                <Grid ColumnDefinitions="*,*"
+                                      ColumnSpacing="8">
+                                    <Label Text="{Binding UploadedBytesText}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding UploadedChunksText}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                </Grid>
                                 <Label Text="{Binding ErrorMessage}"
                                        IsVisible="{Binding IsFailed}"
                                        FontSize="12"

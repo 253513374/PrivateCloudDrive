@@ -220,23 +220,23 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     public async Task UploadFileAsync(
         Guid? parentId,
         FileResult file,
-        IProgress<double>? progress = null,
+        IProgress<UploadTransferProgress>? progress = null,
         CancellationToken cancellationToken = default)
     {
         await using var stream = await file.OpenReadAsync();
         var fileSize = stream.CanSeek ? stream.Length : 0;
 
-        progress?.Report(0);
+        progress?.Report(new UploadTransferProgress(0, totalBytes: fileSize, statusReason: "WaitingForChunks", nextAction: "UploadMissingChunks"));
 
         if (!stream.CanSeek || fileSize <= SmallUploadThreshold)
         {
             await UploadSmallFileAsync(parentId, file, stream, progress, cancellationToken);
-            progress?.Report(1);
+            progress?.Report(new UploadTransferProgress(1, totalBytes: fileSize, uploadedBytes: fileSize, progressPercent: 100, statusReason: "Completed", nextAction: "OpenFile"));
             return;
         }
 
         await UploadChunkedFileAsync(parentId, file, stream, fileSize, progress, cancellationToken);
-        progress?.Report(1);
+        progress?.Report(new UploadTransferProgress(1, totalBytes: fileSize, uploadedBytes: fileSize, progressPercent: 100, statusReason: "Completed", nextAction: "OpenFile"));
     }
 
     /// <summary>
@@ -1302,9 +1302,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         Guid? parentId,
         FileResult file,
         Stream stream,
-        IProgress<double>? progress,
+        IProgress<UploadTransferProgress>? progress,
         CancellationToken cancellationToken)
     {
+        var fileSize = stream.CanSeek ? stream.Length : 0;
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Post,
             "/api/file-center/files/upload-small",
@@ -1328,7 +1329,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         EnsureSuccess(response, responseText);
-        progress?.Report(1);
+        progress?.Report(new UploadTransferProgress(1, totalBytes: fileSize, uploadedBytes: fileSize, progressPercent: 100, statusReason: "Completed", nextAction: "OpenFile"));
     }
 
     private async Task UploadChunkedFileAsync(
@@ -1336,7 +1337,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         FileResult file,
         Stream stream,
         long fileSize,
-        IProgress<double>? progress,
+        IProgress<UploadTransferProgress>? progress,
         CancellationToken cancellationToken)
     {
         var totalChunks = (int)Math.Ceiling(fileSize / (double)ChunkSize);
@@ -1347,10 +1348,23 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             totalChunks,
             cancellationToken);
 
-        var buffer = new byte[ChunkSize];
-        long uploadedBytes = 0;
+        progress?.Report(ToTransferProgress(session, fileSize));
 
-        for (var chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++)
+        if (IsCompletedSession(session))
+        {
+            return;
+        }
+
+        var buffer = new byte[ChunkSize];
+        var uploadedBytes = Math.Clamp(session.UploadedBytes, 0, fileSize);
+        var startChunkIndex = Math.Clamp(session.UploadedChunkCount, 0, totalChunks);
+
+        if (stream.CanSeek && uploadedBytes > 0)
+        {
+            stream.Seek(uploadedBytes, SeekOrigin.Begin);
+        }
+
+        for (var chunkIndex = startChunkIndex; chunkIndex < totalChunks; chunkIndex++)
         {
             var expectedBytes = (int)Math.Min(ChunkSize, fileSize - uploadedBytes);
             var readBytes = await ReadChunkAsync(stream, buffer, expectedBytes, cancellationToken);
@@ -1363,7 +1377,16 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
                 cancellationToken);
 
             uploadedBytes += readBytes;
-            progress?.Report(uploadedBytes / (double)fileSize);
+            progress?.Report(new UploadTransferProgress(
+                uploadedBytes / (double)fileSize,
+                chunkIndex + 1,
+                uploadedBytes,
+                fileSize,
+                (decimal)(uploadedBytes * 100d / fileSize),
+                true,
+                "WaitingForChunks",
+                null,
+                "UploadMissingChunks"));
         }
 
         await CompleteUploadSessionAsync(session.Id, cancellationToken);
@@ -1460,6 +1483,33 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         }
 
         return totalRead;
+    }
+
+    private static UploadTransferProgress ToTransferProgress(UploadSessionDto session, long totalBytes)
+    {
+        var uploadedBytes = Math.Clamp(session.UploadedBytes, 0, Math.Max(0, totalBytes));
+        var progress = session.ProgressPercent.HasValue
+            ? (double)session.ProgressPercent.Value / 100d
+            : totalBytes > 0
+                ? uploadedBytes / (double)totalBytes
+                : 0;
+
+        return new UploadTransferProgress(
+            progress,
+            session.UploadedChunkCount,
+            uploadedBytes,
+            totalBytes,
+            session.ProgressPercent,
+            session.IsRetryable,
+            session.StatusReason,
+            session.FailureReason,
+            session.NextAction);
+    }
+
+    private static bool IsCompletedSession(UploadSessionDto session)
+    {
+        return string.Equals(session.StatusReason, "Completed", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(session.NextAction, "OpenFile", StringComparison.OrdinalIgnoreCase);
     }
 
     private static CloudDriveItem ToCloudDriveItem(FileNodeDto node)
@@ -2051,15 +2101,15 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
         public long UploadedBytes { get; init; }
 
-        public decimal ProgressPercent { get; init; }
+        public decimal? ProgressPercent { get; init; }
 
-        public bool IsRetryable { get; init; }
+        public bool IsRetryable { get; init; } = true;
 
-        public string StatusReason { get; init; } = "Unknown";
+        public string? StatusReason { get; init; }
 
         public string? FailureReason { get; init; }
 
-        public string NextAction { get; init; } = "StartNewUploadSession";
+        public string? NextAction { get; init; }
     }
 
     private sealed class WechatLoginSettingsDto
