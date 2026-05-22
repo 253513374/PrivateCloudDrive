@@ -138,14 +138,82 @@ public partial class LoginPage : ContentPage
 
     private static string GetUserFacingSignInError(Exception exception)
     {
-        var message = exception.Message;
-        if (message.Contains("Invalid username or password", StringComparison.OrdinalIgnoreCase) ||
-            message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase))
+        var message = exception.Message ?? string.Empty;
+        if (IsCredentialError(message))
         {
             return AppText.InvalidUserNameOrPassword;
         }
 
-        return message;
+        if (IsServerError(message))
+        {
+            return AppText.SignInServerError;
+        }
+
+        if (IsServiceUnavailable(exception, message))
+        {
+            return AppText.SignInServiceUnavailable;
+        }
+
+        if (IsNetworkError(exception, message))
+        {
+            return AppText.SignInNetworkError;
+        }
+
+        return AppText.SignInFailedSafe;
+    }
+
+    private static bool IsCredentialError(string message)
+    {
+        return message.Contains("Invalid username or password", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("invalid client credentials", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("401", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsServerError(string message)
+    {
+        return message.Contains("server error", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("HTTP 5", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("InternalServerError", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("BadGateway", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("ServiceUnavailable", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("GatewayTimeout", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsServiceUnavailable(Exception exception, string message)
+    {
+        return exception is HttpRequestException ||
+            ContainsExceptionType(exception, "SocketException") ||
+            message.Contains("No such host", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("Name or service not known", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("actively refused", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("Connection refused", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("unable to connect", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("Cannot reach", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsNetworkError(Exception exception, string message)
+    {
+        return exception is TimeoutException ||
+            exception is TaskCanceledException ||
+            message.Contains("timed out", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("network", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("SSL", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("TLS", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsExceptionType(Exception exception, string typeName)
+    {
+        for (var current = exception; current != null; current = current.InnerException)
+        {
+            if (string.Equals(current.GetType().Name, typeName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task SignInWithWechatAsync()
@@ -163,7 +231,7 @@ public partial class LoginPage : ContentPage
             var authorization = await _wechatPlatformAuthService.AuthorizeAsync(_wechatSettings);
             if (!authorization.Succeeded || string.IsNullOrWhiteSpace(authorization.Code))
             {
-                throw new InvalidOperationException(authorization.ErrorMessage ?? AppText.WechatSignInCanceled);
+                throw new OperationCanceledException(AppText.WechatSignInCanceled);
             }
 
             var signInResult = await _authService.SignInWithWechatCodeAsync(
@@ -186,9 +254,13 @@ public partial class LoginPage : ContentPage
 
             throw new InvalidOperationException(signInResult.ErrorMessage ?? AppText.WechatSignInFailed);
         }
+        catch (OperationCanceledException)
+        {
+            ShowValidation(AppText.WechatSignInCanceled);
+        }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(GetUserFacingSignInError(exception));
         }
         finally
         {
@@ -268,7 +340,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(GetUserFacingSignInError(exception));
         }
         finally
         {

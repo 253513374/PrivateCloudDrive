@@ -541,22 +541,38 @@ public sealed class OpenIddictAuthService : IAuthService
         CancellationToken cancellationToken)
     {
         using var content = new FormUrlEncodedContent(parameters);
-        EnsureBaseAddressCurrent();
-        using var response = await _httpClient.PostAsync("connect/token", content, cancellationToken);
-        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        HttpResponseMessage response;
+        try
         {
-            throw CreateOAuthTokenException(response.StatusCode, response.ReasonPhrase, responseText);
+            EnsureBaseAddressCurrent();
+            response = await _httpClient.PostAsync("connect/token", content, cancellationToken);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new TimeoutException("Authentication network request timed out.");
+        }
+        catch (HttpRequestException exception)
+        {
+            throw new InvalidOperationException("Cannot reach authentication server.", exception);
         }
 
-        var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseText);
-        if (tokenResponse == null || string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
+        using (response)
         {
-            throw new InvalidOperationException("OpenIddict returned an invalid token response.");
-        }
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        return tokenResponse;
+            if (!response.IsSuccessStatusCode)
+            {
+                throw CreateOAuthTokenException(response.StatusCode, response.ReasonPhrase, responseText);
+            }
+
+            var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseText);
+            if (tokenResponse == null || string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
+            {
+                throw new InvalidOperationException("OpenIddict returned an invalid token response.");
+            }
+
+            return tokenResponse;
+        }
     }
 
     private async Task RecordAuditAsync(
@@ -717,47 +733,53 @@ public sealed class OpenIddictAuthService : IAuthService
         try
         {
             var error = JsonSerializer.Deserialize<OAuthErrorResponse>(responseText);
-            if (!string.IsNullOrWhiteSpace(error?.ErrorDescription))
-            {
-                return new OAuthTokenException(
-                    error.Error ?? "invalid_grant",
-                    error.ErrorDescription,
-                    error.BindingTicket);
-            }
-
             if (!string.IsNullOrWhiteSpace(error?.Error))
             {
-                return new OAuthTokenException(error.Error, error.Error, error.BindingTicket);
+                var safeMessage = BuildOAuthErrorMessage(statusCode, reasonPhrase, error.Error);
+                return new OAuthTokenException(error.Error, safeMessage, error.BindingTicket);
             }
         }
         catch
         {
-            // Fall through to the raw response body.
+            // Fall through to status-based safe classification. Never surface raw OAuth response bodies.
         }
 
-        var message = BuildOAuthErrorMessage(statusCode, reasonPhrase, responseText);
+        var message = BuildOAuthErrorMessage(statusCode, reasonPhrase, oauthError: null);
         return new OAuthTokenException("invalid_grant", message, null);
     }
 
     private static string BuildOAuthErrorMessage(
         System.Net.HttpStatusCode? statusCode,
         string? reasonPhrase,
-        string responseText)
+        string? oauthError)
     {
-        var status = statusCode.HasValue
-            ? $" HTTP {(int)statusCode.Value} {statusCode.Value}"
-            : string.Empty;
+        if (statusCode.HasValue && (int)statusCode.Value >= 500)
+        {
+            return $"Authentication server error. HTTP {(int)statusCode.Value}.";
+        }
+
+        if (string.Equals(oauthError, WechatBindingRequiredError, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(oauthError, ExternalBindingRequiredError, StringComparison.OrdinalIgnoreCase))
+        {
+            return "Account binding is required before sign-in can continue.";
+        }
+
+        if (string.Equals(oauthError, "invalid_grant", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(oauthError, "invalid_client", StringComparison.OrdinalIgnoreCase) ||
+            statusCode == HttpStatusCode.BadRequest ||
+            statusCode == HttpStatusCode.Unauthorized ||
+            statusCode == HttpStatusCode.Forbidden)
+        {
+            return "Invalid username or password.";
+        }
 
         var reason = string.IsNullOrWhiteSpace(reasonPhrase)
             ? string.Empty
             : $" {reasonPhrase.Trim()}";
 
-        if (string.IsNullOrWhiteSpace(responseText))
-        {
-            return $"OpenIddict token request failed.{status}{reason}".Trim();
-        }
-
-        return responseText;
+        return statusCode.HasValue
+            ? $"Authentication request failed. HTTP {(int)statusCode.Value}{reason}.".Trim()
+            : "Authentication request failed.";
     }
 
     private sealed class TokenResponse
