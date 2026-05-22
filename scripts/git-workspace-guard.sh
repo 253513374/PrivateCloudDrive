@@ -13,9 +13,9 @@ TASK_ID="${HERMES_KANBAN_TASK_ID:-unknown}"
 
 # ── 颜色 ──
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
-log()  { echo -e "${GREEN}[OK]${NC}  $*"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
-err()  { echo -e "${RED}[ERR]${NC} $*"; }
+log()  { echo -e "${GREEN}[OK]${NC}  $*" >&2; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $*" >&2; }
+err()  { echo -e "${RED}[ERR]${NC} $*" >&2; }
 
 # ── 1. 检查主仓库健康 ──
 check_main_repo() {
@@ -42,25 +42,38 @@ check_main_repo() {
 # ── 2. 主仓库自愈 ──
 heal_main_repo() {
     warn "尝试自愈主仓库..."
+
+    # 方案A: 先尝试移动损坏仓库到备份
     local backup_dir="D:/Devs/Projects/Personal/PrivateCloudDrive.broken-$(date +%Y%m%d-%H%M%S)"
-
-    # 备份损坏的仓库
-    if [ -d "$MAIN_REPO" ]; then
-        mv "$MAIN_REPO" "$backup_dir" 2>/dev/null || {
-            warn "无法移动损坏仓库（可能被占用），尝试直接修复..."
-            rm -rf "$MAIN_REPO/.git" 2>/dev/null || true
-            cd "$MAIN_REPO" && rm -rf .git.* _* *-work* clone* repo* ops src* work-* 2>/dev/null || true
-        }
-    fi
-
-    # 重新克隆
-    if git clone "$GITHUB_REMOTE" "$MAIN_REPO" 2>&1; then
-        log "主仓库自愈成功"
-        return 0
-    else
-        err "主仓库自愈失败"
+    if [ -d "$MAIN_REPO" ] && mv "$MAIN_REPO" "$backup_dir" 2>/dev/null; then
+        # 移动成功，从干净位置克隆
+        if git clone -q "$GITHUB_REMOTE" "$MAIN_REPO" 2>/dev/null; then
+            log "主仓库自愈成功 (方案A: 移动+重新克隆)"
+            return 0
+        fi
+        # 克隆失败，恢复原目录
+        mv "$backup_dir" "$MAIN_REPO" 2>/dev/null
+        err "克隆失败，已恢复原仓库"
         return 1
     fi
+
+    # 方案B: 目录被占用，原地修复
+    warn "目录被占用，使用原地修复..."
+    cd "$MAIN_REPO" || return 1
+
+    # 清理损坏的 .git 和临时目录
+    rm -rf .git .git.* _* *-work* clone* repo* ops src* work-* api-contract-work* 2>/dev/null || true
+
+    # 原地重建 Git
+    git init -q 2>/dev/null
+    git remote add origin "$GITHUB_REMOTE" 2>/dev/null
+    if git fetch -q origin main 2>/dev/null && git reset --hard origin/main 2>/dev/null; then
+        log "主仓库自愈成功 (方案B: 原地重建)"
+        return 0
+    fi
+
+    err "主仓库自愈失败 (方案A和方案B均失败)"
+    return 1
 }
 
 # ── 3. 创建隔离工作区 ──
@@ -81,13 +94,13 @@ create_isolated_workspace() {
 
     # 从主仓库本地克隆（快）或从 GitHub 克隆（慢）
     if check_main_repo; then
-        git clone --shared "$MAIN_REPO" "$workspace" 2>&1 && \
+        git clone -q --shared "$MAIN_REPO" "$workspace" 2>/dev/null && \
             log "从主仓库本地克隆: $workspace" && \
             echo "$workspace" && return 0
     fi
 
     # 回退到远程克隆
-    git clone "$GITHUB_REMOTE" "$workspace" 2>&1 && \
+    git clone -q "$GITHUB_REMOTE" "$workspace" 2>/dev/null && \
         log "从 GitHub 远程克隆: $workspace" && \
         echo "$workspace" && return 0
 
@@ -106,9 +119,9 @@ cleanup_stale_workspaces() {
 
 # ── 主流程 ──
 main() {
-    echo "=== Git 工作区健康守卫 ==="
-    echo "任务ID: $TASK_ID"
-    echo "主仓库: $MAIN_REPO"
+    echo "=== Git 工作区健康守卫 ===" >&2
+    echo "任务ID: $TASK_ID" >&2
+    echo "主仓库: $MAIN_REPO" >&2
 
     # Step 1: 检查主仓库
     if check_main_repo; then
