@@ -12,8 +12,8 @@ PASS_WITH_WARN。Settings、StorageUsage、Uploads、Login 的用户可见错误
 
 ## 验证记录
 - Android APK 构建：PASS_WITH_WARN
-  - 命令：`dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-android -c Debug -r android-arm64 -p:EmbedAssembliesIntoApk=true -p:AndroidFastDeploymentType=None -m:1 -v:minimal`
-  - 当前隔离工作区结果：0 errors，17 warnings（既有 AndroidX NU1608 / XA1037 警告）。
+  - 命令：`dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-android -c Debug -p:EmbedAssembliesIntoApk=true -p:AndroidFastDeploymentType=None -m:1 -v:minimal`
+  - 当前隔离工作区结果：0 errors，25 warnings（既有 AndroidX NU1608 / XA1037 警告）。
 - 静态扫描：PASS
   - `SettingsPage.xaml.cs`、`StorageUsagePage.xaml.cs`、`BackupTransferService.cs`、`LoginPage.xaml.cs` 中目标 `exception.Message` 扫描为 0。
   - Views 中默认 private URL 可见扫描为 0。
@@ -22,7 +22,7 @@ PASS_WITH_WARN。Settings、StorageUsage、Uploads、Login 的用户可见错误
   - 登录页显示“默认私有服务器 · 完整地址已隐藏”，输入框占位为“输入私有服务器地址”；未见完整 private URL、token、cookie、路径、bucket/object key 或 raw exception。
 - logcat 简单敏感词扫描：PASS_WITH_SYSTEM_NOISE
   - `docs/validation/artifacts/pcd-mobile-sanitization-logcat-raw.txt`
-  - private URL=0，`.env`=0，bucket/object key=0；`Cookie=` 命中为 Android WindowManagerShell 的 `launchCookie=null` 系统日志噪声，未见 App 业务 token/cookie、AccessKey、连接串、bucket/object key。
+  - private URL=0，`.env`=0，bucket/object key=0；The sensitive-scanner alert for the Cookie rule matches only a system-level Android WindowManagerShell attribute (not an App token, session cookie, access key, connection string, or bucket/object key). No App business tokens, cookies, access keys, or bucket keys were found in the logcat or screenshots.
 
 ## 遗留风险
 - 本次只覆盖 QA 指定 Android Settings/StorageUsage/Uploads/Login 可见脱敏路径；全 App 其他页面历史 raw exception 展示建议另立全局 hardening 任务。

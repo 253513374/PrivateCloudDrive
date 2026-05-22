@@ -27,7 +27,7 @@
 --------- beginning of system
 05-22 11:23:15.270   682   883 D BackgroundInstallControlService: Package event received: 0
 05-22 11:23:15.272  5585  5585 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
-05-22 11:23:15.272  5585  5585 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/9/icu") succeeded. 
+05-22 11:23:15.272  5585  5585 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/9/icu") succeeded.
 05-22 11:23:15.272  5585  5585 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt76l.dat
 05-22 11:23:15.272  5585  5585 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
 05-22 11:23:15.273  5585  5585 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
@@ -253,7 +253,7 @@
 05-22 11:23:15.300  5585  5585 W Monkey  :  arg: "-p"
 05-22 11:23:15.300   682   785 I EventHub: usingClockIoctl=true
 05-22 11:23:15.300  5585  5585 W Monkey  :  arg: "com.companyname.privateclouddrive.app"
-05-22 11:23:15.300   682   785 I EventHub: New device: id=23, fd=643, path='/dev/input/event14', name='Monkey touch', classes=TOUCH | TOUCH_MT, configuration='', keyLayout='', keyCharacterMap='', builtinKeyboard=false, 
+05-22 11:23:15.300   682   785 I EventHub: New device: id=23, fd=643, path='/dev/input/event14', name='Monkey touch', classes=TOUCH | TOUCH_MT, configuration='', keyLayout='', keyCharacterMap='', builtinKeyboard=false,
 05-22 11:23:15.300  5585  5585 W Monkey  :  arg: "-c"
 05-22 11:23:15.301  5585  5585 W Monkey  :  arg: "android.intent.category.LAUNCHER"
 05-22 11:23:15.301  5585  5585 W Monkey  :  arg: "1"
@@ -287,7 +287,7 @@
 05-22 11:23:15.328  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6307258) locale list changing from [] to [en-US]
 05-22 11:23:15.329  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6320898) locale list changing from [] to [en-US]
 05-22 11:23:15.330   682   700 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
-05-22 11:23:15.330   535   593 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+05-22 11:23:15.330   535   593 I BpBinder: onLastStrongRef automatically unlinking death recipients:
 05-22 11:23:15.330  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6317f18) locale list changing from [] to [en-US]
 05-22 11:23:15.331  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63194f8) locale list changing from [] to [en-US]
 05-22 11:23:15.331   682   700 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} with LAUNCH_SINGLE_TOP from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
@@ -321,7 +321,7 @@
 05-22 11:23:15.347   465   465 D Zygote  : Forked child process 5597
 05-22 11:23:15.347   682   715 I ActivityManager: Start proc 5597:com.companyname.privateclouddrive.app/u0a227 for next-top-activity {com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}
 05-22 11:23:15.347   682   715 I ActivityManager: ProcessObserver broadcast disabled
-05-22 11:23:15.347   535   535 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+05-22 11:23:15.347   535   535 I BpBinder: onLastStrongRef automatically unlinking death recipients:
 05-22 11:23:15.349  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6322e18) locale list changing from [] to [en-US]
 05-22 11:23:15.350  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63224b8) locale list changing from [] to [en-US]
 05-22 11:23:15.350  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631b438) locale list changing from [] to [en-US]
@@ -442,7 +442,7 @@
 05-22 11:23:15.885  5597  5597 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
 05-22 11:23:15.885  5597  5597 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
 05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: com.companyname.privateclouddrive.app is not listed in per-application setting
-05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: ANGLE allowlist from config: 
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: ANGLE allowlist from config:
 05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: com.companyname.privateclouddrive.app is not listed in ANGLE allowlist or settings, returning default
 05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
 05-22 11:23:15.927  5597  5597 D nativeloader: Load /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/lib/arm64/libmonosgen-2.0.so using class loader ns clns-9 (caller=/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk!classes3.dex): ok
@@ -495,7 +495,7 @@
 05-22 11:23:16.349   928   995 V WindowManagerShell: Track 0 became idle
 05-22 11:23:16.349   928   995 V WindowManagerShell: All active transition animations finished
 05-22 11:23:16.394   928  1271 W HWUI    : Image decoding logging dropped!
-05-22 11:23:16.417   928  1144 I HWUI    : Davey! duration=810ms; Flags=1, FrameTimelineVsyncId=26743, IntendedVsync=742831483438, Vsync=742831483438, InputEventId=0, HandleInputStart=742837014900, AnimationStart=742837029300, PerformTraversalsStart=742837072200, DrawStart=743149100200, FrameDeadline=742848150104, FrameStartTime=742837007000, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=743149226900, SyncStart=743199383400, IssueDrawCommandsStart=743201729600, SwapBuffers=743206830300, FrameCompleted=743692007700, DequeueBufferDuration=16900, QueueBufferDuration=246500, GpuCompleted=743692007700, SwapBuffersCompleted=743385354500, DisplayPresentTime=0, CommandSubmissionCompleted=743206830300, 
+05-22 11:23:16.417   928  1144 I HWUI    : Davey! duration=810ms; Flags=1, FrameTimelineVsyncId=26743, IntendedVsync=742831483438, Vsync=742831483438, InputEventId=0, HandleInputStart=742837014900, AnimationStart=742837029300, PerformTraversalsStart=742837072200, DrawStart=743149100200, FrameDeadline=742848150104, FrameStartTime=742837007000, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=743149226900, SyncStart=743199383400, IssueDrawCommandsStart=743201729600, SwapBuffers=743206830300, FrameCompleted=743692007700, DequeueBufferDuration=16900, QueueBufferDuration=246500, GpuCompleted=743692007700, SwapBuffersCompleted=743385354500, DisplayPresentTime=0, CommandSubmissionCompleted=743206830300,
 05-22 11:23:16.470  1079  1079 I s.nexuslauncher: AssetManager2(0x7410a634fcd8) locale list changing from [] to [en-US]
 05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: failed to dump window to file
 05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: java.io.FileNotFoundException: Files/Git/sdcard/window.xml: open failed: ENOENT (No such file or directory)
@@ -536,13 +536,13 @@
 05-22 11:23:16.478   682   682 D BatterySaverPolicy: accessibility changed to false, updating policy.
 05-22 11:23:16.481  1457  4209 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
 05-22 11:23:16.481  1457  1837 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
-05-22 11:23:16.481  1457  1837 I AiAiEcho: EchoTargets: 
-05-22 11:23:16.481  1457  1837 I AiAiEcho: Filtered by AiAi flag check: 
+05-22 11:23:16.481  1457  1837 I AiAiEcho: EchoTargets:
+05-22 11:23:16.481  1457  1837 I AiAiEcho: Filtered by AiAi flag check:
 05-22 11:23:16.481  1457  1837 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
 05-22 11:23:16.481  1457  1837 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
 05-22 11:23:16.481  1457  1837 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
-05-22 11:23:16.481  1457  1837 I AiAiEcho: EchoTargets: 
-05-22 11:23:16.481  1457  1837 I AiAiEcho: Filtered by AiAi flag check: 
+05-22 11:23:16.481  1457  1837 I AiAiEcho: EchoTargets:
+05-22 11:23:16.481  1457  1837 I AiAiEcho: Filtered by AiAi flag check:
 05-22 11:23:16.481  1457  1837 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
 05-22 11:23:16.481  1457  1837 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
 05-22 11:23:16.482  1457  1837 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
@@ -568,7 +568,7 @@
 05-22 11:23:16.605  1079  1079 I NotificationListener: received notification removed event - android#UserHandle{-1},category=-1
 05-22 11:23:16.641   928  1271 W HWUI    : Image decoding logging dropped!
 05-22 11:23:16.735  5597  5597 W eclouddrive.app: Attempt to remove non-JNI local reference
-05-22 11:23:17.270  5597  5597 D com.companyname.privateclouddrive.app: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/9/icu") succeeded. 
+05-22 11:23:17.270  5597  5597 D com.companyname.privateclouddrive.app: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/9/icu") succeeded.
 05-22 11:23:17.271  5597  5597 D com.companyname.privateclouddrive.app: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt76l.dat
 05-22 11:23:17.487   682   963 W BestClock: java.time.DateTimeException: No network time available
 05-22 11:23:17.487   682   963 W BestClock: java.time.DateTimeException: No network time available
@@ -587,7 +587,7 @@
 05-22 11:23:17.694  5597  5597 I eclouddrive.app: AssetManager2(0x7410a635e0f8) locale list changing from [] to [en-US]
 05-22 11:23:17.697  5597  5597 I eclouddrive.app: AssetManager2(0x7410a6360038) locale list changing from [] to [en-US]
 05-22 11:23:17.699  5597  5597 E ashmem  : Pinning is deprecated since Android Q. Please use trim or other methods.
-05-22 11:23:17.702  5382  5481 E GoogleApiManager: Failed to get service from broker. 
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: Failed to get service from broker.
 05-22 11:23:17.702  5382  5481 E GoogleApiManager: java.lang.SecurityException: Unknown calling package name 'com.google.android.gms'.
 05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Parcel.createExceptionOrNull(Parcel.java:3340)
 05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Parcel.createException(Parcel.java:3324)
@@ -628,7 +628,7 @@
 05-22 11:23:19.573   682  1226 W BestClock: java.time.DateTimeException: No network time available
 05-22 11:23:19.573   682   700 W BestClock: java.time.DateTimeException: No network time available
 05-22 11:23:19.574   682   700 I ImeTracker: system_server:9f77762e: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false
-05-22 11:23:19.575  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2043 
+05-22 11:23:19.575  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2043
 05-22 11:23:19.575  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 0, locked = false
 05-22 11:23:19.576  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=com.companyname.privateclouddrive.app, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
 05-22 11:23:19.576  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
@@ -641,7 +641,7 @@
 05-22 11:23:19.608  1252  2131 I FontLog : (REDACTED) Fetch %s end status %s
 05-22 11:23:19.618  1252  1262 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
 05-22 11:23:19.622  1252  1262 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
-05-22 11:23:19.720  5597  5632 I HWUI    : Davey! duration=741ms; Flags=0, FrameTimelineVsyncId=27065, IntendedVsync=746264816634, Vsync=746881483276, InputEventId=0, HandleInputStart=746895058200, AnimationStart=746895072700, PerformTraversalsStart=746895258500, DrawStart=746930608000, FrameDeadline=746998149938, FrameStartTime=746894275700, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=746930971500, SyncStart=746975016900, IssueDrawCommandsStart=746975190900, SwapBuffers=746975640700, FrameCompleted=747050700900, DequeueBufferDuration=16000, QueueBufferDuration=167400, GpuCompleted=747050700900, SwapBuffersCompleted=747018056900, DisplayPresentTime=0, CommandSubmissionCompleted=746975640700, 
+05-22 11:23:19.720  5597  5632 I HWUI    : Davey! duration=741ms; Flags=0, FrameTimelineVsyncId=27065, IntendedVsync=746264816634, Vsync=746881483276, InputEventId=0, HandleInputStart=746895058200, AnimationStart=746895072700, PerformTraversalsStart=746895258500, DrawStart=746930608000, FrameDeadline=746998149938, FrameStartTime=746894275700, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=746930971500, SyncStart=746975016900, IssueDrawCommandsStart=746975190900, SwapBuffers=746975640700, FrameCompleted=747050700900, DequeueBufferDuration=16000, QueueBufferDuration=167400, GpuCompleted=747050700900, SwapBuffersCompleted=747018056900, DisplayPresentTime=0, CommandSubmissionCompleted=746975640700,
 05-22 11:23:19.745   682   776 D ActivityManager: freezing 2342 com.google.android.apps.messaging
 05-22 11:23:19.746   682   776 D ActivityManager: Reschedule freeze for process 2342 com.google.android.apps.messaging (outstanding txns), timeout=2781
 05-22 11:23:19.747  2342  2450 I ForwardSyncCache: reclaimMemory: Clearing caches
@@ -681,7 +681,7 @@
 05-22 11:23:20.530  5597  5597 W HWUI    : Image decoding logging dropped!
 05-22 11:23:20.530  5597  5597 W HWUI    : Image decoding logging dropped!
 05-22 11:23:20.530  5597  5597 W HWUI    : Image decoding logging dropped!
-05-22 11:23:20.539  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2043 
+05-22 11:23:20.539  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2043
 05-22 11:23:20.539  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 0, locked = false
 05-22 11:23:20.540  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=com.companyname.privateclouddrive.app, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
 05-22 11:23:20.541  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
@@ -710,5 +710,5 @@
 05-22 11:23:21.617   682   963 W BestClock: java.time.DateTimeException: No network time available
 05-22 11:23:21.617   682   963 W BestClock: java.time.DateTimeException: No network time available
 05-22 11:23:21.617   682  1226 W BestClock: java.time.DateTimeException: No network time available
-05-22 11:23:21.632  5597  5608 I HWUI    : Davey! duration=1290ms; Flags=0, FrameTimelineVsyncId=27343, IntendedVsync=747414816588, Vsync=747831483238, InputEventId=0, HandleInputStart=747840028500, AnimationStart=747840049100, PerformTraversalsStart=747840528600, DrawStart=748356446500, FrameDeadline=748831483198, FrameStartTime=747839614900, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=748497214100, SyncStart=748807807000, IssueDrawCommandsStart=748808263500, SwapBuffers=749006310700, FrameCompleted=749015880600, DequeueBufferDuration=16400, QueueBufferDuration=156000, GpuCompleted=749015880600, SwapBuffersCompleted=749006711000, DisplayPresentTime=0, CommandSubmissionCompleted=749006310700, 
-05-22 11:23:21.667  5597  5632 I HWUI    : Davey! duration=1132ms; Flags=0, FrameTimelineVsyncId=27601, IntendedVsync=747848149904, Vsync=748798149866, InputEventId=0, HandleInputStart=748815530000, AnimationStart=748815550800, PerformTraversalsStart=748862907500, DrawStart=748872577700, FrameDeadline=749048149856, FrameStartTime=748813880000, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=748886624700, SyncStart=749006972100, IssueDrawCommandsStart=749007224500, SwapBuffers=749037355600, FrameCompleted=749100980500, DequeueBufferDuration=16700, QueueBufferDuration=142300, GpuCompleted=749100980500, SwapBuffersCompleted=749086147900, DisplayPresentTime=127610577809840, CommandSubmissionCompleted=749037355600, 
+05-22 11:23:21.632  5597  5608 I HWUI    : Davey! duration=1290ms; Flags=0, FrameTimelineVsyncId=27343, IntendedVsync=747414816588, Vsync=747831483238, InputEventId=0, HandleInputStart=747840028500, AnimationStart=747840049100, PerformTraversalsStart=747840528600, DrawStart=748356446500, FrameDeadline=748831483198, FrameStartTime=747839614900, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=748497214100, SyncStart=748807807000, IssueDrawCommandsStart=748808263500, SwapBuffers=749006310700, FrameCompleted=749015880600, DequeueBufferDuration=16400, QueueBufferDuration=156000, GpuCompleted=749015880600, SwapBuffersCompleted=749006711000, DisplayPresentTime=0, CommandSubmissionCompleted=749006310700,
+05-22 11:23:21.667  5597  5632 I HWUI    : Davey! duration=1132ms; Flags=0, FrameTimelineVsyncId=27601, IntendedVsync=747848149904, Vsync=748798149866, InputEventId=0, HandleInputStart=748815530000, AnimationStart=748815550800, PerformTraversalsStart=748862907500, DrawStart=748872577700, FrameDeadline=749048149856, FrameStartTime=748813880000, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=748886624700, SyncStart=749006972100, IssueDrawCommandsStart=749007224500, SwapBuffers=749037355600, FrameCompleted=749100980500, DequeueBufferDuration=16700, QueueBufferDuration=142300, GpuCompleted=749100980500, SwapBuffersCompleted=749086147900, DisplayPresentTime=127610577809840, CommandSubmissionCompleted=749037355600,
