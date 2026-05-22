@@ -1,0 +1,263 @@
+diff --git a/hermes_cli/main.py b/hermes_cli/main.py
+index 1a14a1e0f..cd04741b9 100644
+--- a/hermes_cli/main.py
++++ b/hermes_cli/main.py
+@@ -9549,11 +9549,11 @@ def cmd_profile(args):
+
+         # Header
+         print(
+-            f"\n {'Profile':<16} {'Model':<28} {'Gateway':<12} "
++            f"\n {'Profile':<16} {'员工 / 岗位':<28} {'Model':<22} {'Gateway':<12} "
+             f"{'Alias':<12} {'Distribution'}"
+         )
+         print(
+-            f" {'─' * 15}    {'─' * 27}    {'─' * 11}    "
++            f" {'─' * 15}    {'─' * 27}    {'─' * 21}    {'─' * 11}    "
+             f"{'─' * 11}    {'─' * 20}"
+         )
+
+@@ -9564,7 +9564,11 @@ def cmd_profile(args):
+                 else "  "
+             )
+             name = p.name
+-            model = (p.model or "—")[:26]
++            employee = (p.display_name or "—").strip()
++            if p.role:
++                employee = f"{employee} / {p.role}" if employee != "—" else p.role
++            employee = employee[:26]
++            model = (p.model or "—")[:20]
+             gw = "running" if p.gateway_running else "stopped"
+             alias = p.name if p.alias_path else "—"
+             if p.is_default:
+@@ -9574,7 +9578,7 @@ def cmd_profile(args):
+                 dist = dist[:30]
+             else:
+                 dist = "—"
+-            print(f"{marker}{name:<15} {model:<28} {gw:<12} {alias:<12} {dist}")
++            print(f"{marker}{name:<15} {employee:<28} {model:<22} {gw:<12} {alias:<12} {dist}")
+         print()
+
+     elif action == "use":
+diff --git a/hermes_cli/profiles.py b/hermes_cli/profiles.py
+index d35669c62..7aef83999 100644
+--- a/hermes_cli/profiles.py
++++ b/hermes_cli/profiles.py
+@@ -412,6 +412,12 @@ class ProfileInfo:
+     distribution_name: Optional[str] = None
+     distribution_version: Optional[str] = None
+     distribution_source: Optional[str] = None
++    # Human-facing employee metadata shown in dashboards. Profile IDs stay
++    # ASCII and CLI-safe, while these fields can use Chinese names and role
++    # labels for recognition by non-technical users.
++    display_name: str = ""
++    role: str = ""
++    responsibilities: list[str] = None
+     # Free-form description (1-2 sentences) of what this profile is good
+     # at. Persisted in ``<profile_dir>/profile.yaml``. Empty when the
+     # user has not described the profile (legacy profiles, fresh
+@@ -517,17 +523,38 @@ def read_profile_meta(profile_dir: Path) -> dict:
+     ``hermes profile list``.
+     """
+     path = _profile_yaml_path(profile_dir)
++    empty = {
++        "display_name": "",
++        "role": "",
++        "responsibilities": [],
++        "description": "",
++        "description_auto": False,
++    }
+     if not path.is_file():
+-        return {"description": "", "description_auto": False}
++        return empty
+     try:
+         import yaml
+         with open(path, "r", encoding="utf-8") as f:
+             data = yaml.safe_load(f) or {}
+     except Exception:
+-        return {"description": "", "description_auto": False}
++        return empty
+     if not isinstance(data, dict):
+-        return {"description": "", "description_auto": False}
++        return empty
++    responsibilities = data.get("responsibilities") or []
++    if isinstance(responsibilities, str):
++        responsibilities = [
++            line.strip(" -")
++            for line in responsibilities.splitlines()
++            if line.strip()
++        ]
++    elif isinstance(responsibilities, (list, tuple)):
++        responsibilities = [str(item).strip() for item in responsibilities if str(item).strip()]
++    else:
++        responsibilities = []
+     return {
++        "display_name": str(data.get("display_name") or "").strip(),
++        "role": str(data.get("role") or "").strip(),
++        "responsibilities": responsibilities,
+         "description": str(data.get("description") or "").strip(),
+         "description_auto": bool(data.get("description_auto", False)),
+     }
+@@ -593,6 +620,9 @@ def list_profiles() -> List[ProfileInfo]:
+             distribution_name=dist_name,
+             distribution_version=dist_version,
+             distribution_source=dist_source,
++            display_name=meta.get("display_name", ""),
++            role=meta.get("role", ""),
++            responsibilities=meta.get("responsibilities", []),
+             description=meta.get("description", ""),
+             description_auto=meta.get("description_auto", False),
+         ))
+@@ -623,6 +653,9 @@ def list_profiles() -> List[ProfileInfo]:
+                 distribution_name=dist_name,
+                 distribution_version=dist_version,
+                 distribution_source=dist_source,
++                display_name=meta.get("display_name", ""),
++                role=meta.get("role", ""),
++                responsibilities=meta.get("responsibilities", []),
+                 description=meta.get("description", ""),
+                 description_auto=meta.get("description_auto", False),
+             ))
+diff --git a/hermes_cli/web_server.py b/hermes_cli/web_server.py
+index 7d28ce076..7b7dc8636 100644
+--- a/hermes_cli/web_server.py
++++ b/hermes_cli/web_server.py
+@@ -2774,6 +2774,10 @@ def _profile_to_dict(info) -> Dict[str, Any]:
+         "provider": _profile_attr(info, "provider"),
+         "has_env": bool(_profile_attr(info, "has_env", False)),
+         "skill_count": int(_profile_attr(info, "skill_count", 0) or 0),
++        "display_name": _profile_attr(info, "display_name", "") or "",
++        "role": _profile_attr(info, "role", "") or "",
++        "responsibilities": _profile_attr(info, "responsibilities", []) or [],
++        "description": _profile_attr(info, "description", "") or "",
+     }
+
+
+@@ -2788,6 +2792,7 @@ def _fallback_profile_dicts(profiles_mod) -> List[Dict[str, Any]]:
+     default_home = profiles_mod._get_default_hermes_home()
+     if default_home.is_dir():
+         model, provider = _safe(lambda: profiles_mod._read_config_model(default_home), (None, None))
++        meta = _safe(lambda: profiles_mod.read_profile_meta(default_home), {})
+         profiles.append({
+             "name": "default",
+             "path": str(default_home),
+@@ -2796,6 +2801,10 @@ def _fallback_profile_dicts(profiles_mod) -> List[Dict[str, Any]]:
+             "provider": provider,
+             "has_env": (default_home / ".env").exists(),
+             "skill_count": _safe(lambda: profiles_mod._count_skills(default_home), 0),
++            "display_name": meta.get("display_name", ""),
++            "role": meta.get("role", ""),
++            "responsibilities": meta.get("responsibilities", []),
++            "description": meta.get("description", ""),
+         })
+
+     profiles_root = profiles_mod._get_profiles_root()
+@@ -2804,6 +2813,7 @@ def _fallback_profile_dicts(profiles_mod) -> List[Dict[str, Any]]:
+             if not entry.is_dir() or not profiles_mod._PROFILE_ID_RE.match(entry.name):
+                 continue
+             model, provider = _safe(lambda entry=entry: profiles_mod._read_config_model(entry), (None, None))
++            meta = _safe(lambda entry=entry: profiles_mod.read_profile_meta(entry), {})
+             profiles.append({
+                 "name": entry.name,
+                 "path": str(entry),
+@@ -2812,6 +2822,10 @@ def _fallback_profile_dicts(profiles_mod) -> List[Dict[str, Any]]:
+                 "provider": provider,
+                 "has_env": (entry / ".env").exists(),
+                 "skill_count": _safe(lambda entry=entry: profiles_mod._count_skills(entry), 0),
++                "display_name": meta.get("display_name", ""),
++                "role": meta.get("role", ""),
++                "responsibilities": meta.get("responsibilities", []),
++                "description": meta.get("description", ""),
+             })
+
+     return profiles
+diff --git a/web/src/lib/api.ts b/web/src/lib/api.ts
+index b7e2ba6c5..3ea0e785c 100644
+--- a/web/src/lib/api.ts
++++ b/web/src/lib/api.ts
+@@ -510,6 +510,10 @@ export interface ProfileInfo {
+   provider: string | null;
+   has_env: boolean;
+   skill_count: number;
++  display_name?: string;
++  role?: string;
++  responsibilities?: string[];
++  description?: string;
+ }
+
+ export interface ModelsAnalyticsModelEntry {
+diff --git a/web/src/pages/ProfilesPage.tsx b/web/src/pages/ProfilesPage.tsx
+index 1cf590ffa..c3c2bdf3a 100644
+--- a/web/src/pages/ProfilesPage.tsx
++++ b/web/src/pages/ProfilesPage.tsx
+@@ -378,11 +378,16 @@ export default function ProfilesPage() {
+         {profiles.map((p) => {
+           const isRenaming = renamingFrom === p.name;
+           const isEditingSoul = editingSoulFor === p.name;
++          const displayName = p.display_name?.trim() || p.name;
++          const hasDisplayName = displayName !== p.name;
++          const role = p.role?.trim();
++          const description = p.description?.trim();
++          const responsibilities = p.responsibilities ?? [];
+           return (
+             <Card key={p.name}>
+               <CardContent className="flex items-start gap-4 py-4">
+                 <div className="flex-1 min-w-0">
+-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
++                  <div className="flex items-start gap-2 mb-1 flex-wrap">
+                     {isRenaming ? (
+                       <Input
+                         autoFocus
+@@ -400,9 +405,23 @@ export default function ProfilesPage() {
+                         className="max-w-xs"
+                       />
+                     ) : (
+-                      <span className="font-medium text-sm truncate">
+-                        {p.name}
+-                      </span>
++                      <div className="min-w-0">
++                        <div className="flex items-center gap-2 flex-wrap">
++                          <span className="font-semibold text-base truncate">
++                            {displayName}
++                          </span>
++                          {hasDisplayName && (
++                            <span className="font-mono text-xs text-muted-foreground">
++                              {p.name}
++                            </span>
++                          )}
++                        </div>
++                        {role && (
++                          <div className="mt-1 text-sm text-foreground/80">
++                            岗位：{role}
++                          </div>
++                        )}
++                      </div>
+                     )}
+                     {p.is_default && (
+                       <Badge tone="secondary">{t.profiles.defaultBadge}</Badge>
+@@ -433,7 +452,25 @@ export default function ProfilesPage() {
+                         </p>
+                       );
+                     })()}
+-                  <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
++                  {description && !isRenaming && (
++                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
++                      {description}
++                    </p>
++                  )}
++                  {responsibilities.length > 0 && !isRenaming && (
++                    <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
++                      <span className="text-muted-foreground mr-1">职责</span>
++                      {responsibilities.map((item) => (
++                        <span
++                          key={item}
++                          className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-foreground/80"
++                        >
++                          {item}
++                        </span>
++                      ))}
++                    </div>
++                  )}
++                  <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                     {p.model && (
+                       <span>
+                         {t.profiles.model}: {p.model}
