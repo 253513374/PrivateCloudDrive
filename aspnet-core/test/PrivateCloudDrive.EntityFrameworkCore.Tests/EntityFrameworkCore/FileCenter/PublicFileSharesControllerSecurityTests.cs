@@ -55,14 +55,14 @@ public class PublicFileSharesControllerSecurityTests
     [Fact]
     public void PublicShareRateLimitPartitions_Should_Use_Token_Hash_And_Client_Ip_Without_Raw_Token()
     {
-        const string rawShareId = "share-token-that-must-not-appear-in-partition";
+        const string rawToken = "share-token-that-must-not-appear-in-partition";
         const string clientIp = "203.0.113.42";
 
-        var partitionKey = PublicShareRateLimitPartitions.ForTokenAndIp(rawShareId, clientIp);
+        var partitionKey = PublicShareRateLimitPartitions.ForTokenAndIp(rawToken, clientIp);
 
         partitionKey.ShouldStartWith("share:");
         partitionKey.ShouldEndWith($":ip:{clientIp}");
-        partitionKey.ShouldNotContain(rawShareId);
+        partitionKey.ShouldNotContain(rawToken);
         partitionKey.Length.ShouldBeLessThan(100);
     }
 
