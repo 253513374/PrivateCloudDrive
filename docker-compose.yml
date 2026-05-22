@@ -43,6 +43,13 @@ services:
       OpenIddict__Applications__PrivateCloudDrive_App__ClientId: "PrivateCloudDrive_App"
       OpenIddict__Applications__PrivateCloudDrive_App__RedirectUri: "privateclouddrive://callback"
       OpenIddict__Applications__PrivateCloudDrive_App__PostLogoutRedirectUri: "privateclouddrive://callback"
+      PCD_QA_TEST_ACCOUNT_ENABLED: ${PCD_QA_TEST_ACCOUNT_ENABLED:-false}
+      PCD_QA_TEST_ACCOUNT_USER_NAME: ${PCD_QA_TEST_ACCOUNT_USER_NAME:-qa_user}
+      PCD_QA_TEST_ACCOUNT_ALT_USER_NAME: ${PCD_QA_TEST_ACCOUNT_ALT_USER_NAME:-qa_user_alt}
+      PCD_QA_TEST_ACCOUNT_ROLE: ${PCD_QA_TEST_ACCOUNT_ROLE:-QA.Tester}
+      PCD_QA_TEST_ACCOUNT_PASSWORD: ${PCD_QA_TEST_ACCOUNT_PASSWORD:-}
+      PCD_QA_TEST_ACCOUNT_SECRET_ID: ${PCD_QA_TEST_ACCOUNT_SECRET_ID:-}
+      PCD_QA_TEST_ACCOUNT_ROTATED_AT: ${PCD_QA_TEST_ACCOUNT_ROTATED_AT:-}
     depends_on:
       postgres:
         condition: service_healthy

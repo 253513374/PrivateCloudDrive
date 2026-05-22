@@ -63,3 +63,6 @@ project.lock.json
 
 # Local Hermes agent workspace
 .hermes/
+# Local secret files (never commit real QA credentials)
+.secrets/
+!.secrets.example
