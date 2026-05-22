@@ -28,6 +28,7 @@ public class PublicFileSharesController : PrivateCloudDriveController
     /// 查询公开分享信息；受密码保护的分享不会直接暴露文件内容。
     /// </summary>
     [HttpGet("{token}")]
+    [EnableRateLimiting("PublicShareMetadata")]
     public virtual Task<PublicFileShareDto> GetAsync(string token)
     {
         return _publicSharesAppService.GetAsync(token);
