@@ -1,127 +1,171 @@
-# PrivateCloudDrive Git 治理规范
+# PrivateCloudDrive Git 仓库治理规范
 
-更新时间：2026-05-22
+> 目标：主库 `main` 永远只代表“已通过门禁、可追溯、可回滚”的集成状态。任何员工、Agent、脚本都不得把未验证成果直接写入主库。
 
-## 1. 目标
+## 1. 问题本质
 
-本规范用于保证 PrivateCloudDrive 多 Agent 并行开发时：
+2026-05-22 的 Git 混乱事故不是单纯的 `.git` 损坏问题，而是仓库治理缺失：
 
-1. 共享主库 `main` 始终保持可用、可验证、可继续派生。
-2. 所有实现任务都在隔离工作区中完成，不直接污染共享主库。
-3. 每个阶段完成后，优先把已通过门禁的阶段成果合并回 `main`，再从最新 `main` 派生下一阶段任务和分支。
+1. 多个 Kanban worker 共享同一个主仓库工作区。
+2. worker 在主库目录中直接修改文件、创建临时 clone、尝试修复 `.git`。
+3. 缺少强制分支/PR 门禁，main 原本没有保护，直接 push/合并没有制度阻断。
+4. 任务产物、临时修复、验证产物混在主库，导致无法判断哪些改动属于哪个任务。
+5. 一旦 `.git` 损坏，所有依赖主库的 worker 同时失败，形成看板死锁。
 
-## 2. 非协商规则
+因此，真正的治理对象是：**主库写入权、集成入口、任务隔离、合并门禁、责任追溯**。
 
-1. 禁止 worker 直接在共享主库 `D:/Devs/Projects/Personal/PrivateCloudDrive` 中开发。
-2. 所有实现任务必须在隔离工作区 `D:/Devs/Projects/Personal/PrivateCloudDrive-tasks/t_<task_id>/` 中执行。
-3. 所有变更必须通过任务分支 + Pull Request 合入 `main`。
-4. `main` 受 GitHub Branch Protection 保护，必须通过：
-   - `Public repo quality gate`
-   - 会话已解决（required conversation resolution）
-   - 禁止 force push / delete
-   - 线性历史
-   - 当前单人维护模式下不要求非作者审批；如未来切回多人协作，再恢复 approval 门禁
-5. 如发现共享主库损坏、只剩残缺 `.git`、或被 IDE/后台进程占用，必须立刻止血、恢复主库，再继续调度。
+## 2. 分支模型
 
-## 3. 标准开发流
+### 2.1 永久分支
 
-### 3.1 任务启动前
+| 分支 | 用途 | 写入规则 |
+|---|---|---|
+| `main` | 稳定集成主线 | 只能通过 PR 合并，禁止直接 push |
 
-每个 worker 在任何 git 操作前必须先运行：
+### 2.2 临时任务分支
 
-```bash
-set -euo pipefail
-bash D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/git-workspace-guard.sh > /tmp/pcd-workspace-guard.out
-WORKSPACE=$(grep '^WORKSPACE=' /tmp/pcd-workspace-guard.out | cut -d= -f2)
-test -n "$WORKSPACE"
-cd "$WORKSPACE"
-```
-
-作用：
-
-1. 健康检查共享主库
-2. 必要时自动自愈
-3. 创建任务隔离工作区
-4. 返回当前任务可用目录
-
-### 3.2 分支规范
-
-每个任务必须从最新 `main` 派生任务分支：
+每个 Kanban 任务必须使用独立分支：
 
 ```text
 agent/<task-id>/<scope>
 ```
 
-例如：
+示例：
 
 ```text
+agent/t_d0ad75b8/share-kdf-rate-limit
 agent/t_8849deee/android-login-error-classification
+agent/t_40140fce/validation-secret-scan
 ```
 
-### 3.3 阶段推进规范（新增）
+规则：
 
-这是当前项目的强制节奏：
+1. 一个任务一个分支。
+2. 一个分支只解决一个明确问题。
+3. 禁止多个任务共用同一分支。
+4. 禁止 worker 在 `main` 上 commit。
+5. 分支完成后必须开 PR，不得直接合并。
 
-1. 一个阶段形成可验收成果后，不允许长期堆积在多个未合并分支上。
-2. 对于已经通过代码检查、CI、QA/验收门禁的阶段成果，应优先推进 review/merge，尽快合并回 `main`。
-3. 只有在该阶段成果回到 `main` 后，才批量派发下一阶段的实现任务。
-4. 后续任务创建分支前，必须基于最新 `main` 重新派生，避免从陈旧分支继续分叉开发。
-5. 如多个 PR 同时存在，优先合并“后续任务的共同基线 PR”，再派发其下游任务。
+## 3. 工作区模型
 
-一句话原则：
+主仓库：
 
-> 每完成一个阶段，先把阶段成果合回主库，再从最新主库继续下一阶段。
+```text
+D:/Devs/Projects/Personal/PrivateCloudDrive
+```
 
-## 4. 阶段收口检查表
+定位：Hermes 参考副本，仅用于：
 
-当 Hermes 判断某个阶段准备进入下一阶段时，必须先确认：
+- 健康检查
+- `git fetch/pull`
+- 查看状态
+- 运行只读巡检
 
-1. 该阶段关键 PR 已创建并进入门禁。
-2. 可合并 PR 已完成：
-   - `git diff --check`
-   - 必要测试 / 构建
-   - CI 通过
-   - 无敏感信息泄漏
-   - 已满足 review 条件
-3. 若 PR 仅剩非作者审批，则将其标记为“治理门禁阻塞”，不与技术阻塞混淆。
-4. 在派发下一阶段任务前，先同步并确认共享主库是最新健康 `main`。
+任务工作区：
 
-## 5. 看板调度规则
+```text
+D:/Devs/Projects/Personal/PrivateCloudDrive-tasks/t_<task_id>/
+```
 
-1. 不要盲目 unblock 所有 blocked 任务。
-2. blocked 任务需先区分：
-   - 真正技术阻塞
-   - 上游依赖未完成
-   - 仅剩 PR 审批门禁
-   - profile / skill / provider 崩溃问题
-3. 对已经形成 PR 且通过门禁的历史 blocked 卡，应关闭旧卡，避免重复派发。
-4. 下一轮重派应优先选择：
-   - 以最新 `main` 为基线的任务
-   - 不依赖陈旧分支的任务
-   - 不再强绑已知会崩溃 skill 参数的任务
+定位：worker 实际工作区。
 
-## 6. 主库保护与恢复
+启动任务第一步必须运行：
 
-如共享主库异常：
+```bash
+WORKSPACE=$(bash D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/git-workspace-guard.sh | grep '^WORKSPACE=' | cut -d= -f2)
+cd "$WORKSPACE"
+git checkout -b agent/<task-id>/<scope>
+```
 
-1. 立即阻断新任务，防止继续写坏主库。
-2. 终止占用主库的 IDE / DevHub / Copilot / 其他驻留进程。
-3. 将损坏目录备份为 `PrivateCloudDrive.broken-restore-<timestamp>`。
-4. 从 GitHub fresh clone 恢复主库。
-5. 运行以下检查：
-   - `git fsck`
-   - `git status`
-   - `scripts/git-workspace-guard.sh`
-   - `scripts/board-watchdog.sh`
-   - 如需检查定时巡检链路，再额外确认 Hermes scheduler wrapper：`C:/Users/q4528/AppData/Local/hermes/scripts/pcd-watchdog.sh`
-6. 只有主库恢复健康后，才允许继续 dispatch。
+## 4. PR 门禁
 
-## 7. 执行口径
+`main` 已启用 GitHub Branch Protection：
 
-Hermes 后续在 PrivateCloudDrive 的默认执行口径为：
+| 门禁 | 状态 |
+|---|---|
+| 禁止直接 push 到 main | 已启用 |
+| 管理员也受保护 | 已启用 |
+| 必须 PR | 已启用 |
+| 至少 1 个 approving review | 已启用 |
+| 最后一次 push 后需要非提交者批准 | 已启用 |
+| 必须通过 CI `Public repo quality gate` | 已启用 |
+| 合并前分支必须与 main 同步 | 已启用 |
+| 必须解决所有对话 | 已启用 |
+| 禁止 force push | 已启用 |
+| 禁止删除 main | 已启用 |
+| 线性历史 | 已启用 |
 
-- 先保主库健康
-- 再保阶段成果及时回主库
-- 再从最新主库派发下一阶段任务
+## 5. 合并流程
 
-如阶段成果尚未合回 `main`，原则上不应大规模展开下一阶段开发，除非存在明确的并行必要性且不会污染后续分支基线。
+```mermaid
+flowchart TD
+    A[Kanban Task Ready] --> B[创建隔离工作区]
+    B --> C[创建 agent/task-id/scope 分支]
+    C --> D[实现与本地测试]
+    D --> E[push 分支]
+    E --> F[创建 Draft PR]
+    F --> G[CI: Public repo quality gate]
+    G --> H{CI 通过?}
+    H -- 否 --> D
+    H -- 是 --> I[Reviewer 复核]
+    I --> J{Review 通过?}
+    J -- 否 --> D
+    J -- 是 --> K[Squash Merge 到 main]
+    K --> L[删除远端任务分支]
+    L --> M[Kanban Done]
+```
+
+## 6. 角色职责
+
+| 角色 | 职责 |
+|---|---|
+| Worker | 只能在任务分支提交代码，负责最小测试和 PR 描述 |
+| Reviewer/QA | 检查 diff、证据、测试、敏感信息，批准或退回 |
+| Release Manager | 合并 PR，确认 main 仍健康 |
+| Hermes 总控 | 管理分支保护、看门狗、死锁恢复和跨任务冲突 |
+
+## 7. 禁止事项
+
+1. 禁止 worker 在 `main` 分支直接 commit。
+2. 禁止任何人直接 push 到 `main`。
+3. 禁止把临时 clone、patch 文件、日志残留放进主库根目录。
+4. 禁止未经过 CI 和 Review 的代码进入 main。
+5. 禁止用 `git reset --hard` 覆盖他人工作成果。
+6. 禁止一个 PR 混入多个无关 Kanban 任务。
+
+## 8. 异常处理
+
+### 8.1 主仓库写脏
+
+看门狗检测到主库有未提交改动且有 worker 运行时：
+
+1. 不自动 reset，避免丢失成果。
+2. 记录报警。
+3. Hermes 总控人工分类：
+   - 属于某任务 → 搬迁到对应任务分支/PR。
+   - 属于临时产物 → 删除或移入 validation 证据目录。
+   - 不确定 → 暂存备份后再清理。
+
+### 8.2 分支冲突
+
+1. worker rebase 或 merge `origin/main` 到任务分支。
+2. 修复冲突。
+3. 重新跑测试。
+4. push 更新 PR。
+
+### 8.3 CI 失败
+
+1. 不得合并。
+2. worker 读取失败日志。
+3. 提交修复 commit。
+4. CI 重新通过后再进入 review。
+
+## 9. 成功标准
+
+仓库治理合格的标准：
+
+1. `main` 永远可 `git clone`、可构建、可追溯。
+2. 每个改动都能追溯到 task id、branch、PR、CI、review。
+3. 看板任务完成不等于进入 main；只有 PR 合并后才进入 main。
+4. 主库没有未归属改动。
+5. 临时工作区可随时删除，不影响主库。
