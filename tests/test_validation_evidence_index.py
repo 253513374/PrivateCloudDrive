@@ -31,6 +31,25 @@ def test_pass_status_line_is_not_reported_as_password_secret():
     assert findings == []
 
 
+def test_android_log_transition_token_is_not_reported_as_access_token():
+    text = "05-22 WindowManager: token=WCT{RemoteToken{abc123}} transition ok\n"
+
+    findings = scan_text_for_sensitive_data("docs/validation/android-logcat.log", text)
+
+    assert findings == []
+
+
+def test_hyphenated_auth_token_keys_are_reported_as_access_token():
+    text = "access-token: access-value-123\nid-token = id-value-123\n"
+
+    findings = scan_text_for_sensitive_data("docs/validation/auth.md", text)
+
+    assert [finding.rule for finding in findings] == ["access_token", "access_token"]
+    serialized = json.dumps([finding.__dict__ for finding in findings], ensure_ascii=False)
+    assert "access-value-123" not in serialized
+    assert "id-value-123" not in serialized
+
+
 def test_explicit_secret_keys_are_reported_with_specific_rules_and_redacted():
     text = (
         "password = PassValue123\n"
