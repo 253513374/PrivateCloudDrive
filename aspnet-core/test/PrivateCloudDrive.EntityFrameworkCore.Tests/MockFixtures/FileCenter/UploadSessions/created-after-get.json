@@ -1,0 +1,36 @@
+{
+  "caseId": "API-UploadSession-01",
+  "description": "创建上传会话后立即查询，响应应返回恢复上传所需的进度字段。",
+  "request": { "method": "GET", "path": "/api/file-center/upload-sessions/11111111-1111-1111-1111-111111111111" },
+  "response": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "tenantId": null,
+    "ownerId": "22222222-2222-2222-2222-222222222222",
+    "parentId": null,
+    "fileName": "contract-video.mp4",
+    "totalSize": 10485760,
+    "chunkSize": 5242880,
+    "totalChunks": 2,
+    "contentType": "video/mp4",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "status": "Pending",
+    "expirationTime": "2026-05-23T10:00:00Z",
+    "fileNodeId": null,
+    "uploadedChunks": [],
+    "uploadedChunkCount": 0,
+    "uploadedBytes": 0,
+    "progressPercent": 0,
+    "isRetryable": true,
+    "statusReason": "WaitingForChunks",
+    "failureReason": null,
+    "nextAction": "UploadMissingChunks"
+  },
+  "assertions": [
+    { "field": "uploadedChunkCount", "expected": 0 },
+    { "field": "uploadedBytes", "expected": 0 },
+    { "field": "progressPercent", "expected": 0 },
+    { "field": "isRetryable", "expected": true },
+    { "field": "statusReason", "expected": "WaitingForChunks" },
+    { "field": "nextAction", "expected": "UploadMissingChunks" }
+  ]
+}

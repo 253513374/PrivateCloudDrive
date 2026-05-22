@@ -122,6 +122,48 @@ public class EfCoreFileCenterChunkUploadServiceTests : PrivateCloudDriveEntityFr
     }
 
     /// <summary>
+    /// 验证重复上传同一分片会按幂等去重处理，避免进度统计和完成判断被重复分片污染。
+    /// </summary>
+    [Fact]
+    public async Task Should_Deduplicate_Repeated_Chunk_Uploads()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("duplicate chunk uploads should stay idempotent");
+        var chunkSize = 9;
+        var chunks = Split(content, chunkSize);
+        var sha256 = ComputeSha256(content);
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var session = await _chunkUploadService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateUploadSessionInput
+                {
+                    FileName = "dedup.bin",
+                    ContentType = "application/octet-stream",
+                    TotalSize = content.Length,
+                    ChunkSize = chunkSize,
+                    TotalChunks = chunks.Count,
+                    Sha256 = sha256
+                });
+
+            await UploadChunkAsync(session.Id, 0, chunks[0]);
+            await UploadChunkAsync(session.Id, 0, chunks[0]);
+
+            var afterDuplicate = await _chunkUploadService.GetAsync(session.Id);
+            afterDuplicate.UploadedChunks.ShouldBe(new[] { 0 });
+            afterDuplicate.UploadedChunks.Count.ShouldBe(1);
+
+            for (var chunkIndex = 1; chunkIndex < chunks.Count; chunkIndex++)
+            {
+                await UploadChunkAsync(session.Id, chunkIndex, chunks[chunkIndex]);
+            }
+
+            var fileNode = await _chunkUploadService.CompleteAsync(session.Id);
+            fileNode.Size.ShouldBe(content.Length);
+        });
+    }
+
+    /// <summary>
     /// 验证对应业务场景的预期行为，防止后续变更破坏既有规则。
     /// </summary>
     [Fact]
