@@ -140,6 +140,13 @@ main() {
 
     log "状态: $running 运行中 / $ready 就绪 / $blocked 阻塞 / $done_count 已完成"
 
+    # 规则0: 主仓库被 worker 写脏，属于工作区隔离违规；只报警，不自动 reset，避免丢失员工成果
+    local dirty_count
+    dirty_count=$(git -C "$PROJECT_DIR" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    if [ "${dirty_count:-0}" -gt 0 ] && [ "$running" -gt 0 ]; then
+        warn "!! 主仓库存在 $dirty_count 个未提交改动且有 $running 个任务运行中：疑似 worker 未遵守隔离工作区。为避免丢失成果，看门狗仅报警，不自动 reset。"
+    fi
+
     # ═══════════════════════════════════════════
     # 触发规则
     # ═══════════════════════════════════════════
