@@ -1,0 +1,714 @@
+--------- beginning of main
+05-22 11:23:15.049  1381  1381 D PersistedStoragePackageUninstalledReceiver: Received android.intent.action.PACKAGE_DATA_CLEARED for com.companyname.privateclouddrive.app for u0
+05-22 11:23:15.051  1427  2055 I FuseDaemon: Successfully deleted rows in leveldb for owner_id:  and ownerPackageIdentifier: com.companyname.privateclouddrive.app::0
+05-22 11:23:15.053  1252  5567 I Fitness : (REDACTED) FitCleanupIntentOperation received Intent %s
+05-22 11:23:15.062  1488  1659 I Icing   : doRemovePackageData com.companyname.privateclouddrive.app
+05-22 11:23:15.063  1427  2055 D MediaGrants: Removed 0 media_grants for 0 user for [com.companyname.privateclouddrive.app, com.companyname.privateclouddrive.app]. Reason: Package orphaned
+05-22 11:23:15.065  1427  2055 I MediaProvider: End Intent { act=android.intent.action.PACKAGE_DATA_CLEARED dat=package: flg=0x5000010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+05-22 11:23:15.068  1488  5559 W SQLiteLog: (28) double-quoted string literal: "com.companyname.privateclouddrive.app"
+05-22 11:23:15.070  1488  5562 I Auth    : [SupervisedAccountIntentOperation] onHandleIntent(): android.intent.action.PACKAGE_ADDED
+05-22 11:23:15.070  1488  5562 I Auth    : [SupervisedAccountIntentOperation] This operation is disabled
+05-22 11:23:15.074  1488  5090 I incfs-mounts: [incfs] Loaded incremental-fs mount info: 2 instances, 4 mount points
+05-22 11:23:15.074  1488  5090 I gle.android.gms: AssetManager2(0x7410a630f598) locale list changing from [] to [en-US]
+05-22 11:23:15.074  1252  5577 I Fitness : (REDACTED) FitCleanupIntentOperation received Intent %s
+05-22 11:23:15.080   682   730 I incfs-dataloaderconnector: Reported status back to IncrementalService. DataLoaderId=100, status=0
+05-22 11:23:15.091  1488  1621 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=AppsCorpus serviceId=36
+05-22 11:23:15.095  1252  5577 I FontLog : (REDACTED) Package %s has no metadata
+05-22 11:23:15.146  1488  1621 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
+05-22 11:23:15.157  1488  1659 I gle.android.gms: AssetManager2(0x7410a630ec38) locale list changing from [] to [en-US]
+05-22 11:23:15.158  1488  1659 I Icing   : Usage reports ok 1, Failed Usage reports 0, indexed 0, rejected 0
+05-22 11:23:15.166  1488  1659 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+05-22 11:23:15.208  5585  5585 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+05-22 11:23:15.210  5585  5585 I AndroidRuntime: Using default boot image
+05-22 11:23:15.210  5585  5585 I AndroidRuntime: Leaving lock profiling enabled
+05-22 11:23:15.213  5585  5585 I app_process: Using CollectorTypeCMC GC.
+05-22 11:23:15.265  5585  5585 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+05-22 11:23:15.266  1458  1458 I faht    : (REDACTED) O received %s
+--------- beginning of system
+05-22 11:23:15.270   682   883 D BackgroundInstallControlService: Package event received: 0
+05-22 11:23:15.272  5585  5585 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+05-22 11:23:15.272  5585  5585 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/9/icu") succeeded. 
+05-22 11:23:15.272  5585  5585 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt76l.dat
+05-22 11:23:15.272  5585  5585 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+05-22 11:23:15.273  5585  5585 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+05-22 11:23:15.274  5585  5585 W app_process: Unexpected CPU variant for x86: x86_64.
+05-22 11:23:15.274  5585  5585 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+05-22 11:23:15.281  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631dcd8) locale list changing from [] to [en-US]
+05-22 11:23:15.283  1458  1458 I faht    : (REDACTED) O received %s
+05-22 11:23:15.284  1458  1458 I faht    : (REDACTED) O received %s
+05-22 11:23:15.285  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6319818) locale list changing from [] to [en-US]
+05-22 11:23:15.285  5585  5585 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+05-22 11:23:15.285  5585  5585 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+05-22 11:23:15.286  5585  5585 D nativeloader: Load /system/lib64/libmonkey_jni.so using ns default for caller /system/framework/monkey.jar in same partition (is_bridged=0): ok
+05-22 11:23:15.287  5585  5585 W Monkey  : args: [-p, com.companyname.privateclouddrive.app, -c, android.intent.category.LAUNCHER, 1]
+05-22 11:23:15.289  5585  5585 I AconfigPackage: android.media.swcodec.flags is mapped to com.android.media.swcodec
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.google.android.settings.simplemode.flags is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.google.android.systemui is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.google.android.apps.nexuslauncher is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.settings.accessibility is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.settings.flags is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.google.android.apps.miphone.aiai.matchmaker.overview.ui is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.google.android.settings.flags is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.launcher3 is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.wallpaper is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.settings.media_drm is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.systemui.accessibility.accessibilitymenu is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.settings.keyboard is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.server.policy.feature.flags is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.settings.factory_reset is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.google.android.haptics.flags is mapped to system_ext
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.permission.flags is mapped to com.android.permission
+05-22 11:23:15.289  5585  5585 I AconfigPackage: com.android.icu is mapped to com.android.i18n
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.appsearch.flags is mapped to com.android.appsearch
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.uprobestats.mainline.flags is mapped to com.android.uprobestats
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.provider.flags is mapped to com.android.configinfrastructure
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.server.deviceconfig is mapped to com.android.configinfrastructure
+05-22 11:23:15.290   682   883 D BackgroundInstallControlService: Package event received: 0
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.nfc.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.app.admin.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.database.sqlite is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.providers.calendar is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.server.power.feature.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.media.performance.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.app.contextualsearch.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.app.ondeviceintelligence.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.media.projection.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.companion is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.service.controls.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.text.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.providers.contactkeys.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.intentresolver is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.companion.virtualdevice.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.uprobestats.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.net.thread.platform.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.view.contentprotection.flags is mapped to system
+05-22 11:23:15.290  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6310858) locale list changing from [] to [en-US]
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.server.dreams is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.graphics.surfaceflinger.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.hardware.input is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.sdk is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: com.android.input.flags is mapped to system
+05-22 11:23:15.290  5585  5585 I AconfigPackage: android.tracing is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: com.android.server.biometrics is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.view.contentcapture.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.app.job is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.content.res is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.net.platform.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: com.android.aconfig.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: com.android.graphics.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.server.app is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.speech.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: com.android.server.stats is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.hardware.biometrics is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.car.feature is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.adpf is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.location.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: com.android.settingslib.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: com.android.managedprovisioning.flags is mapped to system
+05-22 11:23:15.291  5585  5585 I AconfigPackage: android.app.assist.flags is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.server.net is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.settingslib.widget.flags is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.internal.camera.flags is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.hardware.libsensor.flags is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.internal.jank is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.providers.settings is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: android.multiuser is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.server.power.optimization is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.calllogbackup is mapped to system
+05-22 11:23:15.292  5585  5585 I AconfigPackage: com.android.media.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.graphics.libvulkan.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.app.appfunctions.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.app.smartspace.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.providers.contacts.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.shell.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.media.aaudio is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.hardware.radio is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.google.wear.services.infra.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: suspend_service.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.media.midi is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.libcore.readonly is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.settingslib.widget.selectorwithwidgetpreference.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.service.notification is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.systemui.shared is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.app.jank is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.app.wearable is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.media.audio is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.service.chooser is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.compat is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.alarm is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.apex.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.service.quickaccesswallet is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.app.usage is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.accessibility is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.app.supervision.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.utils is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.chre.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.content.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.media.codec is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.internal.os is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.nfc.nci.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.app is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.security.keystore2 is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.crashrecovery.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.tradeinmode.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.hardware.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.telecom.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.settingslib.media.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.policy is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.media.audiopolicy is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.egg.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.internal.compat.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.security is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.service.autofill is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.example.android.aconfig.demo.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.view.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.companion.virtual.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.aconfig_new_storage is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.feature.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.systemui is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.power.batterysaver is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.widget.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.media.editing.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.media.codec.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.powerstats is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.graphics.egl.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.media.audioserver is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.deviceidle is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.nfc is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.permission.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.service.voice.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.content.pm is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.power.hint is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.os is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.service.dreams is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.graphics.libgui.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.hardware.usb.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.provider is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.job is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.internal.foldables.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.internal.telephony.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.webkit is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.credentials.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.display.feature.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.server.notification is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: android.appwidget.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.frameworks.sensorservice.flags is mapped to system
+05-22 11:23:15.293  5585  5585 I AconfigPackage: com.android.printspooler.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.window.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.adaptiveauth is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.net.wifi.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.media.tv.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.server.usb.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.os.vibrator is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.hardware.devicestate.feature.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.server.usage is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.server is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.wm.shell is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.view.inputmethod is mapped to system
+05-22 11:23:15.294  1656  2024 W achh    : Abort, client detached.
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.graphics.hwui.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.server.backup is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.internal.pm.pkg.component.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.view.accessibility is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.google.wear.sdk is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: android.media.audio is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.server.am is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.media.playback.flags is mapped to system
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.art.flags is mapped to com.android.art
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.libcore is mapped to com.android.art
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.media.extractor.flags is mapped to com.android.media
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.media.mainline.flags is mapped to com.android.media
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.wifi.flags is mapped to com.android.wifi
+05-22 11:23:15.294  5585  5585 I AconfigPackage: com.android.org.conscrypt.flags is mapped to com.android.conscrypt
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.healthfitness.flags is mapped to com.android.healthfitness
+05-22 11:23:15.295  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6319b38) locale list changing from [] to [en-US]
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.google.android.input.twoshay.flags is mapped to vendor
+05-22 11:23:15.295  5585  5585 I AconfigPackage: libgooglecamerahal.flags is mapped to vendor
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.ipsec.flags is mapped to com.android.ipsec
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.nfc.module.flags is mapped to com.android.nfcservices
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.adservices.ondevicepersonalization.flags is mapped to com.android.ondevicepersonalization
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.bluetooth.flags is mapped to com.android.bt
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.devicelock.flags is mapped to com.android.devicelock
+05-22 11:23:15.295  5585  5585 I AconfigPackage: android.os.profiling is mapped to com.android.profiling
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.os.statsd.flags is mapped to com.android.os.statsd
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.cellbroadcastreceiver.flags is mapped to com.android.cellbroadcast
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.adservices.flags is mapped to com.android.adservices
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.sdksandbox.flags is mapped to com.android.adservices
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.uwb.flags is mapped to com.android.uwb
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.ranging.flags is mapped to com.android.uwb
+05-22 11:23:15.295  5585  5585 I AconfigPackage: android.graphics.pdf.flags is mapped to com.android.mediaprovider
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.providers.media.flags is mapped to com.android.mediaprovider
+05-22 11:23:15.295  5585  5585 I AconfigPackage: android.graphics.pdf.flags.readonly is mapped to com.android.mediaprovider
+05-22 11:23:15.295  5585  5585 I AconfigPackage: com.android.net.ct.flags is mapped to com.android.tethering
+05-22 11:23:15.296  5585  5585 I AconfigPackage: com.android.net.flags is mapped to com.android.tethering
+05-22 11:23:15.296  5585  5585 I AconfigPackage: android.net.vcn is mapped to com.android.tethering
+05-22 11:23:15.296  5585  5585 I AconfigPackage: com.android.nearby.flags is mapped to com.android.tethering
+05-22 11:23:15.296  5585  5585 I AconfigPackage: android.net.http is mapped to com.android.tethering
+05-22 11:23:15.296  5585  5585 I AconfigPackage: com.android.net.thread.flags is mapped to com.android.tethering
+05-22 11:23:15.296  5585  5585 I AconfigPackage: com.android.system.virtualmachine.flags is mapped to com.android.virt
+05-22 11:23:15.296  5585  5585 E FeatureFlagsImplExport: android.os.flagging.AconfigStorageReadException: ERROR_PACKAGE_NOT_FOUND: package android.xr cannot be found on the device
+05-22 11:23:15.299  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6313a58) locale list changing from [] to [en-US]
+05-22 11:23:15.300   682   785 D EventHub: No input device configuration file found for device 'Monkey touch'.
+05-22 11:23:15.300  5585  5585 W Monkey  :  arg: "-p"
+05-22 11:23:15.300   682   785 I EventHub: usingClockIoctl=true
+05-22 11:23:15.300  5585  5585 W Monkey  :  arg: "com.companyname.privateclouddrive.app"
+05-22 11:23:15.300   682   785 I EventHub: New device: id=23, fd=643, path='/dev/input/event14', name='Monkey touch', classes=TOUCH | TOUCH_MT, configuration='', keyLayout='', keyCharacterMap='', builtinKeyboard=false, 
+05-22 11:23:15.300  5585  5585 W Monkey  :  arg: "-c"
+05-22 11:23:15.301  5585  5585 W Monkey  :  arg: "android.intent.category.LAUNCHER"
+05-22 11:23:15.301  5585  5585 W Monkey  :  arg: "1"
+05-22 11:23:15.301  5585  5585 W Monkey  : data="com.companyname.privateclouddrive.app"
+05-22 11:23:15.301  5585  5585 W Monkey  : data="android.intent.category.LAUNCHER"
+05-22 11:23:15.301  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6317298) locale list changing from [] to [en-US]
+05-22 11:23:15.301   682   785 I InputReader: Device reconfigured: id=23, name='Monkey touch', size 1280x2856, orientation Rotation0, mode DIRECT, display id 0
+05-22 11:23:15.301   682   785 I InputReader: Device added: id=23, eventHubId=23, name='Monkey touch', descriptor='e1fe28b90f915c7d1febbd52c1ef84b3c4cbed9f',sources=TOUCHSCREEN
+05-22 11:23:15.304  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6315998) locale list changing from [] to [en-US]
+05-22 11:23:15.306  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630c078) locale list changing from [] to [en-US]
+05-22 11:23:15.308  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630c6b8) locale list changing from [] to [en-US]
+05-22 11:23:15.309  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630ccf8) locale list changing from [] to [en-US]
+05-22 11:23:15.311  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6312798) locale list changing from [] to [en-US]
+05-22 11:23:15.311  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63111b8) locale list changing from [] to [en-US]
+05-22 11:23:15.311  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630e2d8) locale list changing from [] to [en-US]
+05-22 11:23:15.314  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630bd58) locale list changing from [] to [en-US]
+05-22 11:23:15.314   682   785 E WindowManager: Display reconfigured outside of a transition: Display{#0 state=ON size=1280x2856 ROTATION_0}
+05-22 11:23:15.317  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63097d8) locale list changing from [] to [en-US]
+05-22 11:23:15.318  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630c9d8) locale list changing from [] to [en-US]
+05-22 11:23:15.318   682  1186 W ActivityManager: registerReceiverWithFeature: no app for null
+05-22 11:23:15.321  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6310538) locale list changing from [] to [en-US]
+05-22 11:23:15.323   682   700 W ActivityTaskManager: callingPackage for (uid=2000, pid=5585) has no WPC
+05-22 11:23:15.324   682   700 I system_server: AssetManager2(0x7410a6318558) locale list changing from [] to [en-US]
+05-22 11:23:15.325   682   700 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@664cbd72 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+05-22 11:23:15.325   682   700 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+05-22 11:23:15.325   682   700 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+05-22 11:23:15.325   682   700 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+05-22 11:23:15.325   682   700 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+05-22 11:23:15.327  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6311e38) locale list changing from [] to [en-US]
+05-22 11:23:15.328  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630e918) locale list changing from [] to [en-US]
+05-22 11:23:15.328  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6307258) locale list changing from [] to [en-US]
+05-22 11:23:15.329  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6320898) locale list changing from [] to [en-US]
+05-22 11:23:15.330   682   700 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+05-22 11:23:15.330   535   593 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+05-22 11:23:15.330  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6317f18) locale list changing from [] to [en-US]
+05-22 11:23:15.331  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63194f8) locale list changing from [] to [en-US]
+05-22 11:23:15.331   682   700 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} with LAUNCH_SINGLE_TOP from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+05-22 11:23:15.331  5585  5585 I Monkey  : Events injected: 1
+05-22 11:23:15.333  5585  5585 I Monkey  : ## Network stats: elapsed time=10ms (0ms mobile, 0ms wifi, 10ms not connected)
+05-22 11:23:15.333  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6313d78) locale list changing from [] to [en-US]
+05-22 11:23:15.333  1079  1079 W SplitSelectStateCtor: Missing session instanceIds
+05-22 11:23:15.333  1079  1079 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+05-22 11:23:15.334   928   995 V WindowManagerShell: Transition requested (#23): android.os.BinderProxy@c288247 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=159 effectiveUid=10227 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity } baseActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} topActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} origActivity=null realActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} numActivities=1 lastActiveTime=742783 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@edb4a74} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 156 - 0, 0) topActivityInfo=ActivityInfo{dc63b9d crc644ff135ff239f5ce3.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(329, 830 - 952, 2110) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1280, 2856) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 23 }
+05-22 11:23:15.334   928   995 D ShellSplitScreen: logExit: no-op, mLoggerSessionId is null
+05-22 11:23:15.335  5585  5585 I app_process: System.exit called, status: 0
+05-22 11:23:15.335  5585  5585 I AndroidRuntime: VM exiting with result code 0.
+05-22 11:23:15.337   928   995 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=603
+05-22 11:23:15.337   682   707 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@664cbd72 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+05-22 11:23:15.338  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63146d8) locale list changing from [] to [en-US]
+05-22 11:23:15.338  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6310218) locale list changing from [] to [en-US]
+05-22 11:23:15.338   682   883 D BackgroundInstallControlService: Package event received: 0
+05-22 11:23:15.339  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631ec78) locale list changing from [] to [en-US]
+05-22 11:23:15.339   928  1065 I incfs-mounts: [incfs] Loaded incremental-fs mount info: 2 instances, 4 mount points
+05-22 11:23:15.339  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631ff38) locale list changing from [] to [en-US]
+05-22 11:23:15.339   928  1065 I ndroid.systemui: AssetManager2(0x7410a630f278) locale list changing from [] to [en-US]
+05-22 11:23:15.340   682   963 D CompatChangeReporter: Compat change id reported: 377864165; UID 10227; state: ENABLED
+05-22 11:23:15.340  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63211f8) locale list changing from [] to [en-US]
+05-22 11:23:15.341  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6318b98) locale list changing from [] to [en-US]
+05-22 11:23:15.341  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631dff8) locale list changing from [] to [en-US]
+05-22 11:23:15.342  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6321e78) locale list changing from [] to [en-US]
+05-22 11:23:15.343   682   785 I EventHub: Removing device '/dev/input/event14' due to inotify event
+05-22 11:23:15.343  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631fc18) locale list changing from [] to [en-US]
+05-22 11:23:15.343   682   785 I EventHub: Removed device: path=/dev/input/event14 name=Monkey touch id=23 fd=643 classes=TOUCH | TOUCH_MT
+05-22 11:23:15.345  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6321518) locale list changing from [] to [en-US]
+05-22 11:23:15.347   465   465 D Zygote  : Forked child process 5597
+05-22 11:23:15.347   682   715 I ActivityManager: Start proc 5597:com.companyname.privateclouddrive.app/u0a227 for next-top-activity {com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}
+05-22 11:23:15.347   682   715 I ActivityManager: ProcessObserver broadcast disabled
+05-22 11:23:15.347   535   535 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+05-22 11:23:15.349  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6322e18) locale list changing from [] to [en-US]
+05-22 11:23:15.350  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63224b8) locale list changing from [] to [en-US]
+05-22 11:23:15.350  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631b438) locale list changing from [] to [en-US]
+05-22 11:23:15.352  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6321b58) locale list changing from [] to [en-US]
+05-22 11:23:15.354  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631b758) locale list changing from [] to [en-US]
+05-22 11:23:15.355   928   928 W DSRotLockSettingsMngr: Setting is ignored, but no fallback was specified.
+05-22 11:23:15.357   928   928 W DSRotLockSettingsMngr: Setting is ignored, but no fallback was specified.
+05-22 11:23:15.358  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631c0b8) locale list changing from [] to [en-US]
+05-22 11:23:15.359  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6304378) locale list changing from [] to [en-US]
+05-22 11:23:15.360  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631d378) locale list changing from [] to [en-US]
+05-22 11:23:15.361   928  1066 W HWUI    : Image decoding logging dropped!
+05-22 11:23:15.362  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63178d8) locale list changing from [] to [en-US]
+05-22 11:23:15.364  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63162f8) locale list changing from [] to [en-US]
+05-22 11:23:15.365   682   785 I InputReader: Device removed: id=23, eventHubId=23, name='Monkey touch', descriptor='e1fe28b90f915c7d1febbd52c1ef84b3c4cbed9f', sources=TOUCHSCREEN
+05-22 11:23:15.366  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63191d8) locale list changing from [] to [en-US]
+05-22 11:23:15.366  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6305f98) locale list changing from [] to [en-US]
+05-22 11:23:15.368  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63049b8) locale list changing from [] to [en-US]
+05-22 11:23:15.368  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6305318) locale list changing from [] to [en-US]
+05-22 11:23:15.375  5597  5597 I eclouddrive.app: Late-enabling -Xcheck:jni
+05-22 11:23:15.377   928   928 D NavigationModeController: getCurrentUserContext: contextUser=0 currentUser=0
+05-22 11:23:15.378   606  2100 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:15.381  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630b0d8) locale list changing from [] to [en-US]
+05-22 11:23:15.381   682   707 W PermissionService: getPermissionFlags: Unknown user -1
+05-22 11:23:15.381   682   707 W PermissionService: getPermissionFlags: Unknown user -1
+05-22 11:23:15.383  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630a138) locale list changing from [] to [en-US]
+05-22 11:23:15.384  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6306f38) locale list changing from [] to [en-US]
+05-22 11:23:15.386  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630e5f8) locale list changing from [] to [en-US]
+05-22 11:23:15.387  5597  5597 I eclouddrive.app: Using CollectorTypeCMC GC.
+05-22 11:23:15.387  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6305c78) locale list changing from [] to [en-US]
+05-22 11:23:15.387  5597  5597 W eclouddrive.app: Unexpected CPU variant for x86: x86_64.
+05-22 11:23:15.387  5597  5597 W eclouddrive.app: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+05-22 11:23:15.388  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630ba38) locale list changing from [] to [en-US]
+05-22 11:23:15.388  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630ec38) locale list changing from [] to [en-US]
+05-22 11:23:15.391  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6307bb8) locale list changing from [] to [en-US]
+05-22 11:23:15.392  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a62ff558) locale list changing from [] to [en-US]
+05-22 11:23:15.393  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630c398) locale list changing from [] to [en-US]
+05-22 11:23:15.394  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a62fc358) locale list changing from [] to [en-US]
+05-22 11:23:15.394  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6308518) locale list changing from [] to [en-US]
+05-22 11:23:15.394  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63094b8) locale list changing from [] to [en-US]
+05-22 11:23:15.396  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6312dd8) locale list changing from [] to [en-US]
+05-22 11:23:15.424   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:15.428   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:15.429   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:15.429  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63117f8) locale list changing from [] to [en-US]
+05-22 11:23:15.432  5597  5597 I berberis: Initialized Berberis (aarch64), version 16.0.0
+05-22 11:23:15.434  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630dc98) locale list changing from [] to [en-US]
+05-22 11:23:15.435  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630a458) locale list changing from [] to [en-US]
+05-22 11:23:15.435  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630adb8) locale list changing from [] to [en-US]
+05-22 11:23:15.435  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630d018) locale list changing from [] to [en-US]
+05-22 11:23:15.436  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6310b78) locale list changing from [] to [en-US]
+05-22 11:23:15.437  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630f8b8) locale list changing from [] to [en-US]
+05-22 11:23:15.437  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630fef8) locale list changing from [] to [en-US]
+05-22 11:23:15.438  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631d9b8) locale list changing from [] to [en-US]
+05-22 11:23:15.438  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63130f8) locale list changing from [] to [en-US]
+05-22 11:23:15.439  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6310e98) locale list changing from [] to [en-US]
+05-22 11:23:15.439  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630fbd8) locale list changing from [] to [en-US]
+05-22 11:23:15.439  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6306c18) locale list changing from [] to [en-US]
+05-22 11:23:15.439  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6307ed8) locale list changing from [] to [en-US]
+05-22 11:23:15.440  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63062b8) locale list changing from [] to [en-US]
+05-22 11:23:15.440  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6309198) locale list changing from [] to [en-US]
+05-22 11:23:15.441  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a630b3f8) locale list changing from [] to [en-US]
+05-22 11:23:15.441  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6305958) locale list changing from [] to [en-US]
+05-22 11:23:15.441  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631adf8) locale list changing from [] to [en-US]
+05-22 11:23:15.442  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6315038) locale list changing from [] to [en-US]
+05-22 11:23:15.442  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631a178) locale list changing from [] to [en-US]
+05-22 11:23:15.442  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a631b118) locale list changing from [] to [en-US]
+05-22 11:23:15.443  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6316618) locale list changing from [] to [en-US]
+05-22 11:23:15.445  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6318eb8) locale list changing from [] to [en-US]
+05-22 11:23:15.447  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6315678) locale list changing from [] to [en-US]
+05-22 11:23:15.448  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6315358) locale list changing from [] to [en-US]
+05-22 11:23:15.448  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6315fd8) locale list changing from [] to [en-US]
+05-22 11:23:15.464  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6315cb8) locale list changing from [] to [en-US]
+05-22 11:23:15.465  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6318878) locale list changing from [] to [en-US]
+05-22 11:23:15.466  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6308838) locale list changing from [] to [en-US]
+05-22 11:23:15.467  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6316f78) locale list changing from [] to [en-US]
+05-22 11:23:15.468  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63065d8) locale list changing from [] to [en-US]
+05-22 11:23:15.468  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6329858) locale list changing from [] to [en-US]
+05-22 11:23:15.469  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6329538) locale list changing from [] to [en-US]
+05-22 11:23:15.469  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6327c38) locale list changing from [] to [en-US]
+05-22 11:23:15.470  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6323a98) locale list changing from [] to [en-US]
+05-22 11:23:15.472  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a632ab18) locale list changing from [] to [en-US]
+05-22 11:23:15.473  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6328598) locale list changing from [] to [en-US]
+05-22 11:23:15.474  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63243f8) locale list changing from [] to [en-US]
+05-22 11:23:15.476  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6323db8) locale list changing from [] to [en-US]
+05-22 11:23:15.479  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6325cf8) locale list changing from [] to [en-US]
+05-22 11:23:15.480  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63256b8) locale list changing from [] to [en-US]
+05-22 11:23:15.487  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a632a4d8) locale list changing from [] to [en-US]
+05-22 11:23:15.487  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6326c98) locale list changing from [] to [en-US]
+05-22 11:23:15.488  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63240d8) locale list changing from [] to [en-US]
+05-22 11:23:15.488  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6327f58) locale list changing from [] to [en-US]
+05-22 11:23:15.488  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6328ef8) locale list changing from [] to [en-US]
+05-22 11:23:15.492  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6328278) locale list changing from [] to [en-US]
+05-22 11:23:15.493  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6324a38) locale list changing from [] to [en-US]
+05-22 11:23:15.493  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a632a7f8) locale list changing from [] to [en-US]
+05-22 11:23:15.494  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6323458) locale list changing from [] to [en-US]
+05-22 11:23:15.494  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63259d8) locale list changing from [] to [en-US]
+05-22 11:23:15.495  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63288b8) locale list changing from [] to [en-US]
+05-22 11:23:15.495  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6329b78) locale list changing from [] to [en-US]
+05-22 11:23:15.496  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6324718) locale list changing from [] to [en-US]
+05-22 11:23:15.497  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a632a1b8) locale list changing from [] to [en-US]
+05-22 11:23:15.499  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6325398) locale list changing from [] to [en-US]
+05-22 11:23:15.501  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a63324f8) locale list changing from [] to [en-US]
+05-22 11:23:15.502  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a6326338) locale list changing from [] to [en-US]
+05-22 11:23:15.502  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a632f618) locale list changing from [] to [en-US]
+05-22 11:23:15.503  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a632f938) locale list changing from [] to [en-US]
+05-22 11:23:15.504  1406  1554 I .apps.wellbeing: AssetManager2(0x7410a632bab8) locale list changing from [] to [en-US]
+05-22 11:23:15.641  1457  2167 W AiAiEcho: LyftNotificationParser Ridesharing ETA not enabled
+05-22 11:23:15.641  1457  2167 I AiAiEcho: SmartspaceNotificationPredictor no parser can handle this notification or notification is invalid
+05-22 11:23:15.644  5597  5597 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+05-22 11:23:15.645   547   563 I adbd    : jdwp connection from 5597
+05-22 11:23:15.655   682   883 D BackgroundInstallControlService: Package event received: 0
+05-22 11:23:15.663  5597  5597 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+05-22 11:23:15.663  5597  5597 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+05-22 11:23:15.775   682   700 E AppOps  : attributionTag VCN not declared in manifest of android
+05-22 11:23:15.869  5597  5597 D nativeloader: Configuring clns-9 for other apk /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/lib/arm64:/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/com.companyname.privateclouddrive.app
+05-22 11:23:15.883  5597  5597 I eclouddrive.app: AssetManager2(0x7410a630a778) locale list changing from [] to [en-US]
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: Currently set values for:
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: com.companyname.privateclouddrive.app is not listed in per-application setting
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: ANGLE allowlist from config: 
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: com.companyname.privateclouddrive.app is not listed in ANGLE allowlist or settings, returning default
+05-22 11:23:15.885  5597  5597 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+05-22 11:23:15.927  5597  5597 D nativeloader: Load /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/lib/arm64/libmonosgen-2.0.so using class loader ns clns-9 (caller=/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk!classes3.dex): ok
+05-22 11:23:15.934  1079  1079 D TouchInteractionService: disposeEventHandlers: Reason: Initializing input monitor due to: onTrackpadConnected() instance=38817708
+05-22 11:23:15.934  1079  1079 D InputMonitorCompat: Input event receiver for monitor (swipe-up-disp0) disposed
+05-22 11:23:15.934  1079  1079 D InputMonitorCompat: Input monitor (swipe-up-disp0) disposed
+05-22 11:23:15.935  1079  1079 D InputMonitorCompat: Input monitor (swipe-up-disp0) created
+05-22 11:23:15.935  1079  1079 D InputMonitorCompat: Input event receiver for monitor (swipe-up-disp0) created
+05-22 11:23:15.940  5597  5597 D nativeloader: Load /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/lib/arm64/libxamarin-app.so using class loader ns clns-9 (caller=/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk!classes3.dex): ok
+05-22 11:23:15.973  5597  5597 D nativeloader: Load /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/lib/arm64/libmonodroid.so using class loader ns clns-9 (caller=/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk!classes3.dex): ok
+05-22 11:23:15.977  5597  5597 W monodroid: Creating public update directory: `/data/user/0/com.companyname.privateclouddrive.app/files/.__override__/arm64-v8a`
+05-22 11:23:15.978  5597  5597 W eclouddrive.app: Attempt to remove non-JNI local reference
+05-22 11:23:15.979  5597  5597 W monodroid: runtime args empty
+05-22 11:23:15.998  3577  3614 I ProvidersCache: Provider returned no roots. Possibly naughty: com.google.android.apps.docs.storage
+05-22 11:23:15.998   928  3880 V WindowManagerShell: onTransitionReady(transaction=2929167697054)
+05-22 11:23:15.999   928   995 V WindowManagerShell: onTransitionReady (#23) android.os.BinderProxy@c288247: {id=23 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+05-22 11:23:15.999   928   995 V WindowManagerShell:         {m=OPEN f=NONE leash=Surface(name=Task=159)/@0xd3c5772 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},
+05-22 11:23:15.999   928   995 V WindowManagerShell:         {m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x98227c3 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},
+05-22 11:23:15.999   928   995 V WindowManagerShell:         {m=TO_BACK f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{be7046a showWhenLocked=false})/@0x85a8840 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0}
+05-22 11:23:15.999   928   995 V WindowManagerShell:     ]}
+05-22 11:23:16.010   682   704 V WindowManager: Sent Transition (#23) createdAt=05-22 11:23:15.325 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=159 effectiveUid=10227 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity } baseActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} topActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} origActivity=null realActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} numActivities=1 lastActiveTime=742783 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{946bad2 Task{67f6e6 #159 type=standard A=10227:com.companyname.privateclouddrive.app}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 156 - 0, 0) topActivityInfo=ActivityInfo{75b7a3 crc644ff135ff239f5ce3.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(329, 830 - 952, 2110) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1280, 2856) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 23 }
+05-22 11:23:16.010   682   704 V WindowManager:     startWCT=WindowContainerTransaction { changes= {} hops= [] errorCallbackToken=null taskFragmentOrganizer=null }
+05-22 11:23:16.010   682   704 V WindowManager:     info={id=23 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+05-22 11:23:16.010   682   704 V WindowManager:         {WCT{RemoteToken{946bad2 Task{67f6e6 #159 type=standard A=10227:com.companyname.privateclouddrive.app}}} m=OPEN f=NONE leash=Surface(name=Task=159)/@0xc7a2f34 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},
+05-22 11:23:16.010   682   704 V WindowManager:         {WCT{RemoteToken{93acc83 Task{937d941 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x2fb7885 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},
+05-22 11:23:16.010   682   704 V WindowManager:         {m=TO_BACK f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{be7046a showWhenLocked=false})/@0xf6d49fc sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0}
+05-22 11:23:16.010   682   704 V WindowManager:     ]}
+05-22 11:23:16.012  5597  5597 W monodroid-assembly: open_from_update_dir: assembly file DOES NOT EXIST
+05-22 11:23:16.045   928   995 V WindowManagerShell: Playing animation for (#23) android.os.BinderProxy@c288247@0
+05-22 11:23:16.045   928   995 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+05-22 11:23:16.045   928   995 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=23 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{m=OPEN f=NONE leash=Surface(name=Task=159)/@0xd3c5772 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},{m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x98227c3 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},{m=TO_BACK f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{be7046a showWhenLocked=false})/@0x85a8840 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0}]}
+05-22 11:23:16.045   928   995 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null taskFragmentToken=android.os.BinderProxy@667a8a3 windowingMode=undefined}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@96a7a0, appThread = android.app.IApplicationThread$Stub$Proxy@cf84f59, debugName = overlayBackTransition }}
+05-22 11:23:16.045   928   995 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@5bd171e, appThread = android.app.IApplicationThread$Stub$Proxy@dc22bff, debugName = LauncherToDream }}
+05-22 11:23:16.045   928   995 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null windowingMode=undefined},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined},{NOT atype=undefined independent=true modes=[] flags=NONE mustBeTask=true order=ANY topActivity=null launchCookie=null customAnim=true windowingMode=undefined}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@b4e9dcc, appThread = android.app.IApplicationThread$Stub$Proxy@c558815, debugName = QuickstepLaunchHome }}
+05-22 11:23:16.045   928   995 V WindowManagerShell:  Delegate animation for (#23) to null
+05-22 11:23:16.045   928   995 V WindowManagerShell: start default transition animation, info = {id=23 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{m=OPEN f=NONE leash=Surface(name=Task=159)/@0xd3c5772 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},{m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x98227c3 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},{m=TO_BACK f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{be7046a showWhenLocked=false})/@0x85a8840 sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0}]}
+05-22 11:23:16.045   928   995 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@2557d1f animAttr=0x13 type=OPEN isEntrance=false
+05-22 11:23:16.045   928   995 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@f7fe86c animAttr=0x12 type=OPEN isEntrance=true
+05-22 11:23:16.047   928   995 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@a7500ce
+05-22 11:23:16.160  1488  4546 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+05-22 11:23:16.166  1488  4546 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+05-22 11:23:16.188  1488  4546 I Icing   : Indexing done com.google.android.gms-apps
+05-22 11:23:16.190  1488  4546 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+05-22 11:23:16.272  5597  5597 D nativeloader: Load /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/lib/arm64/libSystem.Security.Cryptography.Native.Android.so using class loader ns clns-9 (caller=/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk!classes3.dex): ok
+05-22 11:23:16.273  5597  5597 D DOTNET  : AndroidCryptoNative_InitLibraryOnLoad: jint AndroidCryptoNative_InitLibraryOnLoad(JavaVM *, void *) in /__w/1/s/src/runtime/src/native/libs/System.Security.Cryptography.Native.Android/pal_jni.c
+05-22 11:23:16.273  5597  5597 D DOTNET  : GetOptionalClassGRef: optional class com/android/org/conscrypt/OpenSSLEngineImpl was not found
+05-22 11:23:16.286  5597  5597 D nativeloader: Load /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/lib/arm64/libxamarin-debug-app-helper.so using class loader ns clns-9 (caller=/data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk!classes3.dex): ok
+05-22 11:23:16.347   928   995 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#23) android.os.BinderProxy@c288247@0
+05-22 11:23:16.349   682   704 V WindowManager: Finish Transition (#23): created at 05-22 11:23:15.325 collect-started=0.072ms request-sent=4.901ms started=9.447ms ready=655.813ms sent=670.832ms commit=243.01ms finished=1021.841ms
+05-22 11:23:16.349   928   995 V WindowManagerShell: Track 0 became idle
+05-22 11:23:16.349   928   995 V WindowManagerShell: All active transition animations finished
+05-22 11:23:16.394   928  1271 W HWUI    : Image decoding logging dropped!
+05-22 11:23:16.417   928  1144 I HWUI    : Davey! duration=810ms; Flags=1, FrameTimelineVsyncId=26743, IntendedVsync=742831483438, Vsync=742831483438, InputEventId=0, HandleInputStart=742837014900, AnimationStart=742837029300, PerformTraversalsStart=742837072200, DrawStart=743149100200, FrameDeadline=742848150104, FrameStartTime=742837007000, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=743149226900, SyncStart=743199383400, IssueDrawCommandsStart=743201729600, SwapBuffers=743206830300, FrameCompleted=743692007700, DequeueBufferDuration=16900, QueueBufferDuration=246500, GpuCompleted=743692007700, SwapBuffersCompleted=743385354500, DisplayPresentTime=0, CommandSubmissionCompleted=743206830300, 
+05-22 11:23:16.470  1079  1079 I s.nexuslauncher: AssetManager2(0x7410a634fcd8) locale list changing from [] to [en-US]
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: failed to dump window to file
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: java.io.FileNotFoundException: Files/Git/sdcard/window.xml: open failed: ENOENT (No such file or directory)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at libcore.io.IoBridge.open(IoBridge.java:574)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at java.io.FileOutputStream.<init>(FileOutputStream.java:259)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at java.io.FileOutputStream.<init>(FileOutputStream.java:208)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at java.io.FileWriter.<init>(FileWriter.java:96)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at com.android.uiautomator.core.AccessibilityNodeInfoDumper.dumpWindowToFile(AccessibilityNodeInfoDumper.java:89)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at com.android.commands.uiautomator.DumpCommand.run(DumpCommand.java:111)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at com.android.commands.uiautomator.Launcher.main(Launcher.java:83)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at com.android.internal.os.RuntimeInit.nativeFinishInit(Native Method)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at com.android.internal.os.RuntimeInit.main(RuntimeInit.java:371)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at libcore.io.Linux.open(Native Method)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at libcore.io.ForwardingOs.open(ForwardingOs.java:568)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	at libcore.io.IoBridge.open(IoBridge.java:560)
+05-22 11:23:16.471  5528  5528 E AccessibilityNodeInfoDumper: 	... 8 more
+05-22 11:23:16.471  5528  5528 W AccessibilityNodeInfoDumper: Fetch time: 0ms
+05-22 11:23:16.471   682  1186 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+05-22 11:23:16.472   682  1186 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+05-22 11:23:16.473   682  1186 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.473   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.478   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.478   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.478   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.478   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.478   682   682 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:16.478   682   682 D BatterySaverPolicy: accessibility changed to false, updating policy.
+05-22 11:23:16.481  1457  4209 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+05-22 11:23:16.481  1457  1837 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+05-22 11:23:16.481  1457  1837 I AiAiEcho: EchoTargets: 
+05-22 11:23:16.481  1457  1837 I AiAiEcho: Filtered by AiAi flag check: 
+05-22 11:23:16.481  1457  1837 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+05-22 11:23:16.481  1457  1837 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+05-22 11:23:16.481  1457  1837 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+05-22 11:23:16.481  1457  1837 I AiAiEcho: EchoTargets: 
+05-22 11:23:16.481  1457  1837 I AiAiEcho: Filtered by AiAi flag check: 
+05-22 11:23:16.481  1457  1837 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+05-22 11:23:16.481  1457  1837 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+05-22 11:23:16.482  1457  1837 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+05-22 11:23:16.482  1457  1837 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+05-22 11:23:16.483   682   700 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:16.483   682   700 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:16.483   682   700 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:16.518  1656  1871 I alhi    : NGA disabled due to not being eligible.
+05-22 11:23:16.519  5528  5528 D AndroidRuntime: Shutting down VM
+05-22 11:23:16.519  5528  5538 W IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+05-22 11:23:16.519  5528  5537 W IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+05-22 11:23:16.519  1079  1079 I Choreographer: Skipped 34 frames!  The application may be doing too much work on its main thread.
+05-22 11:23:16.520  1079  1079 D VRI[NexusLauncherActivity]: visibilityChanged oldVisibility=true newVisibility=false
+05-22 11:23:16.521  1079  1079 D SsBaseTemplateCard: No text view can be set up
+05-22 11:23:16.521  1079  1079 D SsBaseTemplateCard: Passed-in item info is null
+05-22 11:23:16.521  1079  1079 D SsBaseTemplateCard: Passed-in item info is null
+05-22 11:23:16.521  1079  1079 D SsBaseTemplateCard: Passed-in item info is null
+05-22 11:23:16.521  1079  1079 I SsBaseTemplateCard: Secondary card pane is null
+05-22 11:23:16.523   928   928 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+05-22 11:23:16.523   928   928 W DSRotLockSettingsMngr: Setting is ignored, but no fallback was specified.
+05-22 11:23:16.525   682   963 W ActivityTaskManager: takeTaskSnapshot: taskId=126 not found or not visible
+05-22 11:23:16.536  1079  1079 D NexusLauncherModelDelegate: notifySmartspaceEvent: SmartspaceTargetEvent{mSmartspaceTarget=null, mSmartspaceActionId='null', mEventType=7}
+05-22 11:23:16.605  1079  1079 I NotificationListener: received notification removed event - android#UserHandle{-1},category=-1
+05-22 11:23:16.641   928  1271 W HWUI    : Image decoding logging dropped!
+05-22 11:23:16.735  5597  5597 W eclouddrive.app: Attempt to remove non-JNI local reference
+05-22 11:23:17.270  5597  5597 D com.companyname.privateclouddrive.app: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/9/icu") succeeded. 
+05-22 11:23:17.271  5597  5597 D com.companyname.privateclouddrive.app: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt76l.dat
+05-22 11:23:17.487   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:17.487   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:17.488   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:17.569   682   963 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ENABLE_FAKE_FOCUS
+05-22 11:23:17.571   682   883 D BackgroundInstallControlService: Package event received: 0
+05-22 11:23:17.571  5597  5597 I Choreographer: Skipped 45 frames!  The application may be doing too much work on its main thread.
+05-22 11:23:17.572   682   883 D BackgroundInstallControlService: Package event received: 0
+05-22 11:23:17.575  5597  5618 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+05-22 11:23:17.576  5597  5597 I eclouddrive.app: AssetManager2(0x7410a6355458) locale list changing from [] to [en-US]
+05-22 11:23:17.635  5597  5618 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+05-22 11:23:17.636  5597  5618 I EGL_emulation: Opening libGLESv2_emulation.so
+05-22 11:23:17.641  5597  5618 W HWUI    : Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+05-22 11:23:17.642  5597  5618 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+05-22 11:23:17.693  5597  5597 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+05-22 11:23:17.694  5597  5597 I eclouddrive.app: AssetManager2(0x7410a635e0f8) locale list changing from [] to [en-US]
+05-22 11:23:17.697  5597  5597 I eclouddrive.app: AssetManager2(0x7410a6360038) locale list changing from [] to [en-US]
+05-22 11:23:17.699  5597  5597 E ashmem  : Pinning is deprecated since Android Q. Please use trim or other methods.
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: Failed to get service from broker. 
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: java.lang.SecurityException: Unknown calling package name 'com.google.android.gms'.
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Parcel.createExceptionOrNull(Parcel.java:3340)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Parcel.createException(Parcel.java:3324)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Parcel.readException(Parcel.java:3307)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Parcel.readException(Parcel.java:3249)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at aslf.a(:com.google.android.gms@250734038@25.07.34 (260800-734679633):36)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at asjm.z(:com.google.android.gms@250734038@25.07.34 (260800-734679633):143)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at arqx.run(:com.google.android.gms@250734038@25.07.34 (260800-734679633):54)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Handler.handleCallback(Handler.java:995)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Handler.dispatchMessage(Handler.java:103)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at bzda.mt(:com.google.android.gms@250734038@25.07.34 (260800-734679633):1)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at bzda.dispatchMessage(:com.google.android.gms@250734038@25.07.34 (260800-734679633):5)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Looper.loopOnce(Looper.java:248)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.Looper.loop(Looper.java:338)
+05-22 11:23:17.702  5382  5481 E GoogleApiManager: 	at android.os.HandlerThread.run(HandlerThread.java:85)
+05-22 11:23:18.088  5597  5597 D CompatChangeReporter: Compat change id reported: 377864165; UID 10227; state: ENABLED
+05-22 11:23:18.089  5597  5597 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+05-22 11:23:18.305  5597  5597 I eclouddrive.app: hiddenapi: Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (runtime_flags=0, domain=platform, api=unsupported) from Landroidx/appcompat/widget/ViewUtils; (domain=app) using reflection: allowed
+05-22 11:23:18.357   682  1556 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+05-22 11:23:18.491   682  1226 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:18.491   682  1226 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:18.492   682  1226 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:18.524  5597  5597 W TabLayout: MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+05-22 11:23:18.776  5597  5597 W HWUI    : Unknown dataspace 0
+05-22 11:23:18.798   682   700 D CoreBackPreview: Window{1e1f9a6 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@c55794, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+05-22 11:23:18.798   682   700 D CoreBackPreview: Window{1e1f9a6 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@52d923d, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+05-22 11:23:19.003  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:19.108  5597  5603 I eclouddrive.app: Compiler allocated 5042KB to compile void android.view.ViewRootImpl.performTraversals()
+05-22 11:23:19.250  5597  5597 W MaterialButton: MaterialButton manages its own background to control elevation, shape, color and states. Consider using backgroundTint, shapeAppearance and other attributes where available. A custom background will ignore these attributes and you should consider handling interaction states such as pressed, focused and disabled
+05-22 11:23:19.404  1067  1264 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+05-22 11:23:19.405   682   700 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:19.405   682   700 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:19.441  5597  5597 I Choreographer: Skipped 37 frames!  The application may be doing too much work on its main thread.
+05-22 11:23:19.444   682   704 W system_server: Failed to determine oat file name for dex location /data/app/~~hDIQDxSeeGK4dTx6lu0Z7Q==/com.companyname.privateclouddrive.app-KNXC445pKp0_LLMwYTlXxg==/base.apk: Dalvik cache directory does not exist
+05-22 11:23:19.445   682   704 I ActivityTaskManager: Displayed com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity for user 0: +4s119ms
+05-22 11:23:19.567   682   792 I ImeTracker: com.companyname.privateclouddrive.app:16ffbf3b: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+05-22 11:23:19.573   682  1226 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:19.573   682  1226 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:19.573   682   700 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:19.574   682   700 I ImeTracker: system_server:9f77762e: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false
+05-22 11:23:19.575  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2043 
+05-22 11:23:19.575  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 0, locked = false
+05-22 11:23:19.576  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=com.companyname.privateclouddrive.app, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+05-22 11:23:19.576  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
+05-22 11:23:19.577   682   700 W PackageConfigPersister: App-specific configuration not found for packageName: com.companyname.privateclouddrive.app and userId: 0
+05-22 11:23:19.578   682   707 I ImeTracker: system_server:9f77762e: onCancelled at PHASE_SERVER_SHOULD_HIDE
+05-22 11:23:19.578  5597  5597 D InsetsController: hide(ime(), fromIme=false)
+05-22 11:23:19.578  5597  5597 I ImeTracker: com.companyname.privateclouddrive.app:16ffbf3b: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+05-22 11:23:19.598  1252  2131 I FontLog : (REDACTED) Received query %s, URI %s
+05-22 11:23:19.598  1252  2131 I FontLog : (REDACTED) Query [%s] resolved to %s
+05-22 11:23:19.608  1252  2131 I FontLog : (REDACTED) Fetch %s end status %s
+05-22 11:23:19.618  1252  1262 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+05-22 11:23:19.622  1252  1262 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+05-22 11:23:19.720  5597  5632 I HWUI    : Davey! duration=741ms; Flags=0, FrameTimelineVsyncId=27065, IntendedVsync=746264816634, Vsync=746881483276, InputEventId=0, HandleInputStart=746895058200, AnimationStart=746895072700, PerformTraversalsStart=746895258500, DrawStart=746930608000, FrameDeadline=746998149938, FrameStartTime=746894275700, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=746930971500, SyncStart=746975016900, IssueDrawCommandsStart=746975190900, SwapBuffers=746975640700, FrameCompleted=747050700900, DequeueBufferDuration=16000, QueueBufferDuration=167400, GpuCompleted=747050700900, SwapBuffersCompleted=747018056900, DisplayPresentTime=0, CommandSubmissionCompleted=746975640700, 
+05-22 11:23:19.745   682   776 D ActivityManager: freezing 2342 com.google.android.apps.messaging
+05-22 11:23:19.746   682   776 D ActivityManager: Reschedule freeze for process 2342 com.google.android.apps.messaging (outstanding txns), timeout=2781
+05-22 11:23:19.747  2342  2450 I ForwardSyncCache: reclaimMemory: Clearing caches
+05-22 11:23:19.747  2342  2450 W BugleSpam: trimming memory: closing msg model.
+05-22 11:23:19.747  2342  2450 W Bugle   : TextClassifierLibManagerImpl: Reclaiming memory at level: 40
+05-22 11:23:19.770  1079  1079 D BaseDepthController: setSurface:
+05-22 11:23:19.770  1079  1079 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+05-22 11:23:19.770  1079  1079 D BaseDepthController: 	mBaseSurface: null
+05-22 11:23:19.770  1079  1079 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+05-22 11:23:19.771  1079  1079 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+05-22 11:23:19.771  1079  1079 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme ee19ec8c009da7af1d458e7d1683a6f5bf3b93b44f6674aa108e1a3e78584fe0:4)
+05-22 11:23:19.771  1079  1079 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme ee19ec8c009da7af1d458e7d1683a6f5bf3b93b44f6674aa108e1a3e78584fe0:1)
+05-22 11:23:19.771  1079  1079 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(go/retraceme ee19ec8c009da7af1d458e7d1683a6f5bf3b93b44f6674aa108e1a3e78584fe0:34)
+05-22 11:23:19.771  1079  1079 D StatsLog: LAUNCHER_ONSTOP
+05-22 11:23:19.771  1079  1079 D StatsLog: LAUNCHER_GOOGLE_SEARCH_RESTORE_LIST_SIZE_AFTER_ACTIVITY_RESTART
+05-22 11:23:19.896   606  2100 W IPCThreadState: Sending oneway calls to frozen process.
+05-22 11:23:19.897  1458  1975 I bbax    : (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s
+05-22 11:23:19.904   682   883 D BackgroundInstallControlService: Package event received: 0
+05-22 11:23:19.956   682  1226 D CoreBackPreview: Window{1e1f9a6 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4c89373, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+05-22 11:23:19.977   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-22 11:23:19.977   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-22 11:23:19.977   682   832 D InetDiagMessage: Destroyed live tcp sockets for uids={10156} in 0ms
+05-22 11:23:19.977   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-22 11:23:19.978   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-22 11:23:19.978   682   832 D InetDiagMessage: Destroyed live tcp sockets for uids={20156} in 1ms
+05-22 11:23:19.984   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-22 11:23:19.984   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-22 11:23:19.984   682   832 D InetDiagMessage: Destroyed live tcp sockets for uids={10150} in 0ms
+05-22 11:23:19.984   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-22 11:23:19.985   682   832 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-22 11:23:19.985   682   832 D InetDiagMessage: Destroyed live tcp sockets for uids={20150} in 0ms
+05-22 11:23:19.986  5597  5597 W TabLayout: MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+05-22 11:23:20.026  5382  5387 W droid.apps.docs: Suspending all threads took: 12.997ms
+05-22 11:23:20.244  5597  5597 I eclouddrive.app: Explicit concurrent mark compact GC freed 3992KB AllocSpace bytes, 16(640KB) LOS objects, 49% free, 4457KB/8915KB, paused 727us,882us total 14.013ms
+05-22 11:23:20.386  5597  5597 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=androidx.navigationevent.OnBackInvokedInput$createOnBackAnimationCallback$1@1bd8af8
+05-22 11:23:20.387   682  1226 D CoreBackPreview: Window{1e1f9a6 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@ab0fdeb, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+05-22 11:23:20.530  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.530  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.530  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.539  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2043 
+05-22 11:23:20.539  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 0, locked = false
+05-22 11:23:20.540  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=com.companyname.privateclouddrive.app, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+05-22 11:23:20.541  1350  1350 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
+05-22 11:23:20.541   682   963 W PackageConfigPersister: App-specific configuration not found for packageName: com.companyname.privateclouddrive.app and userId: 0
+05-22 11:23:20.556  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.557  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.557  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.566  1350  1350 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.shutdownVoiceInternal():139 shutdownVoiceInternal()
+05-22 11:23:20.566  1350  1350 W NotificationCenter: NotificationCenter.unregisterListener():480 Listener guw@7735384 was not registered for notification class luj
+05-22 11:23:20.576   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:20.576   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:20.577   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:20.592  5597  5597 W MaterialButton: MaterialButton manages its own background to control elevation, shape, color and states. Consider using backgroundTint, shapeAppearance and other attributes where available. A custom background will ignore these attributes and you should consider handling interaction states such as pressed, focused and disabled
+05-22 11:23:20.602  5597  5597 W MaterialButton: MaterialButton manages its own background to control elevation, shape, color and states. Consider using backgroundTint, shapeAppearance and other attributes where available. A custom background will ignore these attributes and you should consider handling interaction states such as pressed, focused and disabled
+05-22 11:23:20.691  5597  5597 W MaterialButton: MaterialButton manages its own background to control elevation, shape, color and states. Consider using backgroundTint, shapeAppearance and other attributes where available. A custom background will ignore these attributes and you should consider handling interaction states such as pressed, focused and disabled
+05-22 11:23:20.706  5597  5597 W MaterialButton: MaterialButton manages its own background to control elevation, shape, color and states. Consider using backgroundTint, shapeAppearance and other attributes where available. A custom background will ignore these attributes and you should consider handling interaction states such as pressed, focused and disabled
+05-22 11:23:20.759  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.774  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:20.804  5637  5637 W screencap: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+05-22 11:23:20.804  5637  5637 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+05-22 11:23:20.804  5637  5637 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+05-22 11:23:20.807  5597  5597 W HWUI    : Image decoding logging dropped!
+05-22 11:23:21.332   535   896 E HwcComposer: getLuts failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
+05-22 11:23:21.332   535   896 E HWComposer: getLuts: getLuts failed for display 4619827259835644672: UNSUPPORTED (8)
+05-22 11:23:21.361  5597  5597 I Choreographer: Skipped 57 frames!  The application may be doing too much work on its main thread.
+05-22 11:23:21.617   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:21.617   682   963 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:21.617   682  1226 W BestClock: java.time.DateTimeException: No network time available
+05-22 11:23:21.632  5597  5608 I HWUI    : Davey! duration=1290ms; Flags=0, FrameTimelineVsyncId=27343, IntendedVsync=747414816588, Vsync=747831483238, InputEventId=0, HandleInputStart=747840028500, AnimationStart=747840049100, PerformTraversalsStart=747840528600, DrawStart=748356446500, FrameDeadline=748831483198, FrameStartTime=747839614900, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=748497214100, SyncStart=748807807000, IssueDrawCommandsStart=748808263500, SwapBuffers=749006310700, FrameCompleted=749015880600, DequeueBufferDuration=16400, QueueBufferDuration=156000, GpuCompleted=749015880600, SwapBuffersCompleted=749006711000, DisplayPresentTime=0, CommandSubmissionCompleted=749006310700, 
+05-22 11:23:21.667  5597  5632 I HWUI    : Davey! duration=1132ms; Flags=0, FrameTimelineVsyncId=27601, IntendedVsync=747848149904, Vsync=748798149866, InputEventId=0, HandleInputStart=748815530000, AnimationStart=748815550800, PerformTraversalsStart=748862907500, DrawStart=748872577700, FrameDeadline=749048149856, FrameStartTime=748813880000, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=748886624700, SyncStart=749006972100, IssueDrawCommandsStart=749007224500, SwapBuffers=749037355600, FrameCompleted=749100980500, DequeueBufferDuration=16700, QueueBufferDuration=142300, GpuCompleted=749100980500, SwapBuffersCompleted=749086147900, DisplayPresentTime=127610577809840, CommandSubmissionCompleted=749037355600, 
