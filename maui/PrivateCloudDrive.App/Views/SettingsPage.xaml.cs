@@ -91,7 +91,7 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            await DisplayAlertAsync("后端地址无效", exception.Message, "知道了");
+            await DisplayAlertAsync("后端地址无效", UserVisibleErrorSanitizer.ForSettings(exception), "知道了");
         }
     }
 
@@ -131,7 +131,7 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetWechatInfoState(exception.Message, canBind: false, canUnbind: true);
+            SetWechatInfoState(UserVisibleErrorSanitizer.ForSettings(exception), canBind: false, canUnbind: true);
         }
     }
 
@@ -173,8 +173,8 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetErrorState(AppText.Format(nameof(AppText.UnableToReadLocalSession), exception.Message));
-            SetSystemHealthUnavailable(exception.Message);
+            SetErrorState(UserVisibleErrorSanitizer.ForSettings(exception, AppText.Format(nameof(AppText.UnableToReadLocalSession), "请重新登录后重试")));
+            SetSystemHealthUnavailable(UserVisibleErrorSanitizer.ForSystemHealth(exception));
             SetWechatInfoState(AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GoogleProvider, AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GitHubProvider, AppText.Unavailable, canBind: false, canUnbind: false);
@@ -224,7 +224,7 @@ public partial class SettingsPage : ContentPage
             AccountFilesStatLabel.Text = "异常";
             AccountMemoriesStatLabel.Text = "待重试";
             AccountCapacityStatLabel.Text = "--";
-            StorageUsageLabel.Text = $"无法读取容量：{exception.Message}";
+            StorageUsageLabel.Text = UserVisibleErrorSanitizer.ForStorage(exception);
             StorageQuotaLabel.Text = string.Empty;
             StorageProgressBar.Progress = 0;
         }
@@ -255,20 +255,20 @@ public partial class SettingsPage : ContentPage
             };
             SystemHealthDetailLabel.Text =
                 $"API {FormatHealthStatus(health.ApiStatus)} · DB {FormatHealthStatus(health.DatabaseStatus)} · Redis {FormatHealthStatus(health.RedisStatus)} · " +
-                $"存储 {health.StorageProvider} {FormatHealthStatus(health.StorageStatus)} · " +
+                $"存储 {UserVisibleErrorSanitizer.RedactUserVisibleText(health.StorageProvider, "当前存储后端")} {FormatHealthStatus(health.StorageStatus)} · " +
                 $"FFmpeg {FormatHealthStatus(health.FfmpegStatus)} · FFprobe {FormatHealthStatus(health.FfprobeStatus)}";
             SystemHealthDiagnosticsLabel.Text = health.Diagnostics.Count == 0
                 ? $"更新时间 {health.GeneratedAt:yyyy-MM-dd HH:mm}"
-                : $"{FormatStorageDiskSpace(health)}；{string.Join("；", health.Diagnostics.Take(6))}";
+                : $"{FormatStorageDiskSpace(health)}；{string.Join("；", health.Diagnostics.Take(6).Select(item => UserVisibleErrorSanitizer.RedactUserVisibleText(item, "诊断详情已隐藏")))}";
             StorageLocationLabel.Text = string.IsNullOrWhiteSpace(health.StorageLocationDescription)
                 ? "存储位置：服务器未返回可展示说明"
-                : $"存储位置：{health.StorageLocationDescription}";
+                : $"存储位置：{UserVisibleErrorSanitizer.RedactUserVisibleText(health.StorageLocationDescription, "服务器已返回存储位置说明，详细位置已隐藏")}";
             BackupScopeLabel.Text = string.IsNullOrWhiteSpace(health.BackupScopeDescription)
                 ? "恢复边界：请备份数据库、文件存储和部署配置。"
-                : $"恢复边界：{health.BackupScopeDescription}";
+                : $"恢复边界：{UserVisibleErrorSanitizer.RedactUserVisibleText(health.BackupScopeDescription, "服务器已返回恢复边界说明，敏感细节已隐藏")}";
             PrivacyBoundaryLabel.Text = string.IsNullOrWhiteSpace(health.PrivacyBoundaryDescription)
                 ? "隐私边界：文件保存到当前连接的私有后端。"
-                : $"隐私边界：{health.PrivacyBoundaryDescription}";
+                : $"隐私边界：{UserVisibleErrorSanitizer.RedactUserVisibleText(health.PrivacyBoundaryDescription, "服务器已返回隐私边界说明，敏感细节已隐藏")}";
         }
         catch (AuthSessionExpiredException)
         {
@@ -277,7 +277,7 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetSystemHealthUnavailable(exception.Message);
+            SetSystemHealthUnavailable(UserVisibleErrorSanitizer.ForSystemHealth(exception));
         }
     }
 
@@ -321,7 +321,7 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetWechatInfoState(exception.Message, canBind: false, canUnbind: false);
+            SetWechatInfoState(UserVisibleErrorSanitizer.ForSettings(exception), canBind: false, canUnbind: false);
         }
     }
 
@@ -352,7 +352,7 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetWechatInfoState(exception.Message, canBind: true, canUnbind: false);
+            SetWechatInfoState(UserVisibleErrorSanitizer.ForSettings(exception), canBind: true, canUnbind: false);
         }
     }
 
@@ -374,8 +374,9 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetExternalInfoState(GoogleProvider, exception.Message, canBind: false, canUnbind: false);
-            SetExternalInfoState(GitHubProvider, exception.Message, canBind: false, canUnbind: false);
+            var safeMessage = UserVisibleErrorSanitizer.ForSettings(exception);
+            SetExternalInfoState(GoogleProvider, safeMessage, canBind: false, canUnbind: false);
+            SetExternalInfoState(GitHubProvider, safeMessage, canBind: false, canUnbind: false);
         }
     }
 
@@ -444,7 +445,7 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetExternalInfoState(provider, exception.Message, canBind: true, canUnbind: false);
+            SetExternalInfoState(provider, UserVisibleErrorSanitizer.ForSettings(exception), canBind: true, canUnbind: false);
         }
     }
 
@@ -470,7 +471,7 @@ public partial class SettingsPage : ContentPage
         }
         catch (Exception exception)
         {
-            SetExternalInfoState(provider, exception.Message, canBind: false, canUnbind: true);
+            SetExternalInfoState(provider, UserVisibleErrorSanitizer.ForSettings(exception), canBind: false, canUnbind: true);
         }
     }
 
@@ -485,10 +486,8 @@ public partial class SettingsPage : ContentPage
 
     private void LoadApiBaseUrlState()
     {
-        ApiBaseUrlEntry.Text = AppSettings.ApiBaseUrl;
-        ApiBaseUrlStatusLabel.Text = AppSettings.HasCustomApiBaseUrl
-            ? $"自定义后端：{AppSettings.ApiBaseUrl}"
-            : $"默认后端：{AppSettings.ApiBaseUrl}";
+        ApiBaseUrlEntry.Text = string.Empty;
+        ApiBaseUrlStatusLabel.Text = UserVisibleErrorSanitizer.SafeServerLabel(AppSettings.HasCustomApiBaseUrl);
     }
 
     private void SetInfoState(string message)

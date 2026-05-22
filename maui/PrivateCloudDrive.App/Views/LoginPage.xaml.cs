@@ -73,7 +73,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(UserVisibleErrorSanitizer.ForSettings(exception));
         }
     }
 
@@ -138,14 +138,7 @@ public partial class LoginPage : ContentPage
 
     private static string GetUserFacingSignInError(Exception exception)
     {
-        var message = exception.Message;
-        if (message.Contains("Invalid username or password", StringComparison.OrdinalIgnoreCase) ||
-            message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase))
-        {
-            return AppText.InvalidUserNameOrPassword;
-        }
-
-        return message;
+        return UserVisibleErrorSanitizer.ForSignIn(exception);
     }
 
     private async Task SignInWithWechatAsync()
@@ -188,7 +181,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(UserVisibleErrorSanitizer.ForSignIn(exception));
         }
         finally
         {
@@ -268,7 +261,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(UserVisibleErrorSanitizer.ForSignIn(exception));
         }
         finally
         {
@@ -316,11 +309,8 @@ public partial class LoginPage : ContentPage
 
     private void LoadApiBaseUrlState()
     {
-        var apiBaseUrl = AppSettings.ApiBaseUrl;
-        CurrentApiBaseUrlLabel.Text = AppSettings.HasCustomApiBaseUrl
-            ? $"自定义服务器 · {apiBaseUrl}"
-            : $"默认服务器 · {apiBaseUrl}";
-        LoginApiBaseUrlEntry.Text = apiBaseUrl;
+        CurrentApiBaseUrlLabel.Text = UserVisibleErrorSanitizer.SafeServerLabel(AppSettings.HasCustomApiBaseUrl);
+        LoginApiBaseUrlEntry.Text = string.Empty;
     }
 
     private async Task LoadWechatSettingsAsync()

@@ -27,6 +27,7 @@ public static class AppText
         [nameof(Password)] = new("密码", "Password"),
         [nameof(EnterUserNameAndPassword)] = new("请输入用户名和密码。", "Enter username and password."),
         [nameof(InvalidUserNameOrPassword)] = new("用户名或密码错误，请检查大小写后重试。", "Invalid username or password. Check capitalization and try again."),
+        [nameof(SignInServerUnavailable)] = new("暂时无法连接服务器。请检查服务器地址或网络连接，切换服务器后重试，或稍后再试。", "The server cannot be reached right now. Check the server address or network connection, switch servers, or try again later."),
         [nameof(EnterUserNamePasswordThenWechat)] = new("请输入用户名和密码，然后再次使用微信完成绑定。", "Enter username and password, then use WeChat again to bind."),
         [nameof(EnterUserNamePasswordThenExternal)] = new("\u8bf7\u8f93\u5165\u7528\u6237\u540d\u548c\u5bc6\u7801\uff0c\u7136\u540e\u518d\u6b21\u4f7f\u7528\u7b2c\u4e09\u65b9\u8d26\u53f7\u5b8c\u6210\u7ed1\u5b9a\u3002", "Enter username and password, then use the external account again to bind."),
         [nameof(WechatSignInCanceled)] = new("微信登录已取消。", "WeChat sign-in was canceled."),
@@ -240,6 +241,10 @@ public static class AppText
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public static string InvalidUserNameOrPassword => Get(nameof(InvalidUserNameOrPassword));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string SignInServerUnavailable => Get(nameof(SignInServerUnavailable));
     /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>

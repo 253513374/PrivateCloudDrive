@@ -722,12 +722,13 @@ public sealed class OpenIddictAuthService : IAuthService
                 return new OAuthTokenException(
                     error.Error ?? "invalid_grant",
                     error.ErrorDescription,
-                    error.BindingTicket);
+                    error.BindingTicket,
+                    statusCode);
             }
 
             if (!string.IsNullOrWhiteSpace(error?.Error))
             {
-                return new OAuthTokenException(error.Error, error.Error, error.BindingTicket);
+                return new OAuthTokenException(error.Error, error.Error, error.BindingTicket, statusCode);
             }
         }
         catch
@@ -736,7 +737,7 @@ public sealed class OpenIddictAuthService : IAuthService
         }
 
         var message = BuildOAuthErrorMessage(statusCode, reasonPhrase, responseText);
-        return new OAuthTokenException("invalid_grant", message, null);
+        return new OAuthTokenException("http_error", message, null, statusCode);
     }
 
     private static string BuildOAuthErrorMessage(
@@ -798,22 +799,6 @@ public sealed class OpenIddictAuthService : IAuthService
         public string? BindingTicket { get; init; }
     }
 
-    private sealed class OAuthTokenException : InvalidOperationException
-    {
-        /// <summary>
-        /// 执行OAuthTokenException操作，封装该场景下的业务规则、异常处理和结果返回。
-        /// </summary>
-        public OAuthTokenException(string error, string message, string? bindingTicket)
-            : base(message)
-        {
-            Error = error;
-            BindingTicket = bindingTicket;
-        }
-
-        public string Error { get; }
-
-        public string? BindingTicket { get; }
-    }
 
     private sealed class MobileAuthAuditLogInput
     {
