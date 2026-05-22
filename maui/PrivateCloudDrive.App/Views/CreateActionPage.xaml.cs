@@ -42,6 +42,24 @@ public partial class CreateActionPage : ContentPage
         await StartBackupAsync(PickFilesAsync);
     }
 
+    private async void OnBackupQueueClicked(object? sender, EventArgs e)
+    {
+        await GoToBackupsAsync();
+    }
+
+    private async void OnStorageHealthClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("storage-usage", true);
+    }
+
+    private async void OnRestoreGuideClicked(object? sender, EventArgs e)
+    {
+        await DisplayAlertAsync(
+            "恢复边界说明",
+            "App 负责把本机照片、视频和文件备份到当前私有后端；真正恢复服务器文件时，需要同时恢复数据库、文件存储和部署配置。当前页面不会展示 bucket、服务器绝对路径、连接串、AccessKey 或 Token。",
+            "知道了");
+    }
+
     private async Task StartBackupAsync(Func<Task<IReadOnlyList<FileResult>>> pickFiles)
     {
         try
