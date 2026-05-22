@@ -540,23 +540,42 @@ public sealed class OpenIddictAuthService : IAuthService
         IReadOnlyDictionary<string, string> parameters,
         CancellationToken cancellationToken)
     {
-        using var content = new FormUrlEncodedContent(parameters);
-        EnsureBaseAddressCurrent();
-        using var response = await _httpClient.PostAsync("connect/token", content, cancellationToken);
-        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            throw CreateOAuthTokenException(response.StatusCode, response.ReasonPhrase, responseText);
-        }
+            using var content = new FormUrlEncodedContent(parameters);
+            EnsureBaseAddressCurrent();
+            using var response = await _httpClient.PostAsync("connect/token", content, cancellationToken);
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseText);
-        if (tokenResponse == null || string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
+            if (!response.IsSuccessStatusCode)
+            {
+                throw CreateOAuthTokenException(response.StatusCode, response.ReasonPhrase, responseText);
+            }
+
+            var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseText);
+            if (tokenResponse == null || string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
+            {
+                throw new MobileAuthException(
+                    MobileAuthErrorKind.ServerError,
+                    "OpenIddict returned an invalid token response.");
+            }
+
+            return tokenResponse;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            throw new InvalidOperationException("OpenIddict returned an invalid token response.");
+            throw new MobileAuthException(
+                MobileAuthErrorKind.NetworkError,
+                "OpenIddict token request timed out.");
         }
-
-        return tokenResponse;
+        catch (HttpRequestException exception)
+        {
+            throw new MobileAuthException(
+                ClassifyHttpRequestException(exception),
+                "OpenIddict token request could not reach the server.",
+                exception,
+                exception.StatusCode);
+        }
     }
 
     private async Task RecordAuditAsync(
@@ -704,13 +723,43 @@ public sealed class OpenIddictAuthService : IAuthService
         return Uri.UnescapeDataString(value.Replace("+", " "));
     }
 
+    private static MobileAuthErrorKind ClassifyHttpRequestException(HttpRequestException exception)
+    {
+        if (exception.StatusCode is >= HttpStatusCode.InternalServerError)
+        {
+            return MobileAuthErrorKind.ServerError;
+        }
+
+        return IsServiceUnavailableException(exception)
+            ? MobileAuthErrorKind.ServiceUnavailable
+            : MobileAuthErrorKind.NetworkError;
+    }
+
+    private static bool IsServiceUnavailableException(Exception exception)
+    {
+        for (var current = exception; current != null; current = current.InnerException!)
+        {
+            if (current is SocketException socketException &&
+                socketException.SocketErrorCode is SocketError.ConnectionRefused or
+                    SocketError.HostNotFound or
+                    SocketError.NetworkUnreachable or
+                    SocketError.HostUnreachable or
+                    SocketError.TimedOut)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static string GetOAuthError(string responseText)
     {
         return CreateOAuthTokenException(null, null, responseText).Message;
     }
 
     private static OAuthTokenException CreateOAuthTokenException(
-        System.Net.HttpStatusCode? statusCode,
+        HttpStatusCode? statusCode,
         string? reasonPhrase,
         string responseText)
     {
@@ -722,12 +771,17 @@ public sealed class OpenIddictAuthService : IAuthService
                 return new OAuthTokenException(
                     error.Error ?? "invalid_grant",
                     error.ErrorDescription,
-                    error.BindingTicket);
+                    error.BindingTicket,
+                    ClassifyOAuthError(statusCode, error.Error));
             }
 
             if (!string.IsNullOrWhiteSpace(error?.Error))
             {
-                return new OAuthTokenException(error.Error, error.Error, error.BindingTicket);
+                return new OAuthTokenException(
+                    error.Error,
+                    error.Error,
+                    error.BindingTicket,
+                    ClassifyOAuthError(statusCode, error.Error));
             }
         }
         catch
@@ -736,11 +790,43 @@ public sealed class OpenIddictAuthService : IAuthService
         }
 
         var message = BuildOAuthErrorMessage(statusCode, reasonPhrase, responseText);
-        return new OAuthTokenException("invalid_grant", message, null);
+        return new OAuthTokenException(
+            "invalid_grant",
+            message,
+            null,
+            ClassifyOAuthError(statusCode, error: null));
+    }
+
+    private static MobileAuthErrorKind ClassifyOAuthError(HttpStatusCode? statusCode, string? error)
+    {
+        if ((statusCode is HttpStatusCode.BadRequest or HttpStatusCode.Unauthorized) &&
+            string.Equals(error, "invalid_grant", StringComparison.OrdinalIgnoreCase))
+        {
+            return MobileAuthErrorKind.InvalidCredentials;
+        }
+
+        if (statusCode is HttpStatusCode.ServiceUnavailable or
+            HttpStatusCode.BadGateway or
+            HttpStatusCode.GatewayTimeout)
+        {
+            return MobileAuthErrorKind.ServiceUnavailable;
+        }
+
+        if (statusCode is >= HttpStatusCode.InternalServerError)
+        {
+            return MobileAuthErrorKind.ServerError;
+        }
+
+        if (string.Equals(error, "invalid_grant", StringComparison.OrdinalIgnoreCase))
+        {
+            return MobileAuthErrorKind.InvalidCredentials;
+        }
+
+        return MobileAuthErrorKind.ServerError;
     }
 
     private static string BuildOAuthErrorMessage(
-        System.Net.HttpStatusCode? statusCode,
+        HttpStatusCode? statusCode,
         string? reasonPhrase,
         string responseText)
     {
@@ -798,13 +884,17 @@ public sealed class OpenIddictAuthService : IAuthService
         public string? BindingTicket { get; init; }
     }
 
-    private sealed class OAuthTokenException : InvalidOperationException
+    private sealed class OAuthTokenException : MobileAuthException
     {
         /// <summary>
         /// 执行OAuthTokenException操作，封装该场景下的业务规则、异常处理和结果返回。
         /// </summary>
-        public OAuthTokenException(string error, string message, string? bindingTicket)
-            : base(message)
+        public OAuthTokenException(
+            string error,
+            string message,
+            string? bindingTicket,
+            MobileAuthErrorKind kind)
+            : base(kind, message)
         {
             Error = error;
             BindingTicket = bindingTicket;

@@ -73,7 +73,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(GetUserFacingSignInError(exception));
         }
     }
 
@@ -138,6 +138,25 @@ public partial class LoginPage : ContentPage
 
     private static string GetUserFacingSignInError(Exception exception)
     {
+        if (exception is MobileAuthException authException)
+        {
+            return authException.Kind switch
+            {
+                MobileAuthErrorKind.ServiceUnavailable => AppText.SignInServiceUnavailable,
+                MobileAuthErrorKind.NetworkError => AppText.SignInNetworkError,
+                MobileAuthErrorKind.InvalidCredentials => AppText.InvalidUserNameOrPassword,
+                MobileAuthErrorKind.ServerError => AppText.SignInServerError,
+                _ => AppText.SignInFailedSafe
+            };
+        }
+
+        if (exception is TimeoutException ||
+            exception is TaskCanceledException ||
+            exception is HttpRequestException)
+        {
+            return AppText.SignInNetworkError;
+        }
+
         var message = exception.Message;
         if (message.Contains("Invalid username or password", StringComparison.OrdinalIgnoreCase) ||
             message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase))
@@ -145,7 +164,7 @@ public partial class LoginPage : ContentPage
             return AppText.InvalidUserNameOrPassword;
         }
 
-        return message;
+        return AppText.SignInFailedSafe;
     }
 
     private async Task SignInWithWechatAsync()
@@ -188,7 +207,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(GetUserFacingSignInError(exception));
         }
         finally
         {
@@ -268,7 +287,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(exception.Message);
+            ShowValidation(GetUserFacingSignInError(exception));
         }
         finally
         {
