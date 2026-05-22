@@ -1,0 +1,7 @@
+# Raw/high-volume validation artifacts are kept outside release commits.
+team-capability-kanban-snapshot-*.json
+*.raw.log
+raw-*.log
+*-full-logcat.log
+scan-exports/
+ci-artifacts/
