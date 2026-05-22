@@ -253,7 +253,8 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
             return (null, null);
         }
 
-        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
+        var saltBytes = RandomNumberGenerator.GetBytes(16);
+        var salt = $"pbkdf2-v1:{Convert.ToHexString(saltBytes).ToLowerInvariant()}";
         return (salt, ComputePasswordHash(salt, password));
     }
 
@@ -272,12 +273,51 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
         }
 
         var computedHash = ComputePasswordHash(share.PasswordSalt, password);
-        return CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(computedHash),
-            Encoding.UTF8.GetBytes(share.PasswordHash));
+        var computedHashBytes = Encoding.UTF8.GetBytes(computedHash);
+        var storedHashBytes = Encoding.UTF8.GetBytes(share.PasswordHash);
+        return computedHashBytes.Length == storedHashBytes.Length &&
+               CryptographicOperations.FixedTimeEquals(computedHashBytes, storedHashBytes);
     }
 
     private static string ComputePasswordHash(string salt, string password)
+    {
+        if (TryGetPbkdf2SaltBytes(salt, out var saltBytes))
+        {
+            var bytes = Rfc2898DeriveBytes.Pbkdf2(
+                password,
+                saltBytes,
+                iterations: 210_000,
+                HashAlgorithmName.SHA256,
+                outputLength: 32);
+            return Convert.ToHexString(bytes).ToLowerInvariant();
+        }
+
+        return ComputeLegacyPasswordHash(salt, password);
+    }
+
+    private static bool TryGetPbkdf2SaltBytes(string salt, out byte[] saltBytes)
+    {
+        const string prefix = "pbkdf2-v1:";
+        if (salt.StartsWith(prefix, StringComparison.Ordinal) &&
+            salt.Length > prefix.Length)
+        {
+            try
+            {
+                saltBytes = Convert.FromHexString(salt[prefix.Length..]);
+                return true;
+            }
+            catch (FormatException)
+            {
+                // Invalid versioned data must fail verification through a deterministic non-match,
+                // not fall back to the legacy algorithm with attacker-controlled prefix text.
+            }
+        }
+
+        saltBytes = Array.Empty<byte>();
+        return false;
+    }
+
+    private static string ComputeLegacyPasswordHash(string salt, string password)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes($"{salt}:{password}"));
         return Convert.ToHexString(bytes).ToLowerInvariant();
