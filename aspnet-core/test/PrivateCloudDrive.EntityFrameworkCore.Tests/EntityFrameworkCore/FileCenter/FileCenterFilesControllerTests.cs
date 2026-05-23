@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using PrivateCloudDrive.Controllers.FileCenter;
 using Shouldly;
+using Volo.Abp;
 using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
@@ -76,11 +77,54 @@ public class FileCenterFilesControllerTests
         controller.Response.Headers[HeaderNames.ContentRange].ToString().ShouldBe("bytes */3");
     }
 
-    private static FileCenterFilesController CreateController(string fileName, string contentType)
+    [Fact]
+    public async Task Content_Should_Return_NotFound_When_File_Is_Not_Owned_By_Current_User()
+    {
+        var controller = CreateController(
+            "movie.mp4",
+            "video/mp4",
+            downloadException: CreateNodeNotFoundException());
+
+        var result = await controller.ContentAsync(Guid.NewGuid());
+
+        result.ShouldBeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task Download_Should_Return_NotFound_When_File_Is_Not_Owned_By_Current_User()
+    {
+        var controller = CreateController(
+            "movie.mp4",
+            "video/mp4",
+            downloadException: CreateNodeNotFoundException());
+
+        var result = await controller.DownloadAsync(Guid.NewGuid());
+
+        result.ShouldBeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task Delete_Should_Return_NotFound_When_File_Is_Not_Owned_By_Current_User()
+    {
+        var controller = CreateController(
+            "movie.mp4",
+            "video/mp4",
+            deleteException: CreateNodeNotFoundException());
+
+        var result = await controller.DeleteAsync(Guid.NewGuid());
+
+        result.ShouldBeOfType<NotFoundResult>();
+    }
+
+    private static FileCenterFilesController CreateController(
+        string fileName,
+        string contentType,
+        BusinessException? downloadException = null,
+        BusinessException? deleteException = null)
     {
         var controller = new FileCenterFilesController(
-            new StubUploadService(),
-            new StubDownloadService(fileName, contentType));
+            new StubUploadService(deleteException),
+            new StubDownloadService(fileName, contentType, downloadException));
 
         controller.ControllerContext = new ControllerContext
         {
@@ -90,18 +134,28 @@ public class FileCenterFilesControllerTests
         return controller;
     }
 
+    private static BusinessException CreateNodeNotFoundException()
+    {
+        return new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+    }
+
     private class StubDownloadService : PrivateCloudDrive.FileCenter.IFileCenterFileDownloadService
     {
         private readonly string _fileName;
         private readonly string _contentType;
+        private readonly BusinessException? _exception;
 
         /// <summary>
         /// 执行StubDownloadService操作，封装该场景下的业务规则、异常处理和结果返回。
         /// </summary>
-        public StubDownloadService(string fileName, string contentType)
+        public StubDownloadService(
+            string fileName,
+            string contentType,
+            BusinessException? exception = null)
         {
             _fileName = fileName;
             _contentType = contentType;
+            _exception = exception;
         }
 
         /// <summary>
@@ -119,6 +173,11 @@ public class FileCenterFilesControllerTests
             PrivateCloudDrive.FileCenter.FileDownloadRangeRequest? range,
             CancellationToken cancellationToken = default)
         {
+            if (_exception != null)
+            {
+                throw _exception;
+            }
+
             var normalizedRange = range?.Normalize(3);
 
             return Task.FromResult(
@@ -156,6 +215,13 @@ public class FileCenterFilesControllerTests
 
     private class StubUploadService : PrivateCloudDrive.FileCenter.IFileCenterFileUploadService
     {
+        private readonly BusinessException? _deleteException;
+
+        public StubUploadService(BusinessException? deleteException = null)
+        {
+            _deleteException = deleteException;
+        }
+
         /// <summary>
         /// 处理文件上传或保存请求，校验大小、归属和存储一致性后写入数据。
         /// </summary>
@@ -177,6 +243,11 @@ public class FileCenterFilesControllerTests
             Guid id,
             CancellationToken cancellationToken = default)
         {
+            if (_deleteException != null)
+            {
+                throw _deleteException;
+            }
+
             throw new NotSupportedException();
         }
     }
