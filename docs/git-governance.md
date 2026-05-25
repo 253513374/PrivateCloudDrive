@@ -17,9 +17,10 @@
 3. 所有变更必须通过任务分支 + Pull Request 合入 `main`。
 4. `main` 受 GitHub Branch Protection 保护，必须通过：
    - `Public repo quality gate`
-   - 至少 1 个 approval
+   - 会话已解决（required conversation resolution）
    - 禁止 force push / delete
    - 线性历史
+   - 当前单人维护模式下不要求非作者审批；如未来切回多人协作，再恢复 approval 门禁
 5. 如发现共享主库损坏、只剩残缺 `.git`、或被 IDE/后台进程占用，必须立刻止血、恢复主库，再继续调度。
 
 ## 3. 标准开发流
@@ -29,7 +30,10 @@
 每个 worker 在任何 git 操作前必须先运行：
 
 ```bash
-WORKSPACE=$(bash D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/git-workspace-guard.sh | grep '^WORKSPACE=' | cut -d= -f2)
+set -euo pipefail
+bash D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/git-workspace-guard.sh > /tmp/pcd-workspace-guard.out
+WORKSPACE=$(grep '^WORKSPACE=' /tmp/pcd-workspace-guard.out | cut -d= -f2)
+test -n "$WORKSPACE"
 cd "$WORKSPACE"
 ```
 
@@ -108,7 +112,8 @@ agent/t_8849deee/android-login-error-classification
    - `git fsck`
    - `git status`
    - `scripts/git-workspace-guard.sh`
-   - `pcd-watchdog.sh`
+   - `scripts/board-watchdog.sh`
+   - 如需检查定时巡检链路，再额外确认 Hermes scheduler wrapper：`C:/Users/q4528/AppData/Local/hermes/scripts/pcd-watchdog.sh`
 6. 只有主库恢复健康后，才允许继续 dispatch。
 
 ## 7. 执行口径
