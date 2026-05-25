@@ -1,0 +1,241 @@
+05-22 11:11:42.058  1050  1050 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.063  2899  2899 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.063  2840  2840 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.063  2947  2947 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.065  2342  2342 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.065  3313  3313 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.065  3418  3418 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.065  3095  3095 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.066  2840  2840 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.066  3112  3112 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.067  3253  3253 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.067  1464  1464 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.067  2803  2803 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.067  1079  1079 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.069   682   889 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10227, mPackageName='com.companyname.privateclouddrive.app, mAppProcessToken='null'}
+05-22 11:11:42.081   682   799 W PackageConfigPersister: App-specific configuration not found for packageName: com.companyname.privateclouddrive.app and userId: 0
+05-22 11:11:42.088  1637  1637 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.088  1406  1406 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.088  1067  1264 I SatelliteAppTracker: onPackageUpdateFinished : com.companyname.privateclouddrive.app
+05-22 11:11:42.088  1067  1264 I SatelliteAppTracker: onPackageModified : com.companyname.privateclouddrive.app
+05-22 11:11:42.089   682   682 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.090   682   682 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.090   682   682 W AlarmManager: Package com.companyname.privateclouddrive.app, uid 10227 lost permission to set exact alarms!
+05-22 11:11:42.090  2899  2899 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.093   682   889 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10227, mPackageName='com.companyname.privateclouddrive.app, mAppProcessToken='null'}
+05-22 11:11:42.096  1079  1079 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.097  1406  1406 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.097  3153  3153 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.096  2525  2525 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.097  1799  1799 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.097  3405  3405 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.097  1464  1464 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.097  1488  1488 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.098  1896  1896 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.098  1350  1350 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.098  1527  1527 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  1656  1656 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  2899  2899 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  1488  1488 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  2525  2525 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  1656  1656 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  2079  2079 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  1079  1079 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  1597  1597 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.101  1007  1007 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.102  1464  1464 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.103  3182  3182 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.103  1799  1799 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.103  1427  1427 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.103  1252  1252 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.103   682   882 D ShortcutService: replacing package: com.companyname.privateclouddrive.app userId=0
+05-22 11:11:42.103  3153  3153 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.104  2079  2079 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.104  2803  2803 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.105  1597  1597 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.105  1007  1007 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.105  1896  1896 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.108  2803  2803 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.108  2881  2881 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.108  2979  2979 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.108  2372  2372 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.108  3112  3112 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.109  3033  3033 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.109  2680  2680 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.109  2490  2490 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.109  2920  2920 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.110  1252  1252 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.120  1350  1350 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.120  3278  3278 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.120  1458  1458 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.120  3418  3418 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.120  2342  2342 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.120  3295  3295 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.121  1161  1161 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.121  1458  1458 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.122  3313  3313 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.122  2712  2712 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.122  3141  3141 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.122  3253  3253 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.127  1457  1457 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.127   682   889 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10227, mPackageName='com.companyname.privateclouddrive.app, mAppProcessToken='null'}
+05-22 11:11:42.127  1457  1457 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.166  2979  2979 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.166  2881  2881 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.166  2372  2372 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.166  3253  3253 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.166  3112  3112 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.166  2142  2142 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.171  3141  3141 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.171  2712  2712 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.171  3418  3418 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.171  2342  2342 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.174  2962  2962 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.174  3313  3313 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.175  3278  3278 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.176  2524  2524 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.177  2962  2962 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.177  1067  1067 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.177  1067  1067 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.178  2524  2524 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.178  2680  2680 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  1849  1849 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  2947  2947 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  2771  2771 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  2470  2470 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  1849  1849 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.171  3295  3295 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  3083  3083 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  1161  1161 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.179  1067  1067 D SatelliteController: packageStateChanged: package:com.companyname.privateclouddrive.app DefaultSmsPackageName:com.google.android.apps.messaging
+05-22 11:11:42.179  3128  3128 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  1878  1878 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  2771  2771 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  3128  3128 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  2947  2947 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  1878  1878 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  1457  1457 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  2914  2914 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  2858  2858 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  3083  3083 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  1457  1457 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.180  2914  2914 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.181  3168  3168 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.181  2858  2858 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.181  3168  3168 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.182  2899  2899 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.182  3033  3033 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.182  2840  2840 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.182  2840  2840 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.182  2490  2490 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.183  3182  3182 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.185  3182  3182 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.185  2920  2920 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.186  3095  3095 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.186  1381  1381 I SafetyLabelChangedBroadcastReceiver: received broadcast packageName: com.companyname.privateclouddrive.app, current user: UserHandle{0}, packageChangeEvent: UPDATE, intent user: UserHandle{0}
+05-22 11:11:42.186  1381  1381 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.186  3095  3095 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.186  1381  1381 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.190  1050  1050 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.190  1050  1050 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.190  1381  1381 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.193  2142  2142 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.194  3405  3405 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.198  1527  1527 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.200  1427  1427 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.201  1637  1637 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.201  1637  1637 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.202  1093  1093 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.203  1457  3511 I AiAiEcho: AppIndexer Package:[com.companyname.privateclouddrive.app] UserProfile:[0] Enabled:[true].
+05-22 11:11:42.203  1457  3511 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.companyname.privateclouddrive.app], userId:[0], reason:[package is updated.].
+05-22 11:11:42.205   682  1447 I ActivityManager: Force stopping com.companyname.privateclouddrive.app appid=10227 user=0: clear data
+05-22 11:11:42.214  2470  2470 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.215  1381  1381 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.216  1406  1406 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.216  1406  1406 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.217   928   928 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.217   928   928 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.218  2142  2142 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.218  1093  1093 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.218  2142  2142 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.218  1093  1093 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.224  1093  1093 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.237  1766  1766 I Finsky  : [2] vxt.d(67): IQ: onPackageRemoved com.companyname.privateclouddrive.app, replacing=true, uninstallingFromPlay=false
+05-22 11:11:42.256  1381  1381 I SafetyLabelChangedBroadcastReceiver: received broadcast packageName: com.companyname.privateclouddrive.app, current user: UserHandle{0}, packageChangeEvent: UPDATE, intent user: UserHandle{0}
+05-22 11:11:42.258  1067  1067 D CarrierSvcBindHelper: onPackageUpdateFinished: com.companyname.privateclouddrive.app
+05-22 11:11:42.258  1067  1067 D CarrierSvcBindHelper: onPackageModified: com.companyname.privateclouddrive.app
+05-22 11:11:42.267   682   739 I ActivityManager: Force stopping com.companyname.privateclouddrive.app appid=10227 user=-1: clearApplicationUserData
+05-22 11:11:42.271  1079  1124 D AlphabeticIndexCompat: computeSectionName: cs: PrivateCloudDrive sectionName: P
+05-22 11:11:42.277  1079  1124 D PackageUpdatedTask: Package updated: mOp=UPDATE packages=[com.companyname.privateclouddrive.app], user=UserHandle{0}
+05-22 11:11:42.296   682   682 I Telecom : CarModeTracker: Package com.companyname.privateclouddrive.app is not tracked.: SSH.oR@AKc
+05-22 11:11:42.304   682   739 I AppsFilter: interaction: PackageSetting{7c0566e com.android.microdroid.empty_payload/10208} -> PackageSetting{e4e810f com.companyname.privateclouddrive.app/10227} BLOCKED
+05-22 11:11:42.307   682   739 I AppsFilter: interaction: PackageSetting{7c0566e com.android.microdroid.empty_payload/10208} -> PackageSetting{e4e810f com.companyname.privateclouddrive.app/10227} BLOCKED
+05-22 11:11:42.324  1079  1124 D AlphabeticIndexCompat: computeSectionName: cs: PrivateCloudDrive sectionName: P
+05-22 11:11:42.360   682   882 D ShortcutService: clearing data for package: com.companyname.privateclouddrive.app userId=0
+05-22 11:11:42.379  1766  1766 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.379  1766  1766 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.405  1067  1249 D ImsResolver: maybeAddedImsService, packageName: com.companyname.privateclouddrive.app
+05-22 11:11:42.405  1067  1249 V ImsResolver: searchForImsServices: package=com.companyname.privateclouddrive.app, users=[UserHandle{0}]
+05-22 11:11:42.409  1067  1249 V ImsResolver: searchForImsServices: package=com.companyname.privateclouddrive.app, users=[UserHandle{0}]
+05-22 11:11:42.414  1067  1067 W VvmPkgInstalledRcvr: carrierVvmPkgAdded: carrier vvm packages doesn't contain com.companyname.privateclouddrive.app
+05-22 11:11:42.414  1067  1067 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.415  1766  1766 I Finsky  : [2] vxt.d(67): IQ: onPackageRemoved com.companyname.privateclouddrive.app, replacing=true, uninstallingFromPlay=false
+05-22 11:11:42.416   682   682 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.416   682   682 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.426  1067  1067 D ActivityThread: Package [com.companyname.privateclouddrive.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+05-22 11:11:42.445   682   682 W AlarmManager: Package com.companyname.privateclouddrive.app, uid 10227 lost permission to set exact alarms!
+05-22 11:11:42.445  1067  1067 D SatelliteController: packageStateChanged: package:com.companyname.privateclouddrive.app DefaultSmsPackageName:com.google.android.apps.messaging
+05-22 11:11:42.472  1067  1067 D CarrierSvcBindHelper: onHandleForceStop: [com.companyname.privateclouddrive.app]
+05-22 11:11:42.503  3560  3560 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+05-22 11:11:42.505  1427  2055 D MediaProvider: Deleted 0 Android/media items belonging to com.companyname.privateclouddrive.app on /data/user/0/com.google.android.providers.media.module/databases/external.db
+05-22 11:11:42.506  3560  3560 I AndroidRuntime: Using default boot image
+05-22 11:11:42.506  3560  3560 I AndroidRuntime: Leaving lock profiling enabled
+05-22 11:11:42.524  1427  2055 I FuseDaemon: Successfully deleted rows in leveldb for owner_id:  and ownerPackageIdentifier: com.companyname.privateclouddrive.app::0
+05-22 11:11:42.526  1427  2055 D MediaGrants: Removed 0 media_grants for 0 user for [com.companyname.privateclouddrive.app, com.companyname.privateclouddrive.app]. Reason: Package orphaned
+05-22 11:11:42.550  1488  1549 I Icing   : doRemovePackageData com.companyname.privateclouddrive.app
+05-22 11:11:42.650  1488  3567 W SQLiteLog: (28) double-quoted string literal: "com.companyname.privateclouddrive.app"
+05-22 11:11:42.711  1381  1381 D PersistedStoragePackageUninstalledReceiver: Received android.intent.action.PACKAGE_DATA_CLEARED for com.companyname.privateclouddrive.app for u0
+05-22 11:11:42.711  3560  3560 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+05-22 11:11:42.714  3560  3560 D nativeloader: Load /system/lib64/libmonkey_jni.so using ns default for caller /system/framework/monkey.jar in same partition (is_bridged=0): ok
+05-22 11:11:42.714  3560  3560 W Monkey  : args: [-p, com.companyname.privateclouddrive.app, -c, android.intent.category.LAUNCHER, 1]
+05-22 11:11:42.752  3560  3560 W Monkey  :  arg: "com.companyname.privateclouddrive.app"
+05-22 11:11:42.752  3560  3560 W Monkey  : data="com.companyname.privateclouddrive.app"
+05-22 11:11:42.783   682  1446 W ActivityTaskManager: callingPackage for (uid=2000, pid=3560) has no WPC
+05-22 11:11:42.814   682  1446 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} with LAUNCH_SINGLE_TOP from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+05-22 11:11:42.817   928   995 V WindowManagerShell: Transition requested (#9): android.os.BinderProxy@f90d13b TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=152 effectiveUid=10227 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity } baseActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} topActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} origActivity=null realActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} numActivities=1 lastActiveTime=50265 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@f0b4058} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 156 - 0, 0) topActivityInfo=ActivityInfo{17565b1 crc644ff135ff239f5ce3.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(329, 830 - 952, 2110) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1280, 2856) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 9 }
+05-22 11:11:42.856   682   715 I ActivityManager: Start proc 3625:com.companyname.privateclouddrive.app/u0a227 for next-top-activity {com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}
+05-22 11:11:42.860  3560  3560 I AndroidRuntime: VM exiting with result code 0.
+05-22 11:11:42.896  1488  3618 W SQLiteLog: (28) double-quoted string literal: "com.companyname.privateclouddrive.app"
+05-22 11:11:43.002   682   704 V WindowManager: Sent Transition (#9) createdAt=05-22 11:11:42.786 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=152 effectiveUid=10227 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity } baseActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} topActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} origActivity=null realActivity=ComponentInfo{com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity} numActivities=1 lastActiveTime=50265 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{32dc94 Task{7d246a0 #152 type=standard A=10227:com.companyname.privateclouddrive.app}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 156 - 0, 0) topActivityInfo=ActivityInfo{355333d crc644ff135ff239f5ce3.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(329, 830 - 952, 2110) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1280, 2856) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 9 }
+05-22 11:11:43.002   682   704 V WindowManager:         {WCT{RemoteToken{32dc94 Task{7d246a0 #152 type=standard A=10227:com.companyname.privateclouddrive.app}}} m=OPEN f=NONE leash=Surface(name=Task=152)/@0xfa906da sb=Rect(0, 0 - 1280, 2856) eb=Rect(0, 0 - 1280, 2856) epz=Point(1280, 2856) d=0 taskParent=-1},
+05-22 11:11:43.206  3625  3625 D nativeloader: Configuring clns-9 for other apk /data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/lib/x86_64:/data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.companyname.privateclouddrive.app
+05-22 11:11:43.218  3625  3625 V GraphicsEnvironment: com.companyname.privateclouddrive.app is not listed in per-application setting
+05-22 11:11:43.218  3625  3625 V GraphicsEnvironment: com.companyname.privateclouddrive.app is not listed in ANGLE allowlist or settings, returning default
+05-22 11:11:43.228  3625  3625 D nativeloader: Load /data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/lib/x86_64/libmonosgen-2.0.so using class loader ns clns-9 (caller=/data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/base.apk!classes3.dex): ok
+05-22 11:11:43.229  3625  3625 D nativeloader: Load /data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/lib/x86_64/libxamarin-app.so using class loader ns clns-9 (caller=/data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/base.apk!classes3.dex): ok
+05-22 11:11:43.233  3625  3625 D nativeloader: Load /data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/lib/x86_64/libmonodroid.so using class loader ns clns-9 (caller=/data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/base.apk!classes3.dex): ok
+05-22 11:11:43.235  3625  3625 W monodroid: Creating public update directory: `/data/user/0/com.companyname.privateclouddrive.app/files/.__override__/x86_64`
+05-22 11:11:43.270  3625  3625 D nativeloader: Load /data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/lib/x86_64/libSystem.Security.Cryptography.Native.Android.so using class loader ns clns-9 (caller=/data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/base.apk!classes3.dex): ok
+05-22 11:11:43.272  3625  3625 D nativeloader: Load /data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/lib/x86_64/libxamarin-debug-app-helper.so using class loader ns clns-9 (caller=/data/app/~~Kc0sFDblRFLj2sE-IfYwsw==/com.companyname.privateclouddrive.app-gPGXqW0TWmCKisFgRoBl0w==/base.apk!classes3.dex): ok
+05-22 11:11:44.526   682   699 D CoreBackPreview: Window{b40ddb5 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@d5fe7bb, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+05-22 11:11:44.526   682   699 D CoreBackPreview: Window{b40ddb5 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@12d4d8, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+05-22 11:11:44.828   682   704 I ActivityTaskManager: Displayed com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity for user 0: +2s44ms
+05-22 11:11:44.865   682   792 I ImeTracker: com.companyname.privateclouddrive.app:2ca27505: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+05-22 11:11:44.866  3625  3625 I ImeTracker: com.companyname.privateclouddrive.app:2ca27505: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+05-22 11:11:44.912  1350  1350 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=com.companyname.privateclouddrive.app, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+05-22 11:11:44.953   682  1618 W PackageConfigPersister: App-specific configuration not found for packageName: com.companyname.privateclouddrive.app and userId: 0
+05-22 11:11:45.142   682  1618 D CoreBackPreview: Window{b40ddb5 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@fe1af9e, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+05-22 11:11:45.348   682   699 D CoreBackPreview: Window{b40ddb5 u0 com.companyname.privateclouddrive.app/crc644ff135ff239f5ce3.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@966da77, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+05-22 11:11:49.379  3625  3673 D ProfileInstaller: Installing profile for com.companyname.privateclouddrive.app
+05-22 11:11:55.001  3691  3691 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+05-22 11:11:55.003  3691  3691 I AndroidRuntime: Using default boot image
+05-22 11:11:55.003  3691  3691 I AndroidRuntime: Leaving lock profiling enabled
+05-22 11:11:55.073  3691  3691 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+05-22 11:11:56.106  3691  3691 D AndroidRuntime: Shutting down VM
+05-22 11:12:05.728  3860  3860 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+05-22 11:12:05.730  3860  3860 I AndroidRuntime: Using default boot image
+05-22 11:12:05.730  3860  3860 I AndroidRuntime: Leaving lock profiling enabled
+05-22 11:12:05.788  3860  3860 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+05-22 11:12:06.832  3860  3860 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@11978; boundsInParent: Rect(0, 0 - 1280, 0); boundsInScreen: Rect(0, 0 - 1280, 0); boundsInWindow: Rect(0, 0 - 1280, 0); packageName: com.companyname.privateclouddrive.app; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+05-22 11:12:06.854  3860  3860 D AndroidRuntime: Shutting down VM
+[validation] no FATAL EXCEPTION found in captured logcat window.
