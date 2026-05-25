@@ -287,8 +287,10 @@ public class FileCenterSharesAppService : FileCenterAppService, IFileCenterShare
 /// <summary>
 /// 公开分享访问应用服务。
 /// 允许匿名用户通过 token 读取分享元数据、校验密码和下载被分享文件。
+/// 仅供显式 HTTP 控制器调用，禁止 ABP 将该应用服务暴露为约定式控制器。
 /// </summary>
 [AllowAnonymous]
+[RemoteService(false)]
 public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCenterPublicSharesAppService
 {
     private readonly IClock _clock;
