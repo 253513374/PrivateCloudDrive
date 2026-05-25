@@ -1,0 +1,25 @@
+{
+  "caseId": "API-UploadSession-04",
+  "description": "完成上传后会话进入 Completed，客户端下一步打开文件。",
+  "request": { "method": "POST", "path": "/api/file-center/upload-sessions/11111111-1111-1111-1111-111111111111/complete" },
+  "response": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "status": "Completed",
+    "fileNodeId": "33333333-3333-3333-3333-333333333333",
+    "uploadedChunks": [0, 1],
+    "uploadedChunkCount": 2,
+    "uploadedBytes": 10485760,
+    "progressPercent": 100,
+    "isRetryable": false,
+    "statusReason": "Completed",
+    "failureReason": null,
+    "nextAction": "OpenFile"
+  },
+  "assertions": [
+    { "field": "status", "expected": "Completed" },
+    { "field": "fileNodeId", "expected": "33333333-3333-3333-3333-333333333333" },
+    { "field": "progressPercent", "expected": 100 },
+    { "field": "isRetryable", "expected": false },
+    { "field": "nextAction", "expected": "OpenFile" }
+  ]
+}
