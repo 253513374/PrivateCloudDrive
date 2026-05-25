@@ -58,9 +58,9 @@ services:
       App__SelfUrl: ${PUBLIC_URL:-http://localhost:8080}
       App__CorsOrigins: ${PUBLIC_URL:-http://localhost:8080}
       AuthServer__Authority: ${PUBLIC_URL:-http://localhost:8080}
-      AuthServer__RequireHttpsMetadata: ${AUTH_SERVER_REQUIRE_HTTPS_METADATA:-true}
-      Swagger__Enabled: ${SWAGGER_ENABLED:-false}
-      Security__AllowInsecureTransportForLocalValidation: ${ALLOW_INSECURE_LOCAL_VALIDATION:-false}
+      AuthServer__RequireHttpsMetadata: ${AUTH_SERVER_REQUIRE_HTTPS_METADATA:-false}
+      Swagger__Enabled: ${SWAGGER_ENABLED:-true}
+      Security__AllowInsecureTransportForLocalValidation: ${ALLOW_INSECURE_LOCAL_VALIDATION:-true}
       Security__PublicSharePasswordRateLimit__PermitLimit: ${PUBLIC_SHARE_PASSWORD_RATE_LIMIT_PERMIT_LIMIT:-10}
       Security__PublicSharePasswordRateLimit__WindowMinutes: ${PUBLIC_SHARE_PASSWORD_RATE_LIMIT_WINDOW_MINUTES:-10}
       FileCenter__StorageProvider: ${FILECENTER_STORAGE_PROVIDER:-FileSystem}
@@ -130,8 +130,8 @@ services:
       ConnectionStrings__Default: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-PrivateCloudDrive};Username=${POSTGRES_USER:-privateclouddrive};Password=${POSTGRES_PASSWORD:-privateclouddrive};"
       Redis__Configuration: "redis:6379"
       AuthServer__Authority: ${PUBLIC_URL:-http://localhost:8080}
-      AuthServer__RequireHttpsMetadata: ${AUTH_SERVER_REQUIRE_HTTPS_METADATA:-true}
-      Security__AllowInsecureTransportForLocalValidation: ${ALLOW_INSECURE_LOCAL_VALIDATION:-false}
+      AuthServer__RequireHttpsMetadata: ${AUTH_SERVER_REQUIRE_HTTPS_METADATA:-false}
+      Security__AllowInsecureTransportForLocalValidation: ${ALLOW_INSECURE_LOCAL_VALIDATION:-true}
       FileCenter__StorageProvider: ${FILECENTER_STORAGE_PROVIDER:-FileSystem}
       FileCenter__StorageRootPath: ${FILECENTER_STORAGE_PATH:-/app/storage}
       FileCenter__AliyunOss__AccessKeyId: ${ALIYUN_OSS_ACCESS_KEY_ID:-}

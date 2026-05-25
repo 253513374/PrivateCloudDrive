@@ -164,6 +164,10 @@
                            Text="正在检查私有备份空间。"
                            Style="{StaticResource MetaLabel}"
                            LineBreakMode="WordWrap" />
+                    <Button Text="查看恢复边界说明"
+                            Style="{StaticResource SecondaryButton}"
+                            HorizontalOptions="Fill"
+                            Clicked="OnRestoreGuideClicked" />
                     <Button Text="了解智能整理"
                             HorizontalOptions="Fill"
                             Clicked="OnAiCleanupClicked" />
