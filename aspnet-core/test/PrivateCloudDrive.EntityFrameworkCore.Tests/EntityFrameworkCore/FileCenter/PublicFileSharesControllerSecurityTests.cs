@@ -53,11 +53,15 @@ public class PublicFileSharesControllerSecurityTests
     [Fact]
     public void Public_Share_AppService_Should_Not_Be_Exposed_As_Conventional_Controller()
     {
-        var attribute = typeof(IFileCenterPublicSharesAppService)
+        var interfaceAttribute = typeof(IFileCenterPublicSharesAppService)
+            .GetCustomAttribute<RemoteServiceAttribute>();
+        var implementationAttribute = typeof(FileCenterPublicSharesAppService)
             .GetCustomAttribute<RemoteServiceAttribute>();
 
-        attribute.ShouldNotBeNull();
-        attribute!.IsEnabled.ShouldBeFalse();
+        interfaceAttribute.ShouldNotBeNull();
+        interfaceAttribute!.IsEnabled.ShouldBeFalse();
+        implementationAttribute.ShouldNotBeNull();
+        implementationAttribute!.IsEnabled.ShouldBeFalse();
     }
 
     private sealed class StubPublicSharesAppService : IFileCenterPublicSharesAppService
