@@ -159,7 +159,9 @@ public partial class LoginPage : ContentPage
 
         var message = exception.Message;
         if (message.Contains("Invalid username or password", StringComparison.OrdinalIgnoreCase) ||
-            message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase))
+            message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("403", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("forbidden", StringComparison.OrdinalIgnoreCase))
         {
             return AppText.InvalidUserNameOrPassword;
         }
@@ -182,7 +184,8 @@ public partial class LoginPage : ContentPage
             var authorization = await _wechatPlatformAuthService.AuthorizeAsync(_wechatSettings);
             if (!authorization.Succeeded || string.IsNullOrWhiteSpace(authorization.Code))
             {
-                throw new InvalidOperationException(authorization.ErrorMessage ?? AppText.WechatSignInCanceled);
+                ShowValidation(authorization.ErrorMessage ?? AppText.WechatSignInCanceled);
+                return;
             }
 
             var signInResult = await _authService.SignInWithWechatCodeAsync(

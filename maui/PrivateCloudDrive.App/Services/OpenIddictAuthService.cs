@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -572,7 +573,7 @@ public sealed class OpenIddictAuthService : IAuthService
         {
             throw new MobileAuthException(
                 ClassifyHttpRequestException(exception),
-                "OpenIddict token request could not reach the server.",
+                BuildHttpRequestErrorMessage(exception),
                 exception,
                 exception.StatusCode);
         }
@@ -735,6 +736,47 @@ public sealed class OpenIddictAuthService : IAuthService
             : MobileAuthErrorKind.NetworkError;
     }
 
+    private static string BuildHttpRequestErrorMessage(HttpRequestException exception)
+    {
+        if (TryGetTlsFailureMessage(exception, out var tlsMessage))
+        {
+            return tlsMessage;
+        }
+
+        if (exception.StatusCode is { } statusCode)
+        {
+            return $"OpenIddict token request failed with HTTP {(int)statusCode} {statusCode}.";
+        }
+
+        return string.IsNullOrWhiteSpace(exception.Message)
+            ? "OpenIddict token request could not reach the server."
+            : $"OpenIddict token request failed: {exception.Message}";
+    }
+
+    private static bool TryGetTlsFailureMessage(Exception exception, out string message)
+    {
+        for (var current = exception; current != null; current = current.InnerException!)
+        {
+            if (current is AuthenticationException)
+            {
+                message = $"OpenIddict token request failed during TLS negotiation: {current.Message}";
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(current.Message) &&
+                (current.Message.Contains("TLS", StringComparison.OrdinalIgnoreCase) ||
+                 current.Message.Contains("SSL", StringComparison.OrdinalIgnoreCase) ||
+                 current.Message.Contains("certificate", StringComparison.OrdinalIgnoreCase)))
+            {
+                message = $"OpenIddict token request failed during secure connection setup: {current.Message}";
+                return true;
+            }
+        }
+
+        message = string.Empty;
+        return false;
+    }
+
     private static bool IsServiceUnavailableException(Exception exception)
     {
         for (var current = exception; current != null; current = current.InnerException!)
@@ -799,7 +841,7 @@ public sealed class OpenIddictAuthService : IAuthService
 
     private static MobileAuthErrorKind ClassifyOAuthError(HttpStatusCode? statusCode, string? error)
     {
-        if ((statusCode is HttpStatusCode.BadRequest or HttpStatusCode.Unauthorized) &&
+        if ((statusCode is HttpStatusCode.BadRequest or HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden) &&
             string.Equals(error, "invalid_grant", StringComparison.OrdinalIgnoreCase))
         {
             return MobileAuthErrorKind.InvalidCredentials;
