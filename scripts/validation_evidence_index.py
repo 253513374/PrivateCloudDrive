@@ -73,6 +73,17 @@ def repo_relative(repo_root: Path, path: Path) -> str:
     return path.resolve().relative_to(repo_root.resolve()).as_posix()
 
 
+def stable_report_path(repo_root: Path, validation_dir: Path, path: Path) -> str:
+    resolved = path.resolve()
+    repo_root_resolved = repo_root.resolve()
+    validation_dir_resolved = validation_dir.resolve()
+    if resolved.is_relative_to(repo_root_resolved):
+        return resolved.relative_to(repo_root_resolved).as_posix()
+    if resolved.is_relative_to(validation_dir_resolved):
+        return Path("docs/validation") .joinpath(resolved.relative_to(validation_dir_resolved)).as_posix()
+    return path.name
+
+
 def git_tracked_paths(repo_root: Path) -> set[str]:
     try:
         result = subprocess.run(["git", "ls-files"], cwd=repo_root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
@@ -142,7 +153,7 @@ def build_outputs(repo_root: Path, run_id: str, date: str, validation_root: Path
     evidence: list[dict] = []
     findings: list[Finding] = []
     for path in iter_text_files(validation_dir):
-        relative = repo_relative(repo_root, path) if path.resolve().is_relative_to(repo_root.resolve()) else path.as_posix()
+        relative = stable_report_path(repo_root, validation_dir, path)
         try:
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:

@@ -53,4 +53,4 @@ python scripts/validation_evidence_index.py --run-id local --date $(date -u +%Y%
 - 自动排除历史 `daily-acceptance-*` 生成目录，避免 `validation-evidence-index.md` / `sensitive-scan.md` 被二次扫描并传播误报。
 - `PASS: 14`、`WARN: 0`、`FAIL: 0` 等状态行只作为结果统计，不应被识别为 password 泄漏。
 
-CI 接入：`.github/workflows/security-gate.yml` 的 `Validation evidence sensitive-data gate` 步骤运行该脚本；无敏感命中时通过，有命中时以退出码 2 阻断。无论通过或失败，工作流都会上传 `docs/validation/daily-acceptance-*-${{ github.run_id }}/` 作为 artifact，保留 14 天。
+CI 接入：当前由 `.github/workflows/ci.yml` 中的 `Validation evidence sensitive-data gate` 步骤运行该脚本；无敏感命中时通过，有命中时以退出码 2 阻断。无论通过或失败，工作流都会上传 `docs/validation/daily-acceptance-*-${{ github.run_id }}/` 作为 artifact，保留 14 天。
