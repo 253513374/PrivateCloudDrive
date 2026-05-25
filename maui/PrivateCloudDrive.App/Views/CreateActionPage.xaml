@@ -8,9 +8,9 @@
     <Grid RowDefinitions="*,Auto"
           Padding="18,24,18,18">
         <VerticalStackLayout Spacing="10">
-            <Label Text="开始备份"
+            <Label Text="备份中心"
                    Style="{StaticResource PageTitleLabel}" />
-            <Label Text="把手机照片和本机文件备份到你配置的私有服务器。"
+            <Label Text="把手机照片和本机文件备份到你配置的私有服务器，并在同一入口查看队列、容量健康和恢复说明。"
                    Style="{StaticResource MetaLabel}"
                    LineBreakMode="WordWrap" />
         </VerticalStackLayout>
@@ -38,17 +38,25 @@
                             Clicked="OnCloseClicked" />
                 </Grid>
 
-                <Button Text="备份照片"
+                <Button Text="备份照片/视频"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"
                         Clicked="OnBackupMediaClicked" />
-                <Button Text="从相册选择备份"
+                <Button Text="查看备份队列与失败重试"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"
-                        Clicked="OnBackupMediaClicked" />
+                        Clicked="OnBackupQueueClicked" />
                 <Button Text="备份本机文件"
                         HorizontalOptions="Fill"
                         Clicked="OnBackupFilesClicked" />
+                <Button Text="容量/健康与恢复说明"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalOptions="Fill"
+                        Clicked="OnStorageHealthClicked" />
+                <Button Text="恢复边界说明"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalOptions="Fill"
+                        Clicked="OnRestoreGuideClicked" />
                 <Button Text="扫描文档（即将推出）"
                         Style="{StaticResource SecondaryButton}"
                         HorizontalOptions="Fill"
