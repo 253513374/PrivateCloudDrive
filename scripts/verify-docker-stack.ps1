@@ -1,5 +1,6 @@
 param(
     [switch]$PreflightOnly,
+    [switch]$BuildImages,
     [switch]$StrictImageCheck,
     [int]$TimeoutSeconds = 300,
     [string]$PublicUrl = "http://localhost:8080"
@@ -117,7 +118,11 @@ if ($PreflightOnly) {
 }
 
 Write-Step "Starting full Docker Compose stack"
-Invoke-Docker @("compose", "up", "-d", "--build")
+$composeArguments = @("compose", "up", "-d")
+if ($BuildImages) {
+    $composeArguments += "--build"
+}
+Invoke-Docker $composeArguments
 
 Write-Step "Waiting for dependency health checks"
 Wait-Condition "postgres" {

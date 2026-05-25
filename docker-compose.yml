@@ -1,3 +1,11 @@
+name: ${COMPOSE_PROJECT_NAME:-pcdlocal}
+
+x-pcd-app-image: &pcd-app-image
+  image: ${PCD_APP_IMAGE:-privateclouddrive/app-runtime:local}
+  build:
+    context: .
+    dockerfile: Dockerfile
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -28,9 +36,7 @@ services:
       retries: 30
 
   db-migrator:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *pcd-app-image
     command: ["dotnet", "/app/migrator/PrivateCloudDrive.DbMigrator.dll"]
     entrypoint: []
     environment:
@@ -47,9 +53,7 @@ services:
         condition: service_healthy
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *pcd-app-image
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ASPNETCORE_ENVIRONMENT: "Production"
@@ -121,9 +125,7 @@ services:
         condition: service_healthy
 
   media-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *pcd-app-image
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ASPNETCORE_ENVIRONMENT: "Production"

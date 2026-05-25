@@ -9,15 +9,30 @@ Copy-Item .env.example .env
 ```
 
 2. Set `PUBLIC_URL` to the address users and the MAUI client can reach.
-3. Start the backend stack:
+3. Keep the default local Compose identity (`COMPOSE_PROJECT_NAME=pcdlocal`) unless you are intentionally creating an isolated drill/test stack.
+4. Build the shared application image only when code or Dockerfile changed:
 
 ```powershell
-docker compose up -d --build
+docker compose build
 ```
 
-4. For local validation, open Swagger at `http://localhost:8080/swagger`. For production, set `SWAGGER_ENABLED=false` unless Swagger is protected by an internal network, VPN, or administrator-only gateway.
+5. Start the backend stack:
 
-The Compose stack contains PostgreSQL, Redis, an API host, a database migrator, a media-worker process for ABP background jobs, and an optional MinIO service behind the `minio` profile. The checked-in Compose defaults are production-safe for Swagger and insecure-local-validation switches; `.env.example` explicitly enables the local HTTP/Swagger settings needed by the bundled health checks.
+```powershell
+docker compose up -d
+```
+
+6. For local validation, open Swagger at `http://localhost:8080/swagger`. For production, set `SWAGGER_ENABLED=false` unless Swagger is protected by an internal network, VPN, or administrator-only gateway.
+
+The Compose stack contains one PostgreSQL container, one Redis container, one shared application image, an API host, a database migrator, a media-worker process for ABP background jobs, and an optional MinIO service behind the `minio` profile. The checked-in Compose defaults are production-safe for Swagger and insecure-local-validation switches; `.env.example` explicitly enables the local HTTP/Swagger settings needed by the bundled health checks.
+
+## Local Docker Governance
+
+- Default local stack name is `pcdlocal`; do not invent per-task Compose project names for normal development or QA replay.
+- Default local app image is `privateclouddrive/app-runtime:local`; `api` / `db-migrator` / `media-worker` must reuse this shared image instead of generating one image per temporary Compose project.
+- Local validation should prefer `docker compose up -d`; use `docker compose build` (or verification scripts with `-BuildImages`) only when code, dependencies, or the Dockerfile changed.
+- Isolated Compose project names are reserved for destructive restore drills or intentionally disposable experiments. They must be cleaned with `scripts/docker-clean-local-artifacts.sh` immediately after use.
+- The only always-on infrastructure containers expected in the default local stack are `postgres` and `redis`; other services belong to the same `pcdlocal` stack and must not spawn duplicate per-task stacks.
 
 The `db-migrator` service runs before the API and applies database migrations plus ABP data seed. The seed creates the OpenIddict Swagger client and the MAUI client `PrivateCloudDrive_App`.
 
@@ -102,7 +117,8 @@ The Docker image installs `ffmpeg` and `ffprobe`. The API host disables backgrou
 MinIO is included as a profile for later object-storage wiring:
 
 ```powershell
-docker compose --profile minio up -d --build
+docker compose build
+docker compose --profile minio up -d
 ```
 
 The current default FileCenter storage still uses the local filesystem volume at `/app/storage`.
@@ -221,6 +237,12 @@ After Docker can pull or build the required images, run the full local stack ver
 .\scripts\verify-local-stack.ps1
 ```
 
+If you need to force a rebuild first, run:
+
+```powershell
+.\scripts\verify-local-stack.ps1 -BuildImages
+```
+
 Full mode starts the stack unless `-SkipStart` is passed, then confirms:
 
 - `postgres` and `redis` are healthy.
@@ -239,7 +261,8 @@ The legacy `scripts/verify-docker-stack.ps1` remains available for basic Compose
 If Docker Desktop cannot pull images from Docker Hub or Microsoft Container Registry, configure the Docker Desktop HTTPS proxy first, then rerun:
 
 ```powershell
-docker compose up -d --build
+docker compose build
+docker compose up -d
 ```
 
 The Compose file uses `postgres:17-alpine` and `redis:7-alpine` because they are stable Alpine images and are enough for the current PostgreSQL and Redis requirements.

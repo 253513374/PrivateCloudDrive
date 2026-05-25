@@ -117,10 +117,11 @@ Windows 和 Android 目标建议顺序构建；默认多目标 restore/build 会
 
 ```powershell
 Copy-Item .env.example .env
-docker compose up -d --build
+docker compose build
+docker compose up -d
 ```
 
-完整部署说明见 `docs/deployment.md`。默认 API 地址为 `http://localhost:8080/swagger`，文件、缩略图、封面和临时分片会保存在 `privateclouddrive_stack_storage` volume。
+完整部署说明见 `docs/deployment.md`。默认本地 Compose 项目名为 `pcdlocal`，默认共享应用镜像为 `privateclouddrive/app-runtime:local`；不要为普通开发/验收随意创建新的 Compose project 名。默认 API 地址为 `http://localhost:8080/swagger`，文件、缩略图、封面和临时分片会保存在 `privateclouddrive_stack_storage` volume。
 
 微信登录默认关闭。Android App 只消费后端公开 settings 中的 `AppId`、`Scope` 和平台公开配置，`AppSecret` 只能通过后端配置、环境变量或密钥系统提供。真实微信登录还需要微信开放平台移动应用、Android 包名与签名配置，以及安装微信的真机验收。
 
