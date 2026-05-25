@@ -47,9 +47,11 @@ services:
       PCD_QA_TEST_ACCOUNT_USER_NAME: ${PCD_QA_TEST_ACCOUNT_USER_NAME:-qa_user}
       PCD_QA_TEST_ACCOUNT_ALT_USER_NAME: ${PCD_QA_TEST_ACCOUNT_ALT_USER_NAME:-qa_user_alt}
       PCD_QA_TEST_ACCOUNT_ROLE: ${PCD_QA_TEST_ACCOUNT_ROLE:-QA.Tester}
-      PCD_QA_TEST_ACCOUNT_PASSWORD: ${PCD_QA_TEST_ACCOUNT_PASSWORD:-}
+      PCD_QA_TEST_ACCOUNT_PASSWORD_FILE: ${PCD_QA_TEST_ACCOUNT_PASSWORD_FILE:-/run/local-secrets/qa-test-account.password}
       PCD_QA_TEST_ACCOUNT_SECRET_ID: ${PCD_QA_TEST_ACCOUNT_SECRET_ID:-}
       PCD_QA_TEST_ACCOUNT_ROTATED_AT: ${PCD_QA_TEST_ACCOUNT_ROTATED_AT:-}
+    volumes:
+      - ./.secrets:/run/local-secrets:ro
     depends_on:
       postgres:
         condition: service_healthy

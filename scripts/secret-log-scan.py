@@ -19,7 +19,6 @@ SECRET_PATTERNS = [
 ]
 ALLOWLIST = [
     re.compile(r"(?i)<replace|change-this|change-me|example|placeholder|secret_id|value hidden|sanitized=true|\$\{|Configuration|PassPhrase|ConnectionStrings|OpenIddict|privateclouddrive|PCD_QA_TEST_ACCOUNT_PASSWORD(_FILE)?\s*=\s*$"),
-    re.compile(r"(?i)PCD_QA_TEST_ACCOUNT_PASSWORD(_FILE)?"),
 ]
 TEXT_EXTENSIONS = {
     ".cs", ".ps1", ".sh", ".py", ".md", ".txt", ".yml", ".yaml", ".json", ".example", ".env"
