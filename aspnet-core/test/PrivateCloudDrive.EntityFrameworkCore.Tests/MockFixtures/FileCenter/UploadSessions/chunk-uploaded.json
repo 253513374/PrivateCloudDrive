@@ -1,0 +1,20 @@
+{
+  "caseId": "API-UploadSession-02",
+  "description": "上传第 1 个分片后查询会话，服务端应返回已确认分片和进度。",
+  "request": { "method": "PUT", "path": "/api/file-center/upload-sessions/11111111-1111-1111-1111-111111111111/chunks/0" },
+  "response": {
+    "uploadedChunks": [0],
+    "uploadedChunkCount": 1,
+    "uploadedBytes": 5242880,
+    "progressPercent": 50,
+    "isRetryable": true,
+    "statusReason": "WaitingForChunks",
+    "nextAction": "UploadMissingChunks"
+  },
+  "assertions": [
+    { "field": "uploadedChunks", "expected": [0] },
+    { "field": "uploadedChunkCount", "expected": 1 },
+    { "field": "uploadedBytes", "expected": 5242880 },
+    { "field": "progressPercent", "expected": 50 }
+  ]
+}
