@@ -31,6 +31,13 @@ public class LocalStackConfigurationTests
         exception.Message.ShouldNotContain("hidden");
     }
 
+    [Fact]
+    public void DbMigrator_Should_Allow_Ipv6_Style_Host_Without_Uri_Scheme()
+    {
+        Should.NotThrow(() =>
+            DbMigratorConnectionStringGuard.Validate("Host=::1;Port=5432;Database=PrivateCloudDrive;Username=privateclouddrive;Password=hidden;"));
+    }
+
     private static string GetRepositoryFile(string relativePath)
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

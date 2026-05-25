@@ -34,7 +34,7 @@ public static class DbMigratorConnectionStringGuard
             throw new InvalidOperationException("ConnectionStrings:Default Host is required for DbMigrator.");
         }
 
-        if (host.Contains("://", StringComparison.Ordinal) || Uri.TryCreate(host, UriKind.Absolute, out _))
+        if (host.Contains("://", StringComparison.Ordinal))
         {
             throw new InvalidOperationException("ConnectionStrings:Default Host must be a DNS name or IP address, not a URI. Use Host=postgres;Port=5432 for the local Docker stack.");
         }
