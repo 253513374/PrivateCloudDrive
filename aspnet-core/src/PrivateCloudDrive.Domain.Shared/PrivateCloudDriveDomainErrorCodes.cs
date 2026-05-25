@@ -38,6 +38,7 @@ public static class PrivateCloudDriveDomainErrorCodes
     public const string FileCenterOnlyMediaFileCanBeManaged = "PrivateCloudDrive:FileCenter:000030";
     public const string FileCenterMediaAlbumItemNotFound = "PrivateCloudDrive:FileCenter:000031";
     public const string FileCenterMediaAssetCannotRetry = "PrivateCloudDrive:FileCenter:000032";
+    public const string FileCenterUploadSessionCancelled = "PrivateCloudDrive:FileCenter:000033";
     public const string WeChatDisabled = "PrivateCloudDrive:MobileAuth:000001";
     public const string WeChatCodeExchangeFailed = "PrivateCloudDrive:MobileAuth:000002";
     public const string WeChatBindingRequired = "PrivateCloudDrive:MobileAuth:000003";

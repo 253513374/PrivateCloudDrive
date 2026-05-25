@@ -32,6 +32,8 @@ public class DbMigratorHostedService : IHostedService
     /// </summary>
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        DbMigratorConnectionStringGuard.Validate(_configuration.GetConnectionString("Default"));
+
         using (var application = await AbpApplicationFactory.CreateAsync<PrivateCloudDriveDbMigratorModule>(options =>
         {
            options.Services.ReplaceConfiguration(_configuration);

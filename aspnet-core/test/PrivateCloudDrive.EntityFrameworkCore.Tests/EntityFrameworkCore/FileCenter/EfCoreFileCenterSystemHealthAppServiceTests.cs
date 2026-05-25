@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -53,9 +54,10 @@ public class EfCoreFileCenterSystemHealthAppServiceTests : PrivateCloudDriveEnti
             result.FfmpegStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
             result.FfprobeStatus.ShouldBe(FileCenterSystemHealthStatus.Healthy);
             result.StorageProvider.ShouldBe(FileCenterStorageProviderNames.FileSystem);
-            result.StorageLocationDescription.ShouldBe("服务器本机/容器文件系统（FileCenter:StorageRootPath 对应目录）");
-            result.BackupScopeDescription.ShouldBe("请同时备份数据库、FileCenter 存储目录和部署 .env/密钥配置；仅备份 App 本机数据不能恢复服务器文件。");
+            result.StorageLocationDescription.ShouldBe("文件保存在当前私有服务器管理的文件存储中。");
+            result.BackupScopeDescription.ShouldBe("请同时备份数据库、文件存储内容和部署密钥配置；手机 App 本机缓存不能单独恢复服务器文件。");
             result.PrivacyBoundaryDescription.ShouldBe("文件保存到当前连接的私有后端；服务器管理员和具备存储访问权限的人可能接触原始文件，分享链接会扩大访问边界。");
+            AssertNoInternalStorageDetails(result);
             result.StorageUsedBytes.ShouldBe(0);
             result.StorageQuotaBytes.ShouldBeGreaterThan(0);
             result.StorageDiskAvailableBytes.ShouldBeGreaterThan(0);
@@ -72,35 +74,37 @@ public class EfCoreFileCenterSystemHealthAppServiceTests : PrivateCloudDriveEnti
     }
 
     /// <summary>
-    /// 验证对象存储模式下恢复边界提示 OSS Bucket/Object 数据，而不是误导用户备份本地目录。
+    /// 验证对象存储模式下恢复边界提示对象存储安全摘要，而不是暴露 Bucket/Object 等内部诊断字样。
     /// </summary>
     [Fact]
     public async Task Should_Return_Provider_Aware_Backup_Scope_For_Aliyun_Oss()
     {
         var originalProvider = _configuration["FileCenter:StorageProvider"];
         var originalBucketName = _configuration["FileCenter:AliyunOss:BucketName"];
+        var originalAccessKeyId = _configuration["FileCenter:AliyunOss:AccessKeyId"];
         var userId = Guid.NewGuid();
 
         try
         {
             _configuration["FileCenter:StorageProvider"] = FileCenterStorageProviderNames.AliyunOss;
             _configuration["FileCenter:AliyunOss:BucketName"] = "private-backup-bucket";
+            _configuration["FileCenter:AliyunOss:AccessKeyId"] = "test-access-key";
 
             await WithCurrentUserAsync(userId, async () =>
             {
                 var result = await _systemHealthAppService.GetSummaryAsync();
 
                 result.StorageProvider.ShouldBe(FileCenterStorageProviderNames.AliyunOss);
-                result.StorageLocationDescription.ShouldBe("阿里云 OSS 私有 Bucket（名称不在 App 展示）");
-                result.BackupScopeDescription.ShouldContain("阿里云 OSS 私有 Bucket/Object 数据");
-                result.BackupScopeDescription.ShouldNotContain("FileCenter 存储目录");
-                result.StorageLocationDescription.ShouldNotContain("private-backup-bucket");
+                result.StorageLocationDescription.ShouldBe("文件保存在当前私有服务器配置的私有对象存储中；对象存储名称和访问密钥不会在 App 展示。");
+                result.BackupScopeDescription.ShouldBe("请同时备份数据库、文件存储内容和部署密钥配置；手机 App 本机缓存不能单独恢复服务器文件。");
+                AssertNoInternalStorageDetails(result);
             });
         }
         finally
         {
             _configuration["FileCenter:StorageProvider"] = originalProvider;
             _configuration["FileCenter:AliyunOss:BucketName"] = originalBucketName;
+            _configuration["FileCenter:AliyunOss:AccessKeyId"] = originalAccessKeyId;
         }
     }
 
@@ -135,6 +139,37 @@ public class EfCoreFileCenterSystemHealthAppServiceTests : PrivateCloudDriveEnti
         {
             _mediaProcessingOptions.FfmpegPath = originalFfmpegPath;
             _mediaProcessingOptions.FfprobePath = originalFfprobePath;
+        }
+    }
+
+    private static void AssertNoInternalStorageDetails(FileCenterSystemHealthDto result)
+    {
+        var appVisibleText = string.Join(
+            "\n",
+            new[]
+            {
+                result.StorageLocationDescription,
+                result.BackupScopeDescription,
+                result.PrivacyBoundaryDescription
+            }.Concat(result.Diagnostics));
+
+        var forbiddenMarkers = new[]
+        {
+            "FileCenter:",
+            "StorageRootPath",
+            "Bucket",
+            "Object",
+            "private-backup-bucket",
+            "test-access-key",
+            "AccessKey",
+            "连接字符串",
+            ".env",
+            "raw exception"
+        };
+
+        foreach (var marker in forbiddenMarkers)
+        {
+            appVisibleText.ShouldNotContain(marker, Case.Insensitive);
         }
     }
 

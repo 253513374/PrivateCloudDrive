@@ -19,7 +19,7 @@ docker compose up -d --build
 
 The Compose stack contains PostgreSQL, Redis, an API host, a database migrator, a media-worker process for ABP background jobs, and an optional MinIO service behind the `minio` profile. The checked-in Compose defaults are production-safe for Swagger and insecure-local-validation switches; `.env.example` explicitly enables the local HTTP/Swagger settings needed by the bundled health checks.
 
-The `db-migrator` service runs before the API and applies database migrations plus ABP data seed. The seed creates the OpenIddict Swagger client and the MAUI client `PrivateCloudDrive_App`.
+The `db-migrator` service runs before the API and applies database migrations plus ABP data seed. The seed creates the OpenIddict Swagger client and the MAUI client `PrivateCloudDrive_App`. The Compose service explicitly provides `PrivateCloudDrive_Swagger` and `PrivateCloudDrive_App` ClientId values and runs from `/app/migrator`, so a fresh empty-volume deployment does not depend on the container entry working directory to discover the published DbMigrator `appsettings.json` before seeding OpenIddict clients.
 
 V1 WeChat, Google, and GitHub login stay disabled by default. When enabling WeChat, set the `WECHAT_*` variables in `.env`; `WECHAT_APP_SECRET` is passed only to the backend API container and must not be copied into the MAUI app. When enabling Google or GitHub, set the `GOOGLE_*` or `GITHUB_*` variables; provider client secrets are backend-only and are never returned by mobile settings endpoints.
 
