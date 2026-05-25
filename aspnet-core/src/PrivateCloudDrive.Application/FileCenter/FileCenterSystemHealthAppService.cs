@@ -64,7 +64,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         var diagnostics = new List<string> { "API 可访问" };
         var storageProvider = FileCenterStorageProviderNames.Normalize(_configuration["FileCenter:StorageProvider"]);
         var storageLocationDescription = ResolveStorageLocationDescription(storageProvider);
-        var backupScopeDescription = ResolveBackupScopeDescription(storageProvider);
+        var backupScopeDescription = ResolveBackupScopeDescription();
         var storageStatus = ResolveStorageStatus(storageProvider, diagnostics);
         var (storageDiskAvailableBytes, storageDiskTotalBytes) = ResolveStorageDiskSpace(storageProvider, diagnostics);
         var ffmpegStatus = ResolveToolStatus(_mediaProcessingOptions.FfmpegPath, "FFmpeg", diagnostics);
@@ -110,20 +110,15 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
     {
         if (storageProvider == FileCenterStorageProviderNames.AliyunOss)
         {
-            return "阿里云 OSS 私有 Bucket（名称不在 App 展示）";
+            return "文件保存在当前私有服务器配置的私有对象存储中；对象存储名称和访问密钥不会在 App 展示。";
         }
 
-        return "服务器本机/容器文件系统（FileCenter:StorageRootPath 对应目录）";
+        return "文件保存在当前私有服务器管理的文件存储中。";
     }
 
-    private static string ResolveBackupScopeDescription(string storageProvider)
+    private static string ResolveBackupScopeDescription()
     {
-        if (storageProvider == FileCenterStorageProviderNames.AliyunOss)
-        {
-            return "请同时备份数据库、阿里云 OSS 私有 Bucket/Object 数据和部署 .env/密钥配置；仅备份 App 本机数据不能恢复服务器文件。";
-        }
-
-        return "请同时备份数据库、FileCenter 存储目录和部署 .env/密钥配置；仅备份 App 本机数据不能恢复服务器文件。";
+        return "请同时备份数据库、文件存储内容和部署密钥配置；手机 App 本机缓存不能单独恢复服务器文件。";
     }
 
     private FileCenterSystemHealthStatus ResolveStorageStatus(

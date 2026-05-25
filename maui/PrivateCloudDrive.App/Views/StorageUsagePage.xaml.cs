@@ -164,6 +164,14 @@ public partial class StorageUsagePage : ContentPage
         await DisplayAlertAsync("智能整理", "当前版本先展示真实容量和健康状态；智能清理会在后续版本接入媒体分析和回收站建议。", "知道了");
     }
 
+    private async void OnRestoreGuideClicked(object? sender, EventArgs e)
+    {
+        await DisplayAlertAsync(
+            "恢复边界说明",
+            "恢复服务器文件不能只依赖 App 本机数据；请按部署文档同时恢复数据库、文件存储和部署配置。本页仅展示可读的容量/健康/恢复边界，不展示 bucket、绝对路径、连接串、AccessKey、Token 等敏感信息。",
+            "知道了");
+    }
+
     private static double CalculatePercent(long usedBytes, long totalBytes)
     {
         if (totalBytes <= 0)

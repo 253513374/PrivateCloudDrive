@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Volo.Abp;
 using Volo.Abp.Application.Services;
 
 namespace PrivateCloudDrive.FileCenter;
@@ -7,6 +8,7 @@ namespace PrivateCloudDrive.FileCenter;
 /// <summary>
 /// 公开分享访问应用服务契约。
 /// </summary>
+[RemoteService(false)]
 public interface IFileCenterPublicSharesAppService : IApplicationService
 {
     /// <summary>
