@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using PrivateCloudDrive.FileCenter;
 using PrivateCloudDrive.Models.FileCenter;
 using PrivateCloudDrive.Permissions;
+using Volo.Abp;
 
 namespace PrivateCloudDrive.Controllers.FileCenter;
 
@@ -74,6 +75,10 @@ public class FileCenterFilesController : PrivateCloudDriveController
         {
             return FileCenterFileResultHelper.CreateRangeNotSatisfiableResult(HttpContext, exception);
         }
+        catch (BusinessException exception) when (IsSafeNotFoundException(exception))
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
@@ -101,6 +106,10 @@ public class FileCenterFilesController : PrivateCloudDriveController
         {
             return FileCenterFileResultHelper.CreateRangeNotSatisfiableResult(HttpContext, exception);
         }
+        catch (BusinessException exception) when (IsSafeNotFoundException(exception))
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
@@ -122,8 +131,21 @@ public class FileCenterFilesController : PrivateCloudDriveController
     [Authorize(PrivateCloudDrivePermissions.FileCenter.Delete)]
     public virtual async Task<IActionResult> DeleteAsync(Guid id)
     {
-        await _fileUploadService.DeleteAsync(id, HttpContext.RequestAborted);
+        try
+        {
+            await _fileUploadService.DeleteAsync(id, HttpContext.RequestAborted);
+        }
+        catch (BusinessException exception) when (IsSafeNotFoundException(exception))
+        {
+            return NotFound();
+        }
 
         return NoContent();
+    }
+
+    private static bool IsSafeNotFoundException(BusinessException exception)
+    {
+        return exception.Code == PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound ||
+               exception.Code == PrivateCloudDriveDomainErrorCodes.FileCenterBlobObjectNotFound;
     }
 }

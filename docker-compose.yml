@@ -31,13 +31,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    working_dir: /app/migrator
     command: ["dotnet", "/app/migrator/PrivateCloudDrive.DbMigrator.dll"]
     entrypoint: []
     environment:
       ConnectionStrings__Default: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-PrivateCloudDrive};Username=${POSTGRES_USER:-privateclouddrive};Password=${POSTGRES_PASSWORD:-privateclouddrive};"
       Redis__Configuration: "redis:6379"
       StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+      OpenIddict__Applications__PrivateCloudDrive_Swagger__ClientId: "PrivateCloudDrive_Swagger"
       OpenIddict__Applications__PrivateCloudDrive_Swagger__RootUrl: ${PUBLIC_URL:-http://localhost:8080}
+      OpenIddict__Applications__PrivateCloudDrive_App__ClientId: "PrivateCloudDrive_App"
       OpenIddict__Applications__PrivateCloudDrive_App__RedirectUri: "privateclouddrive://callback"
       OpenIddict__Applications__PrivateCloudDrive_App__PostLogoutRedirectUri: "privateclouddrive://callback"
     depends_on:
