@@ -2046,6 +2046,20 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     private sealed class UploadSessionDto
     {
         public Guid Id { get; init; }
+
+        public int UploadedChunkCount { get; init; }
+
+        public long UploadedBytes { get; init; }
+
+        public decimal ProgressPercent { get; init; }
+
+        public bool IsRetryable { get; init; }
+
+        public string StatusReason { get; init; } = "Unknown";
+
+        public string? FailureReason { get; init; }
+
+        public string NextAction { get; init; } = "StartNewUploadSession";
     }
 
     private sealed class WechatLoginSettingsDto

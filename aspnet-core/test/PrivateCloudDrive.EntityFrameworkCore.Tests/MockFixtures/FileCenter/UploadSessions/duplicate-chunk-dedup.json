@@ -1,0 +1,19 @@
+{
+  "caseId": "API-UploadSession-03",
+  "description": "重复上传同一分片时应幂等去重，uploadedChunks 不应出现重复索引。",
+  "request": { "method": "PUT", "path": "/api/file-center/upload-sessions/11111111-1111-1111-1111-111111111111/chunks/0" },
+  "response": {
+    "uploadedChunks": [0],
+    "uploadedChunkCount": 1,
+    "uploadedBytes": 5242880,
+    "progressPercent": 50,
+    "isRetryable": true,
+    "statusReason": "WaitingForChunks",
+    "nextAction": "UploadMissingChunks"
+  },
+  "assertions": [
+    { "field": "uploadedChunks", "expected": [0], "rule": "distinct" },
+    { "field": "uploadedChunkCount", "expected": 1 },
+    { "field": "uploadedBytes", "expected": 5242880 }
+  ]
+}
