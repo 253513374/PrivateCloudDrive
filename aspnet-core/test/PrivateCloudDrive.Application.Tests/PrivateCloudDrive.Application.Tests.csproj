@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PrivateCloudDrive.Application\PrivateCloudDrive.Application.csproj" />
+    <ProjectReference Include="..\..\src\PrivateCloudDrive.DbMigrator\PrivateCloudDrive.DbMigrator.csproj" />
     <ProjectReference Include="..\PrivateCloudDrive.Domain.Tests\PrivateCloudDrive.Domain.Tests.csproj" />
   </ItemGroup>
 
