@@ -64,7 +64,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         var diagnostics = new List<string> { "API 可访问" };
         var storageProvider = FileCenterStorageProviderNames.Normalize(_configuration["FileCenter:StorageProvider"]);
         var storageLocationDescription = ResolveStorageLocationDescription(storageProvider);
-        var backupScopeDescription = ResolveBackupScopeDescription(storageProvider);
+        var backupScopeDescription = ResolveBackupScopeDescription();
         var storageStatus = ResolveStorageStatus(storageProvider, diagnostics);
         var (storageDiskAvailableBytes, storageDiskTotalBytes) = ResolveStorageDiskSpace(storageProvider, diagnostics);
         var ffmpegStatus = ResolveToolStatus(_mediaProcessingOptions.FfmpegPath, "FFmpeg", diagnostics);
@@ -116,7 +116,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         return "文件保存在当前私有服务器管理的文件存储中。";
     }
 
-    private static string ResolveBackupScopeDescription(string storageProvider)
+    private static string ResolveBackupScopeDescription()
     {
         return "请同时备份数据库、文件存储内容和部署密钥配置；手机 App 本机缓存不能单独恢复服务器文件。";
     }
