@@ -256,6 +256,12 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
 
     private void EnsurePendingSession(UploadSession session)
     {
+        if (session.Status == UploadSessionStatus.Cancelled)
+        {
+            throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterUploadSessionCancelled)
+                .WithData("Status", session.Status);
+        }
+
         if (session.Status != UploadSessionStatus.Pending)
         {
             throw new BusinessException(PrivateCloudDriveDomainErrorCodes.FileCenterInvalidUploadSessionState)
@@ -507,6 +513,17 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
 
     private static UploadSessionDto ToDto(UploadSession session)
     {
+        var uploadedChunks = session.GetUploadedChunks();
+        var uploadedBytes = uploadedChunks.Sum(session.GetExpectedChunkSize);
+        var progressPercent = session.TotalSize <= 0
+            ? 0m
+            : Math.Round(uploadedBytes * 100m / session.TotalSize, 2, MidpointRounding.AwayFromZero);
+
+        if (progressPercent > 100m)
+        {
+            progressPercent = 100m;
+        }
+
         return new UploadSessionDto
         {
             Id = session.Id,
@@ -522,7 +539,43 @@ public class FileCenterChunkUploadService : IFileCenterChunkUploadService, ITran
             Status = session.Status,
             ExpirationTime = session.ExpirationTime,
             FileNodeId = session.FileNodeId,
-            UploadedChunks = session.GetUploadedChunks()
+            UploadedChunks = uploadedChunks,
+            UploadedChunkCount = uploadedChunks.Count,
+            UploadedBytes = uploadedBytes,
+            ProgressPercent = progressPercent,
+            IsRetryable = session.Status == UploadSessionStatus.Pending,
+            StatusReason = GetStatusReason(session.Status),
+            FailureReason = GetFailureReason(session.Status),
+            NextAction = GetNextAction(session.Status)
+        };
+    }
+
+    private static string GetStatusReason(UploadSessionStatus status)
+    {
+        return status switch
+        {
+            UploadSessionStatus.Pending => "WaitingForChunks",
+            UploadSessionStatus.Completed => "Completed",
+            UploadSessionStatus.Cancelled => "Cancelled",
+            _ => "Unknown"
+        };
+    }
+
+    private static string? GetFailureReason(UploadSessionStatus status)
+    {
+        return status == UploadSessionStatus.Cancelled
+            ? "Cancelled"
+            : null;
+    }
+
+    private static string GetNextAction(UploadSessionStatus status)
+    {
+        return status switch
+        {
+            UploadSessionStatus.Pending => "UploadMissingChunks",
+            UploadSessionStatus.Completed => "OpenFile",
+            UploadSessionStatus.Cancelled => "StartNewUploadSession",
+            _ => "StartNewUploadSession"
         };
     }
 
