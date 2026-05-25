@@ -1,0 +1,15 @@
+{
+  "caseId": "API-UploadSession-05",
+  "description": "取消后继续上传/完成应返回专用 409 业务错误码。",
+  "request": { "method": "PUT", "path": "/api/file-center/upload-sessions/11111111-1111-1111-1111-111111111111/chunks/1" },
+  "error": {
+    "httpStatus": 409,
+    "code": "PrivateCloudDrive:FileCenter:000033",
+    "message": "Upload session has been cancelled. Start a new upload session."
+  },
+  "assertions": [
+    { "field": "error.code", "expected": "PrivateCloudDrive:FileCenter:000033" },
+    { "field": "error.httpStatus", "expected": 409 },
+    { "field": "nextAction", "expected": "StartNewUploadSession" }
+  ]
+}

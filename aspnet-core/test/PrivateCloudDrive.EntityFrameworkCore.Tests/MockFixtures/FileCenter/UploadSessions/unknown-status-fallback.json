@@ -1,0 +1,22 @@
+{
+  "caseId": "API-UploadSession-06",
+  "description": "客户端收到未知 statusReason/nextAction 时应按开放字符串兜底，不因封闭 enum 解析失败。",
+  "request": { "method": "GET", "path": "/api/file-center/upload-sessions/11111111-1111-1111-1111-111111111111" },
+  "response": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "status": "Pending",
+    "uploadedChunks": [0],
+    "uploadedChunkCount": 1,
+    "uploadedBytes": 5242880,
+    "progressPercent": 50,
+    "isRetryable": true,
+    "statusReason": "PausedByServerPolicy",
+    "failureReason": "Server throttled upload queue for this tenant.",
+    "nextAction": "ContactSupport"
+  },
+  "assertions": [
+    { "field": "statusReason", "expected": "PausedByServerPolicy", "rule": "open-string-fallback" },
+    { "field": "nextAction", "expected": "ContactSupport", "rule": "open-string-fallback" },
+    { "field": "failureReason", "expected": "Server throttled upload queue for this tenant." }
+  ]
+}
