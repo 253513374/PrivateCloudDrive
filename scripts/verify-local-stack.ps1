@@ -225,6 +225,70 @@ function Test-EnvConfiguration {
     }
 }
 
+
+function Get-EnvOrDotEnvValue {
+    param(
+        [hashtable]$DotEnvValues,
+        [string]$Name,
+        [string]$Default = ""
+    )
+
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    if (-not [string]::IsNullOrWhiteSpace($value)) {
+        return $value
+    }
+
+    if ($DotEnvValues.ContainsKey($Name) -and -not [string]::IsNullOrWhiteSpace($DotEnvValues[$Name])) {
+        return $DotEnvValues[$Name]
+    }
+
+    return $Default
+}
+
+function Test-QaTestAccountConfiguration {
+    $envPath = Join-Path (Get-Location) ".env"
+    $envValues = Read-DotEnvKeys $envPath
+
+    $enabled = Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_ENABLED" "false"
+    $userName = Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_USER_NAME" "qa_user"
+    $altUserName = Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_ALT_USER_NAME" "qa_user_alt"
+    $roleName = Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_ROLE" "QA.Tester"
+    $passwordFile = Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_PASSWORD_FILE" ""
+    $secretId = Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_SECRET_ID" ""
+    $rotatedAt = Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_ROTATED_AT" "unknown"
+    $passwordPresent = -not [string]::IsNullOrWhiteSpace((Get-EnvOrDotEnvValue $envValues "PCD_QA_TEST_ACCOUNT_PASSWORD" ""))
+    $passwordFilePresent = -not [string]::IsNullOrWhiteSpace($passwordFile) -and (Test-Path $passwordFile)
+
+    if ([string]::IsNullOrWhiteSpace($secretId)) {
+        if ($passwordFilePresent) {
+            $secretId = $passwordFile
+        }
+        elseif ($passwordPresent) {
+            $secretId = "env:PCD_QA_TEST_ACCOUNT_PASSWORD"
+        }
+        else {
+            $secretId = "unset"
+        }
+    }
+
+    if ($enabled -notmatch "^(?i:true|1|yes)$") {
+        Add-CheckResult "WARN" "qa-test-account" ("disabled; user={0}; alt_user={1}; role={2}; secret_id={3}; rotated_at={4}; sanitized=true" -f $userName, $altUserName, $roleName, $secretId, $rotatedAt)
+        return
+    }
+
+    if ([string]::IsNullOrWhiteSpace($userName) -or [string]::IsNullOrWhiteSpace($altUserName) -or [string]::IsNullOrWhiteSpace($roleName)) {
+        Add-CheckResult "FAIL" "qa-test-account" "missing username, alternate username, or role; sanitized=true"
+        return
+    }
+
+    if (-not $passwordPresent -and -not $passwordFilePresent) {
+        Add-CheckResult "FAIL" "qa-test-account" ("secret missing; user={0}; alt_user={1}; role={2}; secret_id={3}; rotated_at={4}; sanitized=true" -f $userName, $altUserName, $roleName, $secretId, $rotatedAt)
+        return
+    }
+
+    Add-CheckResult "PASS" "qa-test-account" ("ready; user={0}; alt_user={1}; role={2}; secret_id={3}; rotated_at={4}; sanitized=true" -f $userName, $altUserName, $roleName, $secretId, $rotatedAt)
+}
+
 function Test-ContainerHealthy {
     param([string]$Service)
 
@@ -332,6 +396,7 @@ if ($FailCount -eq 0) {
 }
 
 Test-EnvConfiguration
+Test-QaTestAccountConfiguration
 
 if (-not $PreflightOnly -and $FailCount -eq 0) {
     if (-not $SkipStart) {
