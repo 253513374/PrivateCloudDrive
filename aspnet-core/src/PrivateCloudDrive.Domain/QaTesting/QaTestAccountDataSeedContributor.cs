@@ -73,7 +73,7 @@ public class QaTestAccountDataSeedContributor : IDataSeedContributor, ITransient
         }
 
         await _permissionDataSeeder.SeedAsync(
-            "R",
+            RolePermissionValueProvider.ProviderName,
             QaTestAccountConsts.RoleName,
             QaTestAccountConsts.GrantedPermissions);
 
