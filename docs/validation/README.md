@@ -2,6 +2,13 @@
 
 本目录存放 PrivateCloudDrive 发布验收、移动端可见性验证、备份恢复演练、后端测试与 Kanban 复核证据。发布提交只保留可复核、可公开、体积可控的摘要证据；完整原始输出保留为本地 ignored 文件或 CI artifact。
 
+## 发布/验收入口
+
+| 文档 | 用途 |
+| --- | --- |
+| [android-backup-release-evidence.md](android-backup-release-evidence.md) | Android 备份闭环 D7 发布证据包入口；汇总备份入口、照片/文件备份、队列/失败重试、下载/预览、删除/恢复、容量/健康、恢复说明、隐私边界和真机待增强项。 |
+| `daily-acceptance-20260523-review-*/validation-evidence-index.md` | D7 daily acceptance 复核索引；发布闸门引用其中 `Status: PASS` 与 `Sensitive findings: 0`。 |
+
 ## 可进入 Git 的证据
 
 | 类型 | 提交口径 |
