@@ -5,3 +5,4 @@ raw-*.log
 *-full-logcat.log
 scan-exports/
 ci-artifacts/
+daily-acceptance-*/

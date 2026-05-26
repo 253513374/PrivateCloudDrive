@@ -24,8 +24,9 @@ SENSITIVE_RULES: tuple[tuple[str, re.Pattern[str], str], ...] = (
     ("cookie", re.compile(r"(?i)\b(?:cookie|session[_-]?cookie|set-cookie)\b\s*[:=]\s*[^\s,;]+"), "[REDACTED_COOKIE]"),
     ("public_share_url", re.compile(r"(?i)(?:public[_-]?share[_-]?url\s*[:=]\s*)?https?://[^\s)\]}>\"']*(?:/(?:s|share|public)/|share/public/)[^\s)\]}>\"']+"), "[REDACTED_SHARE_URL]"),
     ("client_secret", re.compile(r"(?i)\bclient_secret\b\s*[:=]\s*[^\s,;]+"), "[REDACTED_SECRET]"),
-    ("password", re.compile(r"(?i)\b(?:password|passwd|pwd)\b\s*[:=]\s*[^\s,;]+"), "[REDACTED_SECRET]"),
+    ("password", re.compile(r"(?i)\b(?:password|passwd|pwd)\b\s*[:=]\s*[\"']?(?!(?:false|true|null)\b)[^\s,;\"']+"), "[REDACTED_SECRET]"),
 )
+
 
 @dataclass(frozen=True)
 class Finding:
@@ -57,12 +58,13 @@ def is_generated_daily_acceptance(path: Path, validation_dir: Path) -> bool:
 
 def iter_text_files(validation_dir: Path) -> Iterable[Path]:
     if not validation_dir.exists():
-        return []
+        raise FileNotFoundError(f"Validation evidence directory not found: {validation_dir}")
     files: list[Path] = []
     for path in validation_dir.rglob("*"):
         if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES and not is_generated_daily_acceptance(path, validation_dir):
             files.append(path)
     return sorted(files)
+
 
 # Compatibility name used by earlier regression tests.
 def iter_validation_evidence_files(validation_root: Path) -> Iterable[Path]:
@@ -80,7 +82,7 @@ def stable_report_path(repo_root: Path, validation_dir: Path, path: Path) -> str
     if resolved.is_relative_to(repo_root_resolved):
         return resolved.relative_to(repo_root_resolved).as_posix()
     if resolved.is_relative_to(validation_dir_resolved):
-        return Path("docs/validation") .joinpath(resolved.relative_to(validation_dir_resolved)).as_posix()
+        return Path("docs/validation").joinpath(resolved.relative_to(validation_dir_resolved)).as_posix()
     return path.name
 
 
@@ -108,14 +110,10 @@ def scan_text(text: str, relative_path: str) -> list[Finding]:
                 findings.append(Finding(relative_path, line_no, rule, redact(line.strip())[:240]))
     return findings
 
+
 # Compatibility name used by earlier regression tests.
 def scan_text_for_sensitive_data(path: str, text: str) -> list[Finding]:
     return scan_text(text, path)
-
-
-def scan_sensitive_file(path: Path) -> list[dict]:
-    text = path.read_text(encoding="utf-8", errors="replace")
-    return [finding.__dict__ for finding in scan_text(text, path.as_posix())]
 
 
 def classify_evidence(path: Path) -> str:
@@ -160,16 +158,18 @@ def build_outputs(repo_root: Path, run_id: str, date: str, validation_root: Path
             text = ""
         stat = path.stat()
         counts = status_counts(text)
-        evidence.append({
-            "path": relative,
-            "type": classify_evidence(path),
-            "evidence_domain": evidence_domain(path),
-            "tracked": relative in tracked_paths,
-            "size_bytes": stat.st_size,
-            "modified_at_utc": datetime.fromtimestamp(stat.st_mtime, timezone.utc).replace(microsecond=0).isoformat(),
-            "status_counts": counts,
-            "status_summary": ", ".join(f"{word}={counts[word]}" for word in STATUS_WORDS if counts[word]) or "no PASS/WARN/FAIL markers",
-        })
+        evidence.append(
+            {
+                "path": relative,
+                "type": classify_evidence(path),
+                "evidence_domain": evidence_domain(path),
+                "tracked": relative in tracked_paths,
+                "size_bytes": stat.st_size,
+                "modified_at_utc": datetime.fromtimestamp(stat.st_mtime, timezone.utc).replace(microsecond=0).isoformat(),
+                "status_counts": counts,
+                "status_summary": ", ".join(f"{word}={counts[word]}" for word in STATUS_WORDS if counts[word]) or "no PASS/WARN/FAIL markers",
+            }
+        )
         findings.extend(scan_text(text, relative))
     scan = {"schema_version": 1, "status": "FAIL" if findings else "PASS", "finding_count": len(findings), "findings": [finding.__dict__ for finding in findings]}
     totals = {
@@ -181,7 +181,24 @@ def build_outputs(repo_root: Path, run_id: str, date: str, validation_root: Path
         "FAIL": sum(item["status_counts"]["FAIL"] for item in evidence),
         "sensitive_findings": len(findings),
     }
-    index = {"schema_version": 1, "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(), "run_id": run_id, "safe_run_id": safe_run_id, "date": date, "status": "FAIL" if findings else "PASS", "finding_count": len(findings), "output_dir": output_name, "evidence_count": len(evidence), "totals": totals, "evidence": evidence, "entries": evidence, "sensitive_scan": scan}
+    index = {
+        "schema_version": 1,
+        "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "run_id": run_id,
+        "safe_run_id": safe_run_id,
+        "date": date,
+        "status": "FAIL" if findings else "PASS",
+        "finding_count": len(findings),
+        "output_dir": output_name,
+        "evidence_count": len(evidence),
+        "totals": totals,
+        "evidence": evidence,
+        "sensitive_scan_summary": {
+            "status": scan["status"],
+            "finding_count": scan["finding_count"],
+            "artifact": "sensitive-scan.json",
+        },
+    }
     return index, scan, output_name
 
 
@@ -189,16 +206,31 @@ def write_outputs(index: dict, scan: dict, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "validation-evidence-index.json").write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (output_dir / "sensitive-scan.json").write_text(json.dumps(scan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    index_lines = ["# Validation Evidence Index", "", f"- Run ID: `{index['run_id']}`", f"- Date: `{index['date']}`", f"- Daily acceptance artifact: `{index['output_dir']}`", f"- Status: **{index['status']}**", f"- Evidence files: {index['evidence_count']}", f"- Sensitive findings: {index['finding_count']}", "", "## Evidence", "", "| Path | Type | Tracked | PASS | WARN | FAIL | Size |", "| --- | --- | --- | ---: | ---: | ---: | ---: |"]
+    index_lines = [
+        "# Validation Evidence Index",
+        "",
+        f"- Run ID: `{index['run_id']}`",
+        f"- Date: `{index['date']}`",
+        f"- Daily acceptance artifact: `{index['output_dir']}`",
+        f"- Status: **{index['status']}**",
+        f"- Evidence files: {index['evidence_count']}",
+        f"- Sensitive findings: {index['finding_count']}",
+        "",
+        "## Evidence",
+        "",
+        "| Path | Type | Tracked | PASS | WARN | FAIL | Size |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: |",
+    ]
     for item in index["evidence"]:
         counts = item["status_counts"]
         index_lines.append(f"| `{item['path']}` | {item['type']} | {item['tracked']} | {counts['PASS']} | {counts['WARN']} | {counts['FAIL']} | {item['size_bytes']} |")
     (output_dir / "validation-evidence-index.md").write_text("\n".join(index_lines) + "\n", encoding="utf-8")
+
     scan_lines = ["# Sensitive Scan Summary", "", f"- Status: {scan['status']}", f"- Finding count: {scan['finding_count']}", ""]
     if scan["findings"]:
         scan_lines.extend(["| Rule | Path | Line | Redacted excerpt |", "| --- | --- | ---: | --- |"])
         for finding in scan["findings"]:
-            excerpt = finding["redacted_excerpt"].replace("|", "\\|")
+            excerpt = finding["redacted_excerpt"].replace("|", "\\|").replace("`", "\\`")
             scan_lines.append(f"| {finding['rule']} | `{finding['path']}` | {finding['line']} | `{excerpt}` |")
     else:
         scan_lines.append("No token, cookie, password/client secret, or complete share URL findings.")
@@ -227,15 +259,20 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     repo_root = Path(args.repo_root).resolve()
-    index = build_validation_evidence_index(
-        repo_root,
-        args.run_id,
-        date=args.date,
-        output_root=Path(args.output_root) if args.output_root else None,
-        validation_root=Path(args.validation_root) if args.validation_root else None,
-    )
-    print(f"validation_evidence_index output={index['output_dir']} status={index['status']} evidence_count={index['evidence_count']} finding_count={index['sensitive_scan']['finding_count']}")
-    return 2 if index["sensitive_scan"]["finding_count"] else 0
+    try:
+        index = build_validation_evidence_index(
+            repo_root,
+            args.run_id,
+            date=args.date,
+            output_root=Path(args.output_root) if args.output_root else None,
+            validation_root=Path(args.validation_root) if args.validation_root else None,
+        )
+    except FileNotFoundError as exception:
+        print(f"validation_evidence_index error={exception}", file=sys.stderr)
+        return 1
+    print(f"validation_evidence_index output={index['output_dir']} status={index['status']} evidence_count={index['evidence_count']} finding_count={index['finding_count']}")
+    return 2 if index["finding_count"] else 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

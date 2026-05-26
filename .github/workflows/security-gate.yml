@@ -1,0 +1,47 @@
+name: Security Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validation-evidence-sensitive-data:
+    name: Validation evidence sensitive-data gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Run validation evidence sensitive-data gate
+        run: |
+          python scripts/validation_evidence_index.py \
+            --run-id "github-${{ github.run_id }}" \
+            --date "$(date -u +%Y%m%d)"
+
+      - name: Upload validation evidence gate artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: validation-evidence-sensitive-data-gate-${{ github.run_id }}
+          path: docs/validation/daily-acceptance-*github-${{ github.run_id }}/
+          if-no-files-found: warn
+          retention-days: 14
