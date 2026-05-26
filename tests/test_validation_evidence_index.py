@@ -31,6 +31,14 @@ def test_pass_status_line_is_not_reported_as_password_secret():
     assert findings == []
 
 
+def test_boolean_password_attributes_are_not_reported_as_secrets():
+    text = 'password="false"\npassword: false\npassword = true\n'
+
+    findings = scan_text_for_sensitive_data("docs/validation/android-logcat.log", text)
+
+    assert findings == []
+
+
 def test_android_log_transition_token_is_not_reported_as_access_token():
     text = "05-22 WindowManager: token=WCT{RemoteToken{abc123}} transition ok\n"
 

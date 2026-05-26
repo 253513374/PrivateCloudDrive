@@ -24,7 +24,7 @@ SENSITIVE_RULES: tuple[tuple[str, re.Pattern[str], str], ...] = (
     ("cookie", re.compile(r"(?i)\b(?:cookie|session[_-]?cookie|set-cookie)\b\s*[:=]\s*[^\s,;]+"), "[REDACTED_COOKIE]"),
     ("public_share_url", re.compile(r"(?i)(?:public[_-]?share[_-]?url\s*[:=]\s*)?https?://[^\s)\]}>\"']*(?:/(?:s|share|public)/|share/public/)[^\s)\]}>\"']+"), "[REDACTED_SHARE_URL]"),
     ("client_secret", re.compile(r"(?i)\bclient_secret\b\s*[:=]\s*[^\s,;]+"), "[REDACTED_SECRET]"),
-    ("password", re.compile(r"(?i)\b(?:password|passwd|pwd)\b\s*[:=]\s*[^\s,;]+"), "[REDACTED_SECRET]"),
+    ("password", re.compile(r"(?i)\b(?:password|passwd|pwd)\b\s*[:=]\s*[\"']?(?!(?:false|true|null)\b)[^\s,;\"']+"), "[REDACTED_SECRET]"),
 )
 
 
