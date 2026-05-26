@@ -50,3 +50,40 @@ jobs:
           path: docs/validation/daily-acceptance-*github-${{ github.run_id }}/
           if-no-files-found: warn
           retention-days: 14
+
+  public-secret-log-scan:
+    name: Public repo secret/log scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run redacted secret/log gate
+        run: python scripts/secret-log-scan.py --archive-ref HEAD
+
+      - name: Verify local env files are not tracked
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-files -- .env .env.secret '.env.*' | grep -Ev '(^|/)\.env\.example$' | grep -q .; then
+            echo 'Tracked local environment file detected; remove it from Git.' >&2
+            git ls-files -- .env .env.secret '.env.*' | grep -Ev '(^|/)\.env\.example$' >&2
+            exit 1
+          fi
+          echo 'PASS: no tracked local env files.'
+
+      - name: Verify release archive excludes local env/private key files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive --format=tar HEAD | tar -tf - |
+            grep -Ei '(^|/)\.env(\.|$)|\.(pem|key|pfx|p12|keystore)$' |
+            grep -Ev '(^|/)\.env\.example$' > /tmp/blocked-archive-paths.txt || true
+          if [ -s /tmp/blocked-archive-paths.txt ]; then
+            echo 'Release archive contains blocked env/private-key path(s):' >&2
+            cat /tmp/blocked-archive-paths.txt >&2
+            exit 1
+          fi
+          echo 'PASS: release archive excludes local env/private-key files.'
