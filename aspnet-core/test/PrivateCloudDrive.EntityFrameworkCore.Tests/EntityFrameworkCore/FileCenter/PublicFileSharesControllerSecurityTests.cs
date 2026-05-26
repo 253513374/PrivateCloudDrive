@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using PrivateCloudDrive.Controllers.FileCenter;
 using PrivateCloudDrive.FileCenter;
 using Shouldly;
+using Volo.Abp;
 using Xunit;
 
 namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
@@ -47,6 +48,20 @@ public class PublicFileSharesControllerSecurityTests
 
         attribute.ShouldNotBeNull();
         attribute!.PolicyName.ShouldBe("PublicSharePassword");
+    }
+
+    [Fact]
+    public void Public_Share_AppService_Should_Not_Be_Exposed_As_Conventional_Controller()
+    {
+        var interfaceAttribute = typeof(IFileCenterPublicSharesAppService)
+            .GetCustomAttribute<RemoteServiceAttribute>();
+        var implementationAttribute = typeof(FileCenterPublicSharesAppService)
+            .GetCustomAttribute<RemoteServiceAttribute>();
+
+        interfaceAttribute.ShouldNotBeNull();
+        interfaceAttribute!.IsEnabled.ShouldBeFalse();
+        implementationAttribute.ShouldNotBeNull();
+        implementationAttribute!.IsEnabled.ShouldBeFalse();
     }
 
     private sealed class StubPublicSharesAppService : IFileCenterPublicSharesAppService

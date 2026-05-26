@@ -121,7 +121,6 @@ def test_generates_daily_acceptance_index_and_json_with_tracked_state_and_metada
 
     result = run_script(repo)
 
-
     assert result.returncode == 0, result.stderr + result.stdout
     output_dir = validation / "daily-acceptance-20260522-unit"
     index_json = json.loads((output_dir / "validation-evidence-index.json").read_text(encoding="utf-8"))

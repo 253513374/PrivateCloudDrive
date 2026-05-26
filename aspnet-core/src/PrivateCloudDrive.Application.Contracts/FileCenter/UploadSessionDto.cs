@@ -35,4 +35,18 @@ public class UploadSessionDto
     public Guid? FileNodeId { get; set; }
 
     public IReadOnlyList<int> UploadedChunks { get; set; } = new List<int>();
+
+    public int UploadedChunkCount { get; set; }
+
+    public long UploadedBytes { get; set; }
+
+    public decimal ProgressPercent { get; set; }
+
+    public bool IsRetryable { get; set; }
+
+    public string StatusReason { get; set; } = "Unknown";
+
+    public string? FailureReason { get; set; }
+
+    public string NextAction { get; set; } = "StartNewUploadSession";
 }
