@@ -64,6 +64,32 @@ public class PublicFileSharesControllerSecurityTests
         implementationAttribute!.IsEnabled.ShouldBeFalse();
     }
 
+    [Theory]
+    [InlineData(nameof(IFileCenterPublicSharesAppService.GetAsync), new[] { typeof(string) })]
+    [InlineData(nameof(IFileCenterPublicSharesAppService.VerifyPasswordAsync), new[] { typeof(string), typeof(VerifySharePasswordInput) })]
+    [InlineData(nameof(IFileCenterPublicSharesAppService.GetDownloadAsync), new[] { typeof(string), typeof(string), typeof(CancellationToken) })]
+    [InlineData(nameof(IFileCenterPublicSharesAppService.GetDownloadAsync), new[] { typeof(string), typeof(string), typeof(FileDownloadRangeRequest), typeof(CancellationToken) })]
+    public void Public_Share_AppService_Methods_Should_Not_Be_Exposed_As_Conventional_Controller(
+        string methodName,
+        Type[] parameterTypes)
+    {
+        var interfaceMethod = typeof(IFileCenterPublicSharesAppService).GetMethod(methodName, parameterTypes);
+        var implementationMethod = typeof(FileCenterPublicSharesAppService).GetMethod(methodName, parameterTypes);
+
+        interfaceMethod.ShouldNotBeNull();
+        implementationMethod.ShouldNotBeNull();
+        AssertRemoteServiceDisabled(interfaceMethod!);
+        AssertRemoteServiceDisabled(implementationMethod!);
+    }
+
+    private static void AssertRemoteServiceDisabled(MethodInfo method)
+    {
+        var attribute = method.GetCustomAttributes<RemoteServiceAttribute>(inherit: false).SingleOrDefault();
+
+        attribute.ShouldNotBeNull();
+        attribute!.IsEnabled.ShouldBeFalse();
+    }
+
     private sealed class StubPublicSharesAppService : IFileCenterPublicSharesAppService
     {
         public Task<PublicFileShareDto> GetAsync(string token)

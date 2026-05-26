@@ -316,6 +316,7 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
     /// <summary>
     /// 根据分享 token 获取公开分享信息；如分享设置密码，则不会返回可下载内容。
     /// </summary>
+    [RemoteService(false)]
     public virtual async Task<PublicFileShareDto> GetAsync(string token)
     {
         var (share, node) = await GetShareAndNodeAsync(token);
@@ -333,6 +334,7 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
     /// <summary>
     /// 校验分享密码，成功后返回可访问的分享信息。明文密码只用于本次哈希比对。
     /// </summary>
+    [RemoteService(false)]
     public virtual async Task<PublicFileShareDto> VerifyPasswordAsync(string token, VerifySharePasswordInput input)
     {
         var (share, node) = await GetShareAndNodeAsync(token);
@@ -347,6 +349,7 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
     /// <summary>
     /// 获取公开分享文件的下载流；仅文件分享且允许下载时可用。
     /// </summary>
+    [RemoteService(false)]
     public virtual async Task<FileDownloadInfo> GetDownloadAsync(
         string token,
         string? password = null,
@@ -355,6 +358,7 @@ public class FileCenterPublicSharesAppService : FileCenterAppService, IFileCente
         return await GetDownloadAsync(token, password, range: null, cancellationToken);
     }
 
+    [RemoteService(false)]
     public virtual async Task<FileDownloadInfo> GetDownloadAsync(
         string token,
         string? password,
