@@ -29,6 +29,11 @@
 4. 大体积快照若未裁剪即进入暂存或提交，release gate = FAIL；仅作为 ignored/CI artifact 时不阻断。
 5. 每次发布前至少执行 `git diff --check`，并对本目录文本证据执行敏感信息扫描；扫描脚本可使用 `scripts/validation_evidence_index.py` 生成 manifest 与摘要。
 
+## 当前 Android 最终可见验收包
+
+- D7 Android 最终可见验收报告：`android-final-visible-acceptance-2026-05-26.md`。
+- 该报告替代 `android-backup-evidence-t_3399b1c7/README.md` 中旧的登录后截图阻塞说明，并统一引用 slice1～slice5 截图、logcat 摘要和后端 DR smoke 证据。
+
 ## Validation evidence index / sensitive-data gate
 
 `scripts/validation_evidence_index.py` 用于生成每日验收证据索引和敏感信息扫描摘要。
