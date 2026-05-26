@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [android-backup-release-evidence.md](android-backup-release-evidence.md) | Android 备份闭环 D7 发布证据包入口；汇总备份入口、照片/文件备份、队列/失败重试、下载/预览、删除/恢复、容量/健康、恢复说明、隐私边界和真机待增强项。 |
+| [d7-release-gate-review-20260526.md](d7-release-gate-review-20260526.md) | 芮发布（release-manager）对 PR #26 的 D7 发布闸门复核：Android 证据包 GO，总发布因 PR 未合入和 GitHub Actions 外部/账号故障保持 HOLD。 |
 | `daily-acceptance-20260523-review-*/validation-evidence-index.md` | D7 daily acceptance 复核索引；发布闸门引用其中 `Status: PASS` 与 `Sensitive findings: 0`。 |
 
 ## 可进入 Git 的证据
