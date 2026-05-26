@@ -97,6 +97,16 @@ def test_json_yaml_and_csv_validation_evidence_are_scanned(tmp_path):
     assert scanned == ["evidence.csv", "evidence.json", "evidence.xml", "evidence.yaml", "evidence.yml"]
 
 
+def test_missing_validation_directory_fails_closed(tmp_path):
+    repo = tmp_path
+    init_repo(repo)
+
+    result = run_script(repo)
+
+    assert result.returncode == 1
+    assert "Validation evidence directory not found" in result.stderr
+
+
 def test_generates_daily_acceptance_index_and_json_with_tracked_state_and_metadata(tmp_path):
     repo = tmp_path
     init_repo(repo)
@@ -110,6 +120,7 @@ def test_generates_daily_acceptance_index_and_json_with_tracked_state_and_metada
     subprocess.run(["git", "commit", "-m", "seed evidence"], cwd=repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     result = run_script(repo)
+
 
     assert result.returncode == 0, result.stderr + result.stdout
     output_dir = validation / "daily-acceptance-20260522-unit"
@@ -163,3 +174,20 @@ def test_sensitive_scan_json_contains_only_redacted_finding_shape(tmp_path):
         assert raw_value not in serialized
     for finding in scan["findings"]:
         assert set(finding) == {"path", "line", "rule", "redacted_excerpt"}
+
+
+def test_sensitive_scan_markdown_escapes_backticks(tmp_path):
+    repo = tmp_path
+    init_repo(repo)
+    validation = repo / "docs" / "validation"
+    validation.mkdir(parents=True)
+    evidence = validation / "backtick-share.md"
+    evidence.write_text("password = `PassValue123`\n", encoding="utf-8")
+
+    result = run_script(repo, "backticks")
+
+    assert result.returncode == 2
+    output_dir = validation / "daily-acceptance-20260522-backticks"
+    markdown = (output_dir / "sensitive-scan.md").read_text(encoding="utf-8")
+    assert "`PassValue123`" not in markdown
+    assert "[REDACTED_SECRET]" in markdown

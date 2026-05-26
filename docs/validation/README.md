@@ -18,7 +18,7 @@
 | --- | --- |
 | 原始 logcat、模拟器 dump、服务端全量日志 | 保留为 ignored local artifact 或 CI artifact；提交前裁剪为公开摘要。 |
 | 大体积 Kanban/team 快照，例如 `team-capability-kanban-snapshot-*.json` | 默认不纳入发布提交；如确需复核，先裁剪成小型 Markdown/JSON 摘要。 |
-| 完整扫描导出 | 放 CI artifact；Git 中只保留脱敏摘要。 |
+| 完整扫描导出 | 放 CI artifact；Git 中只保留人工整理过的脱敏摘要。 |
 | 凭据、认证令牌、Cookie、账户口令、OAuth 客户端密钥、完整私有/分享 URL | 立即移除；如已暴露，需先撤销或轮换，再允许 release gate 继续。 |
 
 ## Release gate 结论规则
@@ -54,3 +54,5 @@ python scripts/validation_evidence_index.py --run-id local --date $(date -u +%Y%
 - `PASS: 14`、`WARN: 0`、`FAIL: 0` 等状态行只作为结果统计，不应被识别为 password 泄漏。
 
 CI 接入：`.github/workflows/security-gate.yml` 的 `Validation evidence sensitive-data gate` 步骤运行该脚本；无敏感命中时通过，有命中时以退出码 2 阻断。无论通过或失败，工作流都会上传 `docs/validation/daily-acceptance-*-${{ github.run_id }}/` 作为 artifact，保留 14 天。
+
+额外约定：`daily-acceptance-*` 目录属于脚本生成物，默认只作为本地临时输出或 CI artifact，不应直接提交到 Git。若需要把当次验收结果纳入仓库，应另行整理为人工审阅的 Markdown 摘要，并避免重复提交整份 JSON/MD 生成目录。

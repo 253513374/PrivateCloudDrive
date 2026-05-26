@@ -57,7 +57,7 @@ def is_generated_daily_acceptance(path: Path, validation_dir: Path) -> bool:
 
 def iter_text_files(validation_dir: Path) -> Iterable[Path]:
     if not validation_dir.exists():
-        return []
+        raise FileNotFoundError(f"Validation evidence directory not found: {validation_dir}")
     files: list[Path] = []
     for path in validation_dir.rglob("*"):
         if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES and not is_generated_daily_acceptance(path, validation_dir):
@@ -71,6 +71,17 @@ def iter_validation_evidence_files(validation_root: Path) -> Iterable[Path]:
 
 def repo_relative(repo_root: Path, path: Path) -> str:
     return path.resolve().relative_to(repo_root.resolve()).as_posix()
+
+
+def stable_report_path(repo_root: Path, validation_dir: Path, path: Path) -> str:
+    resolved = path.resolve()
+    repo_root_resolved = repo_root.resolve()
+    validation_dir_resolved = validation_dir.resolve()
+    if resolved.is_relative_to(repo_root_resolved):
+        return resolved.relative_to(repo_root_resolved).as_posix()
+    if resolved.is_relative_to(validation_dir_resolved):
+        return Path("docs/validation").joinpath(resolved.relative_to(validation_dir_resolved)).as_posix()
+    return path.name
 
 
 def git_tracked_paths(repo_root: Path) -> set[str]:
@@ -100,11 +111,6 @@ def scan_text(text: str, relative_path: str) -> list[Finding]:
 # Compatibility name used by earlier regression tests.
 def scan_text_for_sensitive_data(path: str, text: str) -> list[Finding]:
     return scan_text(text, path)
-
-
-def scan_sensitive_file(path: Path) -> list[dict]:
-    text = path.read_text(encoding="utf-8", errors="replace")
-    return [finding.__dict__ for finding in scan_text(text, path.as_posix())]
 
 
 def classify_evidence(path: Path) -> str:
@@ -142,7 +148,7 @@ def build_outputs(repo_root: Path, run_id: str, date: str, validation_root: Path
     evidence: list[dict] = []
     findings: list[Finding] = []
     for path in iter_text_files(validation_dir):
-        relative = repo_relative(repo_root, path) if path.resolve().is_relative_to(repo_root.resolve()) else path.as_posix()
+        relative = stable_report_path(repo_root, validation_dir, path)
         try:
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
@@ -170,7 +176,24 @@ def build_outputs(repo_root: Path, run_id: str, date: str, validation_root: Path
         "FAIL": sum(item["status_counts"]["FAIL"] for item in evidence),
         "sensitive_findings": len(findings),
     }
-    index = {"schema_version": 1, "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(), "run_id": run_id, "safe_run_id": safe_run_id, "date": date, "status": "FAIL" if findings else "PASS", "finding_count": len(findings), "output_dir": output_name, "evidence_count": len(evidence), "totals": totals, "evidence": evidence, "entries": evidence, "sensitive_scan": scan}
+    index = {
+        "schema_version": 1,
+        "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "run_id": run_id,
+        "safe_run_id": safe_run_id,
+        "date": date,
+        "status": "FAIL" if findings else "PASS",
+        "finding_count": len(findings),
+        "output_dir": output_name,
+        "evidence_count": len(evidence),
+        "totals": totals,
+        "evidence": evidence,
+        "sensitive_scan_summary": {
+            "status": scan["status"],
+            "finding_count": scan["finding_count"],
+            "artifact": "sensitive-scan.json",
+        },
+    }
     return index, scan, output_name
 
 
@@ -187,7 +210,7 @@ def write_outputs(index: dict, scan: dict, output_dir: Path) -> None:
     if scan["findings"]:
         scan_lines.extend(["| Rule | Path | Line | Redacted excerpt |", "| --- | --- | ---: | --- |"])
         for finding in scan["findings"]:
-            excerpt = finding["redacted_excerpt"].replace("|", "\\|")
+            excerpt = finding["redacted_excerpt"].replace("|", "\\|").replace("`", "\\`")
             scan_lines.append(f"| {finding['rule']} | `{finding['path']}` | {finding['line']} | `{excerpt}` |")
     else:
         scan_lines.append("No token, cookie, password/client secret, or complete share URL findings.")
@@ -216,15 +239,19 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     repo_root = Path(args.repo_root).resolve()
-    index = build_validation_evidence_index(
-        repo_root,
-        args.run_id,
-        date=args.date,
-        output_root=Path(args.output_root) if args.output_root else None,
-        validation_root=Path(args.validation_root) if args.validation_root else None,
-    )
-    print(f"validation_evidence_index output={index['output_dir']} status={index['status']} evidence_count={index['evidence_count']} finding_count={index['sensitive_scan']['finding_count']}")
-    return 2 if index["sensitive_scan"]["finding_count"] else 0
+    try:
+        index = build_validation_evidence_index(
+            repo_root,
+            args.run_id,
+            date=args.date,
+            output_root=Path(args.output_root) if args.output_root else None,
+            validation_root=Path(args.validation_root) if args.validation_root else None,
+        )
+    except FileNotFoundError as exception:
+        print(f"validation_evidence_index error={exception}", file=sys.stderr)
+        return 1
+    print(f"validation_evidence_index output={index['output_dir']} status={index['status']} evidence_count={index['evidence_count']} finding_count={index['finding_count']}")
+    return 2 if index["finding_count"] else 0
 
 if __name__ == "__main__":
     raise SystemExit(main())
