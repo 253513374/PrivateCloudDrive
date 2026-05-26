@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-05-23T08:20:13+00:00",
+  "run_id": "review-7",
+  "safe_run_id": "review-7",
+  "date": "20260523",
+  "status": "PASS",
+  "finding_count": 0,
+  "output_dir": "daily-acceptance-20260523-review-7",
+  "evidence_count": 9,
+  "totals": {
+    "files": 9,
+    "tracked": 9,
+    "untracked": 0,
+    "PASS": 54,
+    "WARN": 7,
+    "FAIL": 8,
+    "sensitive_findings": 0
+  },
+  "evidence": [
+    {
+      "path": "docs/validation/android-logcat-storage-trust-boundary-2026-05-18.log",
+      "type": "log-summary",
+      "evidence_domain": "mobile",
+      "tracked": true,
+      "size_bytes": 863,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 1,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "PASS=1"
+    },
+    {
+      "path": "docs/validation/backend-tests-2026-05-18.log",
+      "type": "log-summary",
+      "evidence_domain": "backend",
+      "tracked": true,
+      "size_bytes": 4243,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/backup-restore-destructive-test-stack-20260521-215020.md",
+      "type": "markdown-report",
+      "evidence_domain": "backup-restore",
+      "tracked": true,
+      "size_bytes": 3648,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 26,
+        "WARN": 2,
+        "FAIL": 1
+      },
+      "status_summary": "PASS=26, WARN=2, FAIL=1"
+    },
+    {
+      "path": "docs/validation/backup-restore-drill-20260518-193513.md",
+      "type": "markdown-report",
+      "evidence_domain": "backup-restore",
+      "tracked": true,
+      "size_bytes": 3012,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 16,
+        "WARN": 2,
+        "FAIL": 2
+      },
+      "status_summary": "PASS=16, WARN=2, FAIL=2"
+    },
+    {
+      "path": "docs/validation/kanban-t_4ab7e3d6-web-roster-entry-check.md",
+      "type": "markdown-report",
+      "evidence_domain": "validation",
+      "tracked": true,
+      "size_bytes": 5213,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 8,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "PASS=8"
+    },
+    {
+      "path": "docs/validation/maui-android-build-2026-05-18.log",
+      "type": "log-summary",
+      "evidence_domain": "mobile",
+      "tracked": true,
+      "size_bytes": 22545,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/pcd-real-backup-slice4.txt",
+      "type": "text-evidence",
+      "evidence_domain": "backup-restore",
+      "tracked": true,
+      "size_bytes": 147,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/pcd-retry-slice5.txt",
+      "type": "text-evidence",
+      "evidence_domain": "validation",
+      "tracked": true,
+      "size_bytes": 125,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/README.md",
+      "type": "markdown-report",
+      "evidence_domain": "validation",
+      "tracked": true,
+      "size_bytes": 3887,
+      "modified_at_utc": "2026-05-23T08:20:12+00:00",
+      "status_counts": {
+        "PASS": 3,
+        "WARN": 3,
+        "FAIL": 5
+      },
+      "status_summary": "PASS=3, WARN=3, FAIL=5"
+    }
+  ],
+  "entries": [
+    {
+      "path": "docs/validation/android-logcat-storage-trust-boundary-2026-05-18.log",
+      "type": "log-summary",
+      "evidence_domain": "mobile",
+      "tracked": true,
+      "size_bytes": 863,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 1,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "PASS=1"
+    },
+    {
+      "path": "docs/validation/backend-tests-2026-05-18.log",
+      "type": "log-summary",
+      "evidence_domain": "backend",
+      "tracked": true,
+      "size_bytes": 4243,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/backup-restore-destructive-test-stack-20260521-215020.md",
+      "type": "markdown-report",
+      "evidence_domain": "backup-restore",
+      "tracked": true,
+      "size_bytes": 3648,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 26,
+        "WARN": 2,
+        "FAIL": 1
+      },
+      "status_summary": "PASS=26, WARN=2, FAIL=1"
+    },
+    {
+      "path": "docs/validation/backup-restore-drill-20260518-193513.md",
+      "type": "markdown-report",
+      "evidence_domain": "backup-restore",
+      "tracked": true,
+      "size_bytes": 3012,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 16,
+        "WARN": 2,
+        "FAIL": 2
+      },
+      "status_summary": "PASS=16, WARN=2, FAIL=2"
+    },
+    {
+      "path": "docs/validation/kanban-t_4ab7e3d6-web-roster-entry-check.md",
+      "type": "markdown-report",
+      "evidence_domain": "validation",
+      "tracked": true,
+      "size_bytes": 5213,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 8,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "PASS=8"
+    },
+    {
+      "path": "docs/validation/maui-android-build-2026-05-18.log",
+      "type": "log-summary",
+      "evidence_domain": "mobile",
+      "tracked": true,
+      "size_bytes": 22545,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/pcd-real-backup-slice4.txt",
+      "type": "text-evidence",
+      "evidence_domain": "backup-restore",
+      "tracked": true,
+      "size_bytes": 147,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/pcd-retry-slice5.txt",
+      "type": "text-evidence",
+      "evidence_domain": "validation",
+      "tracked": true,
+      "size_bytes": 125,
+      "modified_at_utc": "2026-05-23T07:55:24+00:00",
+      "status_counts": {
+        "PASS": 0,
+        "WARN": 0,
+        "FAIL": 0
+      },
+      "status_summary": "no PASS/WARN/FAIL markers"
+    },
+    {
+      "path": "docs/validation/README.md",
+      "type": "markdown-report",
+      "evidence_domain": "validation",
+      "tracked": true,
+      "size_bytes": 3887,
+      "modified_at_utc": "2026-05-23T08:20:12+00:00",
+      "status_counts": {
+        "PASS": 3,
+        "WARN": 3,
+        "FAIL": 5
+      },
+      "status_summary": "PASS=3, WARN=3, FAIL=5"
+    }
+  ],
+  "sensitive_scan": {
+    "schema_version": 1,
+    "status": "PASS",
+    "finding_count": 0,
+    "findings": []
+  }
+}
