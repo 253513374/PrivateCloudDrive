@@ -167,6 +167,14 @@ MAUI 顺序构建：
 | [docs/disaster-recovery.md](docs/disaster-recovery.md) | 备份恢复与灾难恢复 Runbook、恢复验收清单、演练证据规范 |
 | [docs/ci-github-actions-setup.md](docs/ci-github-actions-setup.md) | GitHub Actions CI 启用说明、workflow scope 阻塞项和待提交 workflow |
 | [docs/testing.md](docs/testing.md) | 测试范围、验证命令和验收边界 |
+| [docs/release-notes-private-backup-d7.md](docs/release-notes-private-backup-d7.md) | Private Backup MVP D7 内部 RC 发布说明与阻塞项 |
+| [docs/release-gate-d7-decision-2026-05-26.md](docs/release-gate-d7-decision-2026-05-26.md) | D7 发布闸门裁决与复审入口 |
+| [docs/known-limitations.md](docs/known-limitations.md) | 已知限制、Not Now 范围和发布前复核清单 |
+| [docs/private-backup-d7-release-gate-2026-05-22.md](docs/private-backup-d7-release-gate-2026-05-22.md) | Private Backup 发布闸门、P0/P1/Not Now 口径 |
+| [docs/private-backup-trusted-loop-scenario-matrix-2026-05-22.md](docs/private-backup-trusted-loop-scenario-matrix-2026-05-22.md) | 手机备份可信闭环与异常状态矩阵 |
+| [docs/private-backup-d2-ux-blueprint-2026-05-22.md](docs/private-backup-d2-ux-blueprint-2026-05-22.md) | 备份中心、队列、恢复说明与 Android 验收截图 UX 蓝图 |
+| [docs/private-backup-storage-boundary-audit-2026-05-22.md](docs/private-backup-storage-boundary-audit-2026-05-22.md) | 存储 Provider、容量、生命周期和恢复范围审计 |
+| [docs/private-backup-privacy-trust-copy-2026-05-22.md](docs/private-backup-privacy-trust-copy-2026-05-22.md) | 隐私、数据位置、密钥边界和恢复责任文案 |
 | [docs/product-planning-hub.md](docs/product-planning-hub.md) | 内部产品规划中枢和版本决策依据 |
 | [docs/team-operating-model-private-backup.md](docs/team-operating-model-private-backup.md) | 多 Agent 公司组织架构与 Private Backup Sprint 作战模型 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献指南 |
@@ -229,6 +237,10 @@ Android Debug APK 手工验收建议使用完整嵌入程序集构建，避免 F
 ```powershell
 dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj -f net10.0-android -c Debug -p:EmbedAssembliesIntoApk=true -p:AndroidFastDeploymentType=None
 ```
+
+## 隐私、数据位置与恢复责任
+
+Private Backup MVP 的公开口径见 [隐私信任文案](docs/private-backup-privacy-trust-copy-2026-05-22.md)、[存储边界审计](docs/private-backup-storage-boundary-audit-2026-05-22.md) 与 [灾备 Runbook](docs/disaster-recovery.md)。简要原则：默认 FileSystem 部署的数据由 PostgreSQL + FileCenter storage volume 共同构成；手机缓存不能单独恢复服务器文件；Aliyun OSS bucket/object 需要云侧独立备份；当前 MVP 不承诺端到端加密或零知识加密。
 
 ## 安全与密钥边界
 

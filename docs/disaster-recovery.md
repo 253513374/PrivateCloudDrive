@@ -150,6 +150,17 @@ $env:COMPOSE_PROJECT_NAME = "pcd-drill-20260518"
 - access token、refresh token、OAuth code、微信/Google/GitHub access token。
 - 用户真实私密文件内容、完整公开分享 URL、可用于绕过权限的 Cookie/Header。
 
+## D7 回滚/DR 发布检查清单
+
+发布复审前请确认：
+
+- 默认恢复链路仍以 PostgreSQL + FileCenter storage volume + 匹配 `.env` 为最小集合。
+- 恢复 dry-run 先于任何破坏性恢复执行；生产恢复必须由管理员明确授权。
+- Aliyun OSS bucket/object 不在默认 `storage.tar.gz` 覆盖范围内，需云侧独立保护。
+- MinIO profile 仍为 Not Now / optional service 口径，除非完成 FileCenter Provider 级验证。
+- 验收报告只记录脱敏证据，不包含 `.env` 原文、token、cookie、AppSecret、AccessKey、完整分享 URL、真实 bucket/object key 或用户真实隐私文件内容。
+- 已知限制入口见 [known-limitations.md](known-limitations.md)，发布闸门入口见 [private-backup-d7-release-gate-2026-05-22.md](private-backup-d7-release-gate-2026-05-22.md)。
+
 ## 当前公开演练证据
 
 - `docs/validation/backup-restore-drill-20260518-193513.md`：已完成非破坏性备份 + 恢复 dry-run，PASS 14 / WARN 0 / FAIL 0；证明当前控制路径能生成并校验 `manifest.json`、`postgres.dump`、`storage.tar.gz` 和 `ENVIRONMENT-REQUIRED.md`。

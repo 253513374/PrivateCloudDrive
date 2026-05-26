@@ -48,7 +48,7 @@ V1 WeChat, Google, and GitHub login stay disabled by default. When enabling WeCh
 
 ## Backup and Restore Drill
 
-灾难恢复总入口见 [docs/disaster-recovery.md](disaster-recovery.md)。该 Runbook 定义数据资产、RPO/RTO 边界、恢复 dry-run、破坏性测试栈恢复、恢复后登录/文件/预览/分享验收清单，以及演练证据记录规范。
+灾难恢复总入口见 [docs/disaster-recovery.md](disaster-recovery.md)。该 Runbook 定义数据资产、RPO/RTO 边界、恢复 dry-run、破坏性测试栈恢复、恢复后登录/文件/预览/分享验收清单，以及演练证据记录规范。Provider、容量、生命周期和恢复范围的发布边界见 [private-backup-storage-boundary-audit-2026-05-22.md](private-backup-storage-boundary-audit-2026-05-22.md)；隐私、数据位置、密钥边界和恢复责任文案见 [private-backup-privacy-trust-copy-2026-05-22.md](private-backup-privacy-trust-copy-2026-05-22.md)。
 
 PrivateCloudDrive 的最小可恢复备份由三部分组成：
 
@@ -121,7 +121,7 @@ docker compose build
 docker compose --profile minio up -d
 ```
 
-The current default FileCenter storage still uses the local filesystem volume at `/app/storage`.
+The current default FileCenter storage still uses the local filesystem volume at `/app/storage`. MinIO must not be described as the default or already-delivered FileCenter Provider unless backend configuration, validation evidence, backup/restore handling, and documentation are all updated together.
 
 ## Optional Aliyun OSS
 

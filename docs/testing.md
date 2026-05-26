@@ -189,6 +189,17 @@ MVP 内测默认连接 Docker Compose API：Windows 为 `http://localhost:8080`�
 | 待执行 | Android | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
 | 待执行 | iOS | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
 
+## Private Backup D7 发布复审验证清单
+
+| 范围 | 命令/证据 | 通过标准 |
+| --- | --- | --- |
+| 文档包 | `README.md`、`docs/release-notes-private-backup-d7.md`、`docs/known-limitations.md`、`docs/disaster-recovery.md` | D7、D1 场景矩阵、D2 UX、存储边界、隐私文案和 DR 入口互相链接且口径一致 |
+| Android 可见证据 | QA 最终验收报告 + `docs/validation/screenshots/` | 登录、备份、失败重试、下载/预览、删除/恢复、容量/健康、恢复/隐私边界均有 PASS/WARN/FAIL |
+| 敏感信息 | `python scripts/validation_evidence_index.py --run-id <run> --date <yyyymmdd>`；`python scripts/secret-log-scan.py --include-working-tree` | 发布范围无未解释 secret/token/cookie/private URL finding |
+| CI / Security Gate | GitHub Actions main 最新 workflow | 绿灯，或 release-manager 记录可审计外部豁免 |
+| 本地栈 | `docker compose config --quiet`；`.\scripts\verify-local-stack.ps1 -PreflightOnly` | Compose 合法；本地/生产配置风险以 WARN/FAIL 明确输出 |
+| DR 回滚 | `docs/disaster-recovery.md` 清单与验证报告 | dry-run、破坏性测试栈恢复、恢复后 smoke 证据可追溯且脱敏 |
+
 ## 当前边界
 
 - 自动化测试主要集中在后端应用层、领域层和 EF Core 集成测试；MAUI 端目前以构建验证为主。
