@@ -14,7 +14,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-privateclouddrive}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-privateclouddrive}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - privateclouddrive_stack_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -26,7 +26,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - privateclouddrive_stack_redis_data:/data
     healthcheck:
@@ -44,6 +44,7 @@ services:
       Redis__Configuration: "redis:6379"
       StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
       OpenIddict__Applications__PrivateCloudDrive_Swagger__RootUrl: ${PUBLIC_URL:-http://localhost:8080}
+      OpenIddict__Applications__PrivateCloudDrive_App__ClientId: ${MOBILE_APP_CLIENT_ID:-PrivateCloudDrive_App}
       OpenIddict__Applications__PrivateCloudDrive_App__RedirectUri: "privateclouddrive://callback"
       OpenIddict__Applications__PrivateCloudDrive_App__PostLogoutRedirectUri: "privateclouddrive://callback"
     depends_on:
@@ -80,6 +81,7 @@ services:
       FileCenter__MediaProcessing__VideoThumbnailWidth: "320"
       BackgroundJobs__IsJobExecutionEnabled: "false"
       StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+      OpenIddict__Applications__PrivateCloudDrive_App__ClientId: ${MOBILE_APP_CLIENT_ID:-PrivateCloudDrive_App}
       MobileAuth__LoginRateLimit__EnablePasswordLoginRateLimit: ${PASSWORD_LOGIN_RATE_LIMIT_ENABLED:-true}
       MobileAuth__LoginRateLimit__MaxFailedAttempts: ${PASSWORD_LOGIN_RATE_LIMIT_MAX_FAILED_ATTEMPTS:-5}
       MobileAuth__LoginRateLimit__WindowMinutes: ${PASSWORD_LOGIN_RATE_LIMIT_WINDOW_MINUTES:-15}
@@ -113,7 +115,7 @@ services:
       Authentication__External__GitHub__Scope: ${GITHUB_SCOPE-}
       Authentication__External__GitHub__UsePkce: ${GITHUB_USE_PKCE:-true}
     ports:
-      - "8080:8080"
+      - "${API_HTTP_PORT:-8080}:8080"
     volumes:
       - privateclouddrive_stack_storage:/app/storage
     depends_on:
@@ -147,6 +149,7 @@ services:
       FileCenter__MediaProcessing__VideoThumbnailWidth: "320"
       BackgroundJobs__IsJobExecutionEnabled: "true"
       StringEncryption__DefaultPassPhrase: ${STRING_ENCRYPTION_PASSPHRASE:-change-this-32-character-secret}
+      OpenIddict__Applications__PrivateCloudDrive_App__ClientId: ${MOBILE_APP_CLIENT_ID:-PrivateCloudDrive_App}
     volumes:
       - privateclouddrive_stack_storage:/app/storage
     depends_on:
