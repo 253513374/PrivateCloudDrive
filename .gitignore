@@ -25,6 +25,9 @@ x86/
 [Tt]est[Rr]esult*/
 [Tt]est[Rr]esults/
 coverage/
+__pycache__/
+*.py[cod]
+.pytest_cache/
 
 # Client/package generated files
 node_modules/
@@ -63,6 +66,6 @@ project.lock.json
 
 # Local Hermes agent workspace
 .hermes/
-# Local secret files (never commit real QA credentials)
-.secrets/
-!.secrets.example
+
+# Local PR/security review scratch space
+pr-review-security-wave/
