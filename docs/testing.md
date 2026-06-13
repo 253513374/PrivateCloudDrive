@@ -58,6 +58,19 @@ V1.0 RC 本地栈健康检查：
 
 `verify-local-stack.ps1` 会输出 PASS/WARN/FAIL 汇总，覆盖 Docker、Compose 服务、`.env` 配置边界、PostgreSQL、Redis、db-migrator、API、media-worker、Swagger、存储目录、FFmpeg 和 FFprobe。验收记录中禁止记录密码、access token、refresh token、OAuth code、client secret 或 provider token。
 
+D7 Swagger JSON 与 Android 登录 smoke 自动化门禁：
+
+```bash
+COMPOSE_PROJECT_NAME=pcd_d7_smoke \
+  API_HTTP_PORT=18081 \
+  POSTGRES_PORT=15433 \
+  REDIS_PORT=16380 \
+  BUILD_IMAGES=0 \
+  bash scripts/smoke-compose-local.sh
+```
+
+该门禁会启动一次性 Compose 栈，校验 `/swagger/v1/swagger.json` 返回 200，并使用 `client_id=PrivateCloudDrive_App` 通过 `/connect/token` 执行账号密码登录 smoke；token 响应只验证字段存在，不打印 access token、refresh token 或密码。CI 可将 `BUILD_IMAGES=1` 作为源码变更后的完整镜像构建路径；本地复验可设置 `KEEP_STACK_ON_FAILURE=1` 保留失败现场。
+
 备份恢复与灾难恢复验收：
 
 ```powershell
