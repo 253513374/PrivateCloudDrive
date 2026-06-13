@@ -1,6 +1,7 @@
 param(
     [switch]$PreflightOnly,
     [switch]$SkipStart,
+    [switch]$BuildImages,
     [int]$TimeoutSeconds = 300,
     [string]$PublicUrl = "http://localhost:8080"
 )
@@ -400,9 +401,15 @@ Test-QaTestAccountConfiguration
 
 if (-not $PreflightOnly -and $FailCount -eq 0) {
     if (-not $SkipStart) {
-        $up = Invoke-External "docker" @("compose", "up", "-d", "--build")
+        $composeArguments = @("compose", "up", "-d")
+        if ($BuildImages) {
+            $composeArguments += "--build"
+        }
+
+        $up = Invoke-External "docker" $composeArguments
         if ($up.ExitCode -eq 0) {
-            Add-CheckResult "PASS" "compose-up" "Stack started or updated."
+            $composeMode = if ($BuildImages) { "docker compose up -d --build" } else { "docker compose up -d" }
+            Add-CheckResult "PASS" "compose-up" "$composeMode completed."
         }
         else {
             Add-CheckResult "FAIL" "compose-up" "Failed to start stack. Run docker compose logs for details."

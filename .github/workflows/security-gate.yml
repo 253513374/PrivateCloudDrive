@@ -17,23 +17,74 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validation-evidence-sensitive-data:
-    name: Validation evidence sensitive-data gate
+  python-gate-tests:
+    name: Python gate tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - name: Checkout without repository token
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:${GITHUB_REF}" || \
+            git fetch --no-tags --prune --depth=1 origin "${GITHUB_SHA}"
+          git checkout --detach "${GITHUB_SHA}" || git checkout --detach FETCH_HEAD
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
+      - name: Verify Python runtime
+        run: python3 --version
+
+      - name: Install Python test runner
+        run: python3 -m pip install pytest
+
+      - name: Run Python gate tests
+        run: python3 -m pytest -q tests
+
+  public-secret-log-scan:
+    name: Public repo secret/log scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: python-gate-tests
+
+    steps:
+      - name: Checkout without repository token
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:${GITHUB_REF}" || \
+            git fetch --no-tags --prune --depth=1 origin "${GITHUB_SHA}"
+          git checkout --detach "${GITHUB_SHA}" || git checkout --detach FETCH_HEAD
+
+      - name: Run redacted secret/log gate
+        run: python3 scripts/secret-log-scan.py --archive-ref HEAD
+
+  validation-evidence-sensitive-data:
+    name: Validation evidence sensitive-data gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: python-gate-tests
+
+    steps:
+      - name: Checkout without repository token
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --no-tags --prune --depth=1 origin "+${GITHUB_REF}:${GITHUB_REF}" || \
+            git fetch --no-tags --prune --depth=1 origin "${GITHUB_SHA}"
+          git checkout --detach "${GITHUB_SHA}" || git checkout --detach FETCH_HEAD
+
+      - name: Verify Python runtime
+        run: python3 --version
 
       - name: Run validation evidence sensitive-data gate
         run: |
-          python scripts/validation_evidence_index.py \
+          python3 scripts/validation_evidence_index.py \
             --run-id "github-${{ github.run_id }}" \
             --date "$(date -u +%Y%m%d)"
 

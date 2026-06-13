@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -36,9 +37,10 @@ public class PublicFileSharesControllerSecurityTests
     }
 
     [Theory]
-    [InlineData(nameof(PublicFileSharesController.VerifyPasswordAsync))]
-    [InlineData(nameof(PublicFileSharesController.DownloadAsync))]
-    public void Password_Protected_Public_Share_Endpoints_Should_Enable_Rate_Limiting(string methodName)
+    [InlineData(nameof(PublicFileSharesController.GetAsync), "PublicShareMetadata")]
+    [InlineData(nameof(PublicFileSharesController.VerifyPasswordAsync), "PublicSharePassword")]
+    [InlineData(nameof(PublicFileSharesController.DownloadAsync), "PublicSharePassword")]
+    public void Public_Share_Endpoints_Should_Enable_Named_Rate_Limiting(string methodName, string policyName)
     {
         var method = typeof(PublicFileSharesController)
             .GetMethods(BindingFlags.Instance | BindingFlags.Public)
@@ -47,7 +49,59 @@ public class PublicFileSharesControllerSecurityTests
         var attribute = method.GetCustomAttribute<EnableRateLimitingAttribute>();
 
         attribute.ShouldNotBeNull();
-        attribute!.PolicyName.ShouldBe("PublicSharePassword");
+        attribute!.PolicyName.ShouldBe(policyName);
+    }
+
+    [Fact]
+    public void PublicShareRateLimitPartitions_Should_Use_Token_Hash_And_Client_Ip_Without_Raw_Token()
+    {
+        const string rawShareId = "share-token-that-must-not-appear-in-partition";
+        const string clientIp = "203.0.113.42";
+
+        var partitionKey = PublicShareRateLimitPartitions.ForTokenAndIp(rawShareId, clientIp);
+
+        partitionKey.ShouldStartWith("share:");
+        partitionKey.ShouldEndWith($":ip:{clientIp}");
+        partitionKey.ShouldNotContain(rawShareId);
+        partitionKey.Length.ShouldBeLessThan(100);
+    }
+
+    [Fact]
+    public void PublicShareRateLimitPartitions_Should_Isolate_Different_Tokens_And_Ips()
+    {
+        var firstTokenFirstIp = PublicShareRateLimitPartitions.ForTokenAndIp("token-a", "203.0.113.1");
+        var firstTokenSecondIp = PublicShareRateLimitPartitions.ForTokenAndIp("token-a", "203.0.113.2");
+        var secondTokenFirstIp = PublicShareRateLimitPartitions.ForTokenAndIp("token-b", "203.0.113.1");
+
+        firstTokenFirstIp.ShouldNotBe(firstTokenSecondIp);
+        firstTokenFirstIp.ShouldNotBe(secondTokenFirstIp);
+    }
+
+    [Fact]
+    public void PublicShareRateLimitPartitions_Should_Expose_Ip_And_Global_Partitions_For_Cross_Token_Throttling()
+    {
+        PublicShareRateLimitPartitions.ForIp("203.0.113.42").ShouldBe("ip:203.0.113.42");
+        PublicShareRateLimitPartitions.Global.ShouldBe("global");
+    }
+
+    [Fact]
+    public void FixedWindowLimiter_Should_Reject_After_Public_Share_Quota_For_429_Middleware_Path()
+    {
+        using var limiter = new FixedWindowRateLimiter(
+            new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 1,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = false
+            });
+
+        using var first = limiter.AttemptAcquire();
+        using var second = limiter.AttemptAcquire();
+
+        first.IsAcquired.ShouldBeTrue();
+        second.IsAcquired.ShouldBeFalse();
     }
 
     [Fact]

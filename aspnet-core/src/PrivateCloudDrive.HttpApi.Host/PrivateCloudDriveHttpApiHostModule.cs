@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PrivateCloudDrive.EntityFrameworkCore;
+using PrivateCloudDrive.Controllers.FileCenter;
 using PrivateCloudDrive.Menus;
 using PrivateCloudDrive.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
@@ -274,32 +275,119 @@ public class PrivateCloudDriveHttpApiHostModule : AbpModule
 
     private static void ConfigurePublicShareRateLimiting(ServiceConfigurationContext context, IConfiguration configuration)
     {
-        var permitLimit = configuration.GetValue("Security:PublicSharePasswordRateLimit:PermitLimit", 10);
-        var windowMinutes = configuration.GetValue("Security:PublicSharePasswordRateLimit:WindowMinutes", 10);
+        var passwordPermitLimit = configuration.GetValue("Security:PublicSharePasswordRateLimit:PermitLimit", 10);
+        var passwordWindowMinutes = configuration.GetValue("Security:PublicSharePasswordRateLimit:WindowMinutes", 10);
+        var metadataPermitLimit = configuration.GetValue("Security:PublicShareMetadataRateLimit:PermitLimit", 60);
+        var metadataWindowMinutes = configuration.GetValue("Security:PublicShareMetadataRateLimit:WindowMinutes", 1);
+        var ipPermitLimit = configuration.GetValue("Security:PublicShareIpRateLimit:PermitLimit", 120);
+        var ipWindowMinutes = configuration.GetValue("Security:PublicShareIpRateLimit:WindowMinutes", 10);
+        var globalPermitLimit = configuration.GetValue("Security:PublicShareGlobalRateLimit:PermitLimit", 1000);
+        var globalWindowMinutes = configuration.GetValue("Security:PublicShareGlobalRateLimit:WindowMinutes", 1);
         var queueLimit = configuration.GetValue("Security:PublicSharePasswordRateLimit:QueueLimit", 0);
 
         context.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-            options.AddPolicy("PublicSharePassword", httpContext =>
-            {
-                var token = httpContext.Request.RouteValues.TryGetValue("token", out var routeToken)
-                    ? Convert.ToString(routeToken, CultureInfo.InvariantCulture)
-                    : "unknown-token";
-                var remoteAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
-                var partitionKey = $"{remoteAddress}:{token}";
+            options.GlobalLimiter = PartitionedRateLimiter.CreateChained(
+                CreatePublicShareIpLimiter(ipPermitLimit, ipWindowMinutes, queueLimit),
+                CreatePublicShareGlobalLimiter(globalPermitLimit, globalWindowMinutes, queueLimit));
 
-                return RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey,
-                    _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = permitLimit,
-                        Window = TimeSpan.FromMinutes(windowMinutes),
-                        QueueLimit = queueLimit,
-                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst
-                    });
-            });
+            options.AddPolicy("PublicSharePassword", httpContext => CreatePublicShareTokenIpPartition(
+                httpContext,
+                passwordPermitLimit,
+                passwordWindowMinutes,
+                queueLimit));
+
+            options.AddPolicy("PublicShareMetadata", httpContext => CreatePublicShareTokenIpPartition(
+                httpContext,
+                metadataPermitLimit,
+                metadataWindowMinutes,
+                queueLimit));
         });
+    }
+
+    private static PartitionedRateLimiter<HttpContext> CreatePublicShareIpLimiter(
+        int permitLimit,
+        int windowMinutes,
+        int queueLimit)
+    {
+        return PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        {
+            if (!IsPublicShareRequest(httpContext.Request.Path))
+            {
+                return RateLimitPartition.GetNoLimiter("non-public-share");
+            }
+
+            return CreateFixedWindowPartition(
+                PublicShareRateLimitPartitions.ForIp(GetClientIp(httpContext)),
+                permitLimit,
+                windowMinutes,
+                queueLimit);
+        });
+    }
+
+    private static PartitionedRateLimiter<HttpContext> CreatePublicShareGlobalLimiter(
+        int permitLimit,
+        int windowMinutes,
+        int queueLimit)
+    {
+        return PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        {
+            if (!IsPublicShareRequest(httpContext.Request.Path))
+            {
+                return RateLimitPartition.GetNoLimiter("non-public-share");
+            }
+
+            return CreateFixedWindowPartition(
+                PublicShareRateLimitPartitions.Global,
+                permitLimit,
+                windowMinutes,
+                queueLimit);
+        });
+    }
+
+    private static RateLimitPartition<string> CreatePublicShareTokenIpPartition(
+        HttpContext httpContext,
+        int permitLimit,
+        int windowMinutes,
+        int queueLimit)
+    {
+        var token = httpContext.Request.RouteValues.TryGetValue("token", out var routeToken)
+            ? Convert.ToString(routeToken, CultureInfo.InvariantCulture)
+            : null;
+
+        return CreateFixedWindowPartition(
+            PublicShareRateLimitPartitions.ForTokenAndIp(token, GetClientIp(httpContext)),
+            permitLimit,
+            windowMinutes,
+            queueLimit);
+    }
+
+    private static RateLimitPartition<string> CreateFixedWindowPartition(
+        string partitionKey,
+        int permitLimit,
+        int windowMinutes,
+        int queueLimit)
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey,
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = permitLimit,
+                Window = TimeSpan.FromMinutes(windowMinutes),
+                QueueLimit = queueLimit,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            });
+    }
+
+    private static bool IsPublicShareRequest(PathString path)
+    {
+        return path.StartsWithSegments("/api/public/shares");
+    }
+
+    private static string GetClientIp(HttpContext httpContext)
+    {
+        return httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
     }
 
     private static bool IsSwaggerEnabled(IConfiguration configuration, IHostEnvironment hostingEnvironment)
