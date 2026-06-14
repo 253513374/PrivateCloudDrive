@@ -84,7 +84,7 @@
                             <VerticalStackLayout Grid.Row="1"
                                                  Spacing="8">
                                 <Entry x:Name="LoginApiBaseUrlEntry"
-                                       Placeholder="http://192.168.1.10:8080"
+                                       Placeholder="输入私有服务器地址"
                                        Keyboard="Url"
                                        ClearButtonVisibility="WhileEditing" />
                                 <Grid ColumnDefinitions="*,*"
