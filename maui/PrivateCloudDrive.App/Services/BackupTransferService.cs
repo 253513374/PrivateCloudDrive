@@ -54,7 +54,7 @@ public sealed class BackupTransferService : IBackupTransferService
     {
         item.MarkUploading();
 
-        var progress = new Progress<double>(item.UpdateProgress);
+        var progress = new Progress<UploadTransferProgress>(item.ApplyServerProgress);
 
         try
         {

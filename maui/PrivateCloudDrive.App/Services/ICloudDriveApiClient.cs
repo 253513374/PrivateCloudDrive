@@ -54,7 +54,7 @@ public interface ICloudDriveApiClient
     Task UploadFileAsync(
         Guid? parentId,
         FileResult file,
-        IProgress<double>? progress = null,
+        IProgress<UploadTransferProgress>? progress = null,
         CancellationToken cancellationToken = default);
 
     Task<FileContentResult> GetFileContentAsync(
