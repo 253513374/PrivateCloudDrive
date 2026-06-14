@@ -592,7 +592,7 @@
                             </VerticalStackLayout>
                             <Entry x:Name="ApiBaseUrlEntry"
                                    Grid.Row="1"
-                                   Placeholder="http://192.168.1.10:8080"
+                                   Placeholder="输入私有服务器地址"
                                    Keyboard="Url"
                                    ClearButtonVisibility="WhileEditing" />
                             <Grid Grid.Row="2"

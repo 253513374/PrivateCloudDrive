@@ -73,7 +73,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(GetUserFacingSignInError(exception));
+            ShowValidation(UserVisibleErrorSanitizer.ForSettings(exception));
         }
     }
 
@@ -138,35 +138,7 @@ public partial class LoginPage : ContentPage
 
     private static string GetUserFacingSignInError(Exception exception)
     {
-        if (exception is MobileAuthException authException)
-        {
-            return authException.Kind switch
-            {
-                MobileAuthErrorKind.ServiceUnavailable => AppText.SignInServiceUnavailable,
-                MobileAuthErrorKind.NetworkError => AppText.SignInNetworkError,
-                MobileAuthErrorKind.InvalidCredentials => AppText.InvalidUserNameOrPassword,
-                MobileAuthErrorKind.ServerError => AppText.SignInServerError,
-                _ => AppText.SignInFailedSafe
-            };
-        }
-
-        if (exception is TimeoutException ||
-            exception is TaskCanceledException ||
-            exception is HttpRequestException)
-        {
-            return AppText.SignInNetworkError;
-        }
-
-        var message = exception.Message;
-        if (message.Contains("Invalid username or password", StringComparison.OrdinalIgnoreCase) ||
-            message.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase) ||
-            message.Contains("403", StringComparison.OrdinalIgnoreCase) ||
-            message.Contains("forbidden", StringComparison.OrdinalIgnoreCase))
-        {
-            return AppText.InvalidUserNameOrPassword;
-        }
-
-        return AppText.SignInFailedSafe;
+        return UserVisibleErrorSanitizer.ForSignIn(exception);
     }
 
     private async Task SignInWithWechatAsync()
@@ -184,8 +156,7 @@ public partial class LoginPage : ContentPage
             var authorization = await _wechatPlatformAuthService.AuthorizeAsync(_wechatSettings);
             if (!authorization.Succeeded || string.IsNullOrWhiteSpace(authorization.Code))
             {
-                ShowValidation(authorization.ErrorMessage ?? AppText.WechatSignInCanceled);
-                return;
+                throw new InvalidOperationException(authorization.ErrorMessage ?? AppText.WechatSignInCanceled);
             }
 
             var signInResult = await _authService.SignInWithWechatCodeAsync(
@@ -210,7 +181,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(GetUserFacingSignInError(exception));
+            ShowValidation(UserVisibleErrorSanitizer.ForSignIn(exception));
         }
         finally
         {
@@ -290,7 +261,7 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception exception)
         {
-            ShowValidation(GetUserFacingSignInError(exception));
+            ShowValidation(UserVisibleErrorSanitizer.ForSignIn(exception));
         }
         finally
         {
@@ -338,11 +309,8 @@ public partial class LoginPage : ContentPage
 
     private void LoadApiBaseUrlState()
     {
-        var apiBaseUrl = AppSettings.ApiBaseUrl;
-        CurrentApiBaseUrlLabel.Text = AppSettings.HasCustomApiBaseUrl
-            ? $"自定义服务器 · {apiBaseUrl}"
-            : $"默认服务器 · {apiBaseUrl}";
-        LoginApiBaseUrlEntry.Text = apiBaseUrl;
+        CurrentApiBaseUrlLabel.Text = UserVisibleErrorSanitizer.SafeServerLabel(AppSettings.HasCustomApiBaseUrl);
+        LoginApiBaseUrlEntry.Text = string.Empty;
     }
 
     private async Task LoadWechatSettingsAsync()

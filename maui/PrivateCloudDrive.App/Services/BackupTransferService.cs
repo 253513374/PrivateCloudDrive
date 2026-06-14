@@ -54,7 +54,7 @@ public sealed class BackupTransferService : IBackupTransferService
     {
         item.MarkUploading();
 
-        var progress = new Progress<double>(item.UpdateProgress);
+        var progress = new Progress<UploadTransferProgress>(item.ApplyServerProgress);
 
         try
         {
@@ -95,18 +95,6 @@ public sealed class BackupTransferService : IBackupTransferService
 
     private static string GetUserFacingBackupError(Exception exception)
     {
-        if (exception is HttpRequestException or IOException)
-        {
-            return "无法连接到私有服务器。请确认后端服务和网络恢复后，点击“重试备份”。";
-        }
-
-        if (exception is TaskCanceledException)
-        {
-            return "备份请求超时。请确认网络稳定或服务器恢复后，点击“重试备份”。";
-        }
-
-        return string.IsNullOrWhiteSpace(exception.Message)
-            ? AppText.Format(nameof(AppText.UploadFailedBeforeRequest), exception.GetType().Name)
-            : exception.Message;
+        return UserVisibleErrorSanitizer.ForBackup(exception);
     }
 }
