@@ -78,6 +78,9 @@ tests/
 
 # Generated or temporary documentation artifacts
 docs/validation/
+docs/assets/
+docs/prototypes/
+
 # Local Hermes kanban worktree artifacts
 .worktrees/
 
