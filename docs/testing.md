@@ -34,14 +34,37 @@ dotnet build .\PrivateCloudDrive.slnx
 dotnet test .\PrivateCloudDrive.slnx --no-build
 ```
 
-MAUI 顺序构建验证：
+MAUI 顺序构建验证（完整：Windows + Android）：
 
 ```powershell
-.\scripts\verify-maui-build.ps1 -SkipAndroid
-.\scripts\verify-maui-build.ps1 -SkipWindows
+.\scripts\verify-maui-build.ps1
 ```
 
-Windows 和 Android 目标必须顺序构建，避免多目标 restore/build 同时解析本机未安装的平台 workload 或 runtime。若当前机器只具备 Windows MAUI 环境，先执行 `-SkipAndroid`；Android 构建和真机验收在具备 Android SDK/JDK/workload 的环境中回填结果。
+脚本会先构建 Windows，再构建 Android，并在每个平台构建后验证输出构件是否存在。支持以下参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `-Configuration Release` | 指定 Release 配置（默认 Debug） |
+| `-SkipWindows` | 跳过 Windows 构建 |
+| `-SkipAndroid` | 跳过 Android 构建 |
+| `-NoRestore` | 跳过 NuGet restore（CI 场景预 restore 后使用） |
+
+单平台验证（例如当前机器只有 Android 环境）：
+
+```powershell
+.\scripts\verify-maui-build.ps1 -SkipWindows    # 仅 Android
+.\scripts\verify-maui-build.ps1 -SkipAndroid     # 仅 Windows
+```
+
+**Bash/CI 环境**（git-bash, Linux CI with .NET SDK）：
+
+```bash
+bash scripts/verify-maui-build.sh
+```
+
+Bash 版参数对应：`--configuration Release`、`--skip-windows`、`--skip-android`、`--no-restore`。
+
+Windows 和 Android 目标必须顺序构建，避免多目标 restore/build 同时解析本机未安装的平台 workload 或 runtime。Android 构建和真机验收在具备 Android SDK/JDK/workload 的环境中回填结果。
 
 Docker Compose 配置验证：
 
