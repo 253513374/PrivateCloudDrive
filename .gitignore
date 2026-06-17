@@ -80,3 +80,6 @@ tests/
 docs/validation/
 docs/assets/
 docs/prototypes/
+
+# Local secrets for testing (never committed)
+.secrets/
