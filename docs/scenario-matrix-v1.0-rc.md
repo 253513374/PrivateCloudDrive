@@ -366,8 +366,8 @@ stateDiagram-v2
     LoginRequired --> ActiveSession: 账号密码登录成功
     LoginRequired --> RateLimited: 5 次失败
     RateLimited --> LoginRequired: 限流窗口过期
-    ActiveSession --> TokenExpired: refresh-token-expired
-    TokenExpired --> LoginRequired: 重新登录
+    ActiveSession --> AuthExpired: refresh-token-expired
+    AuthExpired --> LoginRequired: 重新登录
     ActiveSession --> Browsing: 文件/图片/视频列表
     Browsing --> Uploading: 选择文件上传
     Uploading --> UploadCompleted: 文件到达后端
