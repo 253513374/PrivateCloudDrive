@@ -110,7 +110,7 @@ artifact_exists() {
   local artifact
   artifact=$(find "${ROOT_DIR}/maui" -path "*/bin/${CONFIGURATION}/*" \
     -name "${pattern}" -type f 2>/dev/null \
-    | sort | tail -1)
+    | sort | head -1)
 
   if [[ -n "$artifact" ]]; then
     local size
@@ -180,8 +180,8 @@ if [[ $SKIP_WINDOWS == true && $SKIP_ANDROID == true ]]; then
   warn "targets" "Both Windows and Android builds were skipped. No target was built."
 fi
 
-# Build args
-COMMON_ARGS=("build" "${PROJECT_PATH}" "-c" "${CONFIGURATION}")
+# Build args (verb "build" is added by the dotnet_build function)
+COMMON_ARGS=("${PROJECT_PATH}" "-c" "${CONFIGURATION}")
 if [[ $NO_RESTORE == true ]]; then
   COMMON_ARGS+=("--no-restore")
 fi
