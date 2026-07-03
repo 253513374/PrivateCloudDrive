@@ -81,8 +81,5 @@ docs/validation/
 docs/assets/
 docs/prototypes/
 
-# Local Hermes kanban worktree artifacts
-.worktrees/
-
 # Local secrets for testing (never committed)
 .secrets/
