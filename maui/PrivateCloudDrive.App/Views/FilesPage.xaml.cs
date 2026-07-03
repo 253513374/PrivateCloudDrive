@@ -54,11 +54,13 @@ public partial class FilesPage : ContentPage
     {
         base.OnAppearing();
         UpdateUploadTaskPanel();
+        await LoadStorageUsageAsync();
         await LoadItemsAsync();
     }
 
     private async void OnRefreshClicked(object? sender, EventArgs e)
     {
+        await LoadStorageUsageAsync();
         await LoadItemsAsync();
     }
 
@@ -796,6 +798,60 @@ public partial class FilesPage : ContentPage
         var count = GetSelectedItems().Count;
         SelectedCountLabel.Text = $"已选择 {count} 项";
         BatchMoveRootButton.IsEnabled = count > 0 && _currentFolderId.HasValue;
+    }
+
+    private async Task LoadStorageUsageAsync()
+    {
+        StorageProgressBar.Progress = 0;
+        StoragePercentLabel.Text = "--";
+
+        try
+        {
+            var usage = await _apiClient.GetStorageUsageAsync();
+            var percent = usage.IsQuotaConfigured
+                ? Math.Clamp((double)usage.UsagePercent, 0, 100)
+                : 0;
+
+            StoragePercentLabel.Text = usage.IsQuotaConfigured
+                ? $"{percent:0.#}%"
+                : "可信";
+
+            StorageDescriptionLabel.Text = usage.IsQuotaConfigured
+                ? $"已用 {FormatBytes(usage.UsedBytes)} / {FormatBytes(usage.QuotaBytes)} · 剩余 {FormatBytes(usage.RemainingBytes)}"
+                : $"{FormatBytes(usage.UsedBytes)} 已备份 · 未配置容量上限";
+
+            StorageProgressBar.Progress = usage.IsQuotaConfigured ? percent / 100 : 0;
+        }
+        catch (AuthSessionExpiredException)
+        {
+            // 未登录，保持默认显示
+            StoragePercentLabel.Text = "--";
+            StorageDescriptionLabel.Text = "登录后可查看容量";
+        }
+        catch (Exception)
+        {
+            // API 不可用 —— 降级模式：显示 "可信" 但保留硬编码默认值
+            StoragePercentLabel.Text = "可信";
+            StorageDescriptionLabel.Text = "备份到当前服务器 · 暂无法读取容量";
+            StorageProgressBar.Progress = 0;
+        }
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)Math.Max(bytes, 0);
+        var unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? $"{value:0} {units[unitIndex]}"
+            : $"{value:0.##} {units[unitIndex]}";
     }
 
     private sealed record PathSegment(Guid? Id, string Name);

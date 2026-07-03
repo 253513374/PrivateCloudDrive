@@ -218,17 +218,20 @@
                         <VerticalStackLayout Spacing="2">
                             <Label Text="私有备份空间"
                                    Style="{StaticResource BodyStrongLabel}" />
-                            <Label Text="备份到当前服务器 · 容量以设置页实时状态为准"
+                            <Label x:Name="StorageDescriptionLabel"
+                                   Text="备份到当前服务器 · 容量以设置页实时状态为准"
                                    Style="{StaticResource MetaLabel}" />
                         </VerticalStackLayout>
                         <Label Grid.Column="1"
-                               Text="可信"
+                               x:Name="StoragePercentLabel"
+                               Text="--"
                                FontFamily="OpenSansSemibold"
                                FontSize="24"
                                TextColor="{StaticResource Primary}" />
                     </Grid>
-                    <ProgressBar Grid.Row="1"
-                                 Progress="1"
+                    <ProgressBar x:Name="StorageProgressBar"
+                                 Grid.Row="1"
+                                 Progress="0"
                                  HeightRequest="7" />
                 </Grid>
             </Border>
