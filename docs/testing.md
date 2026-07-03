@@ -225,6 +225,108 @@ MVP 内测默认连接 Docker Compose API：Windows 为 `http://localhost:8080`�
 | 待执行 | Android | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
 | 待执行 | iOS | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待执行 | 待填写 |
 
+## RC Docker 一键启动复验（2026-06-17）
+
+验证命令：
+```powershell
+cd D:\Devs\Projects\Personal\PrivateCloudDrive
+docker compose down  # 清理旧容器
+docker compose up -d --build
+```
+
+### 容器状态
+
+| 容器 | 状态 | 重启次数 |
+| --- | --- | --- |
+| postgres (17-alpine) | Up (healthy) | 0 |
+| redis (7-alpine) | Up (healthy) | 0 |
+| db-migrator | Exited (0) — 迁移全部成功 | 0 |
+| api | Up (0.0.0.0:8080) | 0 |
+| media-worker | Up | 0 |
+
+### 验证结果
+
+- `docker compose up -d --build` — ✅ 无构建错误，所有容器正常启动
+- Swagger UI (`http://localhost:8080/swagger/`) — ✅ HTTP 200
+- Swagger JSON (`/swagger/v1/swagger.json`) — ✅ 200，返回完整 OpenAPI 3.0.4 规范
+- db-migrator 日志 — ✅ 所有数据库迁移完成，种子数据（含 QA 测试账号）写入成功
+- media-worker 日志 — ✅ 正常启动，无错误/异常
+- PostgreSQL 健康检查 — ✅ pass
+- Redis 健康检查 — ✅ pass
+- API 可正常处理请求 — ✅ shares 端点返回 200
+- 默认管理员登录 (`admin`/`1q2w3E*`) — ✅ `{"result":1,"description":"Success"}`
+- QA 测试账号登录 (`qa_user`) — ✅ 登录成功
+- QA 备选账号登录 (`qa_user_alt`) — ✅ 登录成功
+
+### 构建信息
+
+- 提交：`76eec5e`（`docs: testing.md 同步 MAUI 构建验证脚本更新`）
+- 镜像基础：`mcr.microsoft.com/dotnet/sdk:10.0`（build）/ `mcr.microsoft.com/dotnet/aspnet:10.0`（runtime）
+- 容器均自提交后重建，无 Docker 缓存残留
+
+## RC MAUI 顺序构建验证（2026-06-17）
+
+验证命令（与 `scripts/verify-maui-build.sh` 等价）：
+
+```powershell
+cd D:\Devs\Projects\Personal\PrivateCloudDrive
+pwsh -NoProfile -File scripts/verify-maui-build.ps1 -Configuration Debug
+```
+
+### 构建环境
+
+| 项目 | 值 |
+| --- | --- |
+| .NET SDK | 10.0.204 |
+| MSBuild | 18.3.3 |
+| RID | win-x64 |
+| PowerShell | 7.6.2 |
+| Windows 版本 | 10.0.26200 |
+| 提交 | `76eec5e` |
+
+### Workload
+
+| Workload | 版本 |
+| --- | --- |
+| android | 36.1.53/10.0.100 ✅ |
+| ios | 26.4.10259/10.0.100 ✅ |
+| maccatalyst | 26.4.10259/10.0.100 ✅ |
+| maui-windows | 10.0.20/10.0.100 ✅ |
+
+### 构建结果
+
+| 平台 | 检查项 | 结果 |
+| --- | --- | --- |
+| Preflight | dotnet-cli | PASS |
+| Preflight | maui-project | PASS |
+| Preflight | maui-windows-wl | PASS |
+| Preflight | android-wl | PASS |
+| Windows | build (net10.0-windows10.0.19041.0, win-x64) | PASS |
+| Windows | artifact (.exe, 284 KB) | PASS |
+| Android | build (net10.0-android) | PASS |
+| Android | artifact (.apk, 20 MB) | PASS |
+
+**汇总：PASS 8 / WARN 0 / FAIL 0**
+
+### ADB 设备状态
+
+| 检查项 | 结果 |
+| --- | --- |
+| ADB daemon | Running |
+| 已连接设备 | **无** — 无 Android 真机或模拟器连接 |
+| AVD 列表 | N/A — ANDROID_HOME 未设置，无 Android SDK |
+
+**影响**：Android APK 构建通过，但真实设备安装、启动和主链路触控验收需在可用 Android 设备上按 `docs/validation/android-real-device-evidence-runbook.md` 补填。当前环境限制已记录，不切换技术栈。
+
+### Secret Scan
+
+- `scripts/secret-log-scan.py --archive-ref HEAD` → **PASS**，0 findings，619 tracked files
+- 构建输出无 Token、密码、client_secret 或分享 URL 泄露
+
+### 详细日志
+
+完整构建环境、命令输出和 artifact 验证见 `docs/validation/maui-build-2026-06-17.log`。
+
 ## 当前边界
 
 - 自动化测试主要集中在后端应用层、领域层和 EF Core 集成测试；MAUI 端目前以构建验证为主。

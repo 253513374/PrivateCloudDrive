@@ -245,3 +245,110 @@ docker compose up -d --build
 The Compose file uses `postgres:17-alpine` and `redis:7-alpine` because they are stable Alpine images and are enough for the current PostgreSQL and Redis requirements.
 
 The full stack uses `privateclouddrive_stack_*` volumes so it does not reuse the development-only PostgreSQL volume from `docker-compose.postgres.yml`.
+
+## MAUI 客户端构建
+
+MAUI 客户端使用 `.NET MAUI` 框架，目标平台为 Windows（`net10.0-windows10.0.19041.0`）和 Android（`net10.0-android`）。
+
+### 前置条件
+
+- .NET SDK 10.0（`global.json` 要求 10.0.203+）
+- `maui-windows` workload（Windows 构建必需）
+- `android` workload（Android 构建必需）
+- Android SDK（JDK + Android SDK，Android 构建必需）
+
+检查 workload：
+
+```powershell
+dotnet workload list
+```
+
+### 一键构建验证
+
+完整的顺序构建（Windows → Android）：
+
+```powershell
+.\scripts\verify-maui-build.ps1
+```
+
+Bash 环境：
+
+```bash
+bash scripts/verify-maui-build.sh
+```
+
+脚本输出示例：
+
+```
+================================================================
+  PrivateCloudDrive MAUI Sequential Build Verification
+================================================================
+  Project:  D:\...\PrivateCloudDrive.App.csproj
+  Config:   Debug
+  Windows:  yes
+  Android:  yes
+================================================================
+
+[PASS] dotnet-cli         dotnet CLI is available (10.0.204).
+[PASS] maui-project       Project file found.
+[PASS] maui-windows-wl    maui-windows workload detected.
+[PASS] android-wl         android workload detected.
+
+==> Building maui-windows
+[PASS] maui-windows       Build completed.
+[PASS] maui-windows-artifact Found: ...\PrivateCloudDrive.App.exe (0.28 MB)
+
+==> Building maui-android
+[PASS] maui-android       Build completed.
+[PASS] maui-android-artifact Found: ...\com.companyname.privateclouddrive.app-Signed.apk (19.06 MB)
+
+================================================================
+  Summary
+================================================================
+  PASS: 8  WARN: 0  FAIL: 0
+================================================================
+
+[PASS] All MAUI build checks passed.
+```
+
+输出构件：
+
+| 平台 | 输出路径 | 格式 |
+| --- | --- | --- |
+| Windows | `maui/PrivateCloudDrive.App/bin/Release/net10.0-windows10.0.19041.0/win-x64/` | `.exe` |
+| Android | `maui/PrivateCloudDrive.App/bin/Release/net10.0-android/` | `-Signed.apk` |
+
+### 参数说明
+
+| 参数 | 说明 |
+| --- | --- |
+| `-Configuration Release` | Release 构建（默认 Debug） |
+| `-SkipWindows` | 跳过 Windows |
+| `-SkipAndroid` | 跳过 Android |
+| `-NoRestore` | 跳过 NuGet restore（预 restore 后 CI 使用） |
+
+### 发布前一键验证
+
+在发布新的 RC 或 Release 之前：
+
+```powershell
+.\scripts\verify-maui-build.ps1 -Configuration Release
+```
+
+确认输出：
+
+1. Windows `.exe` 生成且大小合理
+2. Android `-Signed.apk` 生成且大小合理
+3. 无 NuGet 依赖冲突或目标框架不匹配报错
+
+### 回滚方案
+
+如果某个变更导致 MAUI 构建失败：
+
+1. 按脚本输出定位失败的平台（Windows 或 Android）
+2. 检查最近变更的 `maui/` 目录文件
+3. 回退变更后重新运行：
+   ```powershell
+   git checkout -- maui/
+   .\scripts\verify-maui-build.ps1
+   ```
