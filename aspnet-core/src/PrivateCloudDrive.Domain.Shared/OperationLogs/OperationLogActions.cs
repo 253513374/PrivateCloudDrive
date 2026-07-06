@@ -22,5 +22,31 @@ public static class OperationLogActions
     public const string TagAddToFile = "TagAddToFile";
     public const string TagRemoveFromFile = "TagRemoveFromFile";
     public const string FavoriteSet = "FavoriteSet";
+
+    /// <summary>
+    /// 批量删除到回收站。
+    /// </summary>
+    public const string BatchDelete = "BatchDelete";
+
+    /// <summary>
+    /// 批量从回收站恢复。
+    /// </summary>
+    public const string BatchRestore = "BatchRestore";
+
+    /// <summary>
+    /// 批量永久删除。
+    /// </summary>
+    public const string BatchPermanentDelete = "BatchPermanentDelete";
+
+    /// <summary>
+    /// 批量移动。
+    /// </summary>
+    public const string BatchMove = "BatchMove";
+
+    /// <summary>
+    /// 批量设置收藏。
+    /// </summary>
+    public const string BatchFavoriteSet = "BatchFavoriteSet";
+
     public const string Security = "Security";
 }
