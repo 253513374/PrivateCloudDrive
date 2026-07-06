@@ -14,17 +14,24 @@ clean install 后 App 闪退、黑屏、ANR 或 `FATAL EXCEPTION`/`AndroidRuntim
 
 默认 `dotnet build` Debug APK 启用 Fast Deployment，assemblies 留在开发主机而非嵌入 APK。clean install（卸载重装或 adb shell pm clear）后 App 找不到这些 assemblies 直接崩溃。
 
-**解决**
+**解决（.NET 10）**
 
-构建时固定加上以下参数：
+在 `PrivateCloudDrive.App.csproj` 的 `PropertyGroup` 中硬编码 `EmbedAssembliesIntoApk=true`：
 
+```xml
+<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
 ```
+
+或使用构建脚本 `scripts/build-maui-apk.ps1`：
+
+```bash
 dotnet build maui/PrivateCloudDrive.App/PrivateCloudDrive.App.csproj
   -f net10.0-android
   -c Debug
   -p:EmbedAssembliesIntoApk=true
-  -p:AndroidFastDeploymentType=None
 ```
+
+> ⚠️ `AndroidFastDeploymentType=None` 在 .NET 10 中已弃用（XA1037），不再需要。
 
 **验证**
 
