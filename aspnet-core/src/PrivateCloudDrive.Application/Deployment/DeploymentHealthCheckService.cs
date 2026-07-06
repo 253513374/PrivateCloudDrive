@@ -593,6 +593,11 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
 
     private static string SanitizeClientId(string clientId)
     {
+        if (ForbiddenSensitiveMarkers.Any(marker => clientId.Contains(marker, StringComparison.OrdinalIgnoreCase)))
+        {
+            return "客户端（已脱敏）";
+        }
+
         return clientId.Length > 40 ? clientId[..40] + "…" : clientId;
     }
 
