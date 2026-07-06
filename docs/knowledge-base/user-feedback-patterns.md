@@ -35,11 +35,20 @@ MAUI Debug APK 首次启动正常（登录页可见），但 force-stop + restar
 **根因：**
 `dotnet build -f net10.0-android` 默认生成 Debug APK 时，native assemblies 被压缩（fast deployment 模式）。App 首次启动时解压正常，但二次启动时 MAUI 运行时找不到已解压的程序集，触发 ANR。
 
-**修复方案（已验证）：**
+**修复方案（已验证 — .NET 10 Android）：**
+
+在 `PrivateCloudDrive.App.csproj` 的 `PropertyGroup` 中硬编码：
+
+```xml
+<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+```
+
+> 注意：`AndroidFastDeploymentType=None` 在 .NET 10 中已弃用（参考 XA1037 警告），不再需要设置。核心在于 `EmbedAssembliesIntoApk=true` 确保所有程序集嵌入 APK，使运行时不依赖 Fast Deployment 缓存。
+
+或使用构建脚本 `scripts/build-maui-apk.ps1`。如手动构建：
+
 ```bash
-dotnet build -f net10.0-android \
-  -p:EmbedAssembliesIntoApk=true \
-  -p:AndroidFastDeploymentType=None
+dotnet build -f net10.0-android -p:EmbedAssembliesIntoApk=true
 ```
 
 **SOP 要点：**

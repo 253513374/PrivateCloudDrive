@@ -11,7 +11,7 @@
 | **触发条件** | clean install Debug APK（卸载重装 / `adb shell pm clear`） |
 | **现象** | App 启动后立即崩溃或 ANR；logcat 出现 `FATAL EXCEPTION`，assembly 缺失 |
 | **根因** | MAUI/Android 默认 Debug 构建依赖 Fast Deployment（assemblies 留在开发主机） |
-| **修复** | 构建时加入 `-p:EmbedAssembliesIntoApk=true -p:AndroidFastDeploymentType=None` |
+| **修复（.NET 10）** | `EmbedAssembliesIntoApk=true`（写入 csproj 或 CLI 传入）。`AndroidFastDeploymentType=None` 已弃用不再需要。 |
 | **验证** | `adb logcat -s AndroidRuntime:F *:S` 确认无崩溃 |
 
 ---
