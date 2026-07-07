@@ -570,7 +570,8 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             usage.QuotaBytes,
             usage.RemainingBytes,
             usage.UsagePercent,
-            usage.IsQuotaConfigured);
+            usage.IsQuotaConfigured,
+            usage.MaxSingleFileSize);
     }
 
     /// <summary>
@@ -2031,6 +2032,8 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         public decimal UsagePercent { get; init; }
 
         public bool IsQuotaConfigured { get; init; }
+
+        public long MaxSingleFileSize { get; init; }
     }
 
     private sealed class SystemHealthDto
