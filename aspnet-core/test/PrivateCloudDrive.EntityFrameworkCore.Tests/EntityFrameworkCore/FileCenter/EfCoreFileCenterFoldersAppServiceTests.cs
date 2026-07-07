@@ -1,10 +1,15 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Shouldly;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.BlobStoring;
+using Volo.Abp.Data;
+using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Security.Claims;
 using Xunit;
 
@@ -17,6 +22,11 @@ namespace PrivateCloudDrive.EntityFrameworkCore.FileCenter;
 public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFrameworkCoreTestBase
 {
     private readonly PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService _foldersAppService;
+    private readonly PrivateCloudDrive.FileCenter.IFileCenterFileUploadService _fileUploadService;
+    private readonly IRepository<PrivateCloudDrive.FileCenter.BlobObject, Guid> _blobObjectRepository;
+    private readonly IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid> _mediaAssetRepository;
+    private readonly IBlobContainer<PrivateCloudDrive.FileCenter.FileCenterBlobContainer> _blobContainer;
+    private readonly IDataFilter<ISoftDelete> _softDeleteFilter;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
     /// <summary>
@@ -25,6 +35,11 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
     public EfCoreFileCenterFoldersAppServiceTests()
     {
         _foldersAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFoldersAppService>();
+        _fileUploadService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterFileUploadService>();
+        _blobObjectRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.BlobObject, Guid>>();
+        _mediaAssetRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid>>();
+        _blobContainer = GetRequiredService<IBlobContainer<PrivateCloudDrive.FileCenter.FileCenterBlobContainer>>();
+        _softDeleteFilter = GetRequiredService<IDataFilter<ISoftDelete>>();
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
@@ -470,6 +485,287 @@ public class EfCoreFileCenterFoldersAppServiceTests : PrivateCloudDriveEntityFra
 
             afterPermanentDelete.Items.Select(item => item.Id).ShouldNotContain(first.Id);
             afterPermanentDelete.Items.Select(item => item.Id).ShouldNotContain(second.Id);
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 10+ 文件批量删除全部成功，列表刷新正确。
+    /// </summary>
+    [Fact]
+    public async Task Should_Batch_Delete_10_Plus_Files()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("batch delete test");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // 创建 12 个文件
+            var fileIds = new System.Collections.Generic.List<Guid>();
+            for (var i = 0; i < 12; i++)
+            {
+                await using var stream = new MemoryStream(content);
+                var fileNode = await _fileUploadService.UploadSmallFileAsync(
+                    parentId: null,
+                    fileName: $"batch-{i:D3}.txt",
+                    contentType: "text/plain",
+                    stream,
+                    content.Length);
+                fileIds.Add(fileNode.Id);
+            }
+
+            // 确认 12 个文件可见
+            var beforeDelete = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 20
+                });
+            beforeDelete.TotalCount.ShouldBe(12);
+
+            // 批量删除 12 个文件
+            await _foldersAppService.DeleteManyAsync(
+                new PrivateCloudDrive.FileCenter.BatchFileNodeInput
+                {
+                    Ids = fileIds
+                });
+
+            // 确认活动列表不再显示
+            var afterDelete = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 20
+                });
+            afterDelete.TotalCount.ShouldBe(0);
+
+            // 确认回收站显示 12 条
+            var deletedList = await _foldersAppService.GetDeletedListAsync(
+                new PagedResultRequestDto
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 20
+                });
+            deletedList.TotalCount.ShouldBe(12);
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 跨用户 ID 混入批量请求时不会操作他人文件。
+    /// </summary>
+    [Fact]
+    public async Task Should_Reject_Batch_Operations_For_Other_User_Nodes()
+    {
+        var ownerId = Guid.NewGuid();
+        var otherUserId = Guid.NewGuid();
+
+        Guid otherFileId = default;
+
+        // 其他用户创建文件夹
+        await WithCurrentUserAsync(otherUserId, async () =>
+        {
+            var folder = await _foldersAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Other-Folder" });
+            otherFileId = folder.Id;
+        });
+
+        // 当前用户尝试操作其他用户的文件
+        await WithCurrentUserAsync(ownerId, async () =>
+        {
+            // 批量删除 — 无法通过 GetOwnerNodeAsync 校验
+            var deleteException = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.DeleteManyAsync(
+                    new PrivateCloudDrive.FileCenter.BatchFileNodeInput
+                    {
+                        Ids = [otherFileId]
+                    });
+            });
+            deleteException.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+
+            // 批量移动 — 同样无法通过 GetOwnerNodeAsync 校验
+            var moveException = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.MoveManyAsync(
+                    new PrivateCloudDrive.FileCenter.BatchMoveFileNodesInput
+                    {
+                        Ids = [otherFileId],
+                        ParentId = null
+                    });
+            });
+            moveException.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 批量永久删除后 Blob 清理正确，共享 Blob 引用不被误删。
+    /// </summary>
+    [Fact]
+    public async Task Should_PermanentDelete_Multiple_Files_And_Cleanup_Shared_Blob()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("shared blob content");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // 上传第一个文件（获得 Blob）
+            await using var stream1 = new MemoryStream(content);
+            var fileNode1 = await _fileUploadService.UploadSmallFileAsync(
+                parentId: null,
+                fileName: "shared-original.txt",
+                contentType: "text/plain",
+                stream1,
+                content.Length);
+
+            var blobName = fileNode1.BlobName!;
+
+            // 创建第二个 FileNode 指向同一个 Blob（模拟共享 Blob 场景）
+            Guid secondNodeId = Guid.Empty;
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var fileNode2 = PrivateCloudDrive.FileCenter.FileNode.CreateFile(
+                    Guid.NewGuid(),
+                    tenantId: null,
+                    ownerId: userId,
+                    parentId: null,
+                    name: "shared-copy.txt",
+                    size: content.Length,
+                    contentType: "text/plain",
+                    blobName: blobName);
+                var repo = GetRequiredService<PrivateCloudDrive.FileCenter.IFileNodeRepository>();
+                await repo.InsertAsync(fileNode2, autoSave: true);
+                secondNodeId = fileNode2.Id;
+            });
+
+            // 确认两个节点都存在
+            (await _blobContainer.ExistsAsync(blobName)).ShouldBeTrue();
+
+            // 删除并永久删除第一个节点
+            await _fileUploadService.DeleteAsync(fileNode1.Id);
+            await _foldersAppService.PermanentDeleteAsync(fileNode1.Id);
+
+            // 共享 Blob 不应被删除（第二个节点仍在引用）
+            (await _blobContainer.ExistsAsync(blobName)).ShouldBeTrue();
+
+            // 确认第二个节点不受影响
+            var secondNodeList = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+            secondNodeList.Items.Any(n => n.Id == secondNodeId).ShouldBeTrue();
+
+            // 删除并永久删除第二个节点
+            await _fileUploadService.DeleteAsync(secondNodeId);
+            await _foldersAppService.PermanentDeleteAsync(secondNodeId);
+
+            // 现在 Blob 应被清理
+            (await _blobContainer.ExistsAsync(blobName)).ShouldBeFalse();
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 批量移动时目标目录校验和循环移动拒绝。
+    /// </summary>
+    [Fact]
+    public async Task Should_Validate_Batch_Move_Target_Folder()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // 创建目录结构：Alpha → Beta → Gamma
+            var alpha = await _foldersAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFolderInput { Name = "Alpha" });
+            var beta = await _foldersAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFolderInput
+                {
+                    ParentId = alpha.Id,
+                    Name = "Beta"
+                });
+            var gamma = await _foldersAppService.CreateAsync(
+                new PrivateCloudDrive.FileCenter.CreateFolderInput
+                {
+                    ParentId = beta.Id,
+                    Name = "Gamma"
+                });
+
+            // 把 Beta 移动到 Gamma（自身或子孙）应拒绝
+            var circularException = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.MoveManyAsync(
+                    new PrivateCloudDrive.FileCenter.BatchMoveFileNodesInput
+                    {
+                        Ids = [beta.Id],
+                        ParentId = gamma.Id
+                    });
+            });
+            circularException.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterCannotMoveToSelfOrDescendant);
+
+            // 把 Gamma 移动到不存在的目录应拒绝
+            var notFoundException = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.MoveManyAsync(
+                    new PrivateCloudDrive.FileCenter.BatchMoveFileNodesInput
+                    {
+                        Ids = [gamma.Id],
+                        ParentId = Guid.NewGuid()
+                    });
+            });
+            notFoundException.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+
+            // 确认 Gamma 未被移动（仍在 Beta 下）
+            var gammaList = await _foldersAppService.GetListAsync(
+                new PrivateCloudDrive.FileCenter.GetFolderChildrenInput
+                {
+                    ParentId = beta.Id,
+                    SkipCount = 0,
+                    MaxResultCount = 10
+                });
+            gammaList.Items.Single().Id.ShouldBe(gamma.Id);
+        });
+    }
+
+    /// <summary>
+    /// 验证 V1.1 批量操作事务性：混入非法 ID 时整体操作失败，不出现部分成功。
+    /// </summary>
+    [Fact]
+    public async Task Should_Rollback_Entire_Batch_On_Exception()
+    {
+        var userId = Guid.NewGuid();
+        var content = Encoding.UTF8.GetBytes("transaction test");
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // 创建 3 个文件
+            var fileIds = new System.Collections.Generic.List<Guid>();
+            for (var i = 0; i < 3; i++)
+            {
+                await using var stream = new MemoryStream(content);
+                var fileNode = await _fileUploadService.UploadSmallFileAsync(
+                    parentId: null,
+                    fileName: $"tx-file-{i:D3}.txt",
+                    contentType: "text/plain",
+                    stream,
+                    content.Length);
+                fileIds.Add(fileNode.Id);
+            }
+
+            // 混入一个不存在的 ID
+            var mixedIds = fileIds.Concat([Guid.NewGuid()]).ToList();
+
+            // 执行批量删除 — 因最后一个 ID 不存在而抛出异常
+            var exception = await Should.ThrowAsync<BusinessException>(async () =>
+            {
+                await _foldersAppService.DeleteManyAsync(
+                    new PrivateCloudDrive.FileCenter.BatchFileNodeInput
+                    {
+                        Ids = mixedIds
+                    });
+            });
+
+            // 验证异常码正确
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
         });
     }
 
