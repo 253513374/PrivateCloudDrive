@@ -32,7 +32,7 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
 
     private static readonly HashSet<string> ForbiddenSensitiveMarkers = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Password=", "myPassword", "client_secret", "client secret",
+        "Password=", "myPassword", "privateclouddrive", "client_secret", "client secret",
         "AccessKeyId", "AccessKeySecret", "DefaultPassPhrase",
         "raw exception",
     };
