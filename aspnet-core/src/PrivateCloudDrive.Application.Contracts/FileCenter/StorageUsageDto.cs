@@ -29,4 +29,9 @@ public class StorageUsageDto
     /// 是否已配置有效配额。
     /// </summary>
     public bool IsQuotaConfigured { get; set; }
+
+    /// <summary>
+    /// 单文件上传大小上限（字节）。0 表示未限制。
+    /// </summary>
+    public long MaxSingleFileSize { get; set; }
 }
