@@ -31,6 +31,70 @@ V1 WeChat, Google, and GitHub login stay disabled by default. When enabling WeCh
 - FileCenter upload temp files and media-processing temp files when `FILECENTER_STORAGE_PROVIDER=AliyunOss`: Compose logical volume `privateclouddrive_stack_storage`（实际 Docker volume 名会带 Compose project 前缀；脚本会从运行中容器挂载解析真实名称）
 - Optional MinIO data: `privateclouddrive_stack_minio_data`
 
+## 存储目录与数据安全
+
+> ⚠️ **部署者必读**：本节的目的是确保你在运维自己的私有云盘时，清楚哪些数据不可丢失、删除容器或 volume 的后果、以及迁移 PUBLIC_URL 或存储路径的风险。
+
+### BR-ST-01：不可丢失数据目录
+
+部署时需要备份以下三项独立数据资产。缺一不可：
+
+| 数据资产 | Docker volume / 文件 | 恢复依赖 |
+|----------|---------------------|----------|
+| 用户账号、权限、文件索引、分享记录、媒体处理状态 | `privateclouddrive_stack_postgres_data` | 无 PostgreSQL 数据则无法恢复文件索引和分享链接 |
+| 文件实体、缩略图、视频封面、上传临时文件 | `privateclouddrive_stack_storage` | 无 storage volume 则文件实体永久丢失（即使数据库仍在） |
+| 数据库密码、加密短语、公开 URL、存储提供商凭据 | `.env`（主机文件系统） | 无 `.env` 则新容器无法连接数据库或解密数据 |
+
+> **Volume 名实际带 Compose project 前缀**：脚本会从运行中容器挂载解析真实名称。部署者不应依赖固定 volume 名称手工操作。
+
+### BR-ST-02：Docker volume 不是备份
+
+- `docker compose down` 不会删除 volume，数据安全。
+- `docker compose down -v`、`docker volume rm` 或手动从 Docker Desktop 删除 volume 将**永久不可恢复**地销毁 PostgreSQL 数据和所有文件实体。
+- **不要假设"容器还在数据就在"**——容器可以重建，volume 不能。`docker compose up -d --build` 重建的是容器和镜像，volume 保持不变，但直接删除 volume 没有"回收站"。
+- 唯一的恢复手段来自独立的备份归档（PostgreSQL dump + storage.tar.gz + .env）。
+
+### BR-ST-03：storage 挂载路径变更的风险
+
+FileCenter 将文件路径存储在数据库中。使用备份恢复流程迁移 storage 时，`restore-local-stack.ps1` 会将归档解包到当前 API 容器实际挂载的 `/app/storage` volume。**直接修改 `docker-compose.yml` 中 storage volume 的挂载点不会更新数据库中已有文件的路径**——已有文件将无法通过 API 访问。
+
+**正确的变更方式**：
+1. 通过 `scripts/backup-local-stack.ps1` 创建完整备份。
+2. 在新路径或新机器上使用对应 restore 脚本恢复。
+3. 如果只是测试环境切换，在不修改 volume 挂载的前提下保持 Compose 默认。
+
+### BR-ST-04：PUBLIC_URL 变更的影响
+
+`PUBLIC_URL` 是 OpenIddict issuer 标识，也是 OAuth 令牌和 Swagger 元数据的基地址。变更后：
+- 已有 access_token / refresh_token 签名校验失败，用户需重新登录。
+- 已有分享链接中包含的令牌基于旧 URL 签发，将不可用。
+- 公开发布 RC 前请确定 `PUBLIC_URL`；发布后仅当用户可接受以上影响时才变更。
+
+### BR-ST-05：MinIO / Aliyun OSS — ⚠️ 实验性配置
+
+| 存储后端 | 当前状态 | 限制 |
+|----------|----------|------|
+| 本地文件系统（默认） | 正式支持，V1.0 RC 主链路 | 备份恢复脚本完整覆盖 |
+| MinIO（`--profile minio`） | **RC 版本可选/实验性配置** | 不自动迁移已有本地文件；备份恢复脚本不默认覆盖 MinIO volume |
+| Aliyun OSS（`FILECENTER_STORAGE_PROVIDER=AliyunOss`） | **RC 版本可选/实验性配置** | 不自动迁移已有本地文件；OSS bucket 对象不由 `storage.tar.gz` 覆盖；需部署者独立启用云侧版本控制/复制 |
+
+**切换存储后端前必须制定独立的迁移与回滚计划**。默认备份恢复脚本不会将已有本地文件迁移到新后端。
+
+### BR-ST-06：文档不包含敏感配置
+
+本文档不包含密码、token、连接串、AccessKey、AppSecret 或内部主机路径。所有环境变量在配置参考表中仅列出名称和用途，不包含有效值。
+
+### BR-ST-07：备份恢复入口
+
+一键备份恢复的完整 Runbook 和详细步骤见 [docs/disaster-recovery.md](disaster-recovery.md)，包含数据资产清单、RPO/RTO 边界、备份命令、恢复 dry-run、破坏性恢复流程、恢复后验收清单和演练证据规范。
+
+参考入口：
+
+- 一键非破坏性演练（验证备份完整性 + 恢复 dry-run）：`.\scripts\run-backup-restore-drill.ps1`
+- 详细灾难恢复 Runbook：[docs/disaster-recovery.md](disaster-recovery.md)
+- 最新演练证据：[docs/validation/backup-restore-drill-20260518-193513.md](validation/backup-restore-drill-20260518-193513.md)（14 PASS / 0 WARN / 0 FAIL，非破坏性备份 + 恢复 dry-run）
+- 一次性测试栈破坏性恢复验收：[docs/validation/backup-restore-destructive-test-stack-20260521-215020.md](validation/backup-restore-destructive-test-stack-20260521-215020.md)（restore PASS 14 / WARN 1 / FAIL 0）
+
 ## Backup and Restore Drill
 
 灾难恢复总入口见 [docs/disaster-recovery.md](disaster-recovery.md)。该 Runbook 定义数据资产、RPO/RTO 边界、恢复 dry-run、破坏性测试栈恢复、恢复后登录/文件/预览/分享验收清单，以及演练证据记录规范。
