@@ -168,6 +168,7 @@ public partial class MediaProcessingStatusPage : ContentPage
     private void UpdateSegmentButtons()
     {
         SetSegmentButton(AllStatusButton, _statusFilter is null);
+        SetSegmentButton(PendingStatusButton, _statusFilter == "Pending");
         SetSegmentButton(ProcessingStatusButton, _statusFilter == "Processing");
         SetSegmentButton(FailedStatusButton, _statusFilter == "Failed");
         SetSegmentButton(CompletedStatusButton, _statusFilter == "Completed");
