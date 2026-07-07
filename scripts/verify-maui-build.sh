@@ -110,7 +110,11 @@ artifact_exists() {
   local artifact
   artifact=$(find "${ROOT_DIR}/maui" -path "*/bin/${CONFIGURATION}/*" \
     -name "${pattern}" -type f 2>/dev/null \
+<<<<<<< HEAD
     | sort | head -1)
+=======
+    | xargs ls -t 2>/dev/null | head -1)
+>>>>>>> f79971608b1dab31f76d29af6eb1082f66a50ab4
 
   if [[ -n "$artifact" ]]; then
     local size
@@ -132,7 +136,17 @@ usage() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+<<<<<<< HEAD
     --configuration) CONFIGURATION="$2"; shift 2 ;;
+=======
+    --configuration)
+      if [[ -z "${2+exists}" ]]; then
+        die "Option --configuration requires a configuration name (Debug|Release)."
+      fi
+      CONFIGURATION="$2"
+      shift 2
+      ;;
+>>>>>>> f79971608b1dab31f76d29af6eb1082f66a50ab4
     --skip-windows)  SKIP_WINDOWS=true;  shift ;;
     --skip-android)  SKIP_ANDROID=true;  shift ;;
     --no-restore)    NO_RESTORE=true;    shift ;;

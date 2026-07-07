@@ -37,6 +37,7 @@ PrivateCloudDrive V1.0 RC 的目标不是继续扩展大功能，而是把现有
 - AI 相册、AI 搜索、复杂图像识别。
 - 多节点高可用、Kubernetes 部署。
 - 企业级组织架构、审批流、复杂部门权限。
+- **MinIO/S3/阿里云 OSS 多后端存储切换（实验/后置能力）**：FileSystem 本地存储卷是本版唯一默认生产路径。MinIO Compose profile 和 Aliyun OSS 仅作为可选实验配置，不作为 RC 正式交付能力，不自动迁移历史本地文件。
 
 ## 4. 部署前置条件
 
@@ -83,6 +84,7 @@ PrivateCloudDrive V1.0 RC 的目标不是继续扩展大功能，而是把现有
 - Android 真机验收需要后端 `PUBLIC_URL` 是手机可访问地址，不能只使用 `localhost`。
 - 当前 MAUI 自动化测试主要以构建验证和手动验收为主。
 - 完整 Docker 栈检查依赖本机 Docker daemon、镜像拉取能力和网络环境。
+- **MinIO 和 Aliyun OSS 为实验/后置配置**：默认 FileSystem 存储是本版唯一通过 RC 验收的生产路径。MinIO Compose profile 和 Aliyun OSS 配置存在但未完成完整数据一致性、迁移、备份恢复和回滚验证。OSS/MinIO 不自动迁移历史本地文件；OSS bucket 内对象不在默认备份覆盖范围内。从 FileSystem 切换到 OSS 或 MinIO 前必须单独制定迁移与回滚计划。
 
 ## 8. 发布后建议
 

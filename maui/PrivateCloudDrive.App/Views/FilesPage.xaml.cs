@@ -54,6 +54,7 @@ public partial class FilesPage : ContentPage
     {
         base.OnAppearing();
         UpdateUploadTaskPanel();
+        await LoadStorageUsageAsync();
         await LoadItemsAsync();
     }
 
@@ -695,6 +696,100 @@ public partial class FilesPage : ContentPage
         OnPropertyChanged(nameof(CurrentPath));
         OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(ShowCurrentPath));
+    }
+
+    private async Task LoadStorageUsageAsync()
+    {
+        try
+        {
+            var isSignedIn = await _authService.IsSignedInAsync();
+            if (!isSignedIn)
+            {
+                SetFilesStorageSignedOutState();
+                return;
+            }
+
+            var usage = await _apiClient.GetStorageUsageAsync();
+            SetFilesStorageUsageState(usage);
+        }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
+        }
+        catch (Exception)
+        {
+            SetFilesStorageDegradedState();
+        }
+    }
+
+    private void SetFilesStorageUsageState(StorageUsage usage)
+    {
+        if (usage.IsQuotaConfigured)
+        {
+            var percent = Math.Clamp((double)usage.UsagePercent, 0, 100);
+            FilesCapacityLabel.Text = $"{percent:0.#}%";
+            FilesStorageSubLabel.Text = $"{FormatBytes(usage.UsedBytes)} / {FormatBytes(usage.QuotaBytes)}";
+            FilesStorageProgressBar.Progress = percent / 100;
+            var detailParts = new List<string>
+            {
+                $"剩余 {FormatBytes(usage.RemainingBytes)}"
+            };
+            if (usage.MaxSingleFileSize > 0)
+            {
+                detailParts.Add($"单文件上限 {FormatBytes(usage.MaxSingleFileSize)}");
+            }
+            FilesStorageDetailLabel.Text = string.Join(" · ", detailParts);
+        }
+        else
+        {
+            FilesCapacityLabel.Text = "无限";
+            FilesStorageSubLabel.Text = $"{FormatBytes(usage.UsedBytes)} 已备份";
+            FilesStorageProgressBar.Progress = 0;
+            var detailParts = new List<string>
+            {
+                "未配置容量上限"
+            };
+            if (usage.MaxSingleFileSize > 0)
+            {
+                detailParts.Add($"单文件上限 {FormatBytes(usage.MaxSingleFileSize)}");
+            }
+            FilesStorageDetailLabel.Text = string.Join(" · ", detailParts);
+        }
+    }
+
+    private void SetFilesStorageSignedOutState()
+    {
+        FilesCapacityLabel.Text = "--";
+        FilesStorageSubLabel.Text = "登录后可查看容量";
+        FilesStorageProgressBar.Progress = 0;
+        FilesStorageDetailLabel.Text = string.Empty;
+    }
+
+    private void SetFilesStorageDegradedState()
+    {
+        FilesCapacityLabel.Text = "降级";
+        FilesCapacityLabel.TextColor = Colors.Orange;
+        FilesStorageSubLabel.Text = "容量暂时不可用";
+        FilesStorageProgressBar.Progress = 0;
+        FilesStorageDetailLabel.Text = "请在\"我的\"页重试";
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)Math.Max(bytes, 0);
+        var unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? $"{value:0} {units[unitIndex]}"
+            : $"{value:0.##} {units[unitIndex]}";
     }
 
     private void InitializeFilterPickers()
