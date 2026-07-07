@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -70,8 +72,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         var ffmpegStatus = ResolveToolStatus(_mediaProcessingOptions.FfmpegPath, "FFmpeg", diagnostics);
         var ffprobeStatus = ResolveToolStatus(_mediaProcessingOptions.FfprobePath, "FFprobe", diagnostics);
         var usedBytes = await GetUsedStorageSizeAsync(ownerId);
-        var databaseStatus = FileCenterSystemHealthStatus.Healthy;
-        diagnostics.Add("数据库可访问");
+        var databaseStatus = await ResolveDatabaseStatusAsync(diagnostics);
         var redisStatus = await ResolveRedisStatusAsync(diagnostics);
         var quotaBytes = await GetLongSettingAsync(
             PrivateCloudDriveSettings.FileCenter.UserStorageQuotaInBytes,
@@ -197,8 +198,63 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
             return FileCenterSystemHealthStatus.Degraded;
         }
 
-        diagnostics.Add($"{displayName} 已配置");
-        return FileCenterSystemHealthStatus.Healthy;
+        try
+        {
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = executablePath,
+                Arguments = "--version",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(processStartInfo);
+            if (process == null)
+            {
+                diagnostics.Add($"{displayName} 已配置但无法启动进程");
+                return FileCenterSystemHealthStatus.Degraded;
+            }
+
+            process.WaitForExit(TimeSpan.FromSeconds(5));
+            if (process.ExitCode == 0)
+            {
+                diagnostics.Add($"{displayName} 可执行");
+                return FileCenterSystemHealthStatus.Healthy;
+            }
+
+            diagnostics.Add($"{displayName} 已配置但返回错误代码（{process.ExitCode}）");
+            return FileCenterSystemHealthStatus.Degraded;
+        }
+        catch (Exception ex)
+        {
+            diagnostics.Add($"{displayName} 已配置但无法执行：{SanitizeToolErrorMessage(ex.Message)}");
+            return FileCenterSystemHealthStatus.Degraded;
+        }
+    }
+
+    private async Task<FileCenterSystemHealthStatus> ResolveDatabaseStatusAsync(ICollection<string> diagnostics)
+    {
+        try
+        {
+            var queryable = await _blobObjectRepository.GetQueryableAsync();
+            // 轻量查询验证数据库可读写——仅检查表是否存在/可查询
+            var count = await _asyncExecuter.LongCountAsync(queryable.Take(1));
+            diagnostics.Add("数据库可访问");
+            return FileCenterSystemHealthStatus.Healthy;
+        }
+        catch (Exception ex)
+        {
+            diagnostics.Add($"数据库检查失败：{SanitizeToolErrorMessage(ex.Message)}");
+            return FileCenterSystemHealthStatus.Unhealthy;
+        }
+    }
+
+    private static string SanitizeToolErrorMessage(string message)
+    {
+        // 截断过长错误消息，防止意外泄露内部路径
+        return message.Length > 120 ? message[..120] + "…" : message;
     }
 
     private async Task<FileCenterSystemHealthStatus> ResolveRedisStatusAsync(ICollection<string> diagnostics)
