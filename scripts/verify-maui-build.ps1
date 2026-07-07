@@ -84,7 +84,7 @@ function Test-ArtifactExists {
         [string]$Pattern
     )
 
-    $matches = Get-ChildItem -Path $script:repoRoot -Recurse -Filter $Pattern -ErrorAction SilentlyContinue |
+    $matches = Get-ChildItem -Path $repoRoot -Recurse -Filter $Pattern -ErrorAction SilentlyContinue |
                Where-Object { $_.FullName -match "bin\\$Configuration\\" } |
                Sort-Object LastWriteTime -Descending |
                Select-Object -First 1

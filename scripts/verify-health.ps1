@@ -176,7 +176,12 @@ $params = @{
 
 if ($Insecure) {
     # PowerShell 6+ supports -SkipCertificateCheck natively
-    $params.SkipCertificateCheck = $true
+    if ($PSVersionTable.PSVersion.Major -ge 6) {
+        $params.SkipCertificateCheck = $true
+    }
+    else {
+        Write-Warn "tls-verify" "PowerShell 5.1: -SkipCertificateCheck not supported. Using basic parsing fallback."
+    }
 }
 
 if (-not [string]::IsNullOrWhiteSpace($AuthHeader)) {

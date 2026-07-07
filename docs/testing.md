@@ -254,7 +254,7 @@ docker compose up -d --build
 - PostgreSQL 健康检查 — ✅ pass
 - Redis 健康检查 — ✅ pass
 - API 可正常处理请求 — ✅ shares 端点返回 200
-- 默认管理员登录 (`admin`/`1q2w3E*`) — ✅ `{"result":1,"description":"Success"}`
+- 默认管理员登录 (`admin`/`<配置的密码>`) — ✅ `{"result":1,"description":"Success"}`
 - QA 测试账号登录 (`qa_user`) — ✅ 登录成功
 - QA 备选账号登录 (`qa_user_alt`) — ✅ 登录成功
 

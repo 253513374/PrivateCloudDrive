@@ -181,7 +181,7 @@ if [[ $VERBOSE == true ]]; then
   if [[ "$JSON_PARSER" == "jq" ]]; then
     jq '.' "$RESPONSE_FILE" 2>/dev/null || cat "$RESPONSE_FILE"
   else
-    python -m json.tool "$RESPONSE_FILE" 2>/dev/null || cat "$RESPONSE_FILE"
+    ${JSON_PARSER} -m json.tool "$RESPONSE_FILE" 2>/dev/null || cat "$RESPONSE_FILE"
   fi
   echo -e "${CYAN}---------------------------${NC}"
   echo ""
@@ -235,7 +235,8 @@ parse_with_jq() {
 
 parse_with_python() {
   local file="$1"
-  python -c "
+  local py="${JSON_PARSER:-python}"
+  $py -c "
 import json, sys
 with open('$file', encoding='utf-8') as f:
     data = json.load(f)
@@ -269,7 +270,7 @@ case "$JSON_PARSER" in
     parse_with_jq "$RESPONSE_FILE"
     ;;
   python3|python)
-    overall_status=$(python -c "import json; d=json.load(open('$RESPONSE_FILE')); print(d.get('overallStatus', -1))" 2>/dev/null || echo -1)
+    overall_status=$($JSON_PARSER -c "import json; d=json.load(open('$RESPONSE_FILE')); print(d.get('overallStatus', -1))" 2>/dev/null || echo -1)
     while IFS='|' read -r tag name message; do
       case "$tag" in
         pass) pass "$name" "$message" ;;
