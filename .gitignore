@@ -69,3 +69,17 @@ project.lock.json
 
 # Local PR/security review scratch space
 pr-review-security-wave/
+
+# Hermes OpenDesign skill workspace
+.od-skills/
+
+# Local test automation scratch
+tests/
+
+# Generated or temporary documentation artifacts
+docs/validation/
+docs/assets/
+docs/prototypes/
+
+# Local secrets for testing (never committed)
+.secrets/

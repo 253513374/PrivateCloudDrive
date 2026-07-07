@@ -10,6 +10,7 @@ $ErrorActionPreference = "Stop"
 $PassCount = 0
 $WarnCount = 0
 $FailCount = 0
+$InfraFailCount = 0
 $Results = New-Object System.Collections.Generic.List[object]
 
 function Add-CheckResult {
@@ -30,6 +31,10 @@ function Add-CheckResult {
         "PASS" { $script:PassCount++ }
         "WARN" { $script:WarnCount++ }
         "FAIL" { $script:FailCount++ }
+    }
+
+    if ($Status -eq "FAIL" -and $Name -match "^(docker|compose|service:)") {
+        $script:InfraFailCount++
     }
 
     Write-Host ("[{0}] {1} - {2}" -f $Status, $Name, $Message)
@@ -170,6 +175,43 @@ function Test-EnvConfiguration {
 
     Add-CheckResult "PASS" ".env" "Found .env. Secret values are not printed."
     $envValues = Read-DotEnvKeys $envPath
+
+    # --- Security switch checks ---
+    $swaggerEnabled = Get-EnvOrDotEnvValue $envValues "SWAGGER_ENABLED" "true"
+    if ($swaggerEnabled -match "^(?i:true|1|yes)$") {
+        Add-CheckResult "WARN" "security:swagger-enabled" "Swagger is ON ($swaggerEnabled). OK for local validation; disable (SWAGGER_ENABLED=false) for production/public exposure."
+    }
+    else {
+        Add-CheckResult "PASS" "security:swagger-enabled" "Swagger is OFF. Safe for production."
+    }
+
+    $allowInsecure = Get-EnvOrDotEnvValue $envValues "ALLOW_INSECURE_LOCAL_VALIDATION" "true"
+    if ($allowInsecure -match "^(?i:true|1|yes)$") {
+        Add-CheckResult "WARN" "security:allow-insecure-transport" "Insecure transport allowed ($allowInsecure). OK for local validation; disable for production via ALLOW_INSECURE_LOCAL_VALIDATION=false."
+    }
+    else {
+        Add-CheckResult "PASS" "security:allow-insecure-transport" "Insecure transport disabled. Secure for production."
+    }
+
+    $requireHttps = Get-EnvOrDotEnvValue $envValues "AUTH_SERVER_REQUIRE_HTTPS_METADATA" "false"
+    if ($requireHttps -match "^(?i:true|1|yes)$") {
+        Add-CheckResult "PASS" "security:auth-server-require-https" "AuthServer HTTPS metadata required. Secure for production."
+    }
+    else {
+        Add-CheckResult "WARN" "security:auth-server-require-https" "AuthServer HTTPS metadata NOT required ($requireHttps). OK for local; enable for production via AUTH_SERVER_REQUIRE_HTTPS_METADATA=true."
+    }
+
+    # --- AuthServer issuer check ---
+    $authServerAuthority = Get-EnvOrDotEnvValue $envValues "PUBLIC_URL" "http://localhost:8080"
+    if ([string]::IsNullOrWhiteSpace($authServerAuthority)) {
+        Add-CheckResult "FAIL" "env:auth-server-authority" "PUBLIC_URL (AuthServer__Authority) is empty. Must be set to full issuer URL (e.g. https://your-domain.com)."
+    }
+    elseif ($authServerAuthority -match "localhost|127\.0\.0\.1") {
+        Add-CheckResult "WARN" "env:auth-server-authority" "AuthServer issuer uses local address ($authServerAuthority). OK for local validation; set a device-reachable/public URL for RC mobile testing."
+    }
+    else {
+        Add-CheckResult "PASS" "env:auth-server-authority" "AuthServer issuer configured. Value hidden."
+    }
 
     $criticalKeys = @("STRING_ENCRYPTION_PASSPHRASE", "POSTGRES_PASSWORD", "PUBLIC_URL")
     foreach ($key in $criticalKeys) {
@@ -363,7 +405,7 @@ else {
     Add-CheckResult "FAIL" "docker-cli" "Docker CLI was not found in PATH."
 }
 
-if ($FailCount -eq 0) {
+if ($InfraFailCount -eq 0) {
     $composeVersion = Invoke-External "docker" @("compose", "version")
     if ($composeVersion.ExitCode -eq 0) {
         Add-CheckResult "PASS" "docker-compose" "Docker Compose is available."
@@ -373,7 +415,7 @@ if ($FailCount -eq 0) {
     }
 }
 
-if ($FailCount -eq 0) {
+if ($InfraFailCount -eq 0) {
     $config = Invoke-External "docker" @("compose", "config")
     if ($config.ExitCode -eq 0) {
         Add-CheckResult "PASS" "compose-config" "Compose configuration is valid."
@@ -383,7 +425,7 @@ if ($FailCount -eq 0) {
     }
 }
 
-if ($FailCount -eq 0) {
+if ($InfraFailCount -eq 0) {
     $services = Get-ComposeServices
     $requiredServices = @("postgres", "redis", "db-migrator", "api", "media-worker")
     foreach ($service in $requiredServices) {
@@ -399,7 +441,7 @@ if ($FailCount -eq 0) {
 Test-EnvConfiguration
 Test-QaTestAccountConfiguration
 
-if (-not $PreflightOnly -and $FailCount -eq 0) {
+if (-not $PreflightOnly -and $InfraFailCount -eq 0) {
     if (-not $SkipStart) {
         $composeArguments = @("compose", "up", "-d")
         if ($BuildImages) {
@@ -420,7 +462,7 @@ if (-not $PreflightOnly -and $FailCount -eq 0) {
     }
 }
 
-if (-not $PreflightOnly -and $FailCount -eq 0) {
+if (-not $PreflightOnly -and $InfraFailCount -eq 0) {
     Test-ContainerHealthy "postgres" | Out-Null
     Test-ContainerHealthy "redis" | Out-Null
     Test-DbMigratorCompleted | Out-Null
@@ -428,7 +470,7 @@ if (-not $PreflightOnly -and $FailCount -eq 0) {
     Test-ContainerRunning "media-worker" | Out-Null
 }
 
-if (-not $PreflightOnly -and $FailCount -eq 0) {
+if (-not $PreflightOnly -and $InfraFailCount -eq 0) {
     $swaggerUrl = "$($PublicUrl.TrimEnd('/'))/swagger/index.html"
     Wait-Condition "swagger" {
         try {

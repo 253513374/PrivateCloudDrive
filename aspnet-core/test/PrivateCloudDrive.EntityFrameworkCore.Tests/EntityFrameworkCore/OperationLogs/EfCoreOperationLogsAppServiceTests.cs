@@ -115,4 +115,58 @@ public class EfCoreOperationLogsAppServiceTests : PrivateCloudDrive.EntityFramew
         propertyNames.ShouldNotContain("Exception");
         propertyNames.ShouldNotContain("Exceptions");
     }
+
+    /// <summary>
+    /// 验证审计事件类型常量覆盖所有关键行为：登录、刷新、退出、绑定/解绑、分享、文件操作。
+    /// </summary>
+    [Fact]
+    public void Should_Cover_All_Critical_Audit_Event_Types()
+    {
+        // 移动认证审计事件 — 登录/刷新/退出/绑定/解绑
+        var authActions = typeof(MobileAuthAuditLogActions)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Select(f => f.GetValue(null)!.ToString())
+            .ToList();
+
+        authActions.ShouldContain("PasswordLogin");
+        authActions.ShouldContain("RefreshToken");
+        authActions.ShouldContain("Logout");
+        authActions.ShouldContain("ExternalLogin");
+        authActions.ShouldContain("ExternalBind");
+        authActions.ShouldContain("ExternalUnbind");
+
+        // 业务操作审计事件 — 文件/分享/标签
+        var bizActions = typeof(OperationLogActions)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Select(f => f.GetValue(null)!.ToString())
+            .ToList();
+
+        bizActions.ShouldContain("FileUpload");
+        bizActions.ShouldContain("FileDownload");
+        bizActions.ShouldContain("FileDelete");
+        bizActions.ShouldContain("FileRestore");
+        bizActions.ShouldContain("ShareCreate");
+        bizActions.ShouldContain("ShareDelete");
+        bizActions.ShouldContain("ShareAccess");
+        bizActions.ShouldContain("Security");
+    }
+
+    /// <summary>
+    /// 验证 MobileAuthAuditLogDto 不包含敏感字段（密码、token、secret）。
+    /// </summary>
+    [Fact]
+    public void Should_Keep_Mobile_Auth_Audit_Log_Dto_Free_From_Secrets()
+    {
+        var propertyNames = typeof(MobileAuthAuditLogDto)
+            .GetProperties()
+            .Select(property => property.Name)
+            .ToList();
+
+        propertyNames.ShouldNotContain("Password");
+        propertyNames.ShouldNotContain("AccessToken");
+        propertyNames.ShouldNotContain("RefreshToken");
+        propertyNames.ShouldNotContain("Token");
+        propertyNames.ShouldNotContain("AppSecret");
+        propertyNames.ShouldNotContain("Secret");
+    }
 }

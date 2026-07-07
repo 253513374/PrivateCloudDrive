@@ -338,8 +338,13 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
             {
                 "CreateAsync" => OperationLogActions.FolderCreate,
                 "DeleteAsync" => OperationLogActions.FileDelete,
+                "DeleteManyAsync" => OperationLogActions.BatchDelete,
                 "RestoreAsync" => OperationLogActions.FileRestore,
+                "RestoreManyAsync" => OperationLogActions.BatchRestore,
                 "PermanentlyDeleteAsync" => OperationLogActions.FilePermanentDelete,
+                "PermanentDeleteManyAsync" => OperationLogActions.BatchPermanentDelete,
+                "MoveManyAsync" => OperationLogActions.BatchMove,
+                "SetFavoriteManyAsync" => OperationLogActions.BatchFavoriteSet,
                 "EmptyTrashAsync" => OperationLogActions.TrashEmpty,
                 _ => CreateFallbackAction(serviceName, methodName)
             };
