@@ -313,6 +313,38 @@ public class EfCoreExternalAuthAppServiceTests : PrivateCloudDrive.EntityFramewo
             "\"TenantId\" IS NOT NULL");
     }
 
+    /// <summary>
+    /// 验证第三方登录 Provider 在未配置时 IsUsable 正确返回 false（降级行为）。
+    /// 确保未配置的 provider 不会出现在客户端可用登录列表中。
+    /// </summary>
+    [Fact]
+    public void Should_Be_Unusable_When_External_Provider_Not_Configured()
+    {
+        // 完全未配置的 Provider（所有属性均为默认值）
+        var unconfiguredProvider = new ExternalLoginProviderOptions();
+        unconfiguredProvider.IsUsable(requireClientSecret: false).ShouldBeFalse();
+        unconfiguredProvider.IsUsable(requireClientSecret: true).ShouldBeFalse();
+
+        // 禁用但配置了端点的 Provider
+        var disabledProvider = ExternalLoginProviderOptions.CreateGoogle();
+        disabledProvider.Enabled = false;
+        disabledProvider.ClientId = "some-client-id";
+        disabledProvider.IsUsable(requireClientSecret: false).ShouldBeFalse();
+
+        // 启用但有必填属性缺失
+        var missingClientId = ExternalLoginProviderOptions.CreateGoogle();
+        missingClientId.Enabled = true;
+        missingClientId.ClientId = string.Empty;
+        missingClientId.IsUsable(requireClientSecret: false).ShouldBeFalse();
+
+        // 完全配置且已启用
+        var fullyConfigured = ExternalLoginProviderOptions.CreateGoogle();
+        fullyConfigured.Enabled = true;
+        fullyConfigured.ClientId = "valid-client-id";
+        fullyConfigured.IsUsable(requireClientSecret: false).ShouldBeTrue();
+        fullyConfigured.IsUsable(requireClientSecret: true).ShouldBeFalse(); // No ClientSecret
+    }
+
     private async Task<IdentityUser> CreateUserAsync(string userName, string email)
     {
         var user = new IdentityUser(Guid.NewGuid(), userName, email);

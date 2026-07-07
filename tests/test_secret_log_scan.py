@@ -135,11 +135,28 @@ def test_source_file_raw_authorization_and_url_token_are_reported(tmp_path):
     assert [item.rule for item in findings] == ["AUTHORIZATION_VALUE", "URL_SECRET_QUERY"]
 
 
+def test_sensitive_marker_deny_list_literals_are_allowed(tmp_path):
+    gate = load_gate_module()
+    gate.ROOT = tmp_path
+    source_file = tmp_path / "aspnet-core" / "src" / "DeploymentHealthCheckService.cs"
+    source_file.parent.mkdir(parents=True)
+    source_file.write_text(
+        'private static readonly HashSet<string> ForbiddenSensitiveMarkers = new()\n'
+        '{\n'
+        '    "Password=", "myPassword", "client_secret", "client secret",\n'
+        '};\n',
+        encoding="utf-8",
+    )
+
+    assert gate.scan_file(source_file) == []
+
+
 def test_dynamic_qa_secret_assignments_and_android_window_tokens_are_allowed(tmp_path):
     gate = load_gate_module()
     gate.ROOT = tmp_path
     script = tmp_path / "scripts" / "prepare-qa-test-account.sh"
     script.parent.mkdir(parents=True)
+
     script.write_text(
         "PASS" + "WORD=\"$(load_password_from_file \"$PASSWORD_FILE\")\"\n"
         "export PCD_QA_TEST_ACCOUNT_" + "PASS" + "WORD=\"$PASSWORD\"\n"
