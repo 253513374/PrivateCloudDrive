@@ -124,6 +124,41 @@ docker compose up -d --build
 
 微信登录默认关闭。Android App 只消费后端公开 settings 中的 `AppId`、`Scope` 和平台公开配置，`AppSecret` 只能通过后端配置、环境变量或密钥系统提供。真实微信登录还需要微信开放平台移动应用、Android 包名与签名配置，以及安装微信的真机验收。
 
+## 数据存储与数据安全
+
+> ⚠️ **部署前必读**：请仔细了解你的数据存在哪里、哪些目录是"丢失后不可恢复的"以及数据丢失的最可能原因。
+
+### 哪些数据不能丢
+
+| 数据资产 | 存储位置 | 不可丢失原因 |
+|----------|----------|-------------|
+| 用户账号、权限、文件索引、分享记录、媒体处理状态 | PostgreSQL data volume (`privateclouddrive_stack_postgres_data`) | 丢失后所有文件索引、分享链接、账号体系全部不可用 |
+| 文件实体、缩略图、视频封面、上传临时文件 | FileCenter storage volume (`privateclouddrive_stack_storage`) | 文件原始数据唯一存储位置 |
+| 数据库密码、加密短语、公开 URL、存储提供商配置 | `.env` 配置文件 | 实例唯一的密钥和身份配置，默认不由备份脚本复制 |
+
+> **重要：Docker volume 不是备份**。删除容器或删除 volume 将**永久丢失**以上数据。`docker compose down` 不会删除 volume，但 `docker compose down -v` 或手动 `docker volume rm` 会。
+
+### 迁移与变更风险
+
+- **文件存储路径变更**：文件路径（如 `/app/storage` 挂载点）被记录在数据库中。变更挂载路径后，已有文件将无法通过索引访问。如需迁移，请使用备份恢复流程而非直接修改 volume 挂载。
+- **`PUBLIC_URL` 变更**：OpenIddict 将 `PUBLIC_URL` 用作 issuer 标识。变更后，已有 OAuth/OpenIddict 令牌和分享链接将失效，用户需要重新登录，已有分享链接不可用。
+
+### 可选存储：⚠️ 实验性配置
+
+- **MinIO**（`--profile minio`）和 **Aliyun OSS**（`FILECENTER_STORAGE_PROVIDER=AliyunOss`）是 V1.0 RC 版本的可选/实验性配置。
+- 切换存储后端**不会自动迁移**已有本地文件系统的文件。在切换前请制定独立的迁移与回滚计划。
+- 启用 OSS 后，本地 `/app/storage` volume 仍需要保留作为媒体处理临时工作区。
+
+### 备份恢复入口
+
+一键非破坏性备份恢复演练（验证备份文件完整性 + 恢复 dry-run）：
+
+```powershell
+.\scripts\run-backup-restore-drill.ps1
+```
+
+详细灾难恢复 Runbook 见 [docs/disaster-recovery.md](docs/disaster-recovery.md)，包含 RPO/RTO 边界、破坏性恢复验收清单和演练证据规范。
+
 ## 验证
 
 后端：
