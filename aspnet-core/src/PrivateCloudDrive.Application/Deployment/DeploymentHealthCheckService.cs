@@ -100,7 +100,7 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
             return FailResult(
                 "数据库连接",
                 "未配置数据库连接字符串。",
-                "请在 ConnectionStrings:Default 中配置 PostgreSQL 连接字符串，例如：Host=localhost;Port=5432;Database=PrivateCloudDrive;User ID=root;Password=...");
+                "请在 ConnectionStrings:Default 中配置 PostgreSQL 连接字符串，例如：Host=localhost;Port=5432;Database=<database-name>;User ID=root;Password=...");
         }
 
         try
@@ -572,10 +572,21 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
     {
         // 仅显示最后两级路径，避免暴露完整部署路径
         var normalized = path.Replace('\\', '/').TrimEnd('/');
-        var segments = normalized.Split('/');
+        var segments = normalized
+            .Split('/')
+            .Select(SanitizeDisplaySegment)
+            .ToArray();
         return segments.Length <= 2
-            ? normalized
+            ? string.Join("/", segments)
             : "…/" + string.Join("/", segments[^2..]);
+    }
+
+
+    private static string SanitizeDisplaySegment(string segment)
+    {
+        return ForbiddenSensitiveMarkers.Any(marker => segment.Contains(marker, StringComparison.OrdinalIgnoreCase))
+            ? "已脱敏"
+            : segment;
     }
 
     private static string SanitizeUrlForDisplay(string url)
