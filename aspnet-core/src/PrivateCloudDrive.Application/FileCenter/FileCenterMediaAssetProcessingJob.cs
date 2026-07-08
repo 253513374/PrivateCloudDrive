@@ -77,7 +77,7 @@ public class FileCenterMediaAssetProcessingJob
         }
         catch (Exception exception)
         {
-            mediaAsset.MarkFailed(exception.Message);
+            mediaAsset.MarkFailed(FileCenterMediaLibraryHelpers.SanitizeProcessError(exception.Message) ?? exception.Message);
             await _mediaAssetRepository.UpdateAsync(mediaAsset, autoSave: true);
         }
     }
