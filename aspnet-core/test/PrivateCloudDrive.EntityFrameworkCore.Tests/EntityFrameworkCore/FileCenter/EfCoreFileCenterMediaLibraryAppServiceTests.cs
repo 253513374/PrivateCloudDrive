@@ -21,6 +21,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
     private readonly PrivateCloudDrive.FileCenter.IFileCenterMediaLibraryAppService _mediaLibraryAppService;
     private readonly PrivateCloudDrive.FileCenter.IFileCenterTagsAppService _tagsAppService;
     private readonly IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid> _mediaAssetRepository;
+    private readonly IRepository<PrivateCloudDrive.FileCenter.FileCenterOperationLog, Guid> _fileCenterOperationLogRepository;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
 
     /// <summary>
@@ -32,6 +33,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         _mediaLibraryAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterMediaLibraryAppService>();
         _tagsAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterTagsAppService>();
         _mediaAssetRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid>>();
+        _fileCenterOperationLogRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.FileCenterOperationLog, Guid>>();
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
     }
 
@@ -282,6 +284,178 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
             detail.ProcessErrorSummary.ShouldNotContain("abc123");
             detail.ProcessErrorSummary.ShouldNotContain("password=pw");
             detail.ProcessErrorSummary.ShouldContain("[redacted]");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Retry_Own_Failed_Media_Successfully()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("retry-failed.mp4", "video/mp4");
+
+            // First retry creates a pending asset and moves to Processing
+            var firstRetry = await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+            firstRetry.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+
+            // Mark as Failed
+            await MarkFailedAsync(clip.Id, "transient error");
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var asset = await GetMediaAssetAsync(clip.Id);
+                asset.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed);
+            });
+
+            // Second retry should succeed from Failed → Processing
+            var secondRetry = await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+            secondRetry.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Return_NotFound_When_Retrying_Other_Users_Media()
+    {
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto? firstUserClip = null;
+
+        await WithCurrentUserAsync(firstUserId, async () =>
+        {
+            firstUserClip = await UploadSmallFileAsync("other-user-video.mp4", "video/mp4");
+            await _mediaLibraryAppService.RetryProcessingAsync(firstUserClip.Id);
+            await MarkFailedAsync(firstUserClip.Id, "some error");
+        });
+
+        await WithCurrentUserAsync(secondUserId, async () =>
+        {
+            // Second user cannot see/retry first user's file → throws BusinessException (NotFound)
+            var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(firstUserClip!.Id));
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Reject_Retry_For_Completed_Media()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("completed-retry.mp4", "video/mp4");
+
+            // First retry → Processing
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Mark as Completed
+            await MarkVideoProcessedAsync(clip.Id, durationMilliseconds: 9999);
+
+            // Retry on Completed should throw
+            var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(clip.Id));
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterMediaAssetCannotRetry);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Reject_Retry_For_Processing_Media()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("processing-retry.mp4", "video/mp4");
+
+            // First retry → Processing
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Retry while still Processing should throw
+            var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(clip.Id));
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterMediaAssetCannotRetry);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Record_Audit_Log_On_Successful_Retry()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("audit-retry.mp4", "video/mp4");
+
+            // First retry: Pending (from CreatePendingAssetAsync) → Processing
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Verify audit log entry
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == clip.Id);
+
+                logs.Count.ShouldBe(1);
+                var log = logs[0];
+
+                log.Action.ShouldBe(PrivateCloudDrive.FileCenter.FileCenterOperationLogConsts.ActionMediaRetry);
+                log.StatusBefore.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Pending.ToString());
+                log.StatusAfter.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing.ToString());
+                log.MediaAssetId.ShouldNotBe(Guid.Empty);
+                log.OperatorUserId.ShouldBe(userId);
+            });
+
+            // Mark Failed then retry again
+            await MarkFailedAsync(clip.Id, "another error");
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Verify second audit log: Failed → Processing
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == clip.Id);
+
+                logs.Count.ShouldBe(2);
+                var failedRetryLog = logs.OrderBy(l => l.CreationTime).Last();
+
+                failedRetryLog.Action.ShouldBe(PrivateCloudDrive.FileCenter.FileCenterOperationLogConsts.ActionMediaRetry);
+                failedRetryLog.StatusBefore.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed.ToString());
+                failedRetryLog.StatusAfter.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing.ToString());
+                failedRetryLog.OperatorUserId.ShouldBe(userId);
+            });
+        });
+    }
+
+    [Fact]
+    public async Task Should_Not_Record_Audit_Log_On_Retry_Of_Other_User_Media()
+    {
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto? firstUserClip = null;
+
+        await WithCurrentUserAsync(firstUserId, async () =>
+        {
+            firstUserClip = await UploadSmallFileAsync("no-log-video.mp4", "video/mp4");
+        });
+
+        await WithCurrentUserAsync(secondUserId, async () =>
+        {
+            // Second user tries to retry — throws before any audit log is recorded
+            await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(firstUserClip!.Id));
+
+            // No audit log should exist for this FileNodeId
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == firstUserClip!.Id);
+
+                logs.Count.ShouldBe(0);
+            });
         });
     }
 
