@@ -54,6 +54,9 @@ public class FileCenterStorageAppService : FileCenterAppService, IFileCenterStor
         var usagePercent = isQuotaConfigured
             ? Math.Round((decimal)usedBytes / quotaBytes * 100, 2, MidpointRounding.AwayFromZero)
             : 0;
+        var maxSingleFileSize = await GetLongSettingAsync(
+            PrivateCloudDriveSettings.FileCenter.MaxUploadFileSizeInBytes,
+            0);
 
         return new StorageUsageDto
         {
@@ -61,7 +64,8 @@ public class FileCenterStorageAppService : FileCenterAppService, IFileCenterStor
             QuotaBytes = quotaBytes,
             RemainingBytes = remainingBytes,
             UsagePercent = usagePercent,
-            IsQuotaConfigured = isQuotaConfigured
+            IsQuotaConfigured = isQuotaConfigured,
+            MaxSingleFileSize = maxSingleFileSize
         };
     }
 
