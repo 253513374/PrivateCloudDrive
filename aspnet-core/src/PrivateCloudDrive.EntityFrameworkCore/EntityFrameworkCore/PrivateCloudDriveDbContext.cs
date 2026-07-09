@@ -41,6 +41,7 @@ public class PrivateCloudDriveDbContext :
     public DbSet<MobileAuthAuditLog> MobileAuthAuditLogs { get; set; }
     public DbSet<WechatUserBinding> WechatUserBindings { get; set; }
     public DbSet<ExternalUserBinding> ExternalUserBindings { get; set; }
+    public DbSet<FileCenterOperationLog> FileCenterOperationLogs { get; set; }
 
     #region Entities from the modules
 
