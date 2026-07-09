@@ -522,6 +522,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         await WithUnitOfWorkAsync(async () =>
         {
             var asset = await GetMediaAssetAsync(fileNodeId);
+            asset.MarkProcessing();
             asset.MarkImageProcessed(1920, 1080, takenAt, Guid.NewGuid());
             await _mediaAssetRepository.UpdateAsync(asset, autoSave: true);
         });
@@ -532,6 +533,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         await WithUnitOfWorkAsync(async () =>
         {
             var asset = await GetMediaAssetAsync(fileNodeId);
+            asset.MarkProcessing();
             asset.MarkVideoProcessed(1280, 720, durationMilliseconds, "h264", Guid.NewGuid());
             await _mediaAssetRepository.UpdateAsync(asset, autoSave: true);
         });
@@ -542,6 +544,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         await WithUnitOfWorkAsync(async () =>
         {
             var asset = await GetMediaAssetAsync(fileNodeId);
+            asset.MarkProcessing();
             asset.MarkFailed(error);
             await _mediaAssetRepository.UpdateAsync(asset, autoSave: true);
         });
