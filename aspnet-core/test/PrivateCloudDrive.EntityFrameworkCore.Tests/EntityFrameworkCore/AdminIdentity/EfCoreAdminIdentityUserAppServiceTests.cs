@@ -39,7 +39,7 @@ public class EfCoreAdminIdentityUserAppServiceTests : PrivateCloudDriveEntityFra
         {
             UserName = "test-new-user",
             Email = "test@example.com",
-            Password = "Test@123456"
+            Password = "YOUR-Test-123"
         });
 
         result.ShouldNotBeNull();
@@ -62,7 +62,7 @@ public class EfCoreAdminIdentityUserAppServiceTests : PrivateCloudDriveEntityFra
         {
             UserName = "quota-test-user",
             Email = "quota@example.com",
-            Password = "Test@123456",
+            Password = "YOUR-Test-123",
             StorageQuotaBytes = customQuota
         });
 
@@ -78,7 +78,7 @@ public class EfCoreAdminIdentityUserAppServiceTests : PrivateCloudDriveEntityFra
         {
             UserName = "disable-test-user",
             Email = "disable@example.com",
-            Password = "Test@123456"
+            Password = "YOUR-Test-123"
         });
 
         // Disable the user
@@ -98,7 +98,7 @@ public class EfCoreAdminIdentityUserAppServiceTests : PrivateCloudDriveEntityFra
         {
             UserName = "enable-test-user",
             Email = "enable@example.com",
-            Password = "Test@123456"
+            Password = "YOUR-Test-123"
         });
         await _adminUserAppService.DisableAsync(newUser.Id);
 
@@ -118,7 +118,7 @@ public class EfCoreAdminIdentityUserAppServiceTests : PrivateCloudDriveEntityFra
         {
             UserName = "quota-set-user",
             Email = "quota-set@example.com",
-            Password = "Test@123456"
+            Password = "YOUR-Test-123"
         });
 
         var newQuota = 5L * 1024 * 1024 * 1024; // 5 GB
@@ -179,7 +179,7 @@ public class EfCoreAdminIdentityUserAppServiceTests : PrivateCloudDriveEntityFra
         {
             UserName = "no-file-delete-user",
             Email = "nofiledelete@example.com",
-            Password = "Test@123456"
+            Password = "YOUR-Test-123"
         });
 
         await _adminUserAppService.DisableAsync(newUser.Id);
