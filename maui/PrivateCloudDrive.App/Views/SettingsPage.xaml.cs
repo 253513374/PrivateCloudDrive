@@ -74,6 +74,31 @@ public partial class SettingsPage : ContentPage
         await Shell.Current.GoToAsync("shares", true);
     }
 
+    private async void OnAdminUserManagementClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("admin-users", true);
+    }
+
+    private async void OnSystemHealthClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("storage-usage", true);
+    }
+
+    private async void OnStorageConfigClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("storage-usage", true);
+    }
+
+    private async void OnMediaTasksClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("media-processing", true);
+    }
+
+    private async void OnShareRiskClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("share-risk", true);
+    }
+
     private async void OnStorageUsageClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("storage-usage", true);
@@ -170,6 +195,7 @@ public partial class SettingsPage : ContentPage
             await LoadSystemHealthAsync(isSignedIn);
             await LoadWechatStateAsync(isSignedIn);
             await LoadExternalStateAsync(isSignedIn);
+            await CheckAdminAccessAsync(isSignedIn);
         }
         catch (Exception exception)
         {
@@ -178,6 +204,27 @@ public partial class SettingsPage : ContentPage
             SetWechatInfoState(AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GoogleProvider, AppText.Unavailable, canBind: false, canUnbind: false);
             SetExternalInfoState(GitHubProvider, AppText.Unavailable, canBind: false, canUnbind: false);
+            AdminSectionPanel.IsVisible = false;
+        }
+    }
+
+    private async Task CheckAdminAccessAsync(bool isSignedIn)
+    {
+        AdminSectionPanel.IsVisible = false;
+
+        if (!isSignedIn)
+        {
+            return;
+        }
+
+        try
+        {
+            var users = await _apiClient.GetAdminUsersAsync();
+            AdminSectionPanel.IsVisible = users.Count >= 0;
+        }
+        catch
+        {
+            AdminSectionPanel.IsVisible = false;
         }
     }
 
