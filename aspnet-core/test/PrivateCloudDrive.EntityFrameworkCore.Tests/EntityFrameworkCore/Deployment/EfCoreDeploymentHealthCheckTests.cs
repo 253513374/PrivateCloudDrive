@@ -13,6 +13,7 @@ namespace PrivateCloudDrive.EntityFrameworkCore.Deployment;
 /// <summary>
 /// 验证部署健康检查端点，确保运维人员部署后可通过单条 API 调用确认系统就绪。
 /// 所有输出不包含密码、token、OAuth code、client secret 或完整私有 URL。
+/// 覆盖 live/ready/detail 分层与脱敏。
 /// </summary>
 [Collection(PrivateCloudDriveTestConsts.CollectionDefinitionName)]
 public class EfCoreDeploymentHealthCheckTests : PrivateCloudDriveEntityFrameworkCoreTestBase
@@ -83,6 +84,7 @@ public class EfCoreDeploymentHealthCheckTests : PrivateCloudDriveEntityFramework
 
     /// <summary>
     /// 验证部署健康检查输出不包含任何敏感信息：密码、token、OAuth code、client secret、完整私有 URL。
+    /// 覆盖增强脱敏（Windows 路径、Linux 路径、连接串密码、JWT token、AccessKeySecret）。
     /// </summary>
     [Fact]
     public async Task Should_Not_Expose_Sensitive_Data()
@@ -234,10 +236,214 @@ public class EfCoreDeploymentHealthCheckTests : PrivateCloudDriveEntityFramework
         securityCheck.ShouldNotBeNull();
 
         // Swagger 检查失败语不应出现在测试环境的安全检查结果中
-        // （测试配置中 Swagger:Enabled=false，且 ASPNETCORE_ENVIRONMENT 不为 Development）
         if (securityCheck.FixSuggestion != null)
         {
             securityCheck.FixSuggestion.ShouldNotContain("Swagger");
         }
+    }
+
+    // ============================
+    // 分层检查：live
+    // ============================
+
+    /// <summary>
+    /// 验证 /health/live 返回极简存活状态，不依赖任何外部服务。
+    /// </summary>
+    [Fact]
+    public async Task Should_Return_Live_Status()
+    {
+        var result = await _deploymentHealthCheckService.GetLiveAsync();
+
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe("Healthy");
+        result.GeneratedAt.ShouldBeGreaterThan(DateTime.MinValue);
+        result.GeneratedAt.Kind.ShouldBe(DateTimeKind.Utc);
+    }
+
+    // ============================
+    // 分层检查：ready
+    // ============================
+
+    /// <summary>
+    /// 验证 /health/ready 返回低敏就绪状态，包含所有组件的 Pass/Warn/Fail。
+    /// </summary>
+    [Fact]
+    public async Task Should_Return_Ready_Status()
+    {
+        var result = await _deploymentHealthCheckService.GetReadyAsync();
+
+        result.ShouldNotBeNull();
+        result.Checks.Count.ShouldBeGreaterThanOrEqualTo(8);
+
+        // 验证 ready 层消息为低敏格式（不含修复建议）
+        foreach (var check in result.Checks)
+        {
+            check.Name.ShouldNotBeNullOrWhiteSpace();
+            check.Message.ShouldNotBeNullOrWhiteSpace();
+        }
+
+        // 验证 ready 层不包含 FixSuggestion（该字段在 ready 层不应存在）
+        var resultType = result.GetType();
+        var checksProp = resultType.GetProperty("Checks");
+        var checksList = checksProp!.GetValue(result) as System.Collections.IList;
+        var firstCheck = checksList![0]!;
+        var fixSuggestionProp = firstCheck.GetType().GetProperty("FixSuggestion");
+        fixSuggestionProp.ShouldBeNull("Ready 层不应包含 FixSuggestion 字段");
+
+        // 验证时间戳
+        result.GeneratedAt.ShouldBeGreaterThan(DateTime.MinValue);
+        result.GeneratedAt.Kind.ShouldBe(DateTimeKind.Utc);
+
+        // 验证 ContainsSensitiveData
+        result.ContainsSensitiveData.ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// 验证 /health/ready 返回的消息仅为低敏摘要（"正常"/"降级"/"不可用"），不含详细诊断。
+    /// </summary>
+    [Fact]
+    public async Task Ready_Should_Only_Contain_LowSensitivity_Messages()
+    {
+        var result = await _deploymentHealthCheckService.GetReadyAsync();
+
+        foreach (var check in result.Checks)
+        {
+            // 消息应为低敏格式：组件名 + 状态描述
+            check.Message.ShouldMatch(@"^(数据库连接|Redis/分布式缓存|存储卷可写性|FFmpeg|FFprobe|OpenIddict Issuer URL|OpenIddict 应用 Redirect URLs|安全配置检查) (正常|降级|不可用)$");
+        }
+    }
+
+    /// <summary>
+    /// 验证 /health/ready 输出不包含任何敏感信息。
+    /// </summary>
+    [Fact]
+    public async Task Ready_Should_Not_Expose_Sensitive_Data()
+    {
+        var result = await _deploymentHealthCheckService.GetReadyAsync();
+
+        var allOutputText = string.Join(
+            "\n",
+            result.Checks.Select(c =>
+                $"{c.Name}|{c.Status}|{c.Message}"));
+
+        var forbiddenMarkers = new[]
+        {
+            "Password=",
+            "myPassword",
+            "privateclouddrive",
+            "client_secret",
+            "client secret",
+            "AccessKeyId",
+            "AccessKeySecret",
+            "NWdpATI5trUHk4X2",
+            "raw exception"
+        };
+
+        foreach (var marker in forbiddenMarkers)
+        {
+            allOutputText.ShouldNotContain(marker, Case.Insensitive);
+        }
+
+        result.ContainsSensitiveData.ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// 验证 /health/ready 在无认证情况下可访问。
+    /// </summary>
+    [Fact]
+    public async Task Ready_Should_Be_Accessible_Without_Authentication()
+    {
+        var result = await _deploymentHealthCheckService.GetReadyAsync();
+
+        result.ShouldNotBeNull();
+        result.Checks.Count.ShouldBeGreaterThanOrEqualTo(8);
+    }
+
+    // ============================
+    // 脱敏增强测试
+    // ============================
+
+    /// <summary>
+    /// 验证 SanitizeErrorMessage 能脱敏 Windows 驱动器绝对路径（不含 ForbiddenSensitiveMarkers 的辅助测试）。
+    /// </summary>
+    [Fact]
+    public void SanitizeErrorMessage_Should_Redact_Windows_Path()
+    {
+        var message = "File not found at C:\\Users\\testuser\\AppData\\app\\config.json";
+        var result = DeploymentHealthCheckService.SanitizeErrorMessage(message);
+        result.ShouldNotContain("C:\\Users");
+        result.ShouldContain("**路径已脱敏**");
+    }
+
+    /// <summary>
+    /// 验证 SanitizeErrorMessage 能脱敏 Linux 绝对路径。
+    /// </summary>
+    [Fact]
+    public void SanitizeErrorMessage_Should_Redact_Linux_Path()
+    {
+        var message = "Binary not found at /var/lib/app/ffmpeg";
+        var result = DeploymentHealthCheckService.SanitizeErrorMessage(message);
+        result.ShouldNotContain("/var/lib");
+        result.ShouldContain("**路径已脱敏**");
+    }
+
+    /// <summary>
+    /// 验证 SanitizeErrorMessage 能脱敏连接字符串内的密码（使用 Pwd= 避免触发 Password= 标记提前返回）。
+    /// </summary>
+    [Fact]
+    public void SanitizeErrorMessage_Should_Redact_ConnectionString_Password()
+    {
+        var message = "Connection failed: Server=db;Port=5432;Uid=admin;Pwd=SuperSecret123!";
+        var result = DeploymentHealthCheckService.SanitizeErrorMessage(message);
+        result.ShouldNotContain("SuperSecret123");
+        result.ShouldContain("**已脱敏**");
+    }
+
+    /// <summary>
+    /// 验证 SanitizeErrorMessage 能脱敏 JWT token 格式字符串（所有段 ≥10 字符）。
+    /// </summary>
+    [Fact]
+    public void SanitizeErrorMessage_Should_Redact_Jwt_Token()
+    {
+        var message = "Token validation failed: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwMTIzNDU2Nzg5MCJ9.dGVzdFRva2VuU2VnbWVudFNpZ25hdHVyZQ";
+        var result = DeploymentHealthCheckService.SanitizeErrorMessage(message);
+        result.ShouldNotContain("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9");
+        result.ShouldContain("**token已脱敏**");
+    }
+
+    /// <summary>
+    /// 验证 SanitizeErrorMessage 能脱敏 AccessKey（使用标记时不触发 ForbiddenSensitiveMarkers 的值）。
+    /// 注意：AccessKeySecret 在 ForbiddenSensitiveMarkers 中导致整体脱敏，此处测试 key 值部分的脱敏。
+    /// </summary>
+    [Fact]
+    public void SanitizeErrorMessage_Should_Redact_AccessKey()
+    {
+        var message = "OSS access failed: AccessKey=mySecretKey12345 with region cn-hangzhou";
+        var result = DeploymentHealthCheckService.SanitizeErrorMessage(message);
+        result.ShouldNotContain("mySecretKey12345");
+        result.ShouldContain("**AccessKey已脱敏**");
+    }
+
+    /// <summary>
+    /// 验证 SanitizePath 脱敏包含 ForbiddenSensitiveMarkers 的路径时返回安全摘要。
+    /// </summary>
+    [Fact]
+    public void SanitizePath_Should_Redact_Enitely_When_Contains_Sensitive_Markers()
+    {
+        var path = "D:\\Devs\\Projects\\Personal\\PrivateCloudDrive\\App_Data\\FileCenter";
+        var result = DeploymentHealthCheckService.SanitizePath(path);
+        // "PrivateCloudDrive" is in ForbiddenSensitiveMarkers, so entire path is redacted
+        result.ShouldBe("路径已脱敏");
+    }
+
+    /// <summary>
+    /// 验证 SanitizePath 对短路径（≤2 段）不进行截断。
+    /// </summary>
+    [Fact]
+    public void SanitizePath_Should_Keep_Short_Path_Intact()
+    {
+        var path = "App_Data/FileCenter";
+        var result = DeploymentHealthCheckService.SanitizePath(path);
+        result.ShouldBe("App_Data/FileCenter");
     }
 }

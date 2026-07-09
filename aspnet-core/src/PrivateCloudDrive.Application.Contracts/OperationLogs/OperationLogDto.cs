@@ -31,4 +31,14 @@ public class OperationLogDto : EntityDto<Guid>
     public string? CorrelationId { get; set; }
 
     public string Summary { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 关联的文件/文件夹 ID（如果有）。
+    /// </summary>
+    public Guid? FileNodeId { get; set; }
+
+    /// <summary>
+    /// 关联的文件/文件夹路径（如果有）。
+    /// </summary>
+    public string? FilePath { get; set; }
 }

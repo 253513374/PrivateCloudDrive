@@ -103,7 +103,7 @@ COMPOSE_PROJECT_NAME=pcd_d7_smoke \
 .\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\<timestamp> -ConfirmDestructiveRestore
 ```
 
-`run-backup-restore-drill.ps1` 会创建备份、执行恢复 dry-run，并在 `docs/validation/backup-restore-drill-*.md` 写入非破坏性演练报告。破坏性恢复通过后，还需要按 `docs/disaster-recovery.md` 的恢复后验收清单补充登录、文件列表、下载/预览、回收站恢复、分享链路和脱敏审计证据。`.env.secret`、密码、token、OAuth code、client secret 和真实私密文件内容禁止写入验收记录。
+`run-backup-restore-drill.ps1` 会创建备份、执行恢复 dry-run，并在 `docs/validation/` 下写入 `backup-restore-drill-<timestamp>.md` 非破坏性演练报告。破坏性恢复通过后，还需要按 `docs/disaster-recovery.md` 的恢复后验收清单补充登录、文件列表、下载/预览、回收站恢复、分享链路和脱敏审计证据。`.env.secret`、密码、token、OAuth code、client secret 和真实私密文件内容禁止写入验收记录。
 
 V1.1 文件管理体验验证：
 
@@ -128,6 +128,9 @@ dotnet build .\PrivateCloudDrive.App.csproj -f net10.0-windows10.0.19041.0 -p:Ou
 2026-05-09 执行结果：后端 build 成功；`PrivateCloudDrive.EntityFrameworkCore.Tests` 通过 91 个 EF 集成测试；MAUI Windows 隔离输出构建成功，0 警告 0 错误。默认 MAUI 输出目录当前被运行中的 `PrivateCloudDrive.App (75188)` 锁定，因此使用隔离输出目录验证。
 
 V1.2 RC 发布候选验证：
+
+> 命名口径：本节属于 V1.2 RC 发布候选验证。当前验收矩阵以 `docs/scenario-matrix-v1.2-rc.md` 为准，当前发布说明以 `docs/release-notes-v1.2-rc.md` 为准；`docs/scenario-matrix-v1.2.md` 与 `docs/release-notes-v1.2.md` 仅作为 RC 通过后提升正式版的候选材料。
+
 ```powershell
 dotnet build D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\PrivateCloudDrive.slnx -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-v12-rc-backend-build\
 dotnet test D:\Devs\Projects\Personal\PrivateCloudDrive\aspnet-core\PrivateCloudDrive.slnx --no-build -p:OutDir=D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\verify-v12-rc-backend-build\ --logger "trx;LogFilePrefix=v12-rc-backend" --results-directory D:\Devs\Projects\Personal\PrivateCloudDrive\artifacts\test-results\v12-rc-backend
@@ -384,7 +387,7 @@ pwsh -NoProfile -File scripts/verify-maui-build.ps1 -Configuration Debug
 | 已连接设备 | **无** — 无 Android 真机或模拟器连接 |
 | AVD 列表 | N/A — ANDROID_HOME 未设置，无 Android SDK |
 
-**影响**：Android APK 构建通过，但真实设备安装、启动和主链路触控验收需在可用 Android 设备上按 `docs/validation/android-real-device-evidence-runbook.md` 补填。当前环境限制已记录，不切换技术栈。
+**影响**：Android APK 构建通过，但真实设备安装、启动和主链路触控验收需在可用 Android 设备上按本文件“移动端真实设备手动验收清单”补填。当前环境限制已记录，不切换技术栈。
 
 ### Secret Scan
 

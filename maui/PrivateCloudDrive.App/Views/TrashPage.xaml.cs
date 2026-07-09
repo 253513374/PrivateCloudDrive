@@ -192,12 +192,56 @@ public partial class TrashPage : ContentPage
             }
 
             SetIdleState();
+            await LoadTrashStorageSummaryAsync();
         }
         catch (Exception exception)
         {
             TrashItems.Clear();
             await ShowErrorAsync(exception.Message);
         }
+    }
+
+    private async Task LoadTrashStorageSummaryAsync()
+    {
+        TrashStoragePanel.IsVisible = true;
+        TrashStorageLoadingIndicator.IsVisible = true;
+        TrashStorageLoadingIndicator.IsRunning = true;
+
+        try
+        {
+            var summary = await _apiClient.GetTrashStorageSummaryAsync();
+            TrashStorageLoadingIndicator.IsRunning = false;
+            TrashStorageLoadingIndicator.IsVisible = false;
+
+            TrashUsedBytesLabel.Text = FormatBytes(summary.UsedBytes);
+            TrashCleanupSuggestionLabel.Text = string.IsNullOrWhiteSpace(summary.CleanupSuggestion)
+                ? "回收站空间使用正常。"
+                : summary.CleanupSuggestion;
+        }
+        catch
+        {
+            TrashStorageLoadingIndicator.IsRunning = false;
+            TrashStorageLoadingIndicator.IsVisible = false;
+            TrashUsedBytesLabel.Text = "无法读取";
+            TrashCleanupSuggestionLabel.Text = "回收站存储信息暂时不可用。";
+        }
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)Math.Max(bytes, 0);
+        var unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? $"{value:0} {units[unitIndex]}"
+            : $"{value:0.##} {units[unitIndex]}";
     }
 
     private void SetLoadingState(string message)
