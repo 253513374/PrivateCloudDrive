@@ -18,6 +18,7 @@
 
         <HorizontalStackLayout Grid.Row="1" Spacing="8">
             <Button x:Name="AllStatusButton" Text="全部" Style="{StaticResource SegmentButtonSelected}" Clicked="OnAllClicked" />
+            <Button x:Name="PendingStatusButton" Text="等待中" Style="{StaticResource SegmentButton}" Clicked="OnPendingClicked" />
             <Button x:Name="ProcessingStatusButton" Text="处理中" Style="{StaticResource SegmentButton}" Clicked="OnProcessingClicked" />
             <Button x:Name="FailedStatusButton" Text="失败" Style="{StaticResource SegmentButton}" Clicked="OnFailedClicked" />
             <Button x:Name="CompletedStatusButton" Text="已完成" Style="{StaticResource SegmentButton}" Clicked="OnCompletedClicked" />

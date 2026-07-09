@@ -267,7 +267,33 @@
                                     <Border HorizontalOptions="End"
                                             VerticalOptions="Start"
                                             Padding="6,2"
-                                            IsVisible="{Binding ShowProcessStatus}"
+                                            IsVisible="{Binding IsPending}"
+                                            BackgroundColor="{StaticResource Warning}"
+                                            StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding ProcessStatusText}"
+                                               FontSize="10"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                    </Border>
+                                    <Border HorizontalOptions="End"
+                                            VerticalOptions="Start"
+                                            Padding="6,2"
+                                            IsVisible="{Binding IsProcessing}"
+                                            BackgroundColor="{StaticResource Warning}"
+                                            StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding ProcessStatusText}"
+                                               FontSize="10"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                    </Border>
+                                    <Border HorizontalOptions="End"
+                                            VerticalOptions="Start"
+                                            Padding="6,2"
+                                            IsVisible="{Binding IsProcessFailed}"
                                             BackgroundColor="{StaticResource Danger}"
                                             StrokeThickness="0">
                                         <Border.StrokeShape>
