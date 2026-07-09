@@ -41,9 +41,24 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
 
     /// <summary>
     /// 查询分页列表数据，并按当前用户、租户和输入条件进行过滤。
+    /// 管理员可查看所有用户日志；普通用户仅能看到自己的操作日志。
     /// </summary>
     public virtual async Task<PagedResultDto<OperationLogDto>> GetListAsync(GetOperationLogsInput input)
     {
+        // 为筛选参数合并别名
+        input = NormalizeInputAliases(input);
+
+        // 非管理员用户强制只看自己
+        if (!IsCurrentUserAdmin())
+        {
+            if (!CurrentUser.Id.HasValue)
+            {
+                return new PagedResultDto<OperationLogDto>(0, new List<OperationLogDto>());
+            }
+
+            input.UserId = CurrentUser.Id.Value;
+        }
+
         var logs = new List<OperationLogDto>();
 
         logs.AddRange(await GetAuditActionLogsAsync(input));
@@ -58,6 +73,34 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
             .ToList();
 
         return new PagedResultDto<OperationLogDto>(totalCount, items);
+    }
+
+    private bool IsCurrentUserAdmin()
+    {
+        return CurrentUser.IsInRole("admin");
+    }
+
+    private static GetOperationLogsInput NormalizeInputAliases(GetOperationLogsInput input)
+    {
+        // 合并 CreateAfter → StartTime
+        if (input.CreateAfter.HasValue && !input.StartTime.HasValue)
+        {
+            input.StartTime = input.CreateAfter;
+        }
+
+        // 合并 CreateBefore → EndTime
+        if (input.CreateBefore.HasValue && !input.EndTime.HasValue)
+        {
+            input.EndTime = input.CreateBefore;
+        }
+
+        // 合并 ActionName → Action
+        if (!string.IsNullOrWhiteSpace(input.ActionName) && string.IsNullOrWhiteSpace(input.Action))
+        {
+            input.Action = input.ActionName;
+        }
+
+        return input;
     }
 
     private async Task<IReadOnlyList<OperationLogDto>> GetAuditActionLogsAsync(GetOperationLogsInput input)
@@ -257,6 +300,11 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
         if (input.EndTime.HasValue)
         {
             query = query.Where(item => item.Time <= input.EndTime.Value);
+        }
+
+        if (input.FileNodeId.HasValue)
+        {
+            query = query.Where(item => item.FileNodeId == input.FileNodeId.Value);
         }
 
         return query.ToList();

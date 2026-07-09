@@ -2,12 +2,14 @@
 
 | 元数据 | 值 |
 |--------|-----|
-| 发布日期 | 2026-07-07 |
+| 目标发布日期 | 2026-07-07 |
 | 文档版本 | 1.0 |
 | 负责人 | Hermes 产品总监 (pm) |
-| 文档定位 | V1.2 正式发布说明（非 RC），基于 V1.2 RC 验证结果 + 已知限制同步 |
-| 基线文档 | `docs/release-plan-v1.2.md`、`docs/architecture-v1.2-boundary.md`、`docs/release-notes-v1.2-rc.md` |
+| 文档定位 | V1.2 正式发布说明候选稿（非 RC 文件名）；当前仅作为 RC 通过后的提升材料，不替代 V1.2 RC 闸门结论 |
+| 基线文档 | `docs/architecture-v1.2-rc-boundary.md`、`docs/scenario-matrix-v1.2-rc.md`、`docs/release-notes-v1.2-rc.md` |
 | 前置版本 | V1.1 文件管理体验增强 |
+
+> 命名口径：当前发布候选阶段以 `docs/release-notes-v1.2-rc.md` 为权威 Release Notes；本文档保留为正式 V1.2 候选稿，只有在 RC 验收全部通过并完成发布裁决后，才提升为正式发布说明。
 
 ---
 
@@ -114,11 +116,13 @@ V1.2 能力在 RC 阶段已完成端到端验证：
 
 V1.2 当前处于**验收中**阶段。以下验收任务已完成：
 
-- [x] `docs/scenario-matrix-v1.2.md` — 场景矩阵完成（含 §11 已知限制索引）
+- [x] `docs/scenario-matrix-v1.2-rc.md` — 当前 RC 场景矩阵完成
+- [x] `docs/scenario-matrix-v1.2.md` — 正式 V1.2 候选场景矩阵完成（含 §11 已知限制索引）
 - [x] `docs/testing.md` — 更新 V1.2 验收矩阵 + 已知限制清单
-- [x] `docs/release-notes-v1.2.md` — 本文件，Release Notes 与已知限制同步
+- [x] `docs/release-notes-v1.2-rc.md` — 当前 RC Release Notes 与验证结果
+- [x] `docs/release-notes-v1.2.md` — 本文件，正式 V1.2 候选稿与已知限制同步
 - [x] `docs/product-planning-hub.md` — V1.2 状态更新为"验收中"
-- [x] `docs/release-plan-v1.2.md` — 发布范围定义与验收口径完成（§10 已知限制）
+- [x] `docs/architecture-v1.2-rc-boundary.md` — RC 发布边界、风险与闸门口径完成
 
 待完成：
 
