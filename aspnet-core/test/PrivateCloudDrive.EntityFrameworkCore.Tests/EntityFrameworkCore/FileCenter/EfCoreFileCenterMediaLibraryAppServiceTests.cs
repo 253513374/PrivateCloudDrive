@@ -285,6 +285,72 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         });
     }
 
+    [Fact]
+    public async Task Should_Retry_Own_Failed_Media()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("retry-failed-video.mp4", "video/mp4");
+            await MarkFailedAsync(clip.Id, "ffmpeg exited with code 1");
+
+            var result = await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            result.ShouldNotBeNull();
+            result.FileNodeId.ShouldBe(clip.Id);
+            result.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+            result.CanRetryProcessing.ShouldBeFalse();
+            result.CanPreview.ShouldBeFalse();
+        });
+    }
+
+    [Fact]
+    public async Task Should_Retry_Own_Pending_Media()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var pending = await UploadSmallFileAsync("retry-pending-photo.jpg", "image/jpeg");
+
+            var result = await _mediaLibraryAppService.RetryProcessingAsync(pending.Id);
+
+            result.ShouldNotBeNull();
+            result.FileNodeId.ShouldBe(pending.Id);
+            result.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+            // For images: CanPreview is true when processStatus != Failed
+            result.CanPreview.ShouldBeTrue();
+            result.CanRetryProcessing.ShouldBeFalse();
+        });
+    }
+
+    [Fact]
+    public async Task Should_Throw_FileCenterNodeNotFound_When_Retrying_Other_User_Media()
+    {
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto otherUserNode = null!;
+
+        // User A uploads and marks as failed
+        await WithCurrentUserAsync(firstUserId, async () =>
+        {
+            otherUserNode = await UploadSmallFileAsync("other-user-video.mp4", "video/mp4");
+            await MarkFailedAsync(otherUserNode.Id, "simulated failure");
+        });
+
+        // User B tries to retry User A's fileNodeId
+        await WithCurrentUserAsync(secondUserId, async () =>
+        {
+            var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(otherUserNode.Id));
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+            exception.Message.ShouldNotContain("other-user-video.mp4");
+            exception.Message.ShouldNotContain(firstUserId.ToString());
+        });
+    }
+
     private async Task<PrivateCloudDrive.FileCenter.FileNodeDto> UploadSmallFileAsync(
         string fileName,
         string contentType)
