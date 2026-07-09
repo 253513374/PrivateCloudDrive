@@ -68,6 +68,27 @@
                        HorizontalTextAlignment="Center"
                        LineBreakMode="WordWrap"
                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Button x:Name="ErrorRetryButton"
+                        Text="{x:Static loc:AppText.Retry}"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnRetryClicked" />
+            </VerticalStackLayout>
+            <VerticalStackLayout x:Name="FormatNotSupportedPanel"
+                                 IsVisible="False"
+                                 Spacing="10"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 MaximumWidthRequest="360">
+                <Label x:Name="FormatNotSupportedLabel"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap"
+                       FontSize="18"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Label x:Name="FormatNotSupportedDetailLabel"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
                 <Button Text="{x:Static loc:AppText.Retry}"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnRetryClicked" />
