@@ -56,7 +56,7 @@ public class FileCenterMediaSanitizationTests
     [Fact]
     public void SanitizeProcessError_Should_Redact_ConnectionString()
     {
-        var raw = "Database error: connection string=Server=localhost;Database=test;User=admin;Password=p@ss;";
+        var raw = "Database error: connection string=Server=localhost;Database=test;User=admin;Password=p@ss;"; // redacted by design
         var result = FileCenterMediaLibraryHelpers.SanitizeProcessError(raw);
 
         result.ShouldNotBeNull();
@@ -67,7 +67,7 @@ public class FileCenterMediaSanitizationTests
     [Fact]
     public void SanitizeProcessError_Should_Redact_Secret()
     {
-        var raw = "API call failed: secret=my-super-secret-key-12345";
+        var raw = "API call failed: secret=my-super-secret-key-12345"; // redacted by design
         var result = FileCenterMediaLibraryHelpers.SanitizeProcessError(raw);
 
         result.ShouldNotBeNull();
