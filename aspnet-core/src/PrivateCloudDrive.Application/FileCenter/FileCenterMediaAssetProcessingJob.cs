@@ -77,10 +77,7 @@ public class FileCenterMediaAssetProcessingJob
         }
         catch (Exception exception)
         {
-            var sanitizedError = FileCenterMediaLibraryHelpers.SanitizeProcessError(exception.Message)
-                ?? "Media processing failed.";
-
-            mediaAsset.MarkFailed(sanitizedError);
+            mediaAsset.MarkFailed(FileCenterMediaLibraryHelpers.SanitizeProcessError(exception.Message) ?? exception.Message);
             await _mediaAssetRepository.UpdateAsync(mediaAsset, autoSave: true);
         }
     }
