@@ -6,7 +6,7 @@ namespace PrivateCloudDrive.FileCenter;
 public class StorageConfigDto
 {
     /// <summary>
-    /// 存储后端类型（FileSystem / AliyunOss / MinIO）。
+    /// 存储后端类型（FileSystem / AliyunOss）。MinIO [计划支持]。
     /// </summary>
     public string StorageProvider { get; set; } = string.Empty;
 

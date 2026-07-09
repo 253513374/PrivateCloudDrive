@@ -23,7 +23,7 @@ public class AdminFileCenterSystemHealthDto
     public long TotalUserCount { get; set; }
 
     /// <summary>
-    /// 总配额（所有用户配额之和）。
+    /// 存储总容量（物理磁盘总空间）。
     /// </summary>
     public long TotalStorageBytes { get; set; }
 
