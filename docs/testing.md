@@ -419,7 +419,7 @@ pwsh -NoProfile -File scripts/verify-maui-build.ps1 -Configuration Debug
 | AC-V1.3-13 | 设置页 — 普通用户不见管理区 | P0 | 普通用户打开 Settings，无管理区入口 | — | | |
 | AC-V1.3-14 | 设置页 — 状态卡片在顶部 | P0 | 任意用户打开 Settings，顶部显示系统健康状态圆点 | — | | |
 | AC-V1.3-15 | Docker Compose 验证脚本 | P0 | 运行 verify-local-stack.ps1，PASS/WARN/FAIL 输出，不打印密钥 | — | | |
-| AC-V1.3-16 | 脱敏基线 — 健康详情不含密钥 | P0 | grep -i "password=\|secret=\|token=" 无匹配 | — | | |
+| AC-V1.3-16 | 脱敏基线 — 健康详情不含密钥 | P0 | grep -iE "(password|secret|token)=" 无匹配 | — | | |
 | AC-V1.3-17 | 依赖漏洞 — 高危已登记 | P0 | dotnet list package --vulnerable，高危漏洞 ≤ 1 个已登记风险接受 | — | | |
 | AC-V1.3-20 | 审计日志 — 组合筛选 | P1 | GET /api/app/admin/audit-logs?userId=X&action=Delete 返回匹配日志，分页正常 | KN-V1.3-05（CSV 导出未实现） | | |
 | AC-V1.3-21 | 审计日志 — 详情脱敏 | P1 | 展开某条日志详情，密码/token 显示为 *** | — | | |
