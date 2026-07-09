@@ -637,7 +637,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
                     log => log.FileNodeId == clip.Id);
 
                 logs.Count.ShouldBe(2);
-                var failedRetryLog = logs.OrderBy(l => l.CreationTime).Last();
+                var failedRetryLog = logs.OrderBy(l => l.CreationTime).ThenBy(l => l.Id).Last();
 
                 failedRetryLog.Action.ShouldBe(PrivateCloudDrive.FileCenter.FileCenterOperationLogConsts.ActionMediaRetry);
                 failedRetryLog.StatusBefore.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed.ToString());
