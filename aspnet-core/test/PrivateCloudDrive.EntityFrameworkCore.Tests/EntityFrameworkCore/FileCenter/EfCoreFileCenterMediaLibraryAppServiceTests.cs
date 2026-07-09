@@ -459,6 +459,85 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         });
     }
 
+    /// <summary>
+    /// 验证 Pending 状态媒体可成功重试进入 Processing 状态。
+    /// </summary>
+    [Fact]
+    public async Task Should_Retry_Pending_Media_Successfully()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("pending-retry.mp4", "video/mp4");
+
+            // First retry on newly uploaded file: CreatePendingAssetAsync creates Pending asset,
+            // then MarkProcessing moves it to Processing
+            var result = await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            result.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+
+            // Verify the underlying asset is indeed Processing
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var asset = await GetMediaAssetAsync(clip.Id);
+                asset.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+            });
+        });
+    }
+
+    /// <summary>
+    /// 验证重试成功后的 OperationLog 所有关键字段完整记录。
+    /// </summary>
+    [Fact]
+    public async Task Should_Record_OperationLog_With_All_Key_Fields()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("audit-full-fields.mp4", "video/mp4");
+
+            // First retry: Pending → Processing
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Verify full audit log fields
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == clip.Id);
+
+                logs.Count.ShouldBe(1);
+                var log = logs[0];
+
+                log.FileNodeId.ShouldBe(clip.Id);
+                log.MediaAssetId.ShouldNotBe(Guid.Empty);
+                log.Action.ShouldBe(PrivateCloudDrive.FileCenter.FileCenterOperationLogConsts.ActionMediaRetry);
+                log.StatusBefore.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Pending.ToString());
+                log.StatusAfter.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing.ToString());
+            });
+
+            // Mark as Failed and retry again to verify Failed→Processing audit log
+            await MarkFailedAsync(clip.Id, "transient");
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == clip.Id);
+
+                logs.Count.ShouldBe(2);
+                var failedLog = logs.OrderBy(l => l.CreationTime).Last();
+
+                failedLog.FileNodeId.ShouldBe(clip.Id);
+                failedLog.MediaAssetId.ShouldNotBe(Guid.Empty);
+                failedLog.Action.ShouldBe(PrivateCloudDrive.FileCenter.FileCenterOperationLogConsts.ActionMediaRetry);
+                failedLog.StatusBefore.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed.ToString());
+                failedLog.StatusAfter.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing.ToString());
+            });
+        });
+    }
+
     private async Task<PrivateCloudDrive.FileCenter.FileNodeDto> UploadSmallFileAsync(
         string fileName,
         string contentType)
