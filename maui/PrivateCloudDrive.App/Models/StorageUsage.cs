@@ -8,4 +8,5 @@ public sealed record StorageUsage(
     long QuotaBytes,
     long RemainingBytes,
     decimal UsagePercent,
-    bool IsQuotaConfigured);
+    bool IsQuotaConfigured,
+    long MaxSingleFileSize);

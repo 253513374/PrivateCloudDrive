@@ -212,24 +212,33 @@
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="22" />
                 </Border.StrokeShape>
-                <Grid RowDefinitions="Auto,Auto"
-                      RowSpacing="10">
+                <Grid RowDefinitions="Auto,Auto,Auto"
+                      RowSpacing="6">
                     <Grid ColumnDefinitions="*,Auto">
                         <VerticalStackLayout Spacing="2">
                             <Label Text="私有备份空间"
                                    Style="{StaticResource BodyStrongLabel}" />
-                            <Label Text="备份到当前服务器 · 容量以设置页实时状态为准"
+                            <Label x:Name="FilesStorageSubLabel"
+                                   Text="备份到当前服务器 · 容量以设置页实时状态为准"
                                    Style="{StaticResource MetaLabel}" />
                         </VerticalStackLayout>
-                        <Label Grid.Column="1"
+                        <Label x:Name="FilesCapacityLabel"
+                               Grid.Column="1"
                                Text="可信"
                                FontFamily="OpenSansSemibold"
                                FontSize="24"
                                TextColor="{StaticResource Primary}" />
                     </Grid>
-                    <ProgressBar Grid.Row="1"
-                                 Progress="1"
+                    <ProgressBar x:Name="FilesStorageProgressBar"
+                                 Grid.Row="1"
+                                 Progress="0"
                                  HeightRequest="7" />
+                    <Label x:Name="FilesStorageDetailLabel"
+                           Grid.Row="2"
+                           Text=""
+                           Style="{StaticResource MetaLabel}"
+                           FontSize="12"
+                           LineBreakMode="WordWrap" />
                 </Grid>
             </Border>
 

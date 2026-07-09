@@ -22,6 +22,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
     private readonly PrivateCloudDrive.FileCenter.IFileCenterTagsAppService _tagsAppService;
     private readonly IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid> _mediaAssetRepository;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
+    private readonly IRepository<PrivateCloudDrive.FileCenter.FileCenterOperationLog, Guid> _fileCenterOperationLogRepository;
 
     /// <summary>
     /// 初始化 <see cref="EfCoreFileCenterMediaLibraryAppServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
@@ -33,6 +34,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         _tagsAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterTagsAppService>();
         _mediaAssetRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid>>();
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
+        _fileCenterOperationLogRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.FileCenterOperationLog, Guid>>();
     }
 
     /// <summary>
@@ -285,6 +287,395 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         });
     }
 
+    [Fact]
+    public async Task Should_Paginate_Timeline_Correctly()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // Upload 5 media items
+            var items = new[]
+            {
+                await UploadSmallFileAsync("img-a.png", "image/png"),
+                await UploadSmallFileAsync("img-b.png", "image/png"),
+                await UploadSmallFileAsync("img-c.png", "image/png"),
+                await UploadSmallFileAsync("img-d.png", "image/png"),
+                await UploadSmallFileAsync("img-e.png", "image/png")
+            };
+
+            // Mark all processed so they have assets
+            foreach (var item in items)
+            {
+                await MarkImageProcessedAsync(item.Id, DateTime.Now);
+            }
+
+            // First page: 2 items
+            var page1 = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 2
+                });
+
+            page1.TotalCount.ShouldBe(5);
+            page1.Items.Count.ShouldBe(2);
+
+            // Second page: 2 items
+            var page2 = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 2,
+                    MaxResultCount = 2
+                });
+
+            page2.TotalCount.ShouldBe(5);
+            page2.Items.Count.ShouldBe(2);
+
+            // Items should not overlap between pages
+            var page1Ids = page1.Items.Select(i => i.Id).ToHashSet();
+            var page2Ids = page2.Items.Select(i => i.Id).ToHashSet();
+            page1Ids.Intersect(page2Ids).ShouldBeEmpty();
+        });
+    }
+
+    [Fact]
+    public async Task Should_Paginate_Timeline_At_Boundary()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // Upload 3 media items
+            for (var i = 0; i < 3; i++)
+            {
+                var item = await UploadSmallFileAsync($"boundary-{i}.jpg", "image/jpeg");
+                await MarkImageProcessedAsync(item.Id, DateTime.Now.AddDays(-i));
+            }
+
+            // Request exactly at the total boundary
+            var page = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 2,
+                    MaxResultCount = 3
+                });
+
+            page.TotalCount.ShouldBe(3);
+            page.Items.Count.ShouldBe(1);
+
+            // Request beyond total boundary
+            var emptyPage = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 10,
+                    MaxResultCount = 10
+                });
+
+            emptyPage.TotalCount.ShouldBe(3);
+            emptyPage.Items.Count.ShouldBe(0);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Filter_Timeline_By_ProcessStatus_At_Db()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var pending = await UploadSmallFileAsync("pending-status.jpg", "image/jpeg");
+            var failed = await UploadSmallFileAsync("failed-status.mp4", "video/mp4");
+            var completed = await UploadSmallFileAsync("completed-status.jpg", "image/jpeg");
+
+            await MarkFailedAsync(failed.Id, "failed deliberately");
+            await MarkImageProcessedAsync(completed.Id, DateTime.Now);
+            // Note: pending item has no asset yet - semantically Pending
+
+            // Filter by Pending
+            var pendingResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    ProcessStatus = PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Pending,
+                    MaxResultCount = 20
+                });
+
+            pendingResult.Items.Select(i => i.Name).ShouldContain("pending-status.jpg");
+            pendingResult.Items.Select(i => i.Name).ShouldNotContain("failed-status.mp4");
+            pendingResult.Items.Select(i => i.Name).ShouldNotContain("completed-status.jpg");
+
+            // Filter by Failed
+            var failedResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    ProcessStatus = PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed,
+                    MaxResultCount = 20
+                });
+
+            failedResult.Items.Select(i => i.Name).ShouldContain("failed-status.mp4");
+            failedResult.Items.Select(i => i.Name).ShouldNotContain("pending-status.jpg");
+            failedResult.Items.Select(i => i.Name).ShouldNotContain("completed-status.jpg");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Filter_Timeline_By_TimeRange_At_Db()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var oldItem = await UploadSmallFileAsync("old-item.jpg", "image/jpeg");
+            var midItem = await UploadSmallFileAsync("mid-item.jpg", "image/jpeg");
+            var newItem = await UploadSmallFileAsync("new-item.jpg", "image/jpeg");
+
+            var now = DateTime.UtcNow;
+            await MarkImageProcessedAsync(oldItem.Id, now.AddDays(-10));
+            await MarkImageProcessedAsync(midItem.Id, now.AddDays(-5));
+            await MarkImageProcessedAsync(newItem.Id, now.AddDays(1));
+
+            // Filter by StartTime
+            var fromMidResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    StartTime = now.AddDays(-7),
+                    MaxResultCount = 20
+                });
+
+            fromMidResult.Items.Select(i => i.Name).ShouldNotContain("old-item.jpg");
+            fromMidResult.Items.Select(i => i.Name).ShouldContain("mid-item.jpg");
+            fromMidResult.Items.Select(i => i.Name).ShouldContain("new-item.jpg");
+
+            // Filter by time range
+            var rangeResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    StartTime = now.AddDays(-7),
+                    EndTime = now.AddDays(-2),
+                    MaxResultCount = 20
+                });
+
+            rangeResult.Items.Select(i => i.Name).ShouldNotContain("old-item.jpg");
+            rangeResult.Items.Select(i => i.Name).ShouldContain("mid-item.jpg");
+            rangeResult.Items.Select(i => i.Name).ShouldNotContain("new-item.jpg");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Not_Include_NonMedia_Files_In_Timeline()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await UploadSmallFileAsync("photo.jpg", "image/jpeg");
+            await UploadSmallFileAsync("notes.txt", "text/plain");
+            await UploadSmallFileAsync("data.csv", "text/csv");
+            await UploadSmallFileAsync("script.js", "application/javascript");
+
+            var timeline = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    MaxResultCount = 20
+                });
+
+            timeline.Items.Select(i => i.Name).ShouldContain("photo.jpg");
+            timeline.Items.Select(i => i.Name).ShouldNotContain("notes.txt");
+            timeline.Items.Select(i => i.Name).ShouldNotContain("data.csv");
+            timeline.Items.Select(i => i.Name).ShouldNotContain("script.js");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Handle_Empty_Timeline()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var timeline = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    MaxResultCount = 20
+                });
+
+            timeline.TotalCount.ShouldBe(0);
+            timeline.Items.ShouldBeEmpty();
+        });
+    }
+
+    [Fact]
+    public async Task Should_Retry_Own_Failed_Media_Successfully()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("retry-failed.mp4", "video/mp4");
+
+            // First retry creates a pending asset and moves to Processing
+            var firstRetry = await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+            firstRetry.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+
+            // Mark as Failed
+            await MarkFailedAsync(clip.Id, "transient error");
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var asset = await GetMediaAssetAsync(clip.Id);
+                asset.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed);
+            });
+
+            // Second retry should succeed from Failed → Processing
+            var secondRetry = await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+            secondRetry.ProcessStatus.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Return_NotFound_When_Retrying_Other_Users_Media()
+    {
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto? firstUserClip = null;
+
+        await WithCurrentUserAsync(firstUserId, async () =>
+        {
+            firstUserClip = await UploadSmallFileAsync("other-user-video.mp4", "video/mp4");
+            await _mediaLibraryAppService.RetryProcessingAsync(firstUserClip.Id);
+            await MarkFailedAsync(firstUserClip.Id, "some error");
+        });
+
+        await WithCurrentUserAsync(secondUserId, async () =>
+        {
+            // Second user cannot see/retry first user's file → throws BusinessException (NotFound)
+            var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(firstUserClip!.Id));
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Reject_Retry_For_Completed_Media()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("completed-retry.mp4", "video/mp4");
+
+            // First retry → Processing
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Mark as Completed
+            await MarkVideoProcessedAsync(clip.Id, durationMilliseconds: 9999);
+
+            // Retry on Completed should throw
+            var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(clip.Id));
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterMediaAssetCannotRetry);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Reject_Retry_For_Processing_Media()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("processing-retry.mp4", "video/mp4");
+
+            // First retry → Processing
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Retry while still Processing should throw
+            var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(clip.Id));
+
+            exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterMediaAssetCannotRetry);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Record_Audit_Log_On_Successful_Retry()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var clip = await UploadSmallFileAsync("audit-retry.mp4", "video/mp4");
+
+            // First retry: Pending (from CreatePendingAssetAsync) → Processing
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Verify audit log entry
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == clip.Id);
+
+                logs.Count.ShouldBe(1);
+                var log = logs[0];
+
+                log.Action.ShouldBe(PrivateCloudDrive.FileCenter.FileCenterOperationLogConsts.ActionMediaRetry);
+                log.StatusBefore.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Pending.ToString());
+                log.StatusAfter.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing.ToString());
+                log.MediaAssetId.ShouldNotBe(Guid.Empty);
+                log.OperatorUserId.ShouldBe(userId);
+            });
+
+            // Mark Failed then retry again
+            await MarkFailedAsync(clip.Id, "another error");
+            await _mediaLibraryAppService.RetryProcessingAsync(clip.Id);
+
+            // Verify second audit log: Failed → Processing
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == clip.Id);
+
+                logs.Count.ShouldBe(2);
+                var failedRetryLog = logs.OrderBy(l => l.CreationTime).ThenBy(l => l.Id).Last();
+
+                failedRetryLog.Action.ShouldBe(PrivateCloudDrive.FileCenter.FileCenterOperationLogConsts.ActionMediaRetry);
+                failedRetryLog.StatusBefore.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed.ToString());
+                failedRetryLog.StatusAfter.ShouldBe(PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing.ToString());
+                failedRetryLog.OperatorUserId.ShouldBe(userId);
+            });
+        });
+    }
+
+    [Fact]
+    public async Task Should_Not_Record_Audit_Log_On_Retry_Of_Other_User_Media()
+    {
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto? firstUserClip = null;
+
+        await WithCurrentUserAsync(firstUserId, async () =>
+        {
+            firstUserClip = await UploadSmallFileAsync("no-log-video.mp4", "video/mp4");
+        });
+
+        await WithCurrentUserAsync(secondUserId, async () =>
+        {
+            // Second user tries to retry — throws before any audit log is recorded
+            await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                await _mediaLibraryAppService.RetryProcessingAsync(firstUserClip!.Id));
+
+            // No audit log should exist for this FileNodeId
+            await WithUnitOfWorkAsync(async () =>
+            {
+                var logs = await _fileCenterOperationLogRepository.GetListAsync(
+                    log => log.FileNodeId == firstUserClip!.Id);
+
+                logs.Count.ShouldBe(0);
+            });
+        });
+    }
+
     private async Task<PrivateCloudDrive.FileCenter.FileNodeDto> UploadSmallFileAsync(
         string fileName,
         string contentType)
@@ -305,6 +696,8 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         await WithUnitOfWorkAsync(async () =>
         {
             var asset = await GetMediaAssetAsync(fileNodeId);
+            if (asset.ProcessStatus != PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing)
+                asset.MarkProcessing();
             asset.MarkImageProcessed(1920, 1080, takenAt, Guid.NewGuid());
             await _mediaAssetRepository.UpdateAsync(asset, autoSave: true);
         });
@@ -315,6 +708,8 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         await WithUnitOfWorkAsync(async () =>
         {
             var asset = await GetMediaAssetAsync(fileNodeId);
+            if (asset.ProcessStatus != PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing)
+                asset.MarkProcessing();
             asset.MarkVideoProcessed(1280, 720, durationMilliseconds, "h264", Guid.NewGuid());
             await _mediaAssetRepository.UpdateAsync(asset, autoSave: true);
         });
@@ -325,6 +720,8 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         await WithUnitOfWorkAsync(async () =>
         {
             var asset = await GetMediaAssetAsync(fileNodeId);
+            if (asset.ProcessStatus != PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Processing)
+                asset.MarkProcessing();
             asset.MarkFailed(error);
             await _mediaAssetRepository.UpdateAsync(asset, autoSave: true);
         });

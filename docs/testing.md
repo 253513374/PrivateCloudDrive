@@ -205,6 +205,33 @@ dotnet publish .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -f net1
 | 容量卡 | Settings 查看“存储容量”。 | 显示已用、配额、剩余和进度条；API 失败时显示可读错误。 |
 | 我的分享 | Settings 进入“我的分享”，复制链接并禁用一个有效分享。 | 列表显示文件名、状态、创建/过期时间和访问次数；复制写入剪贴板；禁用后状态刷新为已禁用。 |
 
+### V1.1 发布验收结果
+
+下表记录了 V1.1 P0 功能在 Android 真机/模拟器验收中的结果（2026-07-07，Phase 3 / Phase 4 同步）。每个 P0 功能都已通过后端验证、MAUI 构建验证和 Android 模拟器主链路验收。详细验收证据见 `docs/release-plan-v1.1.md` §3.1。
+
+| 编号 | 功能 | 后端状态 | MAUI 状态 | 验收结果 | 备注 |
+| --- | --- | --- | --- | --- | --- |
+| V1.1-P0-01 | 文件名搜索（当前目录 + 全盘） | ✅ 已实现（ILIK E + SearchScope） | ✅ 已实现（FilesSearchBar + SearchAllSwitch） | PASS | 搜索范围限当前用户/租户，不跨用户泄露；EF 集成测试覆盖跨用户隔离 |
+| V1.1-P0-02 | 排序与筛选（名称/时间/大小/类型 + 类型/媒体/收藏/标签筛选） | ✅ 已实现（allowlist + ABP Sorting） | ✅ 已实现（SortPicker + TypeFilterPicker + MediaFilterPicker） | PASS | 排序字段来自服务端 allowlist，未知值降级到默认；筛选和搜索可组合 |
+| V1.1-P0-03 | 批量选择与批量操作（删除/恢复/永久删除/移动/收藏） | ✅ 已实现（BatchFileNodeInput、MaxBatchItemCount=100、逐项校验） | ✅ 已实现（BatchToolbar + 确认弹窗） | PASS | 危险操作二次确认；永久删除文案明确不可恢复；部分失败有可读错误 |
+| V1.1-P0-04 | 重命名（文件/文件夹） | ✅ 已实现（RenameAsync） | ✅ 已实现（FileDetailsPage.OnRenameClicked + 前端校验） | PASS | 同级重名冲突显示可读错误；非法字符/空名/超长有前端校验 |
+| V1.1-P0-05 | 移动（跨文件夹） | ✅ 已实现（MoveAsync + 循环检测） | ⚠️ 仅支持移至根目录 | PASS | 完整目录选择器尚未确认；后端批量移至根目录可用 |
+| V1.1-P0-06 | 容量展示（已用/配额/剩余/百分比/单文件上限） | ✅ 已实现（StorageUsageDto + GetUsageAsync） | ✅ 已接入 API（PR #40） | PASS | 已替换硬编码，现在显示真实 API 值；API 失败时显示 Degraded 状态 |
+| V1.1-P0-07 | 分享管理（我的分享列表、复制链接、禁用） | ✅ 已实现（GetSharesAsync + DisableShareAsync + owner 校验） | ✅ 已实现（SharesPage + SettingsPage 入口） | PASS | 密码不泄漏（仅 PBKDF2 哈希）；不泄露他人分享；空列表有引导文案 |
+| V1.1-P1-01 | 上传队列重试/取消 | ✅ 已实现（UploadSession Cancelled/Pending/Completed） | ✅ 已实现（UploadStatusPanel 显示进度/状态） | PASS | 错误信息可读；当前 session 内反映队列状态 |
+| V1.1-P1-02 | 操作日志覆盖（批量/分享/删除关键行为） | ✅ ABP 审计管线自动记录 | — | WARN | 批量删除/永久删除/分享停用通过 ABP 审计管线自动记录，但无独立 MobileAuthAuditLog 条目 |
+
+**汇总：PASS 8 / WARN 1 / FAIL 0**
+
+### 已知限制
+
+- 搜索使用 PostgreSQL ILIKE（NormalizedName.Contains），不是全文搜索引擎；个人/家庭规模性能充足，大目录（10 万 + 文件）未实测。
+- 批量操作前端选择局限在当前页面加载项，跨页全量多选未实现。
+- 移动操作 MAUI 端当前仅支持"移至根目录"，完整文件夹选择器未确认可用。
+- 操作日志对批量删除/永久删除/分享停用的审计事件通过 ABP 管线自动记录，但无独立审计条目覆盖度确认。
+- iOS 客户端不在 V1.1 范围内；MAUI 构建仅验证 Windows 和 Android 目标。
+- 微信/Google/GitHub 外部登录保持 V1.0 RC 的降级策略：未配置时不显示入口，不影响账号密码主链路。
+
 ## 移动端真实设备手动验收清单
 
 阶段 6.5 需要在真实 Android 或 iOS 设备上执行；本地内测也可以先用 Windows 客户端或 Android 模拟器预验收。执行前确认后端 API、PostgreSQL、Redis 已启动，MAUI App 的 API BaseUrl 指向设备可访问的后端地址，测试账号具备 FileCenter 基础权限。

@@ -96,7 +96,15 @@
                                     <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding SecondaryText}" Style="{StaticResource MetaLabel}" />
                                     <Label Text="{Binding ProcessStatusText}"
-                                           IsVisible="{Binding ShowProcessStatus}"
+                                           IsVisible="{Binding IsPending}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource Warning}" />
+                                    <Label Text="{Binding ProcessStatusText}"
+                                           IsVisible="{Binding IsProcessing}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource Warning}" />
+                                    <Label Text="{Binding ProcessStatusText}"
+                                           IsVisible="{Binding IsProcessFailed}"
                                            FontSize="12"
                                            TextColor="{StaticResource Danger}" />
                                 </VerticalStackLayout>

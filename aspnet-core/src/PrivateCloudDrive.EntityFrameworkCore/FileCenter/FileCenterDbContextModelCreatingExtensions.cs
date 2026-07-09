@@ -168,5 +168,21 @@ public static class FileCenterDbContextModelCreatingExtensions
                 .IsUnique();
             b.HasIndex(nodeTag => new { nodeTag.TenantId, nodeTag.OwnerId, nodeTag.TagId });
         });
+
+        builder.Entity<FileCenterOperationLog>(b =>
+        {
+            b.ToTable(FileCenterDbProperties.DbTablePrefix + "OperationLogs", FileCenterDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(log => log.FileNodeId).IsRequired();
+            b.Property(log => log.MediaAssetId).IsRequired();
+            b.Property(log => log.Action).IsRequired().HasMaxLength(64);
+            b.Property(log => log.StatusBefore).IsRequired().HasMaxLength(64);
+            b.Property(log => log.StatusAfter).IsRequired().HasMaxLength(64);
+            b.Property(log => log.OperatorUserId);
+
+            b.HasIndex(log => new { log.TenantId, log.FileNodeId });
+            b.HasIndex(log => new { log.TenantId, log.OperatorUserId, log.CreationTime });
+        });
     }
 }

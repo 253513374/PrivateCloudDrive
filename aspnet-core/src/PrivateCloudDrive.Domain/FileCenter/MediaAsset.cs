@@ -73,15 +73,23 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     /// <summary>
     /// 标记媒体资产开始处理，并清空上一次错误信息。
+    /// 只允许从 Pending 或 Failed（重试）状态进入 Processing。
     /// </summary>
     public void MarkProcessing()
     {
+        if (ProcessStatus is not (MediaAssetProcessStatus.Pending or MediaAssetProcessStatus.Failed))
+        {
+            throw new InvalidOperationException(
+                $"Cannot mark processing from status {ProcessStatus}.");
+        }
+
         ProcessStatus = MediaAssetProcessStatus.Processing;
         ProcessError = null;
     }
 
     /// <summary>
     /// 标记图片处理完成，记录尺寸、拍摄时间和缩略图 Blob。
+    /// 只允许从 Processing 状态进入 Completed。
     /// </summary>
     public void MarkImageProcessed(
         int width,
@@ -90,6 +98,8 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Guid thumbnailBlobObjectId,
         string? metadataJson = null)
     {
+        GuardOnProcessing(nameof(MarkImageProcessed));
+
         Width = width;
         Height = height;
         TakenAt = takenAt;
@@ -101,6 +111,7 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     /// <summary>
     /// 标记视频处理完成，记录尺寸、时长、编码信息和封面缩略图 Blob。
+    /// 只允许从 Processing 状态进入 Completed。
     /// </summary>
     public void MarkVideoProcessed(
         int width,
@@ -110,6 +121,8 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Guid thumbnailBlobObjectId,
         string? metadataJson = null)
     {
+        GuardOnProcessing(nameof(MarkVideoProcessed));
+
         Width = width;
         Height = height;
         DurationMilliseconds = durationMilliseconds;
@@ -123,11 +136,29 @@ public class MediaAsset : FullAuditedAggregateRoot<Guid>, IMultiTenant
     }
 
     /// <summary>
-    /// 标记媒体处理失败，并截断保存可展示的错误原因。
+    /// 标记媒体处理失败，并截断保存已脱敏的可展示错误原因。
+    /// 只允许从 Processing 状态进入 Failed。
     /// </summary>
     public void MarkFailed(string error)
     {
+        if (ProcessStatus != MediaAssetProcessStatus.Processing)
+        {
+            throw new InvalidOperationException(
+                $"Cannot mark failed from status {ProcessStatus}.");
+        }
+
         ProcessStatus = MediaAssetProcessStatus.Failed;
-        ProcessError = Check.Length(error, nameof(error), MediaAssetConsts.MaxProcessErrorLength);
+        ProcessError = error?.Length > MediaAssetConsts.MaxProcessErrorLength
+            ? error[..MediaAssetConsts.MaxProcessErrorLength]
+            : error;
+    }
+
+    private void GuardOnProcessing(string methodName)
+    {
+        if (ProcessStatus != MediaAssetProcessStatus.Processing)
+        {
+            throw new InvalidOperationException(
+                $"Cannot call {methodName} from status {ProcessStatus}.");
+        }
     }
 }
