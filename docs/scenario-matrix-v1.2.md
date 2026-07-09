@@ -802,7 +802,7 @@ stateDiagram-v2
 
 ## 11. V1.2 已知限制索引（LIM-V12-01~09）
 
-本索引将 `docs/release-plan-v1.2.md` §10 和 `docs/architecture-v1.2-boundary.md` §7 定义的 V1.2 已知限制映射到场景矩阵用户旅程，确保每项限制都有明确的场景归属和跟踪入口。
+本索引将 `docs/release-notes-v1.2-rc.md`「已知边界与发布风险」和 `docs/architecture-v1.2-rc-boundary.md` 定义的 V1.2 RC 已知限制映射到场景矩阵用户旅程，确保每项限制都有明确的场景归属和跟踪入口。本文档是正式 V1.2 候选矩阵；当前 RC 验收权威矩阵见 `docs/scenario-matrix-v1.2-rc.md`。
 
 | 编号 | 限制 | 影响场景 | 场景引用 | 后续版本 |
 |------|------|---------|---------|---------|

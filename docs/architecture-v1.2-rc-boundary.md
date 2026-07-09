@@ -198,7 +198,7 @@ PR #45 当前状态：OPEN，`mergeStateStatus=DIRTY`；CI 和 Security Gate 均
 冲突根因判断：
 
 1. PR #45 的 head 分支 `agent/t_302cdbbf/docs-sync-v12` 在 2026-07-07 增加 `docs/release-notes-v1.2.md`、`docs/scenario-matrix-v1.2.md`，并修改 `docs/product-planning-hub.md`、`docs/testing.md`。
-2. 当前本地/主线已经出现 `docs/release-notes-v1.2-rc.md`、`docs/scenario-matrix-v1.2-rc.md` 这类 RC 命名文档，并且 `product-planning-hub.md` 引用 `docs/release-plan-v1.2.md`，但本地未找到该文件。
+2. 当前本地/主线已经出现 `docs/release-notes-v1.2-rc.md`、`docs/scenario-matrix-v1.2-rc.md` 这类 RC 命名文档；此前 `product-planning-hub.md` 曾引用缺失的 V1.2 发布计划文件，发布岗需将引用收敛到真实存在的 RC 文档或补齐正式版文档。
 3. 冲突本质是“V1.2 正式版文档同步”和“V1.2 RC 产品化收口文档”并行演进，命名口径不一致，而不是代码层面冲突。
 
 推荐 rebase 策略：
@@ -248,7 +248,7 @@ PR #45 当前状态：OPEN，`mergeStateStatus=DIRTY`；CI 和 Security Gate 均
 | V12-TD-04 | 相册 owner/tenant 和“删除不删原文件”必须回归 | P0 | 数据安全、隐私 | `FileCenterMediaAlbumsAppService` 按 owner/tenant 查询，删除只删关系 | 补测试：跨用户相册不可见、跨用户媒体不可加入、删除相册不删除 FileNode/Blob | backend-eng |
 | V12-TD-05 | 媒体衍生文件清理与永久删除联动需验证 | P0 | 存储成本、不可恢复动作 | V1.1 已关注 Blob/缩略图清理；V1.2 新增更多媒体资产 | 永久删除后确认缩略图/预览/MediaAsset 清理，不误删共享 Blob 引用 | backend-eng |
 | V12-TD-06 | MAUI 媒体页 Android 验收预算不足 | P1 | 发布可信度 | 5/8 Android 验收项曾耗尽 60 turn 预算 | Android 验收卡使用 120 turn 档，并拆分媒体时间线/相册/处理状态/视频播放 | delivery-manager + qa-eng + mobile-eng |
-| V12-TD-07 | PR #45 文档命名和冲突治理 | P1 | 发布文档一致性 | PR #45 DIRTY；`v1.2` 与 `v1.2-rc` 文件并存 | rebase 前先确定 RC 文档命名策略；缺失 `release-plan-v1.2.md` 需补齐或改引用 | release-manager + pm |
+| V12-TD-07 | PR #45 文档命名和冲突治理 | P1 | 发布文档一致性 | PR #45 DIRTY；`v1.2` 与 `v1.2-rc` 文件并存 | rebase 前先确定 RC 文档命名策略；缺失的正式版发布计划需补齐或改引用 | release-manager + pm |
 | V12-TD-08 | `.worktrees/pr-cleanup-temp` 残留 worktree | P1 | 工作区可维护性 | 注册 worktree 在仓库内部且有未跟踪脚本 | `.worktrees/` 已加入 ignore；由创建者确认后 remove/prune，不直接强删 | delivery-manager |
 | V12-TD-09 | 后台任务管理入口仍偏基础 | P1 | 运维、失败自助 | 当前有处理状态页，管理员批量任务治理不完整 | V1.2 写入已知限制；V1.3 做任务管理增强 | mobile-eng + backend-eng |
 | V12-TD-10 | HLS/低清预览未做容量治理 | P2 | 大视频播放体验 | 路线图列 P2，Release Notes 明确不包含 | 保持后置；先用 Range/原文件播放和明确不支持提示 | backend-eng + mobile-eng |

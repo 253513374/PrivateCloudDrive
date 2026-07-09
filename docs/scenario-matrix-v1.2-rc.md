@@ -402,7 +402,7 @@ flowchart TD
 | BR-BACKUP-02 | 备份必须脱敏：.env 中的密码/密钥不进入备份包；演练报告禁止记录密码/token/密钥 | 安全原则 |
 | BR-BACKUP-03 | 非破坏性演练 dry-run 不能改动数据库和 storage volume | 安全演练 |
 | BR-BACKUP-04 | 破坏性恢复只能在一次性测试栈或明确授权的目标栈上执行 | 保护生产数据 |
-| BR-BACKUP-05 | 演练报告写入 `docs/validation/backup-restore-drill-YYYYMMDD-HHMMSS.md` | 可追溯可审计 |
+| BR-BACKUP-05 | 演练报告写入 `docs/validation/backup-restore-drill-<timestamp>.md`（示例见 `docs/validation/backup-restore-drill-20260518-193513.md`） | 可追溯可审计 |
 | BR-BACKUP-06 | 恢复后验收必须覆盖：登录、文件列表、下载、图片预览、视频播放、分享链接、回收站 | 全链路验证 |
 | BR-BACKUP-07 | 演练报告不能包含：.env 原文、access token、refresh token、OAuth code、client secret | 安全审计 |
 | BR-BACKUP-08 | `.env` 建议存储在加密备份介质，明确"本仓库不存储 .env.secret" | 安全操作规范 |
