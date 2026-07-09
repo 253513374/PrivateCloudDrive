@@ -395,6 +395,70 @@ pwsh -NoProfile -File scripts/verify-maui-build.ps1 -Configuration Debug
 
 完整构建环境、命令输出和 artifact 验证见 `docs/validation/maui-build-2026-06-17.log`。
 
+## V1.3 验收矩阵
+
+本验收矩阵映射 V1.3 P0 和 P1 的能力验收。每项验收完成后回填 PASS/WARN/FAIL 和备注。
+
+| 编号 | 能力 | 优先级 | 验收标准 | 对应已知限制 | 结果 | 备注 |
+|------|------|:------:|---------|:------------:|:----:|------|
+| AC-V1.3-01 | 管理员用户管理 — 创建用户 | P0 | POST /api/app/admin/users 返回 201 Created，用户出现在列表 | KN-V1.3-06（角色分配 UI 未实现） | | |
+| AC-V1.3-02 | 管理员用户管理 — 禁用用户 | P0 | PUT .../toggle-status 用户状态变为 Disabled，该用户登录返回 403 | KN-V1.3-01（token 缓存失效最坏 5 分钟） | | |
+| AC-V1.3-03 | 管理员不能禁自己 | P0 | 当前 ADMIN 尝试禁自己，返回 400/403 + 明确错误 | — | | |
+| AC-V1.3-04 | 非 ADMIN 访问管理 API | P0 | 普通用户 token 调用 Admin API，返回 403 Forbidden | — | | |
+| AC-V1.3-05 | 健康页 — 全部正常 | P0 | GET /api/app/admin/health 状态 "PASS"，所有组件绿色 | KN-V1.3-02（30 秒缓存） | | |
+| AC-V1.3-06 | 健康页 — 组件 FAIL | P0 | 模拟 PostgreSQL 断连，对应组件 FAIL + 修复建议文本 | — | | |
+| AC-V1.3-07 | 健康页 — 普通用户可见概要 | P0 | 普通用户调用 health 端点，不可见修复建议详情 | — | | |
+| AC-V1.3-08 | 备份脚本 — 一键备份 | P0 | 运行 backup-local-stack.ps1，生成时间戳目录 + DB dump + storage tar + manifest | KN-V1.3-03（依赖 pg_dump） | | |
+| AC-V1.3-09 | 备份 — checksum 校验 | P0 | 运行校验命令，SHA256 匹配 | — | | |
+| AC-V1.3-10 | 恢复 — 默认 dry-run | P0 | 运行 restore-local-stack.ps1 不带 -Force，提示 dry-run 模式，无实际写操作 | — | | |
+| AC-V1.3-11 | 恢复 — 显式确认 | P0 | 运行 restore-local-stack.ps1 -Force 或输入 YES，执行恢复，数据可查 | — | | |
+| AC-V1.3-12 | 设置页 — ADMIN 见管理区 | P0 | 打开 Settings，看到用户管理/备份/升级/日志/媒体入口 | KN-V1.3-07（IA 改动，用户需适应） | | |
+| AC-V1.3-13 | 设置页 — 普通用户不见管理区 | P0 | 普通用户打开 Settings，无管理区入口 | — | | |
+| AC-V1.3-14 | 设置页 — 状态卡片在顶部 | P0 | 任意用户打开 Settings，顶部显示系统健康状态圆点 | — | | |
+| AC-V1.3-15 | Docker Compose 验证脚本 | P0 | 运行 verify-local-stack.ps1，PASS/WARN/FAIL 输出，不打印密钥 | — | | |
+| AC-V1.3-16 | 脱敏基线 — 健康详情不含密钥 | P0 | grep -i "password=\|secret=\|token=" 无匹配 | — | | |
+| AC-V1.3-17 | 依赖漏洞 — 高危已登记 | P0 | dotnet list package --vulnerable，高危漏洞 ≤ 1 个已登记风险接受 | — | | |
+| AC-V1.3-20 | 审计日志 — 组合筛选 | P1 | GET /api/app/admin/audit-logs?userId=X&action=Delete 返回匹配日志，分页正常 | KN-V1.3-05（CSV 导出未实现） | | |
+| AC-V1.3-21 | 审计日志 — 详情脱敏 | P1 | 展开某条日志详情，密码/token 显示为 *** | — | | |
+| AC-V1.3-22 | 存储状态 — 只读展示 | P1 | GET /api/app/admin/storage/status 返回 provider/容量/可用空间，无修改端 | — | | |
+| AC-V1.3-23 | 媒体任务管理 — 全局列表 | P1 | GET /api/app/admin/media/tasks 返回所有用户的任务，统计概览正确 | — | | |
+| AC-V1.3-24 | 媒体任务 — 重新处理 | P1 | POST .../{id}/retry 任务状态变为 Pending | — | | |
+| AC-V1.3-25 | 分享风险 UI | P1 | 打开分享列表页，有风险提示文案，可点击操作 | — | | |
+| AC-V1.3-26 | 回收站清理建议 UI | P1 | 打开回收站，显示清理建议和二次确认 | — | | |
+| AC-V1.3-27 | 故障诊断清单 | P1 | 打开诊断页，问题类别展开正常 | KN-V1.3-08（静态内容） | | |
+
+**放行标准：**
+- P0 项 = 0 阻塞缺陷
+- P1 项可带 WARN 放行，但需记录 owner、后置版本和用户可见说明
+- 已知限制已在 release-notes-v1.3.md 中记录
+
+### V1.3 验证命令
+
+```powershell
+# 后端完整构建与测试
+cd aspnet-core
+dotnet build .\PrivateCloudDrive.slnx
+dotnet test .\PrivateCloudDrive.slnx --no-build
+
+# Admin 权限回归测试（过滤）
+dotnet test --filter "AdminUser|Health|Permission|Authorization"
+
+# Docker Compose 预检与全量验证
+.\scripts\verify-local-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1
+
+# 备份恢复演练
+.\scripts\run-backup-restore-drill.ps1
+
+# 健康检查脚本
+.\scripts\verify-health.ps1
+
+# MAUI 顺序构建验证（Windows + Android）
+.\scripts\verify-maui-build.ps1
+```
+
+---
+
 ## 当前边界
 
 - 自动化测试主要集中在后端应用层、领域层和 EF Core 集成测试；MAUI 端目前以构建验证为主。
@@ -412,3 +476,98 @@ pwsh -NoProfile -File scripts/verify-maui-build.ps1 -Configuration Debug
 - 账号密码登录失败已接入用户名和 IP 双维度分布式限流；Android Emulator Pixel 9 Pro API 36 已完成 MVP Core 内测验收，iOS/真实设备体验后续按发布需要补充。
 - 如果在同一个 Redis 实例上先运行过旧版 API，再更新 `PrivateCloudDrive_App` 的 OpenIddict grant 权限，可能会命中旧客户端缓存；本地验收时可重启 API 并刷新对应 Redis 缓存，或使用独立 Redis 逻辑库做临时探针。
 - MAUI MVP Core 页面状态已通过 Windows/Android 构建验证，覆盖启动、登录、文件、上传、详情、预览、回收站和设置页；Android 模拟器交互验收已完成。
+
+---
+
+## V1.3 手动验收清单
+
+以下清单覆盖 V1.3 P0/P1 能力的手动验收。每项验收后回填结果。
+
+### 管理员用户管理
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 创建用户 | 管理员登录后，Settings → 管理区 → 创建用户，填写用户名、邮箱、密码 | 返回成功，新用户出现在用户列表 |
+| 禁用用户 | 在用户列表点击禁用 | 用户状态变为 Disabled；该用户登录返回 403 |
+| 管理员不能禁自己 | 当前 admin 尝试禁用自己 | 返回 400/403 + 明确错误信息 |
+| 非管理员访问 | 用普通用户 token 调用 Admin API | 返回 403 Forbidden |
+| 重置密码 | 管理员为用户重置密码 | 用户可用新密码登录成功 |
+| 容量配额 | 为用户设置容量配额 | 存储状态页反映新配额值 |
+
+### 系统健康
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 全部正常 | 管理员查看系统健康页 | 状态 "PASS"，所有组件绿色 |
+| 组件 FAIL | 模拟 PostgreSQL 断连后查看健康页 | 对应组件显示 FAIL + 修复建议文本 |
+| 普通用户可见 | 普通用户调用 health 端点 | 可见概要，不可见修复建议详情 |
+| 状态圆点 | 打开 Settings | 顶部显示系统健康状态圆点（绿色/黄色/红色） |
+
+### 备份恢复
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 一键备份 | 运行 `backup-local-stack.ps1` | 生成时间戳目录 + postgres.dump + storage.tar.gz + manifest.json |
+| checksum 校验 | 运行校验命令 | SHA256 匹配 |
+| 默认 dry-run | 运行 `restore-local-stack.ps1` 不带 `-ConfirmDestructiveRestore` | 提示 dry-run 模式，无实际写入 |
+| 显式确认恢复 | 运行带 `-ConfirmDestructiveRestore` | 执行恢复，数据可查 |
+| 演练报告 | 运行 `run-backup-restore-drill.ps1` | `docs/validation/` 生成演练报告 |
+
+### 设置页管理入口
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 管理员见管理区 | 管理员打开 Settings | 看到用户管理/备份/升级/日志/媒体入口 |
+| 普通用户不见管理区 | 普通用户打开 Settings | 无管理区入口 |
+| 状态卡片 | 任意用户打开 Settings | 顶部显示系统健康状态圆点 |
+
+### Docker Compose 验证
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 预检 | `verify-local-stack.ps1 -PreflightOnly` | PASS/WARN/FAIL 输出，不打印密钥 |
+| 全量验证 | `verify-local-stack.ps1` | 所有服务健康 |
+| 健康检查 | `verify-health.ps1` | 全部 PASS |
+
+### P1 能力
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 审计日志筛选 | 按用户、操作类型、时间范围组合筛选 | 匹配日志，分页正常 |
+| 日志详情脱敏 | 展开日志详情 | 密码/token 显示为 `***` |
+| 存储状态 | 查看存储状态 | 显示 provider、容量、可用空间 |
+| 媒体任务管理 | 查看所有用户的媒体处理队列 | 全局列表正常 |
+| 媒体任务重试 | 对失败媒体任务执行重试 | 状态变为 Pending |
+| 分享风险 UI | 打开分享列表页 | 风险提示文案可见 |
+| 回收站清理建议 | 打开回收站 | 清理建议可见，有二次确认 |
+| 故障诊断清单 | 打开诊断页 | 问题类别展开正常 |
+
+### V1.3 已知限制清单（验收时同步确认）
+
+| 编号 | 限制 | 发布确认 |
+|:----:|------|:--------:|
+| KN-V1.3-01 | 禁用用户后，已有 access_token 缓存最长 5 分钟失效；期间 API 调用可能仍成功 | |
+| KN-V1.3-02 | 系统健康检测结果有 30 秒缓存，不会实时反映组件状态变化 | |
+| KN-V1.3-03 | 备份脚本依赖主机安装 `pg_dump`，且在 Docker 宿主机上执行 | |
+| KN-V1.3-04 | 存储状态页仅展示当前 provider 的容量概览，不支持在线切换存储后端 | |
+| KN-V1.3-05 | 操作日志筛选结果不支持 CSV 导出 | |
+| KN-V1.3-06 | 创建用户时无法通过 UI 分配角色；默认为普通用户 | |
+| KN-V1.3-07 | Settings 页面 IA 有调整，管理员需适应管理区入口位置 | |
+| KN-V1.3-08 | 故障诊断清单为静态内容，不会根据当前系统状态动态展开 | |
+| KN-V1.3-09 | 管理端仅通过 MAUI Settings + Swagger 提供，无独立 Web 管理后台 | |
+| KN-V1.3-10 | iOS 客户端不在 V1.3 范围内；MAUI 构建仅验证 Windows 和 Android | |
+
+**放行标准：**
+- P0 项 = 0 阻塞缺陷
+- P1 项可带 WARN 放行，但需记录 owner、后置版本和用户可见说明
+- 已知限制已记录在 release-notes-v1.3.md
+
+### V1.3 升级回滚验收
+
+| 验收项 | 操作 | 通过标准 |
+|--------|------|----------|
+| 升级前备份 | 运行 `backup-local-stack.ps1 -IncludeEnv` + `run-backup-restore-drill.ps1` | 无 FAIL，dump/tar 非空 |
+| 数据库迁移 | `docker compose up -d --build`，`logs db-migrator --tail=50` | 日志含 `DbMigrator has been successfully completed` |
+| 健康验证 | `verify-local-stack.ps1 -SkipStart` + `verify-health.ps1` | PASS 汇总 |
+| 升级后功能 | 管理员/普通用户登录、文件列表、分享、回收站 | 均正常 |
+| 回滚 | 升级失败场景：`git checkout` 旧版 + restore 备份 | 回滚后栈健康，核心功能可用 |
