@@ -66,6 +66,7 @@ project.lock.json
 
 # Local Hermes agent workspace
 .hermes/
+.worktrees/
 
 # Local PR/security review scratch space
 pr-review-security-wave/
