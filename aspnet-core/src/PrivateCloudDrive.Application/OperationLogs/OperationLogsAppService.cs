@@ -350,6 +350,19 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
             };
         }
 
+        if (serviceName.Contains("AdminIdentity", StringComparison.OrdinalIgnoreCase))
+        {
+            return methodName switch
+            {
+                "CreateAsync" => OperationLogActions.AdminCreateUser,
+                "DisableAsync" => OperationLogActions.AdminDisableUser,
+                "EnableAsync" => OperationLogActions.AdminEnableUser,
+                "ResetPasswordAsync" => OperationLogActions.AdminResetPassword,
+                "SetQuotaAsync" => OperationLogActions.AdminSetQuota,
+                _ => CreateFallbackAction(serviceName, methodName)
+            };
+        }
+
         if (serviceName.Contains("FileCenterShares", StringComparison.OrdinalIgnoreCase))
         {
             return methodName switch

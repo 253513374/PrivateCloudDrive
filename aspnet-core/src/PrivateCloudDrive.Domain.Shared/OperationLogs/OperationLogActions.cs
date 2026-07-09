@@ -48,5 +48,30 @@ public static class OperationLogActions
     /// </summary>
     public const string BatchFavoriteSet = "BatchFavoriteSet";
 
+    /// <summary>
+    /// 管理员创建用户。
+    /// </summary>
+    public const string AdminCreateUser = "AdminCreateUser";
+
+    /// <summary>
+    /// 管理员禁用用户。
+    /// </summary>
+    public const string AdminDisableUser = "AdminDisableUser";
+
+    /// <summary>
+    /// 管理员启用用户。
+    /// </summary>
+    public const string AdminEnableUser = "AdminEnableUser";
+
+    /// <summary>
+    /// 管理员重置用户密码。
+    /// </summary>
+    public const string AdminResetPassword = "AdminResetPassword";
+
+    /// <summary>
+    /// 管理员设置用户容量配额。
+    /// </summary>
+    public const string AdminSetQuota = "AdminSetQuota";
+
     public const string Security = "Security";
 }
