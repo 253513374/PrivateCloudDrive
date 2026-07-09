@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Distributed;
@@ -14,6 +15,7 @@ using PrivateCloudDrive.Settings;
 using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Identity;
 using Volo.Abp.Linq;
 using Volo.Abp.Settings;
 using Volo.Abp.Timing;
@@ -35,6 +37,7 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
     private readonly IConfiguration _configuration;
     private readonly FileCenterMediaProcessingOptions _mediaProcessingOptions;
     private readonly IClock _clock;
+    private readonly IRepository<IdentityUser, Guid> _identityUserRepository;
 
     /// <summary>
     /// 初始化 <see cref="FileCenterSystemHealthAppService"/> 的新实例。
@@ -46,7 +49,8 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         ISettingProvider settingProvider,
         IConfiguration configuration,
         IOptions<FileCenterMediaProcessingOptions> mediaProcessingOptions,
-        IClock clock)
+        IClock clock,
+        IRepository<IdentityUser, Guid> identityUserRepository)
     {
         _blobObjectRepository = blobObjectRepository;
         _asyncExecuter = asyncExecuter;
@@ -55,6 +59,54 @@ public class FileCenterSystemHealthAppService : FileCenterAppService, IFileCente
         _configuration = configuration;
         _mediaProcessingOptions = mediaProcessingOptions.Value;
         _clock = clock;
+        _identityUserRepository = identityUserRepository;
+    }
+
+    /// <summary>
+    /// 获取管理员级别的系统健康全局视图，包含版本号、总用户数和 PASS/WARN/FAIL 聚合。
+    /// </summary>
+    [Authorize(PrivateCloudDrivePermissions.FileCenter.Manage)]
+    public virtual async Task<AdminFileCenterSystemHealthDto> GetAdminSummaryAsync()
+    {
+        var baseSummary = await GetSummaryAsync();
+
+        var version = Assembly.GetEntryAssembly()
+            ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion ?? "Unknown";
+
+        var totalUserCount = await _asyncExecuter.LongCountAsync(
+            (await _identityUserRepository.GetQueryableAsync()));
+
+        var totalUsedBytes = await GetTotalUsedStorageSizeAsync();
+
+        var overallHealthLevel = baseSummary.OverallStatus switch
+        {
+            FileCenterSystemHealthStatus.Healthy => "PASS",
+            FileCenterSystemHealthStatus.Degraded => "WARN",
+            FileCenterSystemHealthStatus.Unhealthy => "FAIL",
+            _ => "WARN"
+        };
+
+        return new AdminFileCenterSystemHealthDto
+        {
+            OverallHealthLevel = overallHealthLevel,
+            SystemVersion = version,
+            TotalUserCount = totalUserCount,
+            TotalStorageBytes = baseSummary.StorageDiskTotalBytes,
+            TotalUsedStorageBytes = totalUsedBytes,
+            BaseHealthSummary = baseSummary
+        };
+    }
+
+    private async Task<long> GetTotalUsedStorageSizeAsync()
+    {
+        var queryable = await _blobObjectRepository.GetQueryableAsync();
+        var sizes = await _asyncExecuter.ToListAsync(
+            queryable
+                .Where(blob => blob.TenantId == CurrentTenant.Id)
+                .Select(blob => blob.Size));
+
+        return sizes.Sum();
     }
 
     /// <summary>

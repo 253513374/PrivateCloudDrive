@@ -15,12 +15,33 @@ public class GetOperationLogsInput : PagedAndSortedResultRequestDto
     [StringLength(128)]
     public string? Action { get; set; }
 
+    /// <summary>
+    /// 按动作类型筛选（如 "FileUpload"、"FileDelete"）。
+    /// </summary>
+    [StringLength(128)]
+    public string? ActionName { get; set; }
+
     public Guid? UserId { get; set; }
 
     [StringLength(256)]
     public string? UserName { get; set; }
 
+    /// <summary>
+    /// 按文件/文件夹 ID 筛选。
+    /// </summary>
+    public Guid? FileNodeId { get; set; }
+
     public DateTime? StartTime { get; set; }
 
     public DateTime? EndTime { get; set; }
+
+    /// <summary>
+    /// 按创建时间筛选（起始），与 StartTime 同义。
+    /// </summary>
+    public DateTime? CreateAfter { get; set; }
+
+    /// <summary>
+    /// 按创建时间筛选（结束），与 EndTime 同义。
+    /// </summary>
+    public DateTime? CreateBefore { get; set; }
 }
