@@ -285,6 +285,223 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         });
     }
 
+    [Fact]
+    public async Task Should_Paginate_Timeline_Correctly()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // Upload 5 media items
+            var items = new[]
+            {
+                await UploadSmallFileAsync("img-a.png", "image/png"),
+                await UploadSmallFileAsync("img-b.png", "image/png"),
+                await UploadSmallFileAsync("img-c.png", "image/png"),
+                await UploadSmallFileAsync("img-d.png", "image/png"),
+                await UploadSmallFileAsync("img-e.png", "image/png")
+            };
+
+            // Mark all processed so they have assets
+            foreach (var item in items)
+            {
+                await MarkImageProcessedAsync(item.Id, DateTime.Now);
+            }
+
+            // First page: 2 items
+            var page1 = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 0,
+                    MaxResultCount = 2
+                });
+
+            page1.TotalCount.ShouldBe(5);
+            page1.Items.Count.ShouldBe(2);
+
+            // Second page: 2 items
+            var page2 = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 2,
+                    MaxResultCount = 2
+                });
+
+            page2.TotalCount.ShouldBe(5);
+            page2.Items.Count.ShouldBe(2);
+
+            // Items should not overlap between pages
+            var page1Ids = page1.Items.Select(i => i.Id).ToHashSet();
+            var page2Ids = page2.Items.Select(i => i.Id).ToHashSet();
+            page1Ids.Intersect(page2Ids).ShouldBeEmpty();
+        });
+    }
+
+    [Fact]
+    public async Task Should_Paginate_Timeline_At_Boundary()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            // Upload 3 media items
+            for (var i = 0; i < 3; i++)
+            {
+                var item = await UploadSmallFileAsync($"boundary-{i}.jpg", "image/jpeg");
+                await MarkImageProcessedAsync(item.Id, DateTime.Now.AddDays(-i));
+            }
+
+            // Request exactly at the total boundary
+            var page = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 2,
+                    MaxResultCount = 3
+                });
+
+            page.TotalCount.ShouldBe(3);
+            page.Items.Count.ShouldBe(1);
+
+            // Request beyond total boundary
+            var emptyPage = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    SkipCount = 10,
+                    MaxResultCount = 10
+                });
+
+            emptyPage.TotalCount.ShouldBe(3);
+            emptyPage.Items.Count.ShouldBe(0);
+        });
+    }
+
+    [Fact]
+    public async Task Should_Filter_Timeline_By_ProcessStatus_At_Db()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var pending = await UploadSmallFileAsync("pending-status.jpg", "image/jpeg");
+            var failed = await UploadSmallFileAsync("failed-status.mp4", "video/mp4");
+            var completed = await UploadSmallFileAsync("completed-status.jpg", "image/jpeg");
+
+            await MarkFailedAsync(failed.Id, "failed deliberately");
+            await MarkImageProcessedAsync(completed.Id, DateTime.Now);
+            // Note: pending item has no asset yet - semantically Pending
+
+            // Filter by Pending
+            var pendingResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    ProcessStatus = PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Pending,
+                    MaxResultCount = 20
+                });
+
+            pendingResult.Items.Select(i => i.Name).ShouldContain("pending-status.jpg");
+            pendingResult.Items.Select(i => i.Name).ShouldNotContain("failed-status.mp4");
+            pendingResult.Items.Select(i => i.Name).ShouldNotContain("completed-status.jpg");
+
+            // Filter by Failed
+            var failedResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    ProcessStatus = PrivateCloudDrive.FileCenter.MediaAssetProcessStatus.Failed,
+                    MaxResultCount = 20
+                });
+
+            failedResult.Items.Select(i => i.Name).ShouldContain("failed-status.mp4");
+            failedResult.Items.Select(i => i.Name).ShouldNotContain("pending-status.jpg");
+            failedResult.Items.Select(i => i.Name).ShouldNotContain("completed-status.jpg");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Filter_Timeline_By_TimeRange_At_Db()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var oldItem = await UploadSmallFileAsync("old-item.jpg", "image/jpeg");
+            var midItem = await UploadSmallFileAsync("mid-item.jpg", "image/jpeg");
+            var newItem = await UploadSmallFileAsync("new-item.jpg", "image/jpeg");
+
+            var now = DateTime.UtcNow;
+            await MarkImageProcessedAsync(oldItem.Id, now.AddDays(-10));
+            await MarkImageProcessedAsync(midItem.Id, now.AddDays(-5));
+            await MarkImageProcessedAsync(newItem.Id, now.AddDays(1));
+
+            // Filter by StartTime
+            var fromMidResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    StartTime = now.AddDays(-7),
+                    MaxResultCount = 20
+                });
+
+            fromMidResult.Items.Select(i => i.Name).ShouldNotContain("old-item.jpg");
+            fromMidResult.Items.Select(i => i.Name).ShouldContain("mid-item.jpg");
+            fromMidResult.Items.Select(i => i.Name).ShouldContain("new-item.jpg");
+
+            // Filter by time range
+            var rangeResult = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    StartTime = now.AddDays(-7),
+                    EndTime = now.AddDays(-2),
+                    MaxResultCount = 20
+                });
+
+            rangeResult.Items.Select(i => i.Name).ShouldNotContain("old-item.jpg");
+            rangeResult.Items.Select(i => i.Name).ShouldContain("mid-item.jpg");
+            rangeResult.Items.Select(i => i.Name).ShouldNotContain("new-item.jpg");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Not_Include_NonMedia_Files_In_Timeline()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            await UploadSmallFileAsync("photo.jpg", "image/jpeg");
+            await UploadSmallFileAsync("notes.txt", "text/plain");
+            await UploadSmallFileAsync("data.csv", "text/csv");
+            await UploadSmallFileAsync("script.js", "application/javascript");
+
+            var timeline = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    MaxResultCount = 20
+                });
+
+            timeline.Items.Select(i => i.Name).ShouldContain("photo.jpg");
+            timeline.Items.Select(i => i.Name).ShouldNotContain("notes.txt");
+            timeline.Items.Select(i => i.Name).ShouldNotContain("data.csv");
+            timeline.Items.Select(i => i.Name).ShouldNotContain("script.js");
+        });
+    }
+
+    [Fact]
+    public async Task Should_Handle_Empty_Timeline()
+    {
+        var userId = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userId, async () =>
+        {
+            var timeline = await _mediaLibraryAppService.GetTimelineAsync(
+                new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                {
+                    MaxResultCount = 20
+                });
+
+            timeline.TotalCount.ShouldBe(0);
+            timeline.Items.ShouldBeEmpty();
+        });
+    }
+
     private async Task<PrivateCloudDrive.FileCenter.FileNodeDto> UploadSmallFileAsync(
         string fileName,
         string contentType)

@@ -76,6 +76,7 @@ public partial class MediaPreviewPage : ContentPage
     {
         InitializeComponent();
         BindingContext = this;
+        VideoPlayer.MediaFailed += OnVideoMediaFailed;
     }
 
     protected override async void OnAppearing()
@@ -100,7 +101,9 @@ public partial class MediaPreviewPage : ContentPage
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
         ErrorPanel.IsVisible = false;
+        ErrorRetryButton.IsVisible = true;
         StatusPanel.IsVisible = false;
+        FormatNotSupportedPanel.IsVisible = false;
         PreviewImage.IsVisible = false;
         VideoPlayer.IsVisible = false;
         VideoPlayer.Source = null;
@@ -129,6 +132,9 @@ public partial class MediaPreviewPage : ContentPage
                 VideoPlayer.Source = await CreateVideoSourceAsync(id, cancellationToken);
                 VideoPlayer.MetadataTitle = FileName;
                 VideoPlayer.IsVisible = true;
+
+                // If the video source is set but MediaElement can't play it,
+                // the MediaFailed event will handle it.
                 return;
             }
 
@@ -136,14 +142,21 @@ public partial class MediaPreviewPage : ContentPage
             PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(content.Content));
             PreviewImage.IsVisible = true;
         }
+        catch (HttpRequestException)
+        {
+            ShowNetworkError();
+        }
+        catch (TaskCanceledException)
+        {
+            ShowNetworkError();
+        }
         catch (OperationCanceledException)
         {
             // 用户离开页面或重新加载时取消旧请求，不需要显示错误。
         }
         catch (Exception exception)
         {
-            ErrorLabel.Text = exception.Message;
-            ErrorPanel.IsVisible = true;
+            ShowLoadingError(exception.Message);
         }
         finally
         {
@@ -211,6 +224,38 @@ public partial class MediaPreviewPage : ContentPage
             RetryProcessingButton.IsEnabled = true;
             RetryProcessingDetailButton.IsEnabled = true;
         }
+    }
+
+    private void OnVideoMediaFailed(object? sender, EventArgs e)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            ShowFormatNotSupported();
+        });
+    }
+
+    private void ShowNetworkError()
+    {
+        ErrorLabel.Text = "网络连接异常，请检查网络后重试。";
+        ErrorRetryButton.IsVisible = true;
+        ErrorPanel.IsVisible = true;
+    }
+
+    private void ShowLoadingError(string details)
+    {
+        ErrorLabel.Text = string.IsNullOrWhiteSpace(details)
+            ? "加载失败，请重试。"
+            : $"加载失败：{details}";
+        ErrorRetryButton.IsVisible = true;
+        ErrorPanel.IsVisible = true;
+    }
+
+    private void ShowFormatNotSupported()
+    {
+        FormatNotSupportedLabel.Text = "当前设备暂不支持此格式";
+        FormatNotSupportedDetailLabel.Text = "此视频格式在当前设备上无法播放。你可以尝试下载后使用其他播放器打开。";
+        VideoPlayer.IsVisible = false;
+        FormatNotSupportedPanel.IsVisible = true;
     }
 
     private void NotifyPreviewDetailsChanged()

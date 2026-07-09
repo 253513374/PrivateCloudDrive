@@ -56,8 +56,12 @@ public sealed class MediaLibraryItem : INotifyPropertyChanged
     public string Badge => _timelineItem == null
         ? _item!.Badge
         : _timelineItem.MediaType == MediaAssetMediaType.Video
-            ? "视频"
-            : "图片";
+            ? _timelineItem.ProcessStatus != MediaAssetProcessStatus.Completed
+                ? ProcessStatusText
+                : "视频"
+            : _timelineItem.ProcessStatus != MediaAssetProcessStatus.Completed
+                ? ProcessStatusText
+                : "图片";
 
     public bool IsFavorite => _timelineItem?.IsFavorite ?? _item!.IsFavorite;
 
@@ -76,6 +80,10 @@ public sealed class MediaLibraryItem : INotifyPropertyChanged
                                      _timelineItem.ProcessStatus != MediaAssetProcessStatus.Completed;
 
     public bool IsProcessFailed => _timelineItem?.ProcessStatus == MediaAssetProcessStatus.Failed;
+
+    public bool IsPending => _timelineItem?.ProcessStatus == MediaAssetProcessStatus.Pending;
+
+    public bool IsProcessing => _timelineItem?.ProcessStatus == MediaAssetProcessStatus.Processing;
 
     public bool IsProcessActive => _timelineItem?.ProcessStatus is MediaAssetProcessStatus.Pending or MediaAssetProcessStatus.Processing;
 
