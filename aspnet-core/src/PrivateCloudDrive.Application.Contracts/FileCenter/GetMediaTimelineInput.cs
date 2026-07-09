@@ -5,9 +5,13 @@ namespace PrivateCloudDrive.FileCenter;
 
 /// <summary>
 /// 媒体库时间线查询输入。
+/// 支持按媒体类型、处理状态、时间范围、收藏和标签过滤。
+/// MaxResultCount 上限由服务端检查（当前上限 500）。
 /// </summary>
 public class GetMediaTimelineInput : PagedResultRequestDto
 {
+    public const int MaxAllowedResultCount = 500;
+
     public MediaAssetMediaType? MediaType { get; set; }
 
     public DateTime? StartTime { get; set; }
