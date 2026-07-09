@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Shouldly;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.MultiTenancy;
 using Volo.Abp.Security.Claims;
 using Xunit;
 
@@ -23,6 +24,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
     private readonly IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid> _mediaAssetRepository;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
     private readonly IRepository<PrivateCloudDrive.FileCenter.FileCenterOperationLog, Guid> _fileCenterOperationLogRepository;
+    private readonly ICurrentTenant _currentTenant;
 
     /// <summary>
     /// 初始化 <see cref="EfCoreFileCenterMediaLibraryAppServiceTests"/> 的新实例，并注入完成业务处理所需的依赖。
@@ -35,6 +37,7 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
         _mediaAssetRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.MediaAsset, Guid>>();
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
         _fileCenterOperationLogRepository = GetRequiredService<IRepository<PrivateCloudDrive.FileCenter.FileCenterOperationLog, Guid>>();
+        _currentTenant = GetRequiredService<ICurrentTenant>();
     }
 
     /// <summary>
@@ -673,6 +676,109 @@ public class EfCoreFileCenterMediaLibraryAppServiceTests : PrivateCloudDriveEnti
 
                 logs.Count.ShouldBe(0);
             });
+        });
+    }
+
+    /// <summary>
+    /// 跨租户隔离：租户A用户上传的媒体不应出现在租户B用户的媒体时间线中。
+    /// </summary>
+    [Fact]
+    public async Task Should_Enforce_Tenant_Isolation_In_Timeline()
+    {
+        var tenantAId = Guid.NewGuid();
+        var tenantBId = Guid.NewGuid();
+        var userIdA = Guid.NewGuid();
+        var userIdB = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userIdA, async () =>
+        {
+            using (_currentTenant.Change(tenantAId))
+            {
+                await UploadSmallFileAsync("tenant-a-photo.jpg", "image/jpeg");
+            }
+        });
+
+        await WithCurrentUserAsync(userIdB, async () =>
+        {
+            using (_currentTenant.Change(tenantBId))
+            {
+                var timeline = await _mediaLibraryAppService.GetTimelineAsync(
+                    new PrivateCloudDrive.FileCenter.GetMediaTimelineInput
+                    {
+                        MaxResultCount = 20
+                    });
+
+                timeline.Items.ShouldBeEmpty();
+                timeline.TotalCount.ShouldBe(0);
+            }
+        });
+    }
+
+    /// <summary>
+    /// 跨租户隔离：租户B用户不能获取租户A用户的媒体详情（应返回 NotFound）。
+    /// </summary>
+    [Fact]
+    public async Task Should_Enforce_Tenant_Isolation_In_Detail()
+    {
+        var tenantAId = Guid.NewGuid();
+        var tenantBId = Guid.NewGuid();
+        var userIdA = Guid.NewGuid();
+        var userIdB = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto? tenantAClip = null;
+
+        await WithCurrentUserAsync(userIdA, async () =>
+        {
+            using (_currentTenant.Change(tenantAId))
+            {
+                tenantAClip = await UploadSmallFileAsync("tenant-a-video.mp4", "video/mp4");
+                await _mediaLibraryAppService.RetryProcessingAsync(tenantAClip.Id);
+                await MarkFailedAsync(tenantAClip.Id, "error");
+            }
+        });
+
+        await WithCurrentUserAsync(userIdB, async () =>
+        {
+            using (_currentTenant.Change(tenantBId))
+            {
+                var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                    await _mediaLibraryAppService.GetDetailAsync(tenantAClip!.Id));
+
+                exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+            }
+        });
+    }
+
+    /// <summary>
+    /// 跨租户隔离：租户B用户不能重试租户A用户的媒体处理（应返回 BusinessException）。
+    /// </summary>
+    [Fact]
+    public async Task Should_Enforce_Tenant_Isolation_In_Retry()
+    {
+        var tenantAId = Guid.NewGuid();
+        var tenantBId = Guid.NewGuid();
+        var userIdA = Guid.NewGuid();
+        var userIdB = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto? tenantAClip = null;
+
+        await WithCurrentUserAsync(userIdA, async () =>
+        {
+            using (_currentTenant.Change(tenantAId))
+            {
+                tenantAClip = await UploadSmallFileAsync("tenant-a-retry.mp4", "video/mp4");
+                await _mediaLibraryAppService.RetryProcessingAsync(tenantAClip.Id);
+                await MarkFailedAsync(tenantAClip.Id, "some error");
+            }
+        });
+
+        await WithCurrentUserAsync(userIdB, async () =>
+        {
+            using (_currentTenant.Change(tenantBId))
+            {
+                var exception = await Should.ThrowAsync<Volo.Abp.BusinessException>(async () =>
+                    await _mediaLibraryAppService.RetryProcessingAsync(tenantAClip!.Id));
+
+                exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+            }
         });
     }
 
