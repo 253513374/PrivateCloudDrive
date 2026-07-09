@@ -28,6 +28,7 @@ public class FileCenterMediaLibraryAppService : FileCenterAppService, IFileCente
     private readonly IBackgroundJobManager _backgroundJobManager;
     private readonly IFileCenterMediaAssetService _mediaAssetService;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
+    private readonly IRepository<FileCenterOperationLog, Guid> _fileCenterOperationLogRepository;
 
     /// <summary>
     /// 初始化 <see cref="FileCenterMediaLibraryAppService"/> 的新实例，并注入完成业务处理所需的依赖。
@@ -40,7 +41,8 @@ public class FileCenterMediaLibraryAppService : FileCenterAppService, IFileCente
         IRepository<MediaAlbumItem, Guid> mediaAlbumItemRepository,
         IBackgroundJobManager backgroundJobManager,
         IFileCenterMediaAssetService mediaAssetService,
-        IAsyncQueryableExecuter asyncExecuter)
+        IAsyncQueryableExecuter asyncExecuter,
+        IRepository<FileCenterOperationLog, Guid> fileCenterOperationLogRepository)
     {
         _fileNodeRepository = fileNodeRepository;
         _nodeTagRepository = nodeTagRepository;
@@ -50,6 +52,7 @@ public class FileCenterMediaLibraryAppService : FileCenterAppService, IFileCente
         _backgroundJobManager = backgroundJobManager;
         _mediaAssetService = mediaAssetService;
         _asyncExecuter = asyncExecuter;
+        _fileCenterOperationLogRepository = fileCenterOperationLogRepository;
     }
 
     /// <summary>
@@ -121,8 +124,10 @@ public class FileCenterMediaLibraryAppService : FileCenterAppService, IFileCente
     {
         var ownerId = GetOwnerId();
         var node = await GetOwnerMediaNodeAsync(ownerId, fileNodeId);
-        var asset = await GetMediaAssetAsync(ownerId, fileNodeId)
-                    ?? await _mediaAssetService.CreatePendingAssetAsync(node);
+        var existingAsset = await GetMediaAssetAsync(ownerId, fileNodeId);
+        var shouldEnqueueJob = existingAsset != null;
+
+        var asset = existingAsset ?? await _mediaAssetService.CreatePendingAssetAsync(node);
 
         if (asset == null)
         {
@@ -137,15 +142,31 @@ public class FileCenterMediaLibraryAppService : FileCenterAppService, IFileCente
                 .WithData("ProcessStatus", asset.ProcessStatus);
         }
 
+        var statusBefore = asset.ProcessStatus;
+
         asset.MarkProcessing();
         await _mediaAssetRepository.UpdateAsync(asset, autoSave: true);
 
-        await _backgroundJobManager.EnqueueAsync(
-            new MediaAssetProcessingJobArgs
-            {
-                MediaAssetId = asset.Id,
-                FileNodeId = node.Id
-            });
+        if (shouldEnqueueJob)
+        {
+            await _backgroundJobManager.EnqueueAsync(
+                new MediaAssetProcessingJobArgs
+                {
+                    MediaAssetId = asset.Id,
+                    FileNodeId = node.Id
+                });
+        }
+
+        await _fileCenterOperationLogRepository.InsertAsync(
+            new FileCenterOperationLog(
+                GuidGenerator.Create(),
+                CurrentTenant.Id,
+                node.Id,
+                asset.Id,
+                FileCenterOperationLogConsts.ActionMediaRetry,
+                statusBefore.ToString(),
+                asset.ProcessStatus.ToString(),
+                CurrentUser.Id));
 
         return FileCenterMediaLibraryHelpers.ToDetail(node, asset);
     }
