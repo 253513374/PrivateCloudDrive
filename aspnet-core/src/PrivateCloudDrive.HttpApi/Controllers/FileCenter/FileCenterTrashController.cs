@@ -15,13 +15,17 @@ namespace PrivateCloudDrive.Controllers.FileCenter;
 public class FileCenterTrashController : PrivateCloudDriveController
 {
     private readonly IFileCenterFoldersAppService _foldersAppService;
+    private readonly IFileCenterTrashCleanupAppService _trashCleanupAppService;
 
     /// <summary>
     /// 初始化 <see cref="FileCenterTrashController"/> 的新实例，并注入完成业务处理所需的依赖。
     /// </summary>
-    public FileCenterTrashController(IFileCenterFoldersAppService foldersAppService)
+    public FileCenterTrashController(
+        IFileCenterFoldersAppService foldersAppService,
+        IFileCenterTrashCleanupAppService trashCleanupAppService)
     {
         _foldersAppService = foldersAppService;
+        _trashCleanupAppService = trashCleanupAppService;
     }
 
     /// <summary>
@@ -41,5 +45,14 @@ public class FileCenterTrashController : PrivateCloudDriveController
     public virtual Task EmptyAsync()
     {
         return _foldersAppService.EmptyTrashAsync();
+    }
+
+    /// <summary>
+    /// 获取回收站清理建议，包含空间占用统计和提示文案。
+    /// </summary>
+    [HttpGet("cleanup-advice")]
+    public virtual Task<TrashCleanupAdviceDto> GetCleanupAdviceAsync()
+    {
+        return _trashCleanupAppService.GetAdviceAsync();
     }
 }

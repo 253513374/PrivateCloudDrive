@@ -1154,6 +1154,74 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
     }
 
+    /// <summary>
+    /// 查询管理员用户列表（仅 admin 角色可用）。
+    /// </summary>
+    public async Task<IReadOnlyList<AdminUserDto>> GetAdminUsersAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/identity/admin/users",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<AdminUserDto>>(responseText, JsonOptions);
+        return result?.Items ?? (IReadOnlyList<AdminUserDto>)JsonSerializer.Deserialize<List<AdminUserDto>>(responseText, JsonOptions) ?? [];
+    }
+
+    /// <summary>
+    /// 查询当前用户的分享风险摘要（无过期分享、公开分享、长期未使用分享的数量和文案）。
+    /// </summary>
+    public async Task<ShareRiskSummary> GetShareRiskSummaryAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/file-center/shares/risk-summary",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var dto = JsonSerializer.Deserialize<ShareRiskSummaryDto>(responseText, JsonOptions)
+                  ?? throw new InvalidOperationException("Share risk summary response is invalid.");
+
+        return new ShareRiskSummary(
+            dto.NoExpiryShareCount,
+            dto.PublicShareCount,
+            dto.LongUnusedShareCount,
+            dto.NoExpiryWarning,
+            dto.PublicWarning,
+            dto.LongUnusedWarning);
+    }
+
+    /// <summary>
+    /// 查询回收站存储空间摘要（已用字节数、超过保留天数的项目数和清理建议）。
+    /// </summary>
+    public async Task<TrashStorageSummary> GetTrashStorageSummaryAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/file-center/trash/storage-summary",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var dto = JsonSerializer.Deserialize<TrashStorageSummaryDto>(responseText, JsonOptions)
+                  ?? throw new InvalidOperationException("Trash storage summary response is invalid.");
+
+        return new TrashStorageSummary(
+            dto.UsedBytes,
+            dto.ItemsOverThresholdCount,
+            dto.RetentionDays,
+            dto.CleanupSuggestion);
+    }
+
     private async Task<HttpRequestMessage> CreateAuthenticatedRequestAsync(
         HttpMethod method,
         string requestUri,
@@ -2260,5 +2328,31 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         [JsonPropertyName("message")]
         public string? Message { get; init; }
+    }
+
+    private sealed class ShareRiskSummaryDto
+    {
+        public int NoExpiryShareCount { get; init; }
+
+        public int PublicShareCount { get; init; }
+
+        public int LongUnusedShareCount { get; init; }
+
+        public string NoExpiryWarning { get; init; } = string.Empty;
+
+        public string PublicWarning { get; init; } = string.Empty;
+
+        public string LongUnusedWarning { get; init; } = string.Empty;
+    }
+
+    private sealed class TrashStorageSummaryDto
+    {
+        public long UsedBytes { get; init; }
+
+        public int ItemsOverThresholdCount { get; init; }
+
+        public int RetentionDays { get; init; }
+
+        public string CleanupSuggestion { get; init; } = string.Empty;
     }
 }
