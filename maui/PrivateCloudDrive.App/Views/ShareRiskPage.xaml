@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="PrivateCloudDrive.App.Views.ShareRiskPage"
+             Title="分享风险"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource PageBackgroundDark}">
+    <ScrollView>
+        <VerticalStackLayout Padding="18,22,18,28" Spacing="16">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <Button Text="‹"
+                        Style="{StaticResource GhostButton}"
+                        WidthRequest="46"
+                        Clicked="OnBackClicked" />
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Text="分享风险" Style="{StaticResource PageTitleLabel}" />
+                    <Label Text="查看当前私有备份服务器的分享安全状态" Style="{StaticResource MetaLabel}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border x:Name="StatePanel"
+                    Padding="14" IsVisible="False"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <ActivityIndicator x:Name="LoadingIndicator"
+                                       WidthRequest="20" HeightRequest="20"
+                                       Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                    <Label x:Name="StateLabel" Grid.Column="1" VerticalOptions="Center" FontSize="13" LineBreakMode="WordWrap" />
+                    <Button x:Name="RetryButton" Grid.Column="2" Text="重试" IsVisible="False"
+                            Style="{StaticResource SecondaryButton}" Padding="12,6" MinimumHeightRequest="36"
+                            Clicked="OnRefreshClicked" />
+                </Grid>
+            </Border>
+
+            <!-- 无过期分享 -->
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="18" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border HeightRequest="48" WidthRequest="48"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}"
+                            StrokeThickness="0" VerticalOptions="Start">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <shapes:Path Aspect="Uniform"
+                                     Stroke="{StaticResource Warning}"
+                                     StrokeThickness="2" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                     Data="M12,5 L19,20 L5,20 Z M12,10 L12,14 M12,16 L12,17"
+                                     HeightRequest="26" WidthRequest="26"
+                                     HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label x:Name="NoExpiryCountLabel" Text="--" FontFamily="OpenSansSemibold" FontSize="22"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label Text="无过期时间的分享" Style="{StaticResource SectionTitleLabel}" />
+                        <Label x:Name="NoExpiryWarningLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                    <shapes:Path Grid.Column="2" Aspect="Uniform" VerticalOptions="Center"
+                                 Stroke="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                 StrokeThickness="2" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                 Data="M9,18 L15,12 L9,6"
+                                 HeightRequest="20" WidthRequest="20">
+                        <shapes:Path.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSharesClicked" />
+                        </shapes:Path.GestureRecognizers>
+                    </shapes:Path>
+                </Grid>
+            </Border>
+
+            <!-- 公开分享 -->
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="18" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border HeightRequest="48" WidthRequest="48"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                            StrokeThickness="0" VerticalOptions="Start">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <shapes:Path Aspect="Uniform"
+                                     Stroke="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource TextSecondaryDark}}"
+                                     StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                     Data="M4,12 C4,8 6,4 12,4 C18,4 20,8 20,12 M4,12 C4,16 6,20 12,20 C18,20 20,16 20,12 M8,12 L16,12"
+                                     HeightRequest="26" WidthRequest="26"
+                                     HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label x:Name="PublicShareCountLabel" Text="--" FontFamily="OpenSansSemibold" FontSize="22"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label Text="公开（无需密码）分享" Style="{StaticResource SectionTitleLabel}" />
+                        <Label x:Name="PublicShareWarningLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- 长期未使用 -->
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="18" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border HeightRequest="48" WidthRequest="48"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                            StrokeThickness="0" VerticalOptions="Start">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <shapes:Path Aspect="Uniform"
+                                     Stroke="{StaticResource Primary}"
+                                     StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                     Data="M12,8 L12,12 L15,15 M21,12 C21,16.97 16.97,21 12,21 C7.03,21 3,16.97 3,12 C3,7.03 7.03,3 12,3 C16.97,3 21,7.03 21,12 Z"
+                                     HeightRequest="26" WidthRequest="26"
+                                     HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label x:Name="LongUnusedCountLabel" Text="--" FontFamily="OpenSansSemibold" FontSize="22"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label Text="长期未使用的分享" Style="{StaticResource SectionTitleLabel}" />
+                        <Label x:Name="LongUnusedWarningLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                    StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="✦ 实用建议" FontFamily="OpenSansSemibold" FontSize="14" />
+                    <Label Text="定期检查分享链接可以减少意外泄漏风险。对不再需要的分享，建议立即禁用。公开分享的文件可能被搜索引擎索引。"
+                           Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

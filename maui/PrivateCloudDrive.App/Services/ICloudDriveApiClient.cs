@@ -238,4 +238,10 @@ public interface ICloudDriveApiClient
     Task UnbindExternalAsync(
         string provider,
         CancellationToken cancellationToken = default);
+
+    Task<ShareRiskSummary> GetShareRiskSummaryAsync(CancellationToken cancellationToken = default);
+
+    Task<TrashStorageSummary> GetTrashStorageSummaryAsync(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AdminUserDto>> GetAdminUsersAsync(CancellationToken cancellationToken = default);
 }
