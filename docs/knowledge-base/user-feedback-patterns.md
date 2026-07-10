@@ -241,13 +241,14 @@ privateclouddrive-delivery/
 | **需求 (Feature)** | 新功能请求、增强建议 | PM | 48h 内确认是否纳入路线图 |
 | **体验问题 (UX)** | 界面不清晰、操作路径长、文案歧义 | PM + frontend-eng | 24h 内给初步回复 |
 | **文档问题 (Docs)** | 文档缺失、描述错误、部署步骤不完整 | Support-Ops → Docs | 48h 内修正 |
+| **API 契约不匹配** | HTTP 404（路由不一致）、JSON 反序列化失败（DTO 属性名不一致） | mobile-eng + backend-eng 联合排查 | P0: 4h（阻塞验收时） |
 
 **反馈受理模板（推荐）：**
 
 ```
 ## 反馈登记
 - 来源：用户/Agent/自发现
-- 分类：缺陷/需求/体验/文档
+- 分类：缺陷/需求/体验/文档/API 契约不匹配
 - 优先级：P0/P1/P2
 - 复现环境：Android/iOS/Windows/macOS/WASM,版本号
 - 复现步骤：

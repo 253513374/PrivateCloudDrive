@@ -144,7 +144,6 @@ GitHub Issue #5 要求建立公开仓库秘密泄露检测门禁。需要选择�
 
 `docs/security-review-public-repo-p1-2026-05-22.md`、`.github/workflows/security-gate.yml`。
 
----
 
 ## ADR-004：Compose 项目名治理与备份脚本修正（2026-05-18）
 
