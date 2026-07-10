@@ -1205,7 +1205,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/file-center/trash/storage-summary",
+            "/api/file-center/trash/cleanup-advice",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1216,10 +1216,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
                   ?? throw new InvalidOperationException("Trash storage summary response is invalid.");
 
         return new TrashStorageSummary(
-            dto.UsedBytes,
-            dto.ItemsOverThresholdCount,
+            dto.TrashSizeBytes,
+            dto.AutoCleanupCount,
             dto.RetentionDays,
-            dto.CleanupSuggestion);
+            dto.CleanupAdviceMessage);
     }
 
     private async Task<HttpRequestMessage> CreateAuthenticatedRequestAsync(
@@ -2347,12 +2347,12 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
     private sealed class TrashStorageSummaryDto
     {
-        public long UsedBytes { get; init; }
+        public long TrashSizeBytes { get; init; }
 
-        public int ItemsOverThresholdCount { get; init; }
+        public int AutoCleanupCount { get; init; }
 
         public int RetentionDays { get; init; }
 
-        public string CleanupSuggestion { get; init; } = string.Empty;
+        public string CleanupAdviceMessage { get; init; } = string.Empty;
     }
 }

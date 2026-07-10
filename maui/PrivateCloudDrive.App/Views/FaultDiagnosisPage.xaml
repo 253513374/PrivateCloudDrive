@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="PrivateCloudDrive.App.Views.FaultDiagnosisPage"
+             Title="故障诊断"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource PageBackgroundDark}">
+    <ScrollView>
+        <VerticalStackLayout Padding="18,22,18,28" Spacing="16">
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <Button Text="‹"
+                        Style="{StaticResource GhostButton}"
+                        WidthRequest="46"
+                        Clicked="OnBackClicked" />
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Text="故障诊断" Style="{StaticResource PageTitleLabel}" />
+                    <Label Text="检查各服务组件的运行状态与诊断详情" Style="{StaticResource MetaLabel}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- State panel -->
+            <Border x:Name="StatePanel"
+                    Padding="14" IsVisible="False"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <ActivityIndicator x:Name="LoadingIndicator"
+                                       WidthRequest="20" HeightRequest="20"
+                                       Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                    <Label x:Name="StateLabel" Grid.Column="1" VerticalOptions="Center" FontSize="13" LineBreakMode="WordWrap" />
+                    <Button x:Name="RetryButton" Grid.Column="2" Text="重试" IsVisible="False"
+                            Style="{StaticResource SecondaryButton}" Padding="12,6" MinimumHeightRequest="36"
+                            Clicked="OnRefreshClicked" />
+                </Grid>
+            </Border>
+
+            <!-- Overall summary card -->
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="18" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <shapes:Ellipse x:Name="OverallDot"
+                                   HeightRequest="16" WidthRequest="16"
+                                   Fill="Gray"
+                                   VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label x:Name="OverallStatusLabel"
+                               Text="正在读取整体状态"
+                               FontFamily="OpenSansSemibold" FontSize="18"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label x:Name="OverallDetailLabel"
+                               Text=""
+                               Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                        <Label x:Name="GeneratedAtLabel"
+                               Text=""
+                               Style="{StaticResource MetaLabel}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Expandable: API 状态 -->
+            <Border Padding="0" StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout>
+                    <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                          MinimumHeightRequest="54">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleApiSection" />
+                        </Grid.GestureRecognizers>
+                        <shapes:Ellipse x:Name="ApiStatusDot"
+                                        HeightRequest="12" WidthRequest="12"
+                                        Fill="Gray"
+                                        VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="API 服务" FontFamily="OpenSansSemibold" FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               VerticalOptions="Center" />
+                        <Label x:Name="ApiStatusLabel" Grid.Column="2"
+                               Text="--" FontSize="13" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </Grid>
+                    <BoxView x:Name="ApiSectionDivider"
+                             Margin="16,0" HeightRequest="1" IsVisible="False"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                    <VerticalStackLayout x:Name="ApiSectionContent"
+                                          Padding="16,0,16,14" Spacing="4" IsVisible="False">
+                        <Label x:Name="ApiDetailLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Expandable: 数据库状态 -->
+            <Border Padding="0" StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout>
+                    <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                          MinimumHeightRequest="54">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleDbSection" />
+                        </Grid.GestureRecognizers>
+                        <shapes:Ellipse x:Name="DbStatusDot"
+                                        HeightRequest="12" WidthRequest="12"
+                                        Fill="Gray"
+                                        VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="数据库" FontFamily="OpenSansSemibold" FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               VerticalOptions="Center" />
+                        <Label x:Name="DbStatusLabel" Grid.Column="2"
+                               Text="--" FontSize="13" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </Grid>
+                    <BoxView x:Name="DbSectionDivider"
+                             Margin="16,0" HeightRequest="1" IsVisible="False"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                    <VerticalStackLayout x:Name="DbSectionContent"
+                                          Padding="16,0,16,14" Spacing="4" IsVisible="False">
+                        <Label x:Name="DbDetailLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Expandable: Redis 状态 -->
+            <Border Padding="0" StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout>
+                    <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                          MinimumHeightRequest="54">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleRedisSection" />
+                        </Grid.GestureRecognizers>
+                        <shapes:Ellipse x:Name="RedisStatusDot"
+                                        HeightRequest="12" WidthRequest="12"
+                                        Fill="Gray"
+                                        VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="Redis 缓存" FontFamily="OpenSansSemibold" FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               VerticalOptions="Center" />
+                        <Label x:Name="RedisStatusLabel" Grid.Column="2"
+                               Text="--" FontSize="13" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </Grid>
+                    <BoxView x:Name="RedisSectionDivider"
+                             Margin="16,0" HeightRequest="1" IsVisible="False"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                    <VerticalStackLayout x:Name="RedisSectionContent"
+                                          Padding="16,0,16,14" Spacing="4" IsVisible="False">
+                        <Label x:Name="RedisDetailLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Expandable: 存储状态 -->
+            <Border Padding="0" StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout>
+                    <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                          MinimumHeightRequest="54">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleStorageSection" />
+                        </Grid.GestureRecognizers>
+                        <shapes:Ellipse x:Name="StorageStatusDot"
+                                        HeightRequest="12" WidthRequest="12"
+                                        Fill="Gray"
+                                        VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="存储后端" FontFamily="OpenSansSemibold" FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               VerticalOptions="Center" />
+                        <Label x:Name="StorageStatusLabel" Grid.Column="2"
+                               Text="--" FontSize="13" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </Grid>
+                    <BoxView x:Name="StorageSectionDivider"
+                             Margin="16,0" HeightRequest="1" IsVisible="False"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                    <VerticalStackLayout x:Name="StorageSectionContent"
+                                          Padding="16,0,16,14" Spacing="4" IsVisible="False">
+                        <Label x:Name="StorageDetailLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Expandable: FFmpeg 状态 -->
+            <Border Padding="0" StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout>
+                    <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                          MinimumHeightRequest="54">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleFfmpegSection" />
+                        </Grid.GestureRecognizers>
+                        <shapes:Ellipse x:Name="FfmpegStatusDot"
+                                        HeightRequest="12" WidthRequest="12"
+                                        Fill="Gray"
+                                        VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="FFmpeg 媒体处理" FontFamily="OpenSansSemibold" FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               VerticalOptions="Center" />
+                        <Label x:Name="FfmpegStatusLabel" Grid.Column="2"
+                               Text="--" FontSize="13" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </Grid>
+                    <BoxView x:Name="FfmpegSectionDivider"
+                             Margin="16,0" HeightRequest="1" IsVisible="False"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                    <VerticalStackLayout x:Name="FfmpegSectionContent"
+                                          Padding="16,0,16,14" Spacing="4" IsVisible="False">
+                        <Label x:Name="FfmpegDetailLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Expandable: Diagnostics -->
+            <Border Padding="0" StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout>
+                    <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                          MinimumHeightRequest="54">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleDiagnosticsSection" />
+                        </Grid.GestureRecognizers>
+                        <shapes:Ellipse x:Name="DiagnosticsStatusDot"
+                                        HeightRequest="12" WidthRequest="12"
+                                        Fill="Gray"
+                                        VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="诊断信息" FontFamily="OpenSansSemibold" FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               VerticalOptions="Center" />
+                        <Label x:Name="DiagnosticsCountLabel" Grid.Column="2"
+                               Text="--" FontSize="13" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </Grid>
+                    <BoxView x:Name="DiagnosticsSectionDivider"
+                             Margin="16,0" HeightRequest="1" IsVisible="False"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                    <VerticalStackLayout x:Name="DiagnosticsSectionContent"
+                                          Padding="16,0,16,14" Spacing="4" IsVisible="False">
+                        <Label x:Name="DiagnosticsDetailLabel" Text="" Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Storage info card -->
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                    StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="✦ 实用建议" FontFamily="OpenSansSemibold" FontSize="14" />
+                    <Label x:Name="AdviceLabel"
+                           Text="以上结果仅为当前时刻的快照。如果某个组件显示异常，请检查对应服务的运行状态和日志。"
+                           Style="{StaticResource MetaLabel}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
