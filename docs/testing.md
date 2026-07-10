@@ -462,6 +462,59 @@ dotnet test --filter "AdminUser|Health|Permission|Authorization"
 
 ---
 
+## V1.3b 维护版验收矩阵
+
+V1.3b 是 V1.3 的移动端验收收口和维护版。验收原则：后端 API 冻结，不新增数据库表，不改变 OpenIddict 认证流、存储抽象、上传下载主链路、媒体处理 pipeline 或分享公开访问边界；只验证既有 MAUI 页面、文档同步和页面内容可用性。
+
+| 编号 | 能力/边界 | 优先级 | 验收标准 | 对应已知限制 | 结果 | 备注 |
+|------|-----------|:------:|---------|:------------:|:----:|------|
+| AC-V1.3b-01 | 范围冻结 | P0 | 本轮差异不包含新增后端 API、数据库表、认证流、存储抽象、上传下载主链路、媒体 pipeline 或分享公开访问语义变更 | KN-V1.3b-01 | | 通过 `git diff --name-only` 和代码评审确认 |
+| AC-V1.3b-02 | `known-limitations.md` 同步 | P0 | 已包含 release-notes-v1.3.md 的 KN-V1.3-01~11，并追加 V1.3b 客观限制 | KN-V1.3b-03 | | 不删除历史限制 |
+| AC-V1.3b-03 | Settings 管理区角色可见性 | P0 | 管理员登录可见 8 项管理入口；普通用户不可见管理区；健康状态圆点对所有用户可见 | KN-V1.3-07 | | 需截图证据 |
+| AC-V1.3b-04 | ShareRiskPage API 契约 | P0 | 页面调用 `GET /api/file-center/shares/risk`，计数字段与后端 DTO 对齐，API 失败时显示友好错误且不崩溃 | — | | 修复后验收 |
+| AC-V1.3b-05 | TrashPage 回收站清理建议 | P1 | 页面调用 `GET /api/file-center/trash/cleanup-advice`，可显示占用空间、清理建议、空状态和错误状态 | — | | 修复后验收 |
+| AC-V1.3b-06 | FaultDiagnosisPage 静态诊断内容 | P1 | 从 Settings 可进入故障诊断页；6 类诊断区域可展开/收起；返回正常；页面不展示密钥、token、连接串或完整物理路径 | KN-V1.3b-04 | | 静态内容不替代实时健康页 |
+| AC-V1.3b-07 | 存储配置页只读展示 | P1 | 存储 provider、容量、可用空间和脱敏路径展示正确；无编辑、删除、切换存储入口 | KN-V1.3-04 | | 需管理员账号截图 |
+| AC-V1.3b-08 | 操作日志筛选页 | P1 | 管理员可组合筛选用户、动作和时间范围；分页正常；结果不含密码/token/secret | KN-V1.3-05 | | 需 API 或 UI 证据 |
+| AC-V1.3b-09 | MAUI 构建验证 | P0 | Android 构建通过，无 MAUIX2014、CS1503 或路由处理器缺失类错误 | KN-V1.3-10 | | `dotnet build -f net10.0-android` 或 `scripts/verify-maui-build.ps1` |
+
+### V1.3b 验证命令
+
+```powershell
+# 范围冻结检查：确认本轮不包含后端/API/脚本/部署拓扑变更
+git diff --name-only
+
+# MAUI 构建验证（优先完整顺序验证；环境不足时至少执行 Android 目标构建）
+.\scripts\verify-maui-build.ps1
+dotnet build .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -f net10.0-android
+
+# 后端基线回归（不要求新增 API，只确认既有契约未破坏）
+cd aspnet-core
+dotnet build .\PrivateCloudDrive.slnx
+dotnet test .\PrivateCloudDrive.slnx --no-build
+```
+
+### V1.3b 手动截图证据清单
+
+截图和记录建议存入 `docs/validation/screenshots/v1.3b/`，验收报告引用相对路径即可，禁止记录密码、access token、refresh token、真实私密文件内容、完整私有 URL、连接串或云存储密钥。
+
+| 页面 | 账号角色 | 必须截图/记录 | 通过标准 |
+|------|----------|---------------|----------|
+| Settings | 管理员 | 8 项管理入口 + 健康状态圆点 | 管理入口完整，点击可进入对应页面 |
+| Settings | 普通用户 | 普通设置区 + 健康状态圆点 | 管理入口隐藏，普通设置不受影响 |
+| ShareRiskPage | 普通用户或管理员 | 风险计数、提示文案、空状态/错误状态之一 | 调用 `/shares/risk` 成功或友好降级 |
+| TrashPage | 普通用户或管理员 | 回收站占用空间、清理建议、空状态之一 | 文案清晰，危险操作仍有二次确认 |
+| FaultDiagnosisPage | 任意用户 | 6 类诊断区域展开/收起 | 静态内容可读，不暴露敏感信息 |
+| StorageStatusPage | 管理员 | provider、容量、可用空间、脱敏路径 | 只读，无切换/删除入口 |
+| OperationLogsPage | 管理员 | 筛选条件与结果列表 | 分页正常，详情脱敏 |
+
+**V1.3b 放行标准：**
+- P0 项 = 0 阻断缺陷。
+- P1 项可带 WARN 放行，但必须在备注中写明 owner、后置版本和用户可见说明。
+- 所有新增/更新验收记录与已知限制保持一致；若无法执行真机/模拟器验收，必须明确记录环境原因和后续补验负责人。
+
+---
+
 ## 当前边界
 
 - 自动化测试主要集中在后端应用层、领域层和 EF Core 集成测试；MAUI 端目前以构建验证为主。

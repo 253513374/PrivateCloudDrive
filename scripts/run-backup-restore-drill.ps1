@@ -173,6 +173,39 @@ try {
     }
     Add-CheckResult "PASS" "backup-manifest" ("Manifest summary PASS {0} / WARN {1} / FAIL {2}." -f $manifest.summary.pass, $manifest.summary.warn, $manifest.summary.fail)
 
+    if ($manifest.checksums -and ($manifest.checksums | Get-Member -Name 'postgres.dump' -MemberType Properties)) {
+        $allChecksumsValid = $true
+        foreach ($fileEntry in $manifest.checksums.PSObject.Properties) {
+            $fileName = $fileEntry.Name
+            $expectedHash = $fileEntry.Value
+            $filePath = Join-Path $backupPath $fileName
+            if (Test-Path $filePath) {
+                $actualHash = (Get-FileHash -Path $filePath -Algorithm SHA256).Hash.ToLower()
+                if ($actualHash -eq $expectedHash.ToLower()) {
+                    Add-CheckResult "PASS" "checksum:$fileName" "SHA256 matches."
+                }
+                else {
+                    Add-CheckResult "FAIL" "checksum:$fileName" "SHA256 mismatch (expected: $expectedHash, actual: $actualHash)."
+                    $allChecksumsValid = $false
+                }
+            }
+            else {
+                Add-CheckResult "FAIL" "checksum:$fileName" "File not found for checksum verification."
+                $allChecksumsValid = $false
+            }
+        }
+        if ($allChecksumsValid) {
+            Add-CheckResult "PASS" "checksum-all" "All backup file checksums verified."
+        }
+        else {
+            Add-CheckResult "FAIL" "checksum-all" "One or more checksums did not match."
+            throw "Checksum mismatch: backup files may be corrupted."
+        }
+    }
+    else {
+        Add-CheckResult "WARN" "checksum-all" "No checksums in manifest. Run backup with updated backup-local-stack.ps1 to include SHA256 checksums."
+    }
+
     $restoreArgs = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $restoreScript, "-BackupDirectory", $backupPath)
     if ($IncludeRedis) { $restoreArgs += "-RestoreRedis" }
     if ($IncludeMinio) { $restoreArgs += "-RestoreMinio" }

@@ -6,3 +6,10 @@ raw-*.log
 scan-exports/
 ci-artifacts/
 daily-acceptance-*/
+
+# Temp/debug artifacts that should never be committed
+tmp-*
+window-dump*.xml
+*.tmp
+_check_swagger_paths.py
+login-emulator.py

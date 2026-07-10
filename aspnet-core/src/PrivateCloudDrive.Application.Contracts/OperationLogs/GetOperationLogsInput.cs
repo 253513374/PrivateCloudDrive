@@ -16,7 +16,7 @@ public class GetOperationLogsInput : PagedAndSortedResultRequestDto
     public string? Action { get; set; }
 
     /// <summary>
-    /// 按动作类型筛选（如 "FileUpload"、"FileDelete"）。
+    /// 按动作类型筛选（如 "FileUpload"、"FileDelete"），与 Action 同义。
     /// </summary>
     [StringLength(128)]
     public string? ActionName { get; set; }

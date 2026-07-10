@@ -602,6 +602,37 @@
                                    TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
                                    VerticalOptions="Center" />
                         </Grid>
+                        <BoxView Margin="72,0,16,0" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <!-- 故障诊断 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnFaultDiagnosisClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource TextSecondaryDark}}"
+                                             StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                             Data="M9,12 L11,12 L11,16 L13,16 M9,8 L12,8 M5,20 L19,20 L19,4 L5,4 Z"
+                                             HeightRequest="24" WidthRequest="24"
+                                             HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="故障诊断" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="各项服务组件运行状况检查清单" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
@@ -838,8 +869,20 @@
                                  HeightRequest="1"
                                  Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
                         <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="10"
                               MinimumHeightRequest="86">
-                            <VerticalStackLayout Spacing="3">
+                            <Border x:Name="HealthStatusDot"
+                                    HeightRequest="14"
+                                    WidthRequest="14"
+                                    StrokeShape="RoundRectangle CornerRadius=7"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Success}, Dark={StaticResource Success}}"
+                                    VerticalOptions="Start"
+                                    HorizontalOptions="Center"
+                                    Margin="0,6,0,0" />
+                            <VerticalStackLayout Spacing="3"
+                                                  Grid.Column="1">
                                 <Label Text="系统健康"
                                        FontFamily="OpenSansSemibold"
                                        FontSize="16" />

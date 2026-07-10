@@ -310,6 +310,139 @@ The Compose file uses `postgres:17-alpine` and `redis:7-alpine` because they are
 
 The full stack uses `privateclouddrive_stack_*` volumes so it does not reuse the development-only PostgreSQL volume from `docker-compose.postgres.yml`.
 
+---
+
+## 升级回滚 SOP
+
+> **面向人群**：部署和维护 PrivateCloudDrive 实例的管理员
+> **适用范围**：Docker Compose 部署的 V1.3 实例
+> **前置条件**：已按照本文档完成初始部署并确认服务健康
+
+### SOP 概览
+
+```
+升级前备份 → 拉取新版本 → 停止写入（维护窗口）→ 数据库迁移 → 健康验证 → 成功则上线 / 失败则回滚
+```
+
+升级失败时，回滚恢复至升级前状态。**任何时候都不要直接对生产实例执行未经演练的升级操作**。
+
+---
+
+### Step 1：升级前备份（必须）
+
+在升级前，务必完成**DB + storage + .env 三件套的完整备份**。这是回滚的唯一可靠手段。
+
+```powershell
+cd D:\Devs\Projects\Personal\PrivateCloudDrive
+.\scripts\backup-local-stack.ps1 -IncludeEnv
+```
+
+验证备份完整性：
+
+```powershell
+.\scripts\run-backup-restore-drill.ps1
+```
+
+确认输出中无 FAIL 项，且 postgres.dump、storage.tar.gz 均非空。备份目录的输出路径记录在 manifest.json 中。
+
+> ⚠️ **如果没有可用备份，禁止开始升级。**
+
+---
+
+### Step 2：拉取新版本
+
+```powershell
+git pull origin main
+docker compose up -d --build
+```
+
+---
+
+### Step 3：维护窗口（可选）
+
+```powershell
+docker compose stop api media-worker
+```
+
+PostgreSQL 和 Redis 保持运行，API 和后台任务停止接收新请求。
+
+---
+
+### Step 4：数据库迁移
+
+```powershell
+docker compose up -d --build
+docker compose logs db-migrator --tail=50
+```
+
+预期日志包含 `DbMigrator has been successfully completed`。如果出现 ERROR 则直接进入 Step 6 回滚。
+
+---
+
+### Step 5：健康验证
+
+```powershell
+docker compose ps
+.\scripts\verify-local-stack.ps1 -SkipStart
+```
+
+**验证清单：**
+
+| 检查项 | 预期 |
+|--------|------|
+| 容器全部运行 | api、db-migrator（Exited 0）、postgres、redis、media-worker 均为 Up 或 Exited 0 |
+| API 可达 | HTTP 200 |
+| 健康端点 | PASS |
+| 管理员登录 | Token 正常签发 |
+| 文件列表 | 正常 |
+| 分享链接 | 可访问 |
+| 操作日志 | 可加载 |
+
+---
+
+### Step 6：回滚（升级失败时使用）
+
+如果迁移失败、API 健康检查 FAIL、核心功能不可用，立即回滚：
+
+```powershell
+docker compose down
+git checkout <升级前版本>
+docker compose up -d --build
+docker compose stop api media-worker
+.\scripts\restore-local-stack.ps1 -BackupDirectory .\artifacts\backups\<备份目录> -ConfirmDestructiveRestore
+.\scripts\verify-local-stack.ps1 -SkipStart
+.\scripts\verify-health.ps1
+```
+
+---
+
+### 升级日志留存
+
+在 docs/validation/ 下记录：日期、前后版本、备份路径、迁移日志关键行、健康验证结果。不记录密码/token/secret。
+
+---
+
+### 常见故障场景
+
+| 故障 | 处理 |
+|------|------|
+| db-migrator 报错 | 回滚 Step 6 |
+| API 502 | 检查 .env 兼容性；否则回滚 |
+| 用户无法登录 | 确认 PUBLIC_URL 一致 |
+| 分享链接失效 | PUBLIC_URL 变更属预期行为 |
+| verify WARN | 排查后确认是否可接受 |
+
+---
+
+### 回滚前检查清单
+
+- [ ] 是否仅单一报错，核心功能正常？
+- [ ] 是否 .env 配置未更新？
+- [ ] 是否非核心端点问题？
+- [ ] 是否 Docker 超时而非代码缺陷？
+
+---
+
 ## MAUI 客户端构建
 
 MAUI 客户端使用 `.NET MAUI` 框架，目标平台为 Windows（`net10.0-windows10.0.19041.0`）和 Android（`net10.0-android`）。

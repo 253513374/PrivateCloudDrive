@@ -77,8 +77,7 @@ pr-review-security-wave/
 # Local test automation scratch
 tests/
 
-# Generated or temporary documentation artifacts
-docs/validation/
+# Validation evidence files (tracked with redacted secrets)
 docs/assets/
 docs/prototypes/
 

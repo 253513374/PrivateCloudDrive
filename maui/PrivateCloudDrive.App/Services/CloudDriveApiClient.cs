@@ -1179,7 +1179,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/file-center/shares/risk-summary",
+            "/api/file-center/shares/risk",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1190,12 +1190,12 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
                   ?? throw new InvalidOperationException("Share risk summary response is invalid.");
 
         return new ShareRiskSummary(
-            dto.NoExpiryShareCount,
-            dto.PublicShareCount,
-            dto.LongUnusedShareCount,
-            dto.NoExpiryWarning,
-            dto.PublicWarning,
-            dto.LongUnusedWarning);
+            dto.NoExpirationCount,
+            dto.PublicNoPasswordCount,
+            dto.LongUnusedCount,
+            dto.NoExpirationMessage,
+            dto.PublicShareMessage,
+            dto.UnusedShareMessage);
     }
 
     /// <summary>
@@ -1205,7 +1205,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/file-center/trash/storage-summary",
+            "/api/file-center/trash/cleanup-advice",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1216,10 +1216,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
                   ?? throw new InvalidOperationException("Trash storage summary response is invalid.");
 
         return new TrashStorageSummary(
-            dto.UsedBytes,
-            dto.ItemsOverThresholdCount,
+            dto.TrashSizeBytes,
+            dto.AutoCleanupCount,
             dto.RetentionDays,
-            dto.CleanupSuggestion);
+            dto.CleanupAdviceMessage);
     }
 
     private async Task<HttpRequestMessage> CreateAuthenticatedRequestAsync(
@@ -2332,27 +2332,27 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
     private sealed class ShareRiskSummaryDto
     {
-        public int NoExpiryShareCount { get; init; }
+        public int NoExpirationCount { get; init; }
 
-        public int PublicShareCount { get; init; }
+        public int PublicNoPasswordCount { get; init; }
 
-        public int LongUnusedShareCount { get; init; }
+        public int LongUnusedCount { get; init; }
 
-        public string NoExpiryWarning { get; init; } = string.Empty;
+        public string NoExpirationMessage { get; init; } = string.Empty;
 
-        public string PublicWarning { get; init; } = string.Empty;
+        public string PublicShareMessage { get; init; } = string.Empty;
 
-        public string LongUnusedWarning { get; init; } = string.Empty;
+        public string UnusedShareMessage { get; init; } = string.Empty;
     }
 
     private sealed class TrashStorageSummaryDto
     {
-        public long UsedBytes { get; init; }
+        public long TrashSizeBytes { get; init; }
 
-        public int ItemsOverThresholdCount { get; init; }
+        public int AutoCleanupCount { get; init; }
 
         public int RetentionDays { get; init; }
 
-        public string CleanupSuggestion { get; init; } = string.Empty;
+        public string CleanupAdviceMessage { get; init; } = string.Empty;
     }
 }
