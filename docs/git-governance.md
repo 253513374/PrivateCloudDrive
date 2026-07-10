@@ -24,10 +24,10 @@
 
 ### 2.2 临时任务分支
 
-每个 Kanban 任务必须使用独立分支：
+每个 Kanban 任务必须使用独立分支（占位符统一使用 `task_id`，实际分支名使用任务真实编号，例如 `t_d0ad75b8`）：
 
 ```text
-agent/<task-id>/<scope>
+agent/t_<task_id>/<scope>
 ```
 
 示例：
@@ -74,8 +74,14 @@ D:/Devs/Projects/Personal/PrivateCloudDrive-tasks/t_<task_id>/
 ```bash
 WORKSPACE=$(bash D:/Devs/Projects/Personal/PrivateCloudDrive/scripts/git-workspace-guard.sh | grep '^WORKSPACE=' | cut -d= -f2)
 cd "$WORKSPACE"
-git checkout -b agent/<task-id>/<scope>
+git checkout -b agent/t_${task_id}/scope-name
 ```
+
+### 3.1 三层工作区隔离防御
+
+1. **主仓库只读防线**：`D:/Devs/Projects/Personal/PrivateCloudDrive` 只作为参考副本和巡检入口，不承载 worker 的实际修改。
+2. **任务工作区防线**：每个 Kanban 任务进入独立 `PrivateCloudDrive-tasks/t_<task_id>/` 工作区，临时产物、验证证据和本地构建输出不互相污染。
+3. **任务分支防线**：每个工作区只在 `agent/t_<task_id>/<scope>` 分支提交，并通过 PR 门禁进入 `main`，禁止绕过 CI/Review 直接写主线。
 
 ## 4. PR 门禁
 
@@ -159,6 +165,16 @@ flowchart TD
 2. worker 读取失败日志。
 3. 提交修复 commit。
 4. CI 重新通过后再进入 review。
+
+### 8.4 回滚与抢救 SOP
+
+当错误变更已经合入 `main`，或仓库/工作区进入无法继续交付的状态时，按以下顺序止血：
+
+1. **冻结入口**：暂停相关 PR 合并，记录事故 PR、commit、task id 和影响模块。
+2. **优先 revert**：对已合入主线的问题提交使用 `git revert <commit>` 生成可审计回滚 PR，禁止直接重写 `main` 历史。
+3. **保护现场**：对脏工作区先 `git diff > rescue/<task_id>.patch` 或建立临时抢救分支，确认备份后再清理。
+4. **重新验证**：回滚/抢救 PR 必须跑同一套 CI、secret/log scan 和最小回归测试。
+5. **复盘归档**：在 Kanban 完成摘要中写清根因、回滚范围、剩余风险和后续责任人。
 
 ## 9. 成功标准
 
