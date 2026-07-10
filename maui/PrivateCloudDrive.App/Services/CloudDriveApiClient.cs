@@ -1179,7 +1179,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/file-center/shares/risk-summary",
+            "/api/file-center/shares/risk",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1205,7 +1205,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/file-center/trash/storage-summary",
+            "/api/file-center/trash/cleanup-advice",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -2332,27 +2332,36 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
     private sealed class ShareRiskSummaryDto
     {
+        [JsonPropertyName("noExpirationCount")]
         public int NoExpiryShareCount { get; init; }
 
+        [JsonPropertyName("publicNoPasswordCount")]
         public int PublicShareCount { get; init; }
 
+        [JsonPropertyName("longUnusedCount")]
         public int LongUnusedShareCount { get; init; }
 
+        [JsonPropertyName("noExpirationMessage")]
         public string NoExpiryWarning { get; init; } = string.Empty;
 
+        [JsonPropertyName("publicShareMessage")]
         public string PublicWarning { get; init; } = string.Empty;
 
+        [JsonPropertyName("unusedShareMessage")]
         public string LongUnusedWarning { get; init; } = string.Empty;
     }
 
     private sealed class TrashStorageSummaryDto
     {
+        [JsonPropertyName("trashSizeBytes")]
         public long UsedBytes { get; init; }
 
+        [JsonPropertyName("autoCleanupCount")]
         public int ItemsOverThresholdCount { get; init; }
 
         public int RetentionDays { get; init; }
 
+        [JsonPropertyName("cleanupAdviceMessage")]
         public string CleanupSuggestion { get; init; } = string.Empty;
     }
 }
