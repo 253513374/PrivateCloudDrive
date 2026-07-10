@@ -12,6 +12,7 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
 using Volo.Abp.Linq;
 using Volo.Abp.Settings;
+using Volo.Abp.Users;
 
 namespace PrivateCloudDrive.AdminIdentity;
 
@@ -48,6 +49,7 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
 
     /// <summary>
     /// 获取用户分页列表，返回用户基本信息和配额使用状态。
+    /// 仅在当前租户范围内查询用户。
     /// </summary>
     public virtual async Task<PagedResultDto<AdminIdentityUserDto>> GetListAsync(PagedAndSortedResultRequestDto input)
     {
@@ -60,7 +62,9 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
 
         var pagedResult = await _identityUserAppService.GetListAsync(identityInput);
 
-        var items = pagedResult.Items.Select(user => new AdminIdentityUserDto
+        var items = pagedResult.Items
+            .Where(user => CurrentTenant.Id == null || user.TenantId == CurrentTenant.Id)
+            .Select(user => new AdminIdentityUserDto
         {
             Id = user.Id,
             TenantId = user.TenantId,
@@ -85,7 +89,8 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
         {
             UserName = input.UserName,
             Email = input.Email,
-            Password = input.Password
+            Password = input.Password,
+            IsActive = true
         };
 
         var createdUser = await _identityUserAppService.CreateAsync(createInput);
@@ -104,10 +109,15 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
     }
 
     /// <summary>
-    /// 禁用一个用户。
+    /// 禁用一个用户。管理员不能禁用自己。
     /// </summary>
     public virtual async Task DisableAsync(Guid userId)
     {
+        if (CurrentUser.Id.HasValue && CurrentUser.Id.Value == userId)
+        {
+            throw new AbpAuthorizationException("Cannot disable yourself.");
+        }
+
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
         {

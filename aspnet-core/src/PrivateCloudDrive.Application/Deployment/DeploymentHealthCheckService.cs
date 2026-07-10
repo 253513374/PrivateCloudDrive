@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,8 @@ using Volo.Abp.OpenIddict.Applications;
 namespace PrivateCloudDrive.Deployment;
 
 /// <summary>
-/// 部署健康检查应用服务，为运维人员提供无认证的部署后系统就绪确认。
+/// 部署健康检查应用服务，为运维人员提供分层的部署后系统就绪确认。
+/// live → 仅进程存活；ready → 低敏依赖就绪；detail → 管理员全量详情。
 /// 所有输出均不包含密码、token、OAuth code、client secret 或完整私有 URL。
 /// </summary>
 public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITransientDependency
@@ -32,10 +34,37 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
 
     private static readonly HashSet<string> ForbiddenSensitiveMarkers = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Password=", "myPassword", "privateclouddrive", "client_secret", "client secret",
+        "Password=", "myPassword", "privateclouddrive",
+        "client_secret", "client secret",
         "AccessKeyId", "AccessKeySecret", "DefaultPassPhrase",
         "raw exception",
     };
+
+    // 正则模式集：用于增强脱敏
+    private static readonly Regex WindowsDrivePathPattern = new(
+        @"[A-Za-z]:\\[^\s,:;""<>|?*]+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex LinuxAbsolutePathPattern = new(
+        @"(?:/home/[^\s,:;""<>]+|/var/[^\s,:;""<>]+|/etc/[^\s,:;""<>]+|/opt/[^\s,:;""<>]+|/usr/[^\s,:;""<>]+|/tmp/[^\s,:;""<>]+)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex ConnectionStringPasswordPattern = new(
+        @"((?:Password|Pwd|Passwd)\s*=\s*)(?:(?!\s|;|""|$)[^\s;""])+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex JwtTokenPattern = new(
+        @"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}",
+        RegexOptions.Compiled);
+
+    private static readonly Regex AccessKeySecretPattern = new(
+        @"(AccessKey(?:Secret|Id)?\s*[:=]\s*)(?:(?!\s|;|""|,|$)[^\s;"",])+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    /// <summary>脱敏 AccessKey 值（不含 Secret/Id 标记时的泛化模式）。</summary>
+    private static readonly Regex GenericAccessKeyPattern = new(
+        @"(?:AccessKey|AccessSecret)\s*[:=]\s*(?:(?!\s|;|""|,|$)[^\s;"",])+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     /// <summary>
     /// 初始化 <see cref="DeploymentHealthCheckService"/> 的新实例。
@@ -57,6 +86,52 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
     /// <inheritdoc/>
     public virtual async Task<DeploymentHealthDto> GetHealthAsync()
     {
+        var checks = await RunAllChecksAsync();
+
+        return new DeploymentHealthDto
+        {
+            OverallStatus = ResolveOverallStatus(checks),
+            Checks = checks,
+            GeneratedAt = DateTime.UtcNow,
+            ContainsSensitiveData = false
+        };
+    }
+
+    /// <inheritdoc/>
+    public virtual Task<DeploymentLiveDto> GetLiveAsync()
+    {
+        return Task.FromResult(new DeploymentLiveDto
+        {
+            Status = "Healthy",
+            GeneratedAt = DateTime.UtcNow
+        });
+    }
+
+    /// <inheritdoc/>
+    public virtual async Task<DeploymentReadyDto> GetReadyAsync()
+    {
+        var checks = await RunAllChecksAsync();
+
+        return new DeploymentReadyDto
+        {
+            OverallStatus = ResolveOverallStatus(checks),
+            Checks = checks.Select(c => new DeploymentReadyCheckDto
+            {
+                Name = c.Name,
+                Status = c.Status,
+                // ready 层只返回低敏消息：不含修复建议、物理路径、连接串详情
+                Message = ResolveReadyMessage(c)
+            }).ToList(),
+            GeneratedAt = DateTime.UtcNow,
+            ContainsSensitiveData = false
+        };
+    }
+
+    /// <summary>
+    /// 运行所有检查项，返回完整的 DeploymentHealthDto 级别结果。
+    /// </summary>
+    private async Task<List<DeploymentCheckResultDto>> RunAllChecksAsync()
+    {
         var checks = new List<DeploymentCheckResultDto>();
 
         checks.Add(await CheckDatabaseConnectionAsync());
@@ -68,12 +143,20 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
         checks.Add(await CheckOpenIddictRedirectUrlsAsync());
         checks.Add(CheckProductionSecuritySettings());
 
-        return new DeploymentHealthDto
+        return checks;
+    }
+
+    /// <summary>
+    /// 为 ready 层生成低敏消息：仅指示组件是否可用，不含修复建议或内部路径。
+    /// </summary>
+    private static string ResolveReadyMessage(DeploymentCheckResultDto check)
+    {
+        return check.Status switch
         {
-            OverallStatus = ResolveOverallStatus(checks),
-            Checks = checks,
-            GeneratedAt = DateTime.UtcNow,
-            ContainsSensitiveData = false
+            DeploymentCheckStatus.Pass => $"{check.Name} 正常",
+            DeploymentCheckStatus.Warn => $"{check.Name} 降级",
+            DeploymentCheckStatus.Fail => $"{check.Name} 不可用",
+            _ => $"{check.Name} 状态未知"
         };
     }
 
@@ -295,7 +378,7 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
                 return FailResult(
                     displayName,
                     $"无法启动 {displayName} 进程。",
-                    $"请确认 {displayName} 可执行文件路径「{executablePath}」是否有效，是否已安装 {displayName}。");
+                    $"请确认 {displayName} 可执行文件路径是否有效，是否已安装 {displayName}。");
             }
 
             // 等待退出并获取输出来验证
@@ -308,7 +391,7 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
                 return FailResult(
                     displayName,
                     $"{displayName} 执行失败（退出码：{process.ExitCode}）。",
-                    $"请检查 {displayName} 安装完整性，尝试在命令行中执行「{executablePath} --version」确认。");
+                    $"请检查 {displayName} 安装完整性，尝试在命令行中执行确认。");
             }
 
             return PassResult(displayName, $"{displayName} 可执行，版本信息：{TruncateVersion(output ?? error)}");
@@ -319,7 +402,7 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
             return FailResult(
                 displayName,
                 $"{displayName} 检查失败：{SanitizeErrorMessage(ex.Message)}",
-                $"请确保已安装 {displayName}，且路径「{executablePath}」正确。");
+                $"请确保已安装 {displayName}，且路径配置正确。");
         }
     }
 
@@ -554,8 +637,17 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
         };
     }
 
-    private static string SanitizeErrorMessage(string message)
+    /// <summary>
+    /// 脱敏错误消息：删除所有敏感标记、路径、连接串密码、JWT token、AccessKeySecret。
+    /// </summary>
+    internal static string SanitizeErrorMessage(string message)
     {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return message;
+        }
+
+        // 检查 ForbiddenSensitiveMarkers
         foreach (var marker in ForbiddenSensitiveMarkers)
         {
             if (message.Contains(marker, StringComparison.OrdinalIgnoreCase))
@@ -564,29 +656,67 @@ public class DeploymentHealthCheckService : IDeploymentHealthCheckService, ITran
             }
         }
 
+        var sanitized = message;
+
+        // 脱敏 Windows 驱动器绝对路径 (C:\Users\...)
+        sanitized = WindowsDrivePathPattern.Replace(sanitized, "**路径已脱敏**");
+
+        // 脱敏 Linux 绝对路径
+        sanitized = LinuxAbsolutePathPattern.Replace(sanitized, "**路径已脱敏**");
+
+        // 脱敏连接串密码 (Password=xxx)
+        sanitized = ConnectionStringPasswordPattern.Replace(sanitized, "$1**已脱敏**");
+
+        // 脱敏 JWT token
+        sanitized = JwtTokenPattern.Replace(sanitized, "**token已脱敏**");
+
+        // 脱敏 AccessKeySecret
+        sanitized = AccessKeySecretPattern.Replace(sanitized, "$1**已脱敏**");
+
+        // 脱敏泛化 AccessKey（不含 Secret/Id 后缀）
+        sanitized = GenericAccessKeyPattern.Replace(sanitized, "**AccessKey已脱敏**");
+
         // 截断过长消息，防止意外泄露
-        return message.Length > 200 ? message[..200] + "…" : message;
+        return sanitized.Length > 200 ? sanitized[..200] + "…" : sanitized;
     }
 
-    private static string SanitizePath(string path)
+    internal static string SanitizePath(string path)
     {
-        // 仅显示最后两级路径，避免暴露完整部署路径
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return path;
+        }
+
+        // 统一分隔符
         var normalized = path.Replace('\\', '/').TrimEnd('/');
-        var segments = normalized
+
+        // 先脱敏敏感标记
+        var sanitized = normalized;
+        foreach (var marker in ForbiddenSensitiveMarkers)
+        {
+            if (sanitized.Contains(marker, StringComparison.OrdinalIgnoreCase))
+            {
+                return "路径已脱敏";
+            }
+        }
+
+        // 脱敏完整 Windows/Linux 路径: 仅保留最后两级
+        var segments = sanitized
             .Split('/')
-            .Select(SanitizeDisplaySegment)
+            .Select(s => WindowsDrivePathPattern.IsMatch(s)
+                ? "…"
+                : s)
+            .Where(s => !string.IsNullOrWhiteSpace(s))
             .ToArray();
-        return segments.Length <= 2
-            ? string.Join("/", segments)
-            : "…/" + string.Join("/", segments[^2..]);
-    }
 
+        if (segments.Length <= 2)
+        {
+            return string.Join("/", segments);
+        }
 
-    private static string SanitizeDisplaySegment(string segment)
-    {
-        return ForbiddenSensitiveMarkers.Any(marker => segment.Contains(marker, StringComparison.OrdinalIgnoreCase))
-            ? "已脱敏"
-            : segment;
+        // 脱敏可能的驱动器盘符路径
+        var cleaned = segments[^2..];
+        return "…/" + string.Join("/", cleaned);
     }
 
     private static string SanitizeUrlForDisplay(string url)

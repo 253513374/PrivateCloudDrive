@@ -11,18 +11,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
-    <PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" Version="10.3.0" />
-    <PackageReference Include="Volo.Abp.Autofac" Version="10.3.0" />
-    <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="10.3.0" />
-    <PackageReference Include="Volo.Abp.Caching.StackExchangeRedis" Version="10.3.0" />
-    <PackageReference Include="Volo.Abp.Swashbuckle" Version="10.3.0" />
-    <PackageReference Include="Volo.Abp.Account.Web.OpenIddict" Version="10.3.0" />
+    <PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" Version="10.5.0" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="10.5.0" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="10.5.0" />
+    <PackageReference Include="Volo.Abp.Caching.StackExchangeRedis" Version="10.5.0" />
+    <PackageReference Include="Volo.Abp.Swashbuckle" Version="10.5.0" />
+    <PackageReference Include="Volo.Abp.Account.Web.OpenIddict" Version="10.5.0" />
+    <!-- Microsoft.OpenApi transitive override: ABP Swashbundle pulls 2.3.0 which has GHSA-v5pm-xwqc-g5wc -->
+    <PackageReference Include="Microsoft.OpenApi" Version="3.8.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite" Version="5.0.0" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite" Version="5.5.0" />
   </ItemGroup>
 
   <ItemGroup>
