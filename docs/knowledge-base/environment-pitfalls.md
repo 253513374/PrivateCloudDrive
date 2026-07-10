@@ -108,10 +108,24 @@
 
 | 项目 | 值 |
 |---|---|
-| **触发条件** | Public repository CI workflow 执行，尤其在 fork PR 或仓库权限变更后 |
-| **现象** | `actions/setup-dotnet@v5` 步骤卡住或 403；workflow 整体失败 |
-| **根因** | GitHub Actions 的 setup 缓存/授权问题；非文档内容错误 |
-| **处理** | (1) 说明此失败不影响文档内容的合规性；(2) 手动执行本地构建验证作为替代证据；(3) 确认 actions/setup-dotnet 的基础设施恢复后 rerun |
-| **影响** | Public repository 的 CI 绿灯不可作为唯一发布依据——须保留本地验证证据 |
+|| **触发条件** | Public repository CI workflow 执行，尤其在 fork PR 或仓库权限变更后 |
+|| **现象** | `actions/setup-dotnet@v5` 步骤卡住或 403；workflow 整体失败 |
+|| **根因** | GitHub Actions 的 setup 缓存/授权问题；非文档内容错误 |
+|| **处理** | (1) 说明此失败不影响文档内容的合规性；(2) 手动执行本地构建验证作为替代证据；(3) 确认 actions/setup-dotnet 的基础设施恢复后 rerun |
+|| **影响** | Public repository 的 CI 绿灯不可作为唯一发布依据——须保留本地验证证据 |
 
 ---
+
+## 10. GitHub Actions — Public repo quality gate 在合并后其他 PR 上变为 BEHIND
+
+| 项目 | 值 |
+|:----:|-----|
+| **触发条件** | 多个 PR 共享基线时合并其中一个，剩余 PR 在 GitHub 上变为 BEHIND（落后于 main） |
+| **现象** | 合并一个 PR 后，其他 PR 显示「This branch is out-of-date with the base branch」，PR 页面出现要求更新分支的提示；status checks 暂停运行 |
+| **根因** | 仓库开启了 `Require branches to be up to date`（strict=true）保护规则。合并一个 PR 后 main 前进，其他 PR 的基线落后于最新 main，GitHub 自动标记为 BEHIND |
+| **处理** | `gh pr update-branch <n>` → 等待 CI 重新完成（约 3-8 分钟）→ 合并。这是 strict=true 的正常行为，**不是 CI 异常** |
+| **影响** | 多 PR 合流阶段需规划 update-branch 的 CI 时间；推荐在合并波次中将共享基线的 PR 排好优先级，先合并关键 PR，再集中更新其余 |
+
+---
+
+*最后更新：2026-07-10 · V1.3b 知识周报*

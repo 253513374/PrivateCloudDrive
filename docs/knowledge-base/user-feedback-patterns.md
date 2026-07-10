@@ -189,6 +189,8 @@ QA 验收卡依赖"Android 真机"，但开发环境无可用物理 Android 设�
 | Worker 在 main 分支上修改代码 | `git branch --show-current` | P6: 拒绝修改 + 通知 PM | 所有 agent |
 | Secret scan 失败 | `python scripts/secret-log-scan.py` exit=1 | P7: 修正脱敏 → 重新 scan | 当事人 |
 | App 登录后 API 返回无详细信息 | UI 显示"隐私保护"提示 | P8: 检查后端地址配置 | qa-eng |
+| 批量 PR 合并后多个变为 BEHIND | `gh pr list` 显示 BEHIND 状态 | P9: 按依赖顺序逐批 update-branch + 等待 CI | devops-eng / 当事人 |
+| Release Gate 某项 FAIL | `release-gate-report.md` 中 ❌ FAIL | P10: 拆分为独立 blocker-fix Kanban + 并行启动规范制定 | Support-Ops → 对应 profile |
 
 ---
 
