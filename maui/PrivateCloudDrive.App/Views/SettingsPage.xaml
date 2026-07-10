@@ -378,6 +378,234 @@
                 </Border>
             </VerticalStackLayout>
 
+            <!-- 管理员面板（仅管理员可见） -->
+            <VerticalStackLayout x:Name="AdminSectionPanel"
+                                 Spacing="10"
+                                 IsVisible="False">
+                <Label Text="管理员"
+                       Style="{StaticResource SectionTitleLabel}" />
+                <Border Padding="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0">
+                        <!-- 用户管理 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAdminUserManagementClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <Label Text="U" FontFamily="OpenSansSemibold" FontSize="17"
+                                       TextColor="{StaticResource Primary}"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="用户管理" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="管理注册用户、角色和账户状态" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <!-- 系统健康 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSystemHealthClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource InfoSoftLight}, Dark={StaticResource InfoSoftDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{StaticResource Info}"
+                                             StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                             Data="M9,12 L11,12 L11,16 L13,16 M9,8 L12,8 M5,20 L19,20 L19,4 L5,4 Z"
+                                             HeightRequest="24" WidthRequest="24"
+                                             HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="系统健康" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="查看服务器健康状态和诊断信息" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <!-- 存储配置 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStorageConfigClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SuccessSoftLight}, Dark={StaticResource SuccessSoftDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{StaticResource Success}"
+                                             StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                             Data="M3,10 L12,3 L21,10 L21,21 L3,21 Z M9,21 L9,13 L15,13 L15,21"
+                                             HeightRequest="24" WidthRequest="24"
+                                             HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="存储配置" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="查看存储策略、磁盘和容量配额" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <!-- 媒体任务 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnMediaTasksClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{StaticResource Warning}"
+                                             StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                             Data="M4,4 L20,4 L20,20 L4,20 Z M12,8 L12,12 L12,16"
+                                             HeightRequest="24" WidthRequest="24"
+                                             HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="媒体任务" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="查看后台处理状态" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <!-- 操作日志 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnOperationLogsClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource TextSecondaryDark}}"
+                                             StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                             Data="M7,7 L21,7 M7,14 L21,14 M7,21 L16,21"
+                                             HeightRequest="24" WidthRequest="24"
+                                             HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="操作日志" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="查看操作记录" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <!-- 分享风险 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnShareRiskClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource DangerSoftLight}, Dark={StaticResource DangerSoftDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{StaticResource Danger}"
+                                             StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                             Data="M12,5 L19,20 L5,20 Z M12,10 L12,14 M12,16 L12,17"
+                                             HeightRequest="24" WidthRequest="24"
+                                             HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="分享风险" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="检查分享安全状态和风险提示" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Margin="72,0,16,0" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                        <!-- 回收站清理 -->
+                        <Grid Padding="16,14"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="14"
+                              MinimumHeightRequest="74">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnTrashClicked" />
+                            </Grid.GestureRecognizers>
+                            <Border HeightRequest="42" WidthRequest="42"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                    StrokeThickness="0" VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource TextSecondaryDark}}"
+                                             StrokeThickness="1.9" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                             Data="M7,8 L21,8 M9,8 L10,24 L18,24 L19,8 M11,5 L17,5 L18,8"
+                                             HeightRequest="24" WidthRequest="24"
+                                             HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="回收站清理" FontFamily="OpenSansSemibold" FontSize="16" />
+                                <Label Text="查看回收站存储和自动清理状态" Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="26"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
             <VerticalStackLayout Spacing="10">
                 <Label Text="登录方式"
                        Style="{StaticResource SectionTitleLabel}" />

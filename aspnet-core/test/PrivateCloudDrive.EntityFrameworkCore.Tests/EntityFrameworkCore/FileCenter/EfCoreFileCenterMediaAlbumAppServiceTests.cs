@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Shouldly;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.MultiTenancy;
 using Volo.Abp.Security.Claims;
 using Xunit;
 
@@ -19,6 +20,7 @@ public class EfCoreFileCenterMediaAlbumAppServiceTests : PrivateCloudDriveEntity
     private readonly PrivateCloudDrive.FileCenter.IFileCenterMediaAlbumsAppService _mediaAlbumsAppService;
     private readonly PrivateCloudDrive.FileCenter.IFileCenterMediaLibraryAppService _mediaLibraryAppService;
     private readonly ICurrentPrincipalAccessor _currentPrincipalAccessor;
+    private readonly ICurrentTenant _currentTenant;
 
     public EfCoreFileCenterMediaAlbumAppServiceTests()
     {
@@ -26,6 +28,7 @@ public class EfCoreFileCenterMediaAlbumAppServiceTests : PrivateCloudDriveEntity
         _mediaAlbumsAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterMediaAlbumsAppService>();
         _mediaLibraryAppService = GetRequiredService<PrivateCloudDrive.FileCenter.IFileCenterMediaLibraryAppService>();
         _currentPrincipalAccessor = GetRequiredService<ICurrentPrincipalAccessor>();
+        _currentTenant = GetRequiredService<ICurrentTenant>();
     }
 
     [Fact]
@@ -202,6 +205,120 @@ public class EfCoreFileCenterMediaAlbumAppServiceTests : PrivateCloudDriveEntity
                     MaxResultCount = 20
                 });
             timeline.Items.Select(item => item.Id).ShouldContain(photo.Id);
+        });
+    }
+
+    /// <summary>
+    /// 跨租户隔离：租户B用户不应看到租户A用户的相册列表。
+    /// </summary>
+    [Fact]
+    public async Task Should_Enforce_Tenant_Isolation_For_Album_List()
+    {
+        var tenantAId = Guid.NewGuid();
+        var tenantBId = Guid.NewGuid();
+        var userIdA = Guid.NewGuid();
+        var userIdB = Guid.NewGuid();
+
+        await WithCurrentUserAsync(userIdA, async () =>
+        {
+            using (_currentTenant.Change(tenantAId))
+            {
+                await _mediaAlbumsAppService.CreateAsync(
+                    new PrivateCloudDrive.FileCenter.CreateMediaAlbumInput { Name = "租户A相册" });
+            }
+        });
+
+        await WithCurrentUserAsync(userIdB, async () =>
+        {
+            using (_currentTenant.Change(tenantBId))
+            {
+                var albums = await _mediaAlbumsAppService.GetListAsync(
+                    new PagedResultRequestDto { MaxResultCount = 20 });
+
+                albums.Items.ShouldBeEmpty();
+                albums.TotalCount.ShouldBe(0);
+            }
+        });
+    }
+
+    /// <summary>
+    /// 跨租户隔离：租户B用户无法获取租户A用户的相册详情（应返回 NotFound）。
+    /// </summary>
+    [Fact]
+    public async Task Should_Enforce_Tenant_Isolation_For_Album_Get()
+    {
+        var tenantAId = Guid.NewGuid();
+        var tenantBId = Guid.NewGuid();
+        var userIdA = Guid.NewGuid();
+        var userIdB = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.MediaAlbumDto? tenantAAlbum = null;
+
+        await WithCurrentUserAsync(userIdA, async () =>
+        {
+            using (_currentTenant.Change(tenantAId))
+            {
+                tenantAAlbum = await _mediaAlbumsAppService.CreateAsync(
+                    new PrivateCloudDrive.FileCenter.CreateMediaAlbumInput { Name = "租户A私密相册" });
+            }
+        });
+
+        await WithCurrentUserAsync(userIdB, async () =>
+        {
+            using (_currentTenant.Change(tenantBId))
+            {
+                var exception = await Should.ThrowAsync<BusinessException>(async () =>
+                    await _mediaAlbumsAppService.GetAsync(tenantAAlbum!.Id));
+
+                exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterMediaAlbumNotFound);
+            }
+        });
+    }
+
+    /// <summary>
+    /// 跨租户隔离：租户B用户无法将租户A用户的文件添加到自己的相册中（应返回 NotFound）。
+    /// </summary>
+    [Fact]
+    public async Task Should_Enforce_Tenant_Isolation_For_Album_AddItems()
+    {
+        var tenantAId = Guid.NewGuid();
+        var tenantBId = Guid.NewGuid();
+        var userIdA = Guid.NewGuid();
+        var userIdB = Guid.NewGuid();
+        PrivateCloudDrive.FileCenter.FileNodeDto? tenantAPhoto = null;
+        PrivateCloudDrive.FileCenter.MediaAlbumDto? tenantBAlbum = null;
+
+        await WithCurrentUserAsync(userIdA, async () =>
+        {
+            using (_currentTenant.Change(tenantAId))
+            {
+                tenantAPhoto = await UploadSmallFileAsync("tenant-a-photo.jpg", "image/jpeg");
+            }
+        });
+
+        await WithCurrentUserAsync(userIdB, async () =>
+        {
+            using (_currentTenant.Change(tenantBId))
+            {
+                tenantBAlbum = await _mediaAlbumsAppService.CreateAsync(
+                    new PrivateCloudDrive.FileCenter.CreateMediaAlbumInput { Name = "租户B相册" });
+            }
+        });
+
+        // 在 tenantB 上下文中尝试添加 tenantA 的文件
+        await WithCurrentUserAsync(userIdB, async () =>
+        {
+            using (_currentTenant.Change(tenantBId))
+            {
+                var exception = await Should.ThrowAsync<BusinessException>(async () =>
+                    await _mediaAlbumsAppService.AddItemsAsync(
+                        tenantBAlbum!.Id,
+                        new PrivateCloudDrive.FileCenter.AddMediaAlbumItemsInput
+                        {
+                            FileNodeIds = [tenantAPhoto!.Id]
+                        }));
+
+                exception.Code.ShouldBe(PrivateCloudDriveDomainErrorCodes.FileCenterNodeNotFound);
+            }
         });
     }
 
