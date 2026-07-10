@@ -4,6 +4,90 @@
 
 ---
 
+## ADR-008：维护版 V1.3b 定义（2026-07-10）
+
+**背景**
+
+V1.3 代码已经完整（含通过所有单元测试的后端和编译通过的 MAUI），但 Release Gate 评估发现 G5（安全脱敏）和 G6（依赖安全）为 ❌ FAIL，需要修复后方可发布。同时，V1.3 的移动端验收（G3）和文档同步（G4）为 ⚠️ WARN 可带伤放行但需后置版本处理。需要定义一种在「代码完整但发布受阻」时的处理模式。
+
+**决策**
+
+采用「维护版（Maintenance Release）」模式处理 V1.3 的发布阻塞：
+
+1. **先执行 blocker-fix**：创建独立的修复任务（security-reviewer / backend-eng），聚焦 G5/G6 的 FAIL 项修复。
+2. **并行推进下一子阶段规范**：在 blocker-fix 执行的同时，PM / BA / Architect 同步制定下一子阶段（V1.3b）的规范任务（场景矩阵、发布计划、验收口径）。
+3. **范围锁定**：V1.3b 维护版范围严格限定为以下「不」：
+   - 不新增后端 API
+   - 不新增数据库表
+   - 不修改认证/存储/上传下载/媒体处理/分享公开访问边界
+
+**理由**
+
+- 代码完整但发布受阻时，让团队空转等待 blocker-fix 是不经济的。
+- 维护版模式允许并行作业：修复组解决发布阻塞，规划组制定后续补丁范围。
+- 范围锁定防止维护版膨胀为功能开发版。
+
+**影响范围**
+
+| 维度 | 影响 |
+|------|------|
+| 版本命名 | V1.3 → V1.3b（维护补丁版） |
+| 团队分工 | blocker-fix 由 security-reviewer/backend-eng 执行；规范制定由 pm/ba/architect 执行 |
+| 文档 | `docs/release-plan-v1.3b.md`、`docs/scenario-matrix-v1.3b.md` |
+| 发布门禁 | 复用 V1.3 的 Release Gate 框架，新增 G3/G4 为可带 ⚠️ WARN 放行项 |
+
+**参考**
+
+`docs/release-gate-v1.3-assessment.md`、`docs/release-plan-v1.3b.md`、`docs/scenario-matrix-v1.3b.md`
+
+---
+
+## ADR-007：Release Gate 门禁放行规则（2026-07-09）
+
+**背景**
+
+V1.3 发布前执行 Release Gate 评估，7 道闸门中 G5（安全脱敏）和 G6（依赖安全）为 ❌ FAIL，G3（移动端验收）和 G4（文档完整）为 ⚠️ WARN。需要建立明确的放行规则，区分「必须修复后发布」和「可带伤放行但需跟踪」的闸门。
+
+**决策**
+
+采用两级放行模型：
+
+| 等级 | 含义 | 条件 | 示例 |
+|:----:|------|------|------|
+| **P0 FAIL** | 阻塞项 — 必须修复后方可发布 | 安全数据泄露、依赖 CVE 无有效规避 | G5 (28 个 secret scan findings)、G6 (Scriban/Microsoft.OpenApi 未升级) |
+| **P1 WARN** | 可带伤放行 — 但必须明确 owner + 后置版本 + 用户可见说明 | 环境限制、文档未同步 | G3 (移动端真机验收)、G4 (known-limitations.md 同步) |
+
+**放行建议模板**
+
+```
+P0 = 0 个无规避阻塞项
+P1 = 可带 WARN 放行，但必须说明：
+  - Owner 责任人
+  - 后置版本号
+  - 用户可见说明（通常写入 Known Limitations 或 Release Notes）
+```
+
+**理由**
+
+- 所有闸门全部 PASS 再发布的理想状态在资源受限的小团队中不现实。
+- 明确区分 P0（必须修复）和 P1（可带伤放行）避免因非关键项阻塞整体发布。
+- WARN 项的 owner + 后置版本 + 用户可见说明三要素确保不被遗忘。
+
+**影响范围**
+
+| 维度 | 影响 |
+|------|------|
+| 发布流程 | Release Gate 评估报告增加「放行建议」板块 |
+| 文档模板 | `docs/release-gate-v1.3-assessment.md` 采用此模型 |
+| 已知限制 | WARN 放行项自动同步到 Known Limitations |
+| 后继版本 | WARN 项进入后置版本的修复范围（V1.3b） |
+
+**验证**
+
+`docs/release-gate-v1.3-assessment.md` §放行标准对照 验证通过：2 个 P0 FAIL 项已识别，2 个 P1 WARN 项各有 owner + 后置版本 + known limitation 跟踪。
+
+---
+
 ## ADR-006：Git 工作区隔离方案（2026-05-26）
 
 **背景**
