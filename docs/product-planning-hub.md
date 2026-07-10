@@ -127,12 +127,9 @@ PrivateCloudDrive 的核心 App UI 应遵循：
 
 ### Now：V1.2 RC / Productization Sprint（多版本统一收口冲刺）
 
-> **命名说明**：「V1.2 RC」是当前产品化冲刺阶段的名称，不是最终正式版文件名。本阶段包含 V1.0 RC 稳定基线 + V1.1（文件管理体验增强）+ V1.2（媒体库产品化）的统一收口。当前 RC 口径与正式版候选材料分层如下：
+> **命名说明**：「V1.2 RC」是当前产品化冲刺阶段的名称，不是版本号。本阶段包含 V1.0 RC 稳定基线 + V1.1（文件管理体验增强）+ V1.2（媒体库产品化）的统一收口。各版本的独立发布范围定义见：
 > - `docs/release-plan-v1.1.md`：V1.1 文件管理体验增强
-> - `docs/architecture-v1.2-rc-boundary.md`：V1.2 RC 架构边界、风险与发布闸门口径
-> - `docs/scenario-matrix-v1.2-rc.md`：V1.2 RC 当前验收矩阵
-> - `docs/release-notes-v1.2-rc.md`：V1.2 RC 发布说明与验证结果
-> - `docs/scenario-matrix-v1.2.md`、`docs/release-notes-v1.2.md`：RC 通过后提升为正式 V1.2 的候选材料；当前不得替代 RC 闸门结论
+> - `docs/release-plan-v1.2.md`：V1.2 媒体库产品化
 
 > 前置版本 V1.1 文件管理体验增强已于 2026-07-07 正式发布（见 `docs/release-notes-v1.1.md`）。当前 Sprint 继续推进 V1.2 媒体库产品化收口。
 
