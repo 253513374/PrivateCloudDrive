@@ -219,8 +219,8 @@ public partial class SettingsPage : ContentPage
 
         try
         {
-            var users = await _apiClient.GetAdminUsersAsync();
-            AdminSectionPanel.IsVisible = users.Count >= 0;
+            await _apiClient.GetAdminUsersAsync();
+            AdminSectionPanel.IsVisible = true;
         }
         catch
         {
