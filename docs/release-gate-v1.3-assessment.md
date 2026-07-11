@@ -83,15 +83,13 @@ G5/G6 两个 P0 阻塞项已于 2026-07-11 复核为 PASS；当前仅保留 G3 �
 | restore-local-stack.ps1 | ✅ PASS | 存在，dry-run 模式正常 |
 | 最新 drill (17:17) | ✅ PASS | **17 PASS, 0 WARN, 0 FAIL** |
 | 备份完整性校验 | ✅ PASS | SHA256 checksum 验证通过 |
-| upgrade-rollback-sop.md | ✅ PASS | 474 行，覆盖完整升级生命周期 |
+| deployment.md（含升级回滚章节） | ✅ PASS | 含升级回滚 SOP（V1.3 更新） |
 | backup-restore-guide.md | ✅ PASS | 343 行，面向非开发者 |
 | verify-local-stack.ps1 | ✅ PASS | 存在，输出 PASS/WARN/FAIL |
 
 **Drill 记录**：
-- `docs/validation/backup-restore-drill-20260709-133416.md` — 14 PASS
-- `docs/validation/backup-restore-drill-20260709-154152.md` — 14 PASS
-- `docs/validation/backup-restore-drill-20260709-171628.md` — 17 PASS
-- `docs/validation/backup-restore-drill-20260709-171728.md` — **17 PASS (latest)**
+- `docs/validation/backup-restore-drill-20260518-193513.md` — 备份恢复演练记录（已验证：14 PASS）
+- `docs/validation/backup-restore-v1.3.md` — V1.3 备份恢复验证报告
 
 **结论**：✅ PASS — DevOps 验收通过，备份恢复流程完整可执行
 
@@ -126,7 +124,7 @@ G5/G6 两个 P0 阻塞项已于 2026-07-11 复核为 PASS；当前仅保留 G3 �
 |------|:----:|------|
 | release-notes-v1.3.md | ✅ PASS | 含 P0/P1 摘要、已知限制、升级注意事项、门禁状态 |
 | deployment.md | ✅ PASS | 包含升级回滚 SOP（V1.3 更新） |
-| upgrade-rollback-sop.md | ✅ PASS | 覆盖完整升级生命周期 |
+| deployment.md（含升级回滚章节） | ✅ PASS | 覆盖完整升级生命周期 |
 | backup-restore-guide.md | ✅ PASS | 面向部署/运维使用者 |
 | release-plan-v1.3.md | ✅ PASS | V1.3 发布范围与门禁定义 |
 | known-limitations.md | ✅ **PASS** | 已同步 11 条 V1.3 KN + 4 条 V1.3b KN |
@@ -150,7 +148,7 @@ G5/G6 两个 P0 阻塞项已于 2026-07-11 复核为 PASS；当前仅保留 G3 �
 |--------|:----:|------|
 | `python scripts/secret-log-scan.py --include-working-tree` | ✅ **PASS** | 2026-07-11 复核：0 findings（715 working tree paths checked） |
 | health API 脱敏实现 | ✅ PASS | 代码层面已验收 |
-| release-notes.md 声明 | ✅ PASS | 与当前 secret scan 0 findings 一致 |
+| release-notes-v1.3.md 声明 | ✅ PASS | 与当前 secret scan 0 findings 一致 |
 
 **修复提交**：
 - `d97848e` — G5 secret scan：脱敏验证文档中的秘密信息，28 findings → 0
@@ -227,7 +225,7 @@ P2 = 记录到路线图或已知限制，不阻塞 V1.3
 - [x] `docs/release-plan-v1.3.md` — 发布范围定义 (287 行)
 - [x] `docs/release-notes-v1.3.md` — 发布说明 (100 行)
 - [x] `docs/deployment.md` — 部署文档 (418 行)
-- [x] `docs/upgrade-rollback-sop.md` — 升级回滚 SOP (474 行)
+- [x] `docs/deployment.md` — 部署文档（含升级回滚章节）(418 行)
 - [x] `docs/backup-restore-guide.md` — 备份恢复指南 (343 行)
 - [x] `docs/dependency-vulnerability-register-v1.3.md` — 依赖漏洞登记 (116 行)
 - [x] `docs/known-limitations.md` — ✅ 已同步 11 条 V1.3 + 4 条 V1.3b 已知限制
@@ -249,8 +247,3 @@ P2 = 记录到路线图或已知限制，不阻塞 V1.3
 - [x] `scripts/secret-log-scan.py` — 可用（2026-07-11 复核 PASS：0 findings）
 
 ### 验证演练记录
-- [x] `docs/validation/backup-restore-v1.3.md` — V1.3 备份恢复验证报告
-- [x] `docs/validation/backup-restore-drill-20260709-133416.md` ✅
-- [x] `docs/validation/backup-restore-drill-20260709-154152.md` ✅
-- [x] `docs/validation/backup-restore-drill-20260709-171628.md` ✅
-- [x] `docs/validation/backup-restore-drill-20260709-171728.md` ✅
