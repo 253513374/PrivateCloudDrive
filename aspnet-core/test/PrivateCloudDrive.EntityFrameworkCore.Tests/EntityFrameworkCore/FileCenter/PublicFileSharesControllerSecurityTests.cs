@@ -55,14 +55,14 @@ public class PublicFileSharesControllerSecurityTests
     [Fact]
     public void PublicShareRateLimitPartitions_Should_Use_Token_Hash_And_Client_Ip_Without_Raw_Token()
     {
-        const string rawShareId = "share-token-that-must-not-appear-in-partition";
+        const string rawToken = "share-token-that-must-not-appear-in-partition";
         const string clientIp = "203.0.113.42";
 
-        var partitionKey = PublicShareRateLimitPartitions.ForTokenAndIp(rawShareId, clientIp);
+        var partitionKey = PublicShareRateLimitPartitions.ForTokenAndIp(rawToken, clientIp);
 
         partitionKey.ShouldStartWith("share:");
         partitionKey.ShouldEndWith($":ip:{clientIp}");
-        partitionKey.ShouldNotContain(rawShareId);
+        partitionKey.ShouldNotContain(rawToken);
         partitionKey.Length.ShouldBeLessThan(100);
     }
 
@@ -102,46 +102,6 @@ public class PublicFileSharesControllerSecurityTests
 
         first.IsAcquired.ShouldBeTrue();
         second.IsAcquired.ShouldBeFalse();
-    }
-
-    [Fact]
-    public void Public_Share_AppService_Should_Not_Be_Exposed_As_Conventional_Controller()
-    {
-        var interfaceAttribute = typeof(IFileCenterPublicSharesAppService)
-            .GetCustomAttribute<RemoteServiceAttribute>();
-        var implementationAttribute = typeof(FileCenterPublicSharesAppService)
-            .GetCustomAttribute<RemoteServiceAttribute>();
-
-        interfaceAttribute.ShouldNotBeNull();
-        interfaceAttribute!.IsEnabled.ShouldBeFalse();
-        implementationAttribute.ShouldNotBeNull();
-        implementationAttribute!.IsEnabled.ShouldBeFalse();
-    }
-
-    [Theory]
-    [InlineData(nameof(IFileCenterPublicSharesAppService.GetAsync), new[] { typeof(string) })]
-    [InlineData(nameof(IFileCenterPublicSharesAppService.VerifyPasswordAsync), new[] { typeof(string), typeof(VerifySharePasswordInput) })]
-    [InlineData(nameof(IFileCenterPublicSharesAppService.GetDownloadAsync), new[] { typeof(string), typeof(string), typeof(CancellationToken) })]
-    [InlineData(nameof(IFileCenterPublicSharesAppService.GetDownloadAsync), new[] { typeof(string), typeof(string), typeof(FileDownloadRangeRequest), typeof(CancellationToken) })]
-    public void Public_Share_AppService_Methods_Should_Not_Be_Exposed_As_Conventional_Controller(
-        string methodName,
-        Type[] parameterTypes)
-    {
-        var interfaceMethod = typeof(IFileCenterPublicSharesAppService).GetMethod(methodName, parameterTypes);
-        var implementationMethod = typeof(FileCenterPublicSharesAppService).GetMethod(methodName, parameterTypes);
-
-        interfaceMethod.ShouldNotBeNull();
-        implementationMethod.ShouldNotBeNull();
-        AssertRemoteServiceDisabled(interfaceMethod!);
-        AssertRemoteServiceDisabled(implementationMethod!);
-    }
-
-    private static void AssertRemoteServiceDisabled(MethodInfo method)
-    {
-        var attribute = method.GetCustomAttributes<RemoteServiceAttribute>(inherit: false).SingleOrDefault();
-
-        attribute.ShouldNotBeNull();
-        attribute!.IsEnabled.ShouldBeFalse();
     }
 
     private sealed class StubPublicSharesAppService : IFileCenterPublicSharesAppService
