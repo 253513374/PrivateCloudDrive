@@ -875,12 +875,15 @@
                             <Border x:Name="HealthStatusDot"
                                     HeightRequest="14"
                                     WidthRequest="14"
-                                    StrokeShape="RoundRectangle CornerRadius=7"
                                     StrokeThickness="0"
                                     BackgroundColor="{AppThemeBinding Light={StaticResource Success}, Dark={StaticResource Success}}"
                                     VerticalOptions="Start"
                                     HorizontalOptions="Center"
-                                    Margin="0,6,0,0" />
+                                    Margin="0,6,0,0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="7" />
+                                </Border.StrokeShape>
+                            </Border>
                             <VerticalStackLayout Spacing="3"
                                                   Grid.Column="1">
                                 <Label Text="系统健康"
