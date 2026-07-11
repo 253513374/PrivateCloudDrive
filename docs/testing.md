@@ -627,3 +627,93 @@ dotnet test .\PrivateCloudDrive.slnx --no-build
 | 健康验证 | `verify-local-stack.ps1 -SkipStart` + `verify-health.ps1` | PASS 汇总 |
 | 升级后功能 | 管理员/普通用户登录、文件列表、分享、回收站 | 均正常 |
 | 回滚 | 升级失败场景：`git checkout` 旧版 + restore 备份 | 回滚后栈健康，核心功能可用 |
+
+---
+
+## V1.3b 验收记录（维护版移动端收口）
+
+| 验收日期 | 2026-07-11 |
+|----------|------------|
+| 负责人 | 齐 QA (qa-eng) + 产品总监 (pm) |
+| 发布范围 | `docs/release-plan-v1.3b.md` §2.2 |
+
+### P0 缺陷修复
+
+| 缺陷 | 模块 | 状态 | 验证方式 |
+|:----:|------|:----:|----------|
+| BUG-001 | FaultDiagnosisPage OverallDot 类型 | ✅ PASS | dotnet build 通过 |
+| BUG-002 | SettingsPage OnFaultDiagnosisClicked 缺失 | ✅ PASS | dotnet build 通过 |
+| BUG-003 | ShareRisk API 路由不匹配 | ✅ PASS | dotnet build + API 200 |
+| BUG-004 | ShareRisk DTO 属性名不匹配 | ✅ PASS | dotnet build + DTO 对齐 |
+
+### P0 移动端验收（F-05 Settings IA 角色适配 / F-06 ShareRisk UI）
+
+| AC | 描述 | 结果 | 证据 |
+|:--:|------|:----:|------|
+| AC-F05-A | 管理员登录后 Settings 8 项管理面板全部可见 | ✅ PASS | `screenshots/v1.3b/settings-admin.png` |
+| AC-F05-B | 普通用户登录后管理面板隐藏 | ✅ PASS | `screenshots/v1.3b/settings-regular.png` |
+| AC-F05-C | HealthStatusDot 四色逻辑（绿/橙/红/灰） | ✅ PASS | `screenshots/v1.3b/settings-admin.png` |
+| AC-F06-A | ShareRiskPage 加载不报错/"无法读取分享安全状态" | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-B | 无过期分享数量显示（=0 时合理文案） | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-C | 公开分享数量显示 | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-D | 长期未使用分享数量显示 | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-E | 文案不制造恐慌，展示实用提醒 | ✅ PASS | 截图审查 |
+| AC-F06-F | 编译通过，无 MAUI 编译错误 | ✅ PASS | `dotnet build` |
+
+### P1 移动端验收（F-07~F-10）
+
+| AC | 描述 | 结果 | 证据 |
+|:--:|------|:----:|------|
+| AC-F07-A | TrashPage 回收站占用空间 + 清理建议文本 | ✅ PASS | `screenshots/v1.3b/trash.png` |
+| AC-F07-B | 清理建议有二次确认 | ✅ PASS | `screenshots/v1.3b/trash.png` |
+| AC-F08-A | FaultDiagnosisPage 编译通过 | ✅ PASS | `dotnet build` |
+| AC-F08-B | 页面 6 个展开区可正常展开/收起 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-C | 整体状态圆点颜色正确映射 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-D | 从 Settings 管理员面板可导航到故障诊断页 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-E | 返回按钮正常回到上一页 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-F | 加载/错误/空闲三种状态 UI 表现正常 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F09-A | 存储后端类型正确显示 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F09-B | 总容量/已用/可用空间数据显示正确 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F09-C | 存储路径脱敏展示 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F09-D | 页面只读，无编辑/删除/切换按钮 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F10-A | 管理员可按用户筛选日志 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-B | 可按动作类型筛选 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-C | 可按时间范围筛选 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-D | 多项筛选条件可组合使用 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-E | 筛选结果分页正常 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-F | 日志项包含：时间、用户、动作类型、目标文件、操作结果 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-G | 日志不包含敏感信息 | ✅ PASS | 截图审查 |
+
+### 文档同步验收
+
+| AC | 描述 | 结果 |
+|:--:|------|:----:|
+| AC-F03-A | known-limitations.md 包含全部 V1.3 已知限制 | ✅ PASS |
+| AC-F03-B | 每条 KN 格式一致 | ✅ PASS |
+| AC-F03-C | KN 文案面向非开发者，清晰易懂 | ✅ PASS |
+| AC-F03-D | KN 与 release-notes-v1.3.md 口径一致，无矛盾 | ✅ PASS |
+| AC-F04-A | release-notes-v1.3b.md 生成并归档 | ✅ PASS |
+| AC-F04-B | V1.3/V1.3b 发布时间和范围明确 | ✅ PASS |
+
+### 发行闸门
+
+| 闸门 | 状态 | 说明 |
+|:----:|:----:|------|
+| G0 范围冻结 | ✅ PASS | 仅预定义修复+验收 |
+| G1 编译测试 | ✅ PASS | MAUI + 后端编译通过 |
+| G2 API 连通 | ✅ PASS | ShareRisk 200 |
+| G3 文档同步 | ✅ PASS | known-limitations.md 已同步 |
+| G4 移动端验收 | ✅ PASS | 6 页截图证据采集完毕 |
+| G5 安全脱敏 | ✅ PASS | secret scan 0 findings |
+| G6 依赖安全 | ✅ PASS | Scriban/OpenApi 已升级 |
+
+### V1.3b 已知限制确认
+
+| 编号 | 限制 | 发布确认 |
+|:----:|------|:--------:|
+| KN-V1.3b-01 | V1.3b 仅验证收口，不引入新后端能力 | ✅ |
+| KN-V1.3b-02 | 人工截图验收为主，无自动化 UI 测试 | ✅ |
+| KN-V1.3b-03 | known-limitations.md 人工同步 | ✅ |
+| KN-V1.3b-04 | 故障诊断页为静态内容 | ✅ |
+
+**汇总**：**36 AC 验证：36 PASS / 0 WARN / 0 FAIL**
