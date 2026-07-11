@@ -388,7 +388,7 @@ public class EfCoreDeploymentHealthCheckTests : PrivateCloudDriveEntityFramework
     }
 
     /// <summary>
-    /// 验证 SanitizeErrorMessage 能脱敏连接字符串内的密码（使用 Pwd= 避免触发 Password= 标记提前返回）。
+    /// 验证 SanitizeErrorMessage 能脱敏连接字符串内的凭据（使用 Pwd 片段避免触发前置标记）。
     /// </summary>
     [Fact]
     public void SanitizeErrorMessage_Should_Redact_ConnectionString_Password()

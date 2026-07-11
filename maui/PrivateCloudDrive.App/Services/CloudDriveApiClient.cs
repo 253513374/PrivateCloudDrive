@@ -1161,7 +1161,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/identity/admin/users",
+            "/api/admin/identity/users",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1169,7 +1169,12 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
 
         var result = JsonSerializer.Deserialize<PagedResult<AdminUserDto>>(responseText, JsonOptions);
-        return result?.Items ?? (IReadOnlyList<AdminUserDto>)JsonSerializer.Deserialize<List<AdminUserDto>>(responseText, JsonOptions) ?? [];
+        if (result?.Items is { } pagedItems)
+        {
+            return pagedItems;
+        }
+
+        return JsonSerializer.Deserialize<List<AdminUserDto>>(responseText, JsonOptions) ?? [];
     }
 
     /// <summary>
@@ -1179,7 +1184,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/file-center/shares/risk-summary",
+            "/api/file-center/shares/risk",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1205,7 +1210,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/file-center/trash/storage-summary",
+            "/api/file-center/trash/cleanup-advice",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -2332,16 +2337,22 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
     private sealed class ShareRiskSummaryDto
     {
+        [JsonPropertyName("noExpirationCount")]
         public int NoExpiryShareCount { get; init; }
 
+        [JsonPropertyName("publicNoPasswordCount")]
         public int PublicShareCount { get; init; }
 
+        [JsonPropertyName("longUnusedCount")]
         public int LongUnusedShareCount { get; init; }
 
+        [JsonPropertyName("noExpirationMessage")]
         public string NoExpiryWarning { get; init; } = string.Empty;
 
+        [JsonPropertyName("publicShareMessage")]
         public string PublicWarning { get; init; } = string.Empty;
 
+        [JsonPropertyName("unusedShareMessage")]
         public string LongUnusedWarning { get; init; } = string.Empty;
     }
 
