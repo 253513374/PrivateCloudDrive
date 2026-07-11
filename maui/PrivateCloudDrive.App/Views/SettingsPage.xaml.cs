@@ -99,6 +99,11 @@ public partial class SettingsPage : ContentPage
         await Shell.Current.GoToAsync("share-risk", true);
     }
 
+    private async void OnFaultDiagnosisClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("fault-diagnosis", true);
+    }
+
     private async void OnStorageUsageClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("storage-usage", true);
@@ -219,8 +224,8 @@ public partial class SettingsPage : ContentPage
 
         try
         {
-            await _apiClient.GetAdminUsersAsync();
-            AdminSectionPanel.IsVisible = true;
+            var users = await _apiClient.GetAdminUsersAsync();
+            AdminSectionPanel.IsVisible = users.Count >= 0;
         }
         catch
         {
@@ -300,6 +305,7 @@ public partial class SettingsPage : ContentPage
                 SystemHealthStatus.Unhealthy => "需要处理",
                 _ => AppText.Unknown
             };
+            SetSystemHealthDotColor(health.OverallStatus);
             SystemHealthDetailLabel.Text =
                 $"API {FormatHealthStatus(health.ApiStatus)} · DB {FormatHealthStatus(health.DatabaseStatus)} · Redis {FormatHealthStatus(health.RedisStatus)} · " +
                 $"存储 {UserVisibleErrorSanitizer.RedactUserVisibleText(health.StorageProvider, "当前存储后端")} {FormatHealthStatus(health.StorageStatus)} · " +
@@ -563,6 +569,18 @@ public partial class SettingsPage : ContentPage
         StorageLocationLabel.Text = "存储位置：无法读取";
         BackupScopeLabel.Text = "恢复边界：无法读取";
         PrivacyBoundaryLabel.Text = "隐私边界：无法读取";
+        HealthStatusDot.BackgroundColor = Colors.Gray;
+    }
+
+    private void SetSystemHealthDotColor(SystemHealthStatus status)
+    {
+        HealthStatusDot.BackgroundColor = status switch
+        {
+            SystemHealthStatus.Healthy => Color.FromArgb("#00C853"),
+            SystemHealthStatus.Degraded => Color.FromArgb("#FF9800"),
+            SystemHealthStatus.Unhealthy => Color.FromArgb("#D32F2F"),
+            _ => Colors.Gray
+        };
     }
 
     private static string FormatHealthStatus(SystemHealthStatus status)

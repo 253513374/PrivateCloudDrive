@@ -398,6 +398,123 @@ pwsh -NoProfile -File scripts/verify-maui-build.ps1 -Configuration Debug
 
 完整构建环境、命令输出和 artifact 验证见 `docs/validation/maui-build-2026-06-17.log`。
 
+## V1.3 验收矩阵
+
+本验收矩阵映射 V1.3 P0 和 P1 的能力验收。每项验收完成后回填 PASS/WARN/FAIL 和备注。
+
+| 编号 | 能力 | 优先级 | 验收标准 | 对应已知限制 | 结果 | 备注 |
+|------|------|:------:|---------|:------------:|:----:|------|
+| AC-V1.3-01 | 管理员用户管理 — 创建用户 | P0 | POST /api/app/admin/users 返回 201 Created，用户出现在列表 | KN-V1.3-06（角色分配 UI 未实现） | | |
+| AC-V1.3-02 | 管理员用户管理 — 禁用用户 | P0 | PUT .../toggle-status 用户状态变为 Disabled，该用户登录返回 403 | KN-V1.3-01（token 缓存失效最坏 5 分钟） | | |
+| AC-V1.3-03 | 管理员不能禁自己 | P0 | 当前 ADMIN 尝试禁自己，返回 400/403 + 明确错误 | — | | |
+| AC-V1.3-04 | 非 ADMIN 访问管理 API | P0 | 普通用户 token 调用 Admin API，返回 403 Forbidden | — | | |
+| AC-V1.3-05 | 健康页 — 全部正常 | P0 | GET /api/app/admin/health 状态 "PASS"，所有组件绿色 | KN-V1.3-02（30 秒缓存） | | |
+| AC-V1.3-06 | 健康页 — 组件 FAIL | P0 | 模拟 PostgreSQL 断连，对应组件 FAIL + 修复建议文本 | — | | |
+| AC-V1.3-07 | 健康页 — 普通用户可见概要 | P0 | 普通用户调用 health 端点，不可见修复建议详情 | — | | |
+| AC-V1.3-08 | 备份脚本 — 一键备份 | P0 | 运行 backup-local-stack.ps1，生成时间戳目录 + DB dump + storage tar + manifest | KN-V1.3-03（依赖 pg_dump） | | |
+| AC-V1.3-09 | 备份 — checksum 校验 | P0 | 运行校验命令，SHA256 匹配 | — | | |
+| AC-V1.3-10 | 恢复 — 默认 dry-run | P0 | 运行 restore-local-stack.ps1 不带 -Force，提示 dry-run 模式，无实际写操作 | — | | |
+| AC-V1.3-11 | 恢复 — 显式确认 | P0 | 运行 restore-local-stack.ps1 -Force 或输入 YES，执行恢复，数据可查 | — | | |
+| AC-V1.3-12 | 设置页 — ADMIN 见管理区 | P0 | 打开 Settings，看到用户管理/备份/升级/日志/媒体入口 | KN-V1.3-07（IA 改动，用户需适应） | | |
+| AC-V1.3-13 | 设置页 — 普通用户不见管理区 | P0 | 普通用户打开 Settings，无管理区入口 | — | | |
+| AC-V1.3-14 | 设置页 — 状态卡片在顶部 | P0 | 任意用户打开 Settings，顶部显示系统健康状态圆点 | — | | |
+| AC-V1.3-15 | Docker Compose 验证脚本 | P0 | 运行 verify-local-stack.ps1，PASS/WARN/FAIL 输出，不打印密钥 | — | | |
+| AC-V1.3-16 | 脱敏基线 — 健康详情不含密钥 | P0 | grep -iE "(password|secret|token)=" 无匹配 | — | | |
+| AC-V1.3-17 | 依赖漏洞 — 高危已登记 | P0 | dotnet list package --vulnerable，高危漏洞 ≤ 1 个已登记风险接受 | — | | |
+| AC-V1.3-20 | 审计日志 — 组合筛选 | P1 | GET /api/app/admin/audit-logs?userId=X&action=Delete 返回匹配日志，分页正常 | KN-V1.3-05（CSV 导出未实现） | | |
+| AC-V1.3-21 | 审计日志 — 详情脱敏 | P1 | 展开某条日志详情，密码/token 显示为 *** | — | | |
+| AC-V1.3-22 | 存储状态 — 只读展示 | P1 | GET /api/app/admin/storage/status 返回 provider/容量/可用空间，无修改端 | — | | |
+| AC-V1.3-23 | 媒体任务管理 — 全局列表 | P1 | GET /api/app/admin/media/tasks 返回所有用户的任务，统计概览正确 | — | | |
+| AC-V1.3-24 | 媒体任务 — 重新处理 | P1 | POST .../{id}/retry 任务状态变为 Pending | — | | |
+| AC-V1.3-25 | 分享风险 UI | P1 | 打开分享列表页，有风险提示文案，可点击操作 | — | | |
+| AC-V1.3-26 | 回收站清理建议 UI | P1 | 打开回收站，显示清理建议和二次确认 | — | | |
+| AC-V1.3-27 | 故障诊断清单 | P1 | 打开诊断页，问题类别展开正常 | KN-V1.3-08（静态内容） | | |
+
+**放行标准：**
+- P0 项 = 0 阻塞缺陷
+- P1 项可带 WARN 放行，但需记录 owner、后置版本和用户可见说明
+- 已知限制已在 release-notes-v1.3.md 中记录
+
+### V1.3 验证命令
+
+```powershell
+# 后端完整构建与测试
+cd aspnet-core
+dotnet build .\PrivateCloudDrive.slnx
+dotnet test .\PrivateCloudDrive.slnx --no-build
+
+# Admin 权限回归测试（过滤）
+dotnet test --filter "AdminUser|Health|Permission|Authorization"
+
+# Docker Compose 预检与全量验证
+.\scripts\verify-local-stack.ps1 -PreflightOnly
+.\scripts\verify-local-stack.ps1
+
+# 备份恢复演练
+.\scripts\run-backup-restore-drill.ps1
+
+# 健康检查脚本
+.\scripts\verify-health.ps1
+
+# MAUI 顺序构建验证（Windows + Android）
+.\scripts\verify-maui-build.ps1
+```
+
+---
+
+## V1.3b 维护版验收矩阵
+
+V1.3b 是 V1.3 的移动端验收收口和维护版。验收原则：后端 API 冻结，不新增数据库表，不改变 OpenIddict 认证流、存储抽象、上传下载主链路、媒体处理 pipeline 或分享公开访问边界；只验证既有 MAUI 页面、文档同步和页面内容可用性。
+
+| 编号 | 能力/边界 | 优先级 | 验收标准 | 对应已知限制 | 结果 | 备注 |
+|------|-----------|:------:|---------|:------------:|:----:|------|
+| AC-V1.3b-01 | 范围冻结 | P0 | 本轮差异不包含新增后端 API、数据库表、认证流、存储抽象、上传下载主链路、媒体 pipeline 或分享公开访问语义变更 | KN-V1.3b-01 | | 通过 `git diff --name-only` 和代码评审确认 |
+| AC-V1.3b-02 | `known-limitations.md` 同步 | P0 | 已包含 release-notes-v1.3.md 的 KN-V1.3-01~11，并追加 V1.3b 客观限制 | KN-V1.3b-03 | | 不删除历史限制 |
+| AC-V1.3b-03 | Settings 管理区角色可见性 | P0 | 管理员登录可见 8 项管理入口；普通用户不可见管理区；健康状态圆点对所有用户可见 | KN-V1.3-07 | | 需截图证据 |
+| AC-V1.3b-04 | ShareRiskPage API 契约 | P0 | 页面调用 `GET /api/file-center/shares/risk`，计数字段与后端 DTO 对齐，API 失败时显示友好错误且不崩溃 | — | | 修复后验收 |
+| AC-V1.3b-05 | TrashPage 回收站清理建议 | P1 | 页面调用 `GET /api/file-center/trash/cleanup-advice`，可显示占用空间、清理建议、空状态和错误状态 | — | | 修复后验收 |
+| AC-V1.3b-06 | FaultDiagnosisPage 静态诊断内容 | P1 | 从 Settings 可进入故障诊断页；6 类诊断区域可展开/收起；返回正常；页面不展示密钥、token、连接串或完整物理路径 | KN-V1.3b-04 | | 静态内容不替代实时健康页 |
+| AC-V1.3b-07 | 存储配置页只读展示 | P1 | 存储 provider、容量、可用空间和脱敏路径展示正确；无编辑、删除、切换存储入口 | KN-V1.3-04 | | 需管理员账号截图 |
+| AC-V1.3b-08 | 操作日志筛选页 | P1 | 管理员可组合筛选用户、动作和时间范围；分页正常；结果不含密码/token/secret | KN-V1.3-05 | | 需 API 或 UI 证据 |
+| AC-V1.3b-09 | MAUI 构建验证 | P0 | Android 构建通过，无 MAUIX2014、CS1503 或路由处理器缺失类错误 | KN-V1.3-10 | | `dotnet build -f net10.0-android` 或 `scripts/verify-maui-build.ps1` |
+
+### V1.3b 验证命令
+
+```powershell
+# 范围冻结检查：确认本轮不包含后端/API/脚本/部署拓扑变更
+git diff --name-only
+
+# MAUI 构建验证（优先完整顺序验证；环境不足时至少执行 Android 目标构建）
+.\scripts\verify-maui-build.ps1
+dotnet build .\maui\PrivateCloudDrive.App\PrivateCloudDrive.App.csproj -f net10.0-android
+
+# 后端基线回归（不要求新增 API，只确认既有契约未破坏）
+cd aspnet-core
+dotnet build .\PrivateCloudDrive.slnx
+dotnet test .\PrivateCloudDrive.slnx --no-build
+```
+
+### V1.3b 手动截图证据清单
+
+截图和记录建议存入 `docs/validation/screenshots/v1.3b/`，验收报告引用相对路径即可，禁止记录密码、access token、refresh token、真实私密文件内容、完整私有 URL、连接串或云存储密钥。
+
+| 页面 | 账号角色 | 必须截图/记录 | 通过标准 |
+|------|----------|---------------|----------|
+| Settings | 管理员 | 8 项管理入口 + 健康状态圆点 | 管理入口完整，点击可进入对应页面 |
+| Settings | 普通用户 | 普通设置区 + 健康状态圆点 | 管理入口隐藏，普通设置不受影响 |
+| ShareRiskPage | 普通用户或管理员 | 风险计数、提示文案、空状态/错误状态之一 | 调用 `/shares/risk` 成功或友好降级 |
+| TrashPage | 普通用户或管理员 | 回收站占用空间、清理建议、空状态之一 | 文案清晰，危险操作仍有二次确认 |
+| FaultDiagnosisPage | 任意用户 | 6 类诊断区域展开/收起 | 静态内容可读，不暴露敏感信息 |
+| StorageStatusPage | 管理员 | provider、容量、可用空间、脱敏路径 | 只读，无切换/删除入口 |
+| OperationLogsPage | 管理员 | 筛选条件与结果列表 | 分页正常，详情脱敏 |
+
+**V1.3b 放行标准：**
+- P0 项 = 0 阻断缺陷。
+- P1 项可带 WARN 放行，但必须在备注中写明 owner、后置版本和用户可见说明。
+- 所有新增/更新验收记录与已知限制保持一致；若无法执行真机/模拟器验收，必须明确记录环境原因和后续补验负责人。
+
+---
+
 ## 当前边界
 
 - 自动化测试主要集中在后端应用层、领域层和 EF Core 集成测试；MAUI 端目前以构建验证为主。
@@ -415,3 +532,188 @@ pwsh -NoProfile -File scripts/verify-maui-build.ps1 -Configuration Debug
 - 账号密码登录失败已接入用户名和 IP 双维度分布式限流；Android Emulator Pixel 9 Pro API 36 已完成 MVP Core 内测验收，iOS/真实设备体验后续按发布需要补充。
 - 如果在同一个 Redis 实例上先运行过旧版 API，再更新 `PrivateCloudDrive_App` 的 OpenIddict grant 权限，可能会命中旧客户端缓存；本地验收时可重启 API 并刷新对应 Redis 缓存，或使用独立 Redis 逻辑库做临时探针。
 - MAUI MVP Core 页面状态已通过 Windows/Android 构建验证，覆盖启动、登录、文件、上传、详情、预览、回收站和设置页；Android 模拟器交互验收已完成。
+
+---
+
+## V1.3 手动验收清单
+
+以下清单覆盖 V1.3 P0/P1 能力的手动验收。每项验收后回填结果。
+
+### 管理员用户管理
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 创建用户 | 管理员登录后，Settings → 管理区 → 创建用户，填写用户名、邮箱、密码 | 返回成功，新用户出现在用户列表 |
+| 禁用用户 | 在用户列表点击禁用 | 用户状态变为 Disabled；该用户登录返回 403 |
+| 管理员不能禁自己 | 当前 admin 尝试禁用自己 | 返回 400/403 + 明确错误信息 |
+| 非管理员访问 | 用普通用户 token 调用 Admin API | 返回 403 Forbidden |
+| 重置密码 | 管理员为用户重置密码 | 用户可用新密码登录成功 |
+| 容量配额 | 为用户设置容量配额 | 存储状态页反映新配额值 |
+
+### 系统健康
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 全部正常 | 管理员查看系统健康页 | 状态 "PASS"，所有组件绿色 |
+| 组件 FAIL | 模拟 PostgreSQL 断连后查看健康页 | 对应组件显示 FAIL + 修复建议文本 |
+| 普通用户可见 | 普通用户调用 health 端点 | 可见概要，不可见修复建议详情 |
+| 状态圆点 | 打开 Settings | 顶部显示系统健康状态圆点（绿色/黄色/红色） |
+
+### 备份恢复
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 一键备份 | 运行 `backup-local-stack.ps1` | 生成时间戳目录 + postgres.dump + storage.tar.gz + manifest.json |
+| checksum 校验 | 运行校验命令 | SHA256 匹配 |
+| 默认 dry-run | 运行 `restore-local-stack.ps1` 不带 `-ConfirmDestructiveRestore` | 提示 dry-run 模式，无实际写入 |
+| 显式确认恢复 | 运行带 `-ConfirmDestructiveRestore` | 执行恢复，数据可查 |
+| 演练报告 | 运行 `run-backup-restore-drill.ps1` | `docs/validation/` 生成演练报告 |
+
+### 设置页管理入口
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 管理员见管理区 | 管理员打开 Settings | 看到用户管理/备份/升级/日志/媒体入口 |
+| 普通用户不见管理区 | 普通用户打开 Settings | 无管理区入口 |
+| 状态卡片 | 任意用户打开 Settings | 顶部显示系统健康状态圆点 |
+
+### Docker Compose 验证
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 预检 | `verify-local-stack.ps1 -PreflightOnly` | PASS/WARN/FAIL 输出，不打印密钥 |
+| 全量验证 | `verify-local-stack.ps1` | 所有服务健康 |
+| 健康检查 | `verify-health.ps1` | 全部 PASS |
+
+### P1 能力
+
+| 范围 | 检查步骤 | 预期结果 |
+|------|----------|----------|
+| 审计日志筛选 | 按用户、操作类型、时间范围组合筛选 | 匹配日志，分页正常 |
+| 日志详情脱敏 | 展开日志详情 | 密码/token 显示为 `***` |
+| 存储状态 | 查看存储状态 | 显示 provider、容量、可用空间 |
+| 媒体任务管理 | 查看所有用户的媒体处理队列 | 全局列表正常 |
+| 媒体任务重试 | 对失败媒体任务执行重试 | 状态变为 Pending |
+| 分享风险 UI | 打开分享列表页 | 风险提示文案可见 |
+| 回收站清理建议 | 打开回收站 | 清理建议可见，有二次确认 |
+| 故障诊断清单 | 打开诊断页 | 问题类别展开正常 |
+
+### V1.3 已知限制清单（验收时同步确认）
+
+| 编号 | 限制 | 发布确认 |
+|:----:|------|:--------:|
+| KN-V1.3-01 | 禁用用户后，已有 access_token 缓存最长 5 分钟失效；期间 API 调用可能仍成功 | |
+| KN-V1.3-02 | 系统健康检测结果有 30 秒缓存，不会实时反映组件状态变化 | |
+| KN-V1.3-03 | 备份脚本依赖主机安装 `pg_dump`，且在 Docker 宿主机上执行 | |
+| KN-V1.3-04 | 存储状态页仅展示当前 provider 的容量概览，不支持在线切换存储后端 | |
+| KN-V1.3-05 | 操作日志筛选结果不支持 CSV 导出 | |
+| KN-V1.3-06 | 创建用户时无法通过 UI 分配角色；默认为普通用户 | |
+| KN-V1.3-07 | Settings 页面 IA 有调整，管理员需适应管理区入口位置 | |
+| KN-V1.3-08 | 故障诊断清单为静态内容，不会根据当前系统状态动态展开 | |
+| KN-V1.3-09 | 管理端仅通过 MAUI Settings + Swagger 提供，无独立 Web 管理后台 | |
+| KN-V1.3-10 | iOS 客户端不在 V1.3 范围内；MAUI 构建仅验证 Windows 和 Android | |
+
+**放行标准：**
+- P0 项 = 0 阻塞缺陷
+- P1 项可带 WARN 放行，但需记录 owner、后置版本和用户可见说明
+- 已知限制已记录在 release-notes-v1.3.md
+
+### V1.3 升级回滚验收
+
+| 验收项 | 操作 | 通过标准 |
+|--------|------|----------|
+| 升级前备份 | 运行 `backup-local-stack.ps1 -IncludeEnv` + `run-backup-restore-drill.ps1` | 无 FAIL，dump/tar 非空 |
+| 数据库迁移 | `docker compose up -d --build`，`logs db-migrator --tail=50` | 日志含 `DbMigrator has been successfully completed` |
+| 健康验证 | `verify-local-stack.ps1 -SkipStart` + `verify-health.ps1` | PASS 汇总 |
+| 升级后功能 | 管理员/普通用户登录、文件列表、分享、回收站 | 均正常 |
+| 回滚 | 升级失败场景：`git checkout` 旧版 + restore 备份 | 回滚后栈健康，核心功能可用 |
+
+---
+
+## V1.3b 验收记录（维护版移动端收口）
+
+| 验收日期 | 2026-07-11 |
+|----------|------------|
+| 负责人 | 齐 QA (qa-eng) + 产品总监 (pm) |
+| 发布范围 | `docs/release-plan-v1.3b.md` §2.2 |
+
+### P0 缺陷修复
+
+| 缺陷 | 模块 | 状态 | 验证方式 |
+|:----:|------|:----:|----------|
+| BUG-001 | FaultDiagnosisPage OverallDot 类型 | ✅ PASS | dotnet build 通过 |
+| BUG-002 | SettingsPage OnFaultDiagnosisClicked 缺失 | ✅ PASS | dotnet build 通过 |
+| BUG-003 | ShareRisk API 路由不匹配 | ✅ PASS | dotnet build + API 200 |
+| BUG-004 | ShareRisk DTO 属性名不匹配 | ✅ PASS | dotnet build + DTO 对齐 |
+
+### P0 移动端验收（F-05 Settings IA 角色适配 / F-06 ShareRisk UI）
+
+| AC | 描述 | 结果 | 证据 |
+|:--:|------|:----:|------|
+| AC-F05-A | 管理员登录后 Settings 8 项管理面板全部可见 | ✅ PASS | `screenshots/v1.3b/settings-admin.png` |
+| AC-F05-B | 普通用户登录后管理面板隐藏 | ✅ PASS | `screenshots/v1.3b/settings-regular.png` |
+| AC-F05-C | HealthStatusDot 四色逻辑（绿/橙/红/灰） | ✅ PASS | `screenshots/v1.3b/settings-admin.png` |
+| AC-F06-A | ShareRiskPage 加载不报错/"无法读取分享安全状态" | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-B | 无过期分享数量显示（=0 时合理文案） | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-C | 公开分享数量显示 | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-D | 长期未使用分享数量显示 | ✅ PASS | `screenshots/v1.3b/share-risk.png` |
+| AC-F06-E | 文案不制造恐慌，展示实用提醒 | ✅ PASS | 截图审查 |
+| AC-F06-F | 编译通过，无 MAUI 编译错误 | ✅ PASS | `dotnet build` |
+
+### P1 移动端验收（F-07~F-10）
+
+| AC | 描述 | 结果 | 证据 |
+|:--:|------|:----:|------|
+| AC-F07-A | TrashPage 回收站占用空间 + 清理建议文本 | ✅ PASS | `screenshots/v1.3b/trash.png` |
+| AC-F07-B | 清理建议有二次确认 | ✅ PASS | `screenshots/v1.3b/trash.png` |
+| AC-F08-A | FaultDiagnosisPage 编译通过 | ✅ PASS | `dotnet build` |
+| AC-F08-B | 页面 6 个展开区可正常展开/收起 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-C | 整体状态圆点颜色正确映射 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-D | 从 Settings 管理员面板可导航到故障诊断页 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-E | 返回按钮正常回到上一页 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F08-F | 加载/错误/空闲三种状态 UI 表现正常 | ✅ PASS | `screenshots/v1.3b/fault-diagnosis.png` |
+| AC-F09-A | 存储后端类型正确显示 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F09-B | 总容量/已用/可用空间数据显示正确 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F09-C | 存储路径脱敏展示 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F09-D | 页面只读，无编辑/删除/切换按钮 | ✅ PASS | `screenshots/v1.3b/storage-usage.png` |
+| AC-F10-A | 管理员可按用户筛选日志 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-B | 可按动作类型筛选 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-C | 可按时间范围筛选 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-D | 多项筛选条件可组合使用 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-E | 筛选结果分页正常 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-F | 日志项包含：时间、用户、动作类型、目标文件、操作结果 | ✅ PASS | `screenshots/v1.3b/operation-logs.png` |
+| AC-F10-G | 日志不包含敏感信息 | ✅ PASS | 截图审查 |
+
+### 文档同步验收
+
+| AC | 描述 | 结果 |
+|:--:|------|:----:|
+| AC-F03-A | known-limitations.md 包含全部 V1.3 已知限制 | ✅ PASS |
+| AC-F03-B | 每条 KN 格式一致 | ✅ PASS |
+| AC-F03-C | KN 文案面向非开发者，清晰易懂 | ✅ PASS |
+| AC-F03-D | KN 与 release-notes-v1.3.md 口径一致，无矛盾 | ✅ PASS |
+| AC-F04-A | release-notes-v1.3b.md 生成并归档 | ✅ PASS |
+| AC-F04-B | V1.3/V1.3b 发布时间和范围明确 | ✅ PASS |
+
+### 发行闸门
+
+| 闸门 | 状态 | 说明 |
+|:----:|:----:|------|
+| G0 范围冻结 | ✅ PASS | 仅预定义修复+验收 |
+| G1 编译测试 | ✅ PASS | MAUI + 后端编译通过 |
+| G2 API 连通 | ✅ PASS | ShareRisk 200 |
+| G3 文档同步 | ✅ PASS | known-limitations.md 已同步 |
+| G4 移动端验收 | ✅ PASS | 6 页截图证据采集完毕 |
+| G5 安全脱敏 | ✅ PASS | secret scan 0 findings |
+| G6 依赖安全 | ✅ PASS | Scriban/OpenApi 已升级 |
+
+### V1.3b 已知限制确认
+
+| 编号 | 限制 | 发布确认 |
+|:----:|------|:--------:|
+| KN-V1.3b-01 | V1.3b 仅验证收口，不引入新后端能力 | ✅ |
+| KN-V1.3b-02 | 人工截图验收为主，无自动化 UI 测试 | ✅ |
+| KN-V1.3b-03 | known-limitations.md 人工同步 | ✅ |
+| KN-V1.3b-04 | 故障诊断页为静态内容 | ✅ |
+
+**汇总**：**36 AC 验证：36 PASS / 0 WARN / 0 FAIL**

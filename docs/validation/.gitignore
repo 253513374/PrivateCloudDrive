@@ -6,3 +6,14 @@ raw-*.log
 scan-exports/
 ci-artifacts/
 daily-acceptance-*/
+
+# V1.3b local validation evidence
+v1.3b-*.md
+screenshots/v1.3b/
+
+# Temp/debug artifacts that should never be committed
+tmp-*
+window-dump*.xml
+*.tmp
+_check_swagger_paths.py
+login-emulator.py

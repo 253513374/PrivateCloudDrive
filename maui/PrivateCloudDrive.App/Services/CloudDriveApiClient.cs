@@ -616,13 +616,34 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public async Task<IReadOnlyList<CloudOperationLog>> GetOperationLogsAsync(
+        string? userName = null,
+        string? action = null,
+        DateTime? startTime = null,
+        DateTime? endTime = null,
         int skipCount = 0,
         int maxResultCount = 30,
         CancellationToken cancellationToken = default)
     {
+        var queryParams = new List<string>
+        {
+            $"SkipCount={skipCount}",
+            $"MaxResultCount={maxResultCount}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(userName))
+            queryParams.Add($"userName={Uri.EscapeDataString(userName)}");
+        if (!string.IsNullOrWhiteSpace(action))
+            queryParams.Add($"action={Uri.EscapeDataString(action)}");
+        if (startTime.HasValue)
+            queryParams.Add($"startTime={startTime.Value:O}");
+        if (endTime.HasValue)
+            queryParams.Add($"endTime={endTime.Value:O}");
+
+        var path = $"/api/operation-logs?{string.Join("&", queryParams)}";
+
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            $"/api/operation-logs?SkipCount={skipCount}&MaxResultCount={maxResultCount}",
+            path,
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);

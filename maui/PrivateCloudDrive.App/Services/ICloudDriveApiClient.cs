@@ -119,6 +119,10 @@ public interface ICloudDriveApiClient
     Task<SystemHealthSummary> GetSystemHealthSummaryAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<CloudOperationLog>> GetOperationLogsAsync(
+        string? userName = null,
+        string? action = null,
+        DateTime? startTime = null,
+        DateTime? endTime = null,
         int skipCount = 0,
         int maxResultCount = 30,
         CancellationToken cancellationToken = default);

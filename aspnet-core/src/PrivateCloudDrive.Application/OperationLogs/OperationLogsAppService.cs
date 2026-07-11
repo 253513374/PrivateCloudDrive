@@ -48,8 +48,8 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
         // 为筛选参数合并别名
         input = NormalizeInputAliases(input);
 
-        // 非管理员用户强制只看自己
-        if (!IsCurrentUserAdmin())
+        // 非管理员用户强制只看自己（基于 FileCenter.Manage 权限判定管理员身份）
+        if (!await AuthorizationService.IsGrantedAsync(PrivateCloudDrivePermissions.FileCenter.Manage))
         {
             if (!CurrentUser.Id.HasValue)
             {
@@ -73,11 +73,6 @@ public class OperationLogsAppService : PrivateCloudDriveAppService, IOperationLo
             .ToList();
 
         return new PagedResultDto<OperationLogDto>(totalCount, items);
-    }
-
-    private bool IsCurrentUserAdmin()
-    {
-        return CurrentUser.IsInRole("admin");
     }
 
     private static GetOperationLogsInput NormalizeInputAliases(GetOperationLogsInput input)

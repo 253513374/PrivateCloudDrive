@@ -285,6 +285,8 @@ try {
     Invoke-External "docker" @("compose", "exec", "-T", "postgres", "rm", "-f", $dumpInContainer) -AllowFailure | Out-Null
     $manifest.files.Add([ordered]@{ path = "postgres.dump"; bytes = $dbDumpSize; purpose = "PostgreSQL logical backup" }) | Out-Null
     Add-CheckResult "PASS" "postgres-dump" ("Created PostgreSQL dump ({0} bytes)." -f $dbDumpSize)
+    $pgSha256 = (Get-FileHash -Path $dbDumpPath -Algorithm SHA256).Hash.ToLower()
+    Add-CheckResult "PASS" "checksum:postgres-dump" ("SHA256 {0}." -f $pgSha256)
 
     $storageVolumeName = Resolve-ComposeVolumeName "privateclouddrive_stack_storage" "api" "/app/storage"
     $manifest.storage = [ordered]@{
@@ -293,6 +295,13 @@ try {
         mountPath = "/app/storage"
     }
     $storageArchiveSize = Backup-NamedVolume $storageVolumeName "storage.tar.gz" $backupPath
+    $storageSha256 = (Get-FileHash -Path (Join-Path $backupPath "storage.tar.gz") -Algorithm SHA256).Hash.ToLower()
+    Add-CheckResult "PASS" "checksum:storage-volume" ("SHA256 {0}." -f $storageSha256)
+
+    $manifest.checksums = [ordered]@{
+        "postgres.dump" = $pgSha256
+        "storage.tar.gz" = $storageSha256
+    }
     $manifest.files.Add([ordered]@{ path = "storage.tar.gz"; bytes = $storageArchiveSize; purpose = "FileCenter local storage, upload temp files, thumbnails, and video covers"; dockerVolume = $storageVolumeName }) | Out-Null
     Add-CheckResult "PASS" "storage-volume" ("Archived storage volume {0} ({1} bytes)." -f $storageVolumeName, $storageArchiveSize)
 
