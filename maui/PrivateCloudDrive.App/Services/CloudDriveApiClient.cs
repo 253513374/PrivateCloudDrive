@@ -1161,7 +1161,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/identity/admin/users",
+            "/api/admin/identity/users",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1169,7 +1169,12 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
 
         var result = JsonSerializer.Deserialize<PagedResult<AdminUserDto>>(responseText, JsonOptions);
-        return result?.Items ?? (IReadOnlyList<AdminUserDto>)JsonSerializer.Deserialize<List<AdminUserDto>>(responseText, JsonOptions) ?? [];
+        if (result?.Items is { } pagedItems)
+        {
+            return pagedItems;
+        }
+
+        return JsonSerializer.Deserialize<List<AdminUserDto>>(responseText, JsonOptions) ?? [];
     }
 
     /// <summary>
