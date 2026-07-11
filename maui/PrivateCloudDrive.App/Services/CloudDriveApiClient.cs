@@ -2358,12 +2358,15 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
     private sealed class TrashStorageSummaryDto
     {
+        [JsonPropertyName("trashSizeBytes")]
         public long UsedBytes { get; init; }
 
+        [JsonPropertyName("autoCleanupCount")]
         public int ItemsOverThresholdCount { get; init; }
 
         public int RetentionDays { get; init; }
 
+        [JsonPropertyName("cleanupAdviceMessage")]
         public string CleanupSuggestion { get; init; } = string.Empty;
     }
 }
