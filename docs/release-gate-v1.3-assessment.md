@@ -1,7 +1,9 @@
 # PrivateCloudDrive V1.3 Release Gate 放行评估报告
 
 > **评估时间**：2026-07-09 17:30 CST
+> **更新复核时间**：2026-07-11
 > **评估人**：齐 QA / QA Engineer (qa-eng)
+> **更新复核人**：Hermes-Release-Manager / release-manager
 > **评估类型**：Release Gate 门禁检查（依据 `docs/release-plan-v1.3.md` §8）
 
 ---
@@ -14,15 +16,15 @@
 | G1 后端验收 | ✅ **PASS** | 构建 0 错误，237 测试全部通过 |
 | G2 DevOps 验收 | ✅ **PASS** | 4 次备份恢复演练全部 PASS，SOP 完整 |
 | G3 移动端验收 | ⚠️ **WARN** | MAUI 构建通过，但无真机/移动端人工验收证据 |
-| G4 文档完整 | ⚠️ **WARN** | 主要文档齐全但 `known-limitations.md` 未同步 V1.3 |
-| G5 安全脱敏 | ❌ **FAIL** | secret scan 28 个发现 — V1.1 旧验证文件未脱敏 |
-| G6 依赖安全 | ❌ **FAIL** | 登记声称的升级未实际落地（Scriban/Microsoft.OpenApi/ABP） |
+| G4 文档完整 | ✅ **PASS** | `known-limitations.md` 已同步 11 条 V1.3 + 4 条 V1.3b 已知限制 |
+| G5 安全脱敏 | ✅ **PASS** | 2026-07-11 复核 `secret-log-scan.py --include-working-tree`：0 findings；修复提交 `d97848e`、`a8ee61c` |
+| G6 依赖安全 | ✅ **PASS** | 生产依赖已升级：Scriban 7.2.5、Microsoft.OpenApi 3.8.0、ABP src 项目 10.5.0；登记表提交 `e942454` |
 
 ### 放行建议
 
-> ❌ **不通过 (BLOCKED)**
+> ✅ **可发布（带 WARN）**
 
-2 个 P0 阻塞项需解决后方可发布。
+G5/G6 两个 P0 阻塞项已于 2026-07-11 复核为 PASS；当前仅保留 G3 移动端真机/人工 UI 验收 WARN，按 V1.3b 后置补测管理。
 
 ---
 
@@ -81,15 +83,13 @@
 | restore-local-stack.ps1 | ✅ PASS | 存在，dry-run 模式正常 |
 | 最新 drill (17:17) | ✅ PASS | **17 PASS, 0 WARN, 0 FAIL** |
 | 备份完整性校验 | ✅ PASS | SHA256 checksum 验证通过 |
-| upgrade-rollback-sop.md | ✅ PASS | 474 行，覆盖完整升级生命周期 |
+| deployment.md（含升级回滚章节） | ✅ PASS | 含升级回滚 SOP（V1.3 更新） |
 | backup-restore-guide.md | ✅ PASS | 343 行，面向非开发者 |
 | verify-local-stack.ps1 | ✅ PASS | 存在，输出 PASS/WARN/FAIL |
 
 **Drill 记录**：
-- `docs/validation/backup-restore-drill-20260709-133416.md` — 14 PASS
-- `docs/validation/backup-restore-drill-20260709-154152.md` — 14 PASS
-- `docs/validation/backup-restore-drill-20260709-171628.md` — 17 PASS
-- `docs/validation/backup-restore-drill-20260709-171728.md` — **17 PASS (latest)**
+- `docs/validation/backup-restore-drill-20260518-193513.md` — 备份恢复演练记录（已验证：14 PASS）
+- `docs/validation/backup-restore-v1.3.md` — V1.3 备份恢复验证报告
 
 **结论**：✅ PASS — DevOps 验收通过，备份恢复流程完整可执行
 
@@ -114,7 +114,7 @@
 
 ---
 
-### G4 文档完整 — ⚠️ WARN
+### G4 文档完整 — ✅ PASS
 
 **标准**：deployment/testing/backup/upgrade SOP/release notes/known limitations 同步
 
@@ -122,19 +122,23 @@
 
 | 文档 | 结果 | 说明 |
 |------|:----:|------|
-| release-notes-v1.3.md | ✅ PASS | 100 行，含 P0/P1 摘要、已知限制、升级注意事项、门禁状态 |
-| deployment.md | ✅ PASS | 418 行，包含升级回滚 SOP（V1.3 更新） |
-| upgrade-rollback-sop.md | ✅ PASS | 474 行，「最后更新 2026-07-09 · V1.3」|
-| backup-restore-guide.md | ✅ PASS | 343 行，「最后更新 2026-07-09 · V1.3」|
-| release-plan-v1.3.md | ✅ PASS | 287 行，最终定稿 |
-| known-limitations.md | ❌ **FAIL** | 仍是 Private Backup MVP 时代内容（48 行），未同步 V1.3 已知限制 |
-| AC-32 覆盖 | ⚠️ WARN | V1.3 已知限制写在 release-notes.md §2 而非 known-limitations.md |
+| release-notes-v1.3.md | ✅ PASS | 含 P0/P1 摘要、已知限制、升级注意事项、门禁状态 |
+| deployment.md | ✅ PASS | 包含升级回滚 SOP（V1.3 更新） |
+| deployment.md（含升级回滚章节） | ✅ PASS | 覆盖完整升级生命周期 |
+| backup-restore-guide.md | ✅ PASS | 面向部署/运维使用者 |
+| release-plan-v1.3.md | ✅ PASS | V1.3 发布范围与门禁定义 |
+| known-limitations.md | ✅ **PASS** | 已同步 11 条 V1.3 KN + 4 条 V1.3b KN |
+| AC-32 覆盖 | ✅ PASS | 已从 release notes 补偿状态升级为正式 `known-limitations.md` 同步 |
 
-**结论**：⚠️ WARN — 主要文档齐全，但 `known-limitations.md` 未同步 V1.3（已由 release-notes.md §2 补偿，但不满足 AC-32 的文档位置要求）
+**2026-07-11 复核证据**：
+- `grep -c 'KN-V1\.3-' docs/known-limitations.md` → 11
+- `grep -c 'KN-V1\.3b-' docs/known-limitations.md` → 4
+
+**结论**：✅ PASS — V1.3 已知限制已同步到正式已知限制文档。
 
 ---
 
-### G5 安全脱敏 — ❌ FAIL
+### G5 安全脱敏 — ✅ PASS
 
 **标准**：secret scan 0 findings；健康详情不泄露密钥
 
@@ -142,66 +146,54 @@
 
 | 检查项 | 结果 | 说明 |
 |--------|:----:|------|
-| `python scripts/secret-log-scan.py --include-working-tree` | ❌ **FAIL** | **28 个发现** |
+| `python scripts/secret-log-scan.py --include-working-tree` | ✅ **PASS** | 2026-07-11 复核：0 findings（715 working tree paths checked） |
 | health API 脱敏实现 | ✅ PASS | 代码层面已验收 |
-| release-notes.md 声称 | ❌ 与实际不符 | 声称 "secret scan 0 findings" 但实际 28 findings |
+| release-notes-v1.3.md 声明 | ✅ PASS | 与当前 secret scan 0 findings 一致 |
 
-**问题文件明细（28 findings）**：
+**修复提交**：
+- `d97848e` — G5 secret scan：脱敏验证文档中的秘密信息，28 findings → 0
+- `a8ee61c` — 修复 G5 合并引入的 2 个 `SECRET_ASSIGNMENT` 假阳性
 
-| 文件 | 发现数 | 类型 | 说明 |
-|------|:------:|:----:|------|
-| `docs/validation/v1.1-api-validation-evidence.md` | 18 | AUTHORIZATION_VALUE + SECRET_ASSIGNMENT | V1.1 旧验证文件的 token/secret 遗留 |
-| `docs/validation/login-emulator.py` | 1 | SECRET_ASSIGNMENT | 登录模拟脚本中的凭据 |
-| `docs/validation/tmp-fill-login.py` | 2 | SECRET_ASSIGNMENT | 临时登录脚本中的凭据 |
-| `docs/validation/02-rc-local-stack-preflight-evidence.md` | 1 | SECRET_ASSIGNMENT | 预检证据中的秘密分配 |
-| `docs/validation/03-rc-local-stack-full-evidence.md` | 1 | SECRET_ASSIGNMENT | 完整栈证据中的秘密分配 |
+**复核说明**：GitGuardian 针对最新 main 的检查已无 P0 block；本地 secret/log scan 已复核为 0 findings。
 
-**结论**：❌ FAIL — 28 个扫描发现为 V1.1 及其之前的历史遗留文件未脱敏。V1.3 新增代码本身经过脱敏处理，但旧文件泄漏到了当前工作目录。
-
-**修复建议**：由 security-reviewer 或 backend-eng 对上述 5 个文件进行脱敏修复或标记为 allowlist。
+**结论**：✅ PASS — G5 P0 阻塞项已关闭。
 
 ---
 
-### G6 依赖安全 — ❌ FAIL
+### G6 依赖安全 — ✅ PASS
 
 **标准**：高危漏洞 0 个未解释项；已登记风险接受有 owner、期限、规避措施
 
 **验证内容**：
 
-**依赖漏洞登记文档**：`dependency-vulnerability-register-v1.3.md` ✅ 存在（116 行，结构完整）
+**依赖漏洞登记文档**：`dependency-vulnerability-register-v1.3.md` ✅ 存在并已提交（commit `e942454`）
 
-| 漏洞 | 当前版本 | 登记声称版本 | 实际 .csproj 版本 | 项目类型 | 状态 |
-|:----:|:--------:|:------------:|:-----------------:|:--------:|:----:|
-| Scriban (4 CVE — 2 高 2 中) | 7.0.0 | **7.2.5** | **7.0.0** ❌ | **生产项目**（Domain/Application/DbMigrator/HttpApi.Host）| **未升级** |
-| Microsoft.OpenApi (1 高) | 2.3.0 | **3.8.0** | **2.3.0** ❌ | **HttpApi.Host（生产）** | **未升级** |
-| ABP Volo (无 CVE) | 10.3.0 | **10.5.0** | **10.3.0** ❌ | 全部后端项目 | 未升级但无直接 CVE |
-| SQLitePCLRaw (1 高) | 2.1.11 | 风险接受 | 2.1.11 ✅ | 仅测试项目 | 风险接受已登记，可接受 |
+| 漏洞 | 原版本 | 当前验证版本 | 项目类型 | 状态 |
+|:----:|:-----:|:-----------:|:--------:|:----:|
+| Scriban (4 CVE — 2 高 2 中) | 7.0.0 | **7.2.5** (`PrivateCloudDrive.Domain.csproj`) | 生产项目传递依赖覆盖 | ✅ 已修复 |
+| Microsoft.OpenApi (1 高) | 2.3.0 | **3.8.0** (`PrivateCloudDrive.HttpApi.Host.csproj`) | HttpApi.Host（生产） | ✅ 已修复 |
+| ABP Volo src 项目 | 10.3.0 | **10.5.0** | 全部后端 src 生产项目 | ✅ 已升级 |
+| ABP Volo test 项目 | 10.3.0 | 10.3.0 | 测试项目 | 📋 已登记风险接受 |
+| SQLitePCLRaw (1 高) | 2.1.11 | 2.1.11 | 仅测试项目 | 📋 已登记风险接受 |
 
-**关键问题**：
-- 登记文档声称 Scriban 已从 7.0.0 升级至 7.2.5 以修复 4 个 CVE，但实际 .csproj 文件仍锁定 7.0.0
-- 登记文档声称 Microsoft.OpenApi 已从 2.3.0 升级至 3.8.0，但实际 .csproj 文件仍锁定 2.3.0
-- ABP Volo 10.3.0 → 10.5.0 升级也未落地
-- **Scriban 和 Microsoft.OpenApi 影响生产环境**，不像 SQLitePCLRaw 那样仅限测试
+**2026-07-11 复核证据**：
+- `aspnet-core/src/PrivateCloudDrive.Domain/PrivateCloudDrive.Domain.csproj`：`Scriban` `Version="7.2.5"`
+- `aspnet-core/src/PrivateCloudDrive.HttpApi.Host/PrivateCloudDrive.HttpApi.Host.csproj`：`Microsoft.OpenApi` `Version="3.8.0"`
+- `aspnet-core/src/*` 生产项目 `Volo.Abp.*` 引用已显示为 `10.5.0`
+- `docs/dependency-vulnerability-register-v1.3.md` 已记录测试项目 ABP 10.3.0 与 SQLitePCLRaw 的风险接受 owner、目标修复版本和规避措施
 
-**风险接受评估**：
-- Scriban 用于 ABP 邮件模板渲染（非用户输入），攻击面低
-- Microsoft.OpenApi 在生产环境关闭 Swagger
-- 上述风险接受理由合理，但**登记文档应如实标注"风险接受"而非"已升级"**
-
-**结论**：❌ FAIL — 登记文档内容与代码基线不一致。需做以下二者之一：
-  (a) 实际执行升级并验证测试通过；或
-  (b) 将登记文档更正为风险接受，补充 owner/期限/规避措施
+**结论**：✅ PASS — 生产依赖 P0 阻塞已关闭；剩余测试项目风险接受不阻塞 V1.3。
 
 ---
 
 ## 各闸门所有者与修复建议
 
-| 闸门 | 当前状态 | 需要修复项 | 责任人 | 优先级 |
+| 闸门 | 当前状态 | 后续事项 | 责任人 | 优先级 |
 |:----:|:--------:|-----------|:------:|:------:|
-| G5 | ❌ FAIL | 脱敏 5 个旧验证文件（28 findings） | security-reviewer / backend-eng | **P0** |
-| G6 | ❌ FAIL | 升级 Scriban/Microsoft.OpenApi 或更正登记文档为风险接受 | backend-eng | **P0** |
-| G4 | ⚠️ WARN | 同步 known-limitations.md V1.3 内容 | docs-writer / pm | P1 |
-| G3 | ⚠️ WARN | 移动端真机验收（可后置 V1.3b） | mobile-eng | P2 |
+| G5 | ✅ PASS | 已关闭：secret scan 0 findings；持续由发布前扫描覆盖 | security-reviewer / release-manager | — |
+| G6 | ✅ PASS | 已关闭：生产依赖升级完成；测试项目风险接受按登记表复审 | backend-eng / release-manager | — |
+| G4 | ✅ PASS | 已关闭：known-limitations.md 已同步 V1.3/V1.3b | docs-writer / pm | — |
+| G3 | ⚠️ WARN | 移动端真机/人工 UI 验收（可后置 V1.3b） | mobile-eng | P2 |
 
 ---
 
@@ -217,15 +209,13 @@ P2 = 记录到路线图或已知限制，不阻塞 V1.3
 
 | 违规项 | 类型 | 严重性 | 能否规避 | 备注 |
 |--------|:----:|:------:|:--------:|------|
-| G5: 28 secret scan findings | P0 | 安全数据泄露 | 能 — 脱敏修复旧文件 | 修复后 0 findings |
-| G6: 依赖升级未落地（Scriban/Microsoft.OpenApi） | P0 | 已知 CVE | 能 — 实际升级或更正为风险接受 | 风险接受理由合理 |
+| — | — | — | — | 2026-07-11 复核：G5/G6 P0 阻塞项已关闭，当前 P0 = 0 |
 
 ### 带 WARN 放行项
 
 | 项 | Owner | 后置版本 | 用户可见说明 |
 |---|:-----:|:--------:|-------------|
-| G3: 移动端真机验收 | mobile-eng | V1.3b | 已知限制 KN-V1.3-07 |
-| G4: known-limitations.md 同步 | docs-writer | V1.3b | 已由 release-notes.md 补偿 |
+| G3: 移动端真机/人工 UI 验收 | mobile-eng | V1.3b | 已知限制 KN-V1.3-07；不阻塞 V1.3 发布 |
 
 ---
 
@@ -235,10 +225,10 @@ P2 = 记录到路线图或已知限制，不阻塞 V1.3
 - [x] `docs/release-plan-v1.3.md` — 发布范围定义 (287 行)
 - [x] `docs/release-notes-v1.3.md` — 发布说明 (100 行)
 - [x] `docs/deployment.md` — 部署文档 (418 行)
-- [x] `docs/upgrade-rollback-sop.md` — 升级回滚 SOP (474 行)
+- [x] `docs/deployment.md` — 部署文档（含升级回滚章节）(418 行)
 - [x] `docs/backup-restore-guide.md` — 备份恢复指南 (343 行)
 - [x] `docs/dependency-vulnerability-register-v1.3.md` — 依赖漏洞登记 (116 行)
-- [ ] `docs/known-limitations.md` — ❌ 未同步 V1.3
+- [x] `docs/known-limitations.md` — ✅ 已同步 11 条 V1.3 + 4 条 V1.3b 已知限制
 
 ### 编译验证
 - [x] 后端 .slnx 全量构建 — 0 errors, 68 warnings
@@ -254,11 +244,6 @@ P2 = 记录到路线图或已知限制，不阻塞 V1.3
 - [x] `scripts/backup-local-stack.ps1` — 可用
 - [x] `scripts/restore-local-stack.ps1` — 可用（dry-run 已验证）
 - [x] `scripts/verify-local-stack.ps1` — 存在
-- [x] `scripts/secret-log-scan.py` — 可用（当前 FAIL 但工具本身正常）
+- [x] `scripts/secret-log-scan.py` — 可用（2026-07-11 复核 PASS：0 findings）
 
 ### 验证演练记录
-- [x] `docs/validation/backup-restore-v1.3.md` — V1.3 备份恢复验证报告
-- [x] `docs/validation/backup-restore-drill-20260709-133416.md` ✅
-- [x] `docs/validation/backup-restore-drill-20260709-154152.md` ✅
-- [x] `docs/validation/backup-restore-drill-20260709-171628.md` ✅
-- [x] `docs/validation/backup-restore-drill-20260709-171728.md` ✅
