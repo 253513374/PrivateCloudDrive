@@ -1199,6 +1199,32 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 查询当前私有备份服务器的存储配置（只读）。
+    /// </summary>
+    public async Task<StorageConfigDto> GetStorageConfigAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/admin/storage-config",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var dto = JsonSerializer.Deserialize<StorageConfigInternalDto>(responseText, JsonOptions)
+                  ?? throw new InvalidOperationException("Storage config response is invalid.");
+
+        return new StorageConfigDto(
+            dto.StorageProvider,
+            dto.StoragePath,
+            dto.TotalBytes,
+            dto.UsedBytes,
+            dto.AvailableBytes,
+            dto.MaxSingleFileSize);
+    }
+
+    /// <summary>
     /// 查询当前用户的分享风险摘要（无过期分享、公开分享、长期未使用分享的数量和文案）。
     /// </summary>
     public async Task<ShareRiskSummary> GetShareRiskSummaryAsync(CancellationToken cancellationToken = default)
@@ -2389,5 +2415,20 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
         [JsonPropertyName("cleanupAdviceMessage")]
         public string CleanupSuggestion { get; init; } = string.Empty;
+    }
+
+    private sealed class StorageConfigInternalDto
+    {
+        public string StorageProvider { get; init; } = string.Empty;
+
+        public string StoragePath { get; init; } = string.Empty;
+
+        public long TotalBytes { get; init; }
+
+        public long UsedBytes { get; init; }
+
+        public long AvailableBytes { get; init; }
+
+        public long MaxSingleFileSize { get; init; }
     }
 }
