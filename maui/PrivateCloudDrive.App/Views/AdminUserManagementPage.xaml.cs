@@ -103,7 +103,9 @@ public partial class AdminUserManagementPage : ContentPage
             {
                 UserName = dto.UserName,
                 Email = dto.Email,
-                RolesText = string.Join(", ", dto.Roles)
+                RolesText = dto.Roles is { Length: > 0 }
+                    ? string.Join(", ", dto.Roles)
+                    : "-"
             };
         }
     }

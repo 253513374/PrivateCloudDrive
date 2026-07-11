@@ -616,13 +616,34 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public async Task<IReadOnlyList<CloudOperationLog>> GetOperationLogsAsync(
+        string? userName = null,
+        string? action = null,
+        DateTime? startTime = null,
+        DateTime? endTime = null,
         int skipCount = 0,
         int maxResultCount = 30,
         CancellationToken cancellationToken = default)
     {
+        var queryParams = new List<string>
+        {
+            $"SkipCount={skipCount}",
+            $"MaxResultCount={maxResultCount}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(userName))
+            queryParams.Add($"userName={Uri.EscapeDataString(userName)}");
+        if (!string.IsNullOrWhiteSpace(action))
+            queryParams.Add($"action={Uri.EscapeDataString(action)}");
+        if (startTime.HasValue)
+            queryParams.Add($"startTime={startTime.Value:O}");
+        if (endTime.HasValue)
+            queryParams.Add($"endTime={endTime.Value:O}");
+
+        var path = $"/api/operation-logs?{string.Join("&", queryParams)}";
+
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            $"/api/operation-logs?SkipCount={skipCount}&MaxResultCount={maxResultCount}",
+            path,
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1161,7 +1182,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     {
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,
-            "/api/identity/admin/users",
+            "/api/admin/identity/users",
             cancellationToken);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -1169,7 +1190,12 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
         EnsureSuccess(response, responseText);
 
         var result = JsonSerializer.Deserialize<PagedResult<AdminUserDto>>(responseText, JsonOptions);
-        return result?.Items ?? (IReadOnlyList<AdminUserDto>)JsonSerializer.Deserialize<List<AdminUserDto>>(responseText, JsonOptions) ?? [];
+        if (result?.Items is { } pagedItems)
+        {
+            return pagedItems;
+        }
+
+        return JsonSerializer.Deserialize<List<AdminUserDto>>(responseText, JsonOptions) ?? [];
     }
 
     /// <summary>
@@ -1190,12 +1216,12 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
                   ?? throw new InvalidOperationException("Share risk summary response is invalid.");
 
         return new ShareRiskSummary(
-            dto.NoExpirationCount,
-            dto.PublicNoPasswordCount,
-            dto.LongUnusedCount,
-            dto.NoExpirationMessage,
-            dto.PublicShareMessage,
-            dto.UnusedShareMessage);
+            dto.NoExpiryShareCount,
+            dto.PublicShareCount,
+            dto.LongUnusedShareCount,
+            dto.NoExpiryWarning,
+            dto.PublicWarning,
+            dto.LongUnusedWarning);
     }
 
     /// <summary>
@@ -1216,10 +1242,10 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
                   ?? throw new InvalidOperationException("Trash storage summary response is invalid.");
 
         return new TrashStorageSummary(
-            dto.TrashSizeBytes,
-            dto.AutoCleanupCount,
+            dto.UsedBytes,
+            dto.ItemsOverThresholdCount,
             dto.RetentionDays,
-            dto.CleanupAdviceMessage);
+            dto.CleanupSuggestion);
     }
 
     private async Task<HttpRequestMessage> CreateAuthenticatedRequestAsync(
@@ -2332,27 +2358,36 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
     private sealed class ShareRiskSummaryDto
     {
-        public int NoExpirationCount { get; init; }
+        [JsonPropertyName("noExpirationCount")]
+        public int NoExpiryShareCount { get; init; }
 
-        public int PublicNoPasswordCount { get; init; }
+        [JsonPropertyName("publicNoPasswordCount")]
+        public int PublicShareCount { get; init; }
 
-        public int LongUnusedCount { get; init; }
+        [JsonPropertyName("longUnusedCount")]
+        public int LongUnusedShareCount { get; init; }
 
-        public string NoExpirationMessage { get; init; } = string.Empty;
+        [JsonPropertyName("noExpirationMessage")]
+        public string NoExpiryWarning { get; init; } = string.Empty;
 
-        public string PublicShareMessage { get; init; } = string.Empty;
+        [JsonPropertyName("publicShareMessage")]
+        public string PublicWarning { get; init; } = string.Empty;
 
-        public string UnusedShareMessage { get; init; } = string.Empty;
+        [JsonPropertyName("unusedShareMessage")]
+        public string LongUnusedWarning { get; init; } = string.Empty;
     }
 
     private sealed class TrashStorageSummaryDto
     {
-        public long TrashSizeBytes { get; init; }
+        [JsonPropertyName("trashSizeBytes")]
+        public long UsedBytes { get; init; }
 
-        public int AutoCleanupCount { get; init; }
+        [JsonPropertyName("autoCleanupCount")]
+        public int ItemsOverThresholdCount { get; init; }
 
         public int RetentionDays { get; init; }
 
-        public string CleanupAdviceMessage { get; init; } = string.Empty;
+        [JsonPropertyName("cleanupAdviceMessage")]
+        public string CleanupSuggestion { get; init; } = string.Empty;
     }
 }

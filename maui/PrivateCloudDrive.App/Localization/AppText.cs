@@ -183,6 +183,30 @@ public static class AppText
         [nameof(FileKindArchive)] = new("压缩包", "Archive"),
         [nameof(FileKindDocument)] = new("文档", "Document"),
         [nameof(FileKindFile)] = new("文件", "File"),
+
+        [nameof(Filter)] = new("筛选", "Filter"),
+        [nameof(ApplyFilter)] = new("应用", "Apply"),
+        [nameof(ResetFilter)] = new("重置", "Reset"),
+        [nameof(ActionType)] = new("操作类型", "Action"),
+        [nameof(UserNameLabel)] = new("用户名", "Username"),
+        [nameof(StartTime)] = new("开始时间", "Start"),
+        [nameof(EndTime)] = new("结束时间", "End"),
+        [nameof(AllActions)] = new("全部操作", "All Actions"),
+        [nameof(ActionFileUpload)] = new("上传文件", "File Upload"),
+        [nameof(ActionFileDownload)] = new("下载文件", "File Download"),
+        [nameof(ActionFileDelete)] = new("删除文件", "File Delete"),
+        [nameof(ActionFileRestore)] = new("还原文件", "File Restore"),
+        [nameof(ActionFilePermanentDelete)] = new("永久删除", "Permanent Delete"),
+        [nameof(ActionTrashEmpty)] = new("清空回收站", "Empty Trash"),
+        [nameof(ActionFolderCreate)] = new("创建文件夹", "Create Folder"),
+        [nameof(ActionShareCreate)] = new("创建分享", "Create Share"),
+        [nameof(ActionShareDelete)] = new("删除分享", "Delete Share"),
+        [nameof(ActionShareAccess)] = new("访问分享", "Access Share"),
+        [nameof(ActionShareDownload)] = new("分享下载", "Share Download"),
+        [nameof(ActionTagCreate)] = new("创建标签", "Create Tag"),
+        [nameof(ActionFavoriteSet)] = new("收藏操作", "Favorite"),
+        [nameof(ActionSecurity)] = new("安全操作", "Security"),
+        [nameof(ActionAdminUser)] = new("用户管理", "User Admin"),
     };
 
     /// <summary>
@@ -869,6 +893,30 @@ public static class AppText
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public static string FileKindFile => Get(nameof(FileKindFile));
+
+    public static string Filter => Get(nameof(Filter));
+    public static string ApplyFilter => Get(nameof(ApplyFilter));
+    public static string ResetFilter => Get(nameof(ResetFilter));
+    public static string ActionType => Get(nameof(ActionType));
+    public static string UserNameLabel => Get(nameof(UserNameLabel));
+    public static string StartTime => Get(nameof(StartTime));
+    public static string EndTime => Get(nameof(EndTime));
+    public static string AllActions => Get(nameof(AllActions));
+    public static string ActionFileUpload => Get(nameof(ActionFileUpload));
+    public static string ActionFileDownload => Get(nameof(ActionFileDownload));
+    public static string ActionFileDelete => Get(nameof(ActionFileDelete));
+    public static string ActionFileRestore => Get(nameof(ActionFileRestore));
+    public static string ActionFilePermanentDelete => Get(nameof(ActionFilePermanentDelete));
+    public static string ActionTrashEmpty => Get(nameof(ActionTrashEmpty));
+    public static string ActionFolderCreate => Get(nameof(ActionFolderCreate));
+    public static string ActionShareCreate => Get(nameof(ActionShareCreate));
+    public static string ActionShareDelete => Get(nameof(ActionShareDelete));
+    public static string ActionShareAccess => Get(nameof(ActionShareAccess));
+    public static string ActionShareDownload => Get(nameof(ActionShareDownload));
+    public static string ActionTagCreate => Get(nameof(ActionTagCreate));
+    public static string ActionFavoriteSet => Get(nameof(ActionFavoriteSet));
+    public static string ActionSecurity => Get(nameof(ActionSecurity));
+    public static string ActionAdminUser => Get(nameof(ActionAdminUser));
 
     /// <summary>
     /// 执行UseDefaultCulture操作，封装该场景下的业务规则、异常处理和结果返回。

@@ -213,10 +213,10 @@ public partial class TrashPage : ContentPage
             TrashStorageLoadingIndicator.IsRunning = false;
             TrashStorageLoadingIndicator.IsVisible = false;
 
-            TrashUsedBytesLabel.Text = FormatBytes(summary.TrashSizeBytes);
-            TrashCleanupSuggestionLabel.Text = string.IsNullOrWhiteSpace(summary.CleanupAdviceMessage)
+            TrashUsedBytesLabel.Text = FormatBytes(summary.UsedBytes);
+            TrashCleanupSuggestionLabel.Text = string.IsNullOrWhiteSpace(summary.CleanupSuggestion)
                 ? "回收站空间使用正常。"
-                : summary.CleanupAdviceMessage;
+                : summary.CleanupSuggestion;
         }
         catch
         {
