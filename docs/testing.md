@@ -474,7 +474,7 @@ V1.3b 是 V1.3 的移动端验收收口和维护版。验收原则：后端 API 
 | AC-V1.3b-04 | ShareRiskPage API 契约 | P0 | 页面调用 `GET /api/file-center/shares/risk`，计数字段与后端 DTO 对齐，API 失败时显示友好错误且不崩溃 | — | ✅ PASS | F-06: 9/9 PASS (qa-eng 正式完成)，DTO 6 字段映射正确、API 路由匹配、权限控制到位、文案实用不恐慌 |
 | AC-V1.3b-05 | TrashPage 回收站清理建议 | P1 | 页面调用 `GET /api/file-center/trash/cleanup-advice`，可显示占用空间、清理建议、空状态和错误状态 | — | ✅ PASS | 前序验收通过，待更新 trash.png 截图 |
 | AC-V1.3b-06 | FaultDiagnosisPage 静态诊断内容 | P1 | 从 Settings 可进入故障诊断页；6 类诊断区域可展开/收起；返回正常；页面不展示密钥、token、连接串或完整物理路径 | KN-V1.3b-04 | ✅ PASS | 合并冲突已修复 (886297c, mobile-eng)；源码架构验证通过 (qa-eng F-08)，6 段展开/收起、三态 UI、颜色映射均正确 |
-| AC-V1.3b-07 | 存储配置页只读展示 | P1 | 存储 provider、容量、可用空间和脱敏路径展示正确；无编辑、删除、切换存储入口 | KN-V1.3-04 | ⚠️ 条件 PASS | BUG-001：无专用 StorageConfigPage，待 mobile-eng 跟进 (t_913a1064) |
+| AC-V1.3b-07 | 存储配置页只读展示 | P1 | 存储 provider、容量、可用空间和脱敏路径展示正确；无编辑、删除、切换存储入口 | KN-V1.3-04 | ⚠️ 条件 PASS | PR #73 已新增专用 StorageConfigPage，待截图/验收 |
 | AC-V1.3b-08 | 操作日志筛选页 | P1 | 管理员可组合筛选用户、动作和时间范围；分页正常；结果不含密码/token/secret | KN-V1.3-05 | ⚠️ 条件 PASS | 6/7 AC 通过，1 项增强建议，待 operation-logs.png 截图 |
 | AC-V1.3b-09 | MAUI 构建验证 | P0 | Android 构建通过，无 MAUIX2014、CS1503 或路由处理器缺失类错误 | KN-V1.3-10 | ✅ PASS | `dotnet build -f net10.0-android` 0 errors (commit 886297c) |
 

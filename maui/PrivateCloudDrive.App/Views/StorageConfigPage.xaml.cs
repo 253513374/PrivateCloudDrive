@@ -99,11 +99,11 @@ public partial class StorageConfigPage : ContentPage
         RetryButton.IsVisible = false;
         StatePanel.IsVisible = false;
 
-        StorageProviderLabel.Text = config.StorageProvider;
-        StoragePathLabel.Text = config.StoragePath;
-        TotalBytesLabel.Text = FormatBytes(config.TotalBytes);
+        StorageProviderLabel.Text = UserVisibleErrorSanitizer.RedactUserVisibleText(config.StorageProvider, "当前存储后端");
+        StoragePathLabel.Text = UserVisibleErrorSanitizer.RedactUserVisibleText(config.StoragePath, "服务器已返回存储路径说明，详细位置已隐藏");
+        TotalBytesLabel.Text = config.TotalBytes > 0 ? FormatBytes(config.TotalBytes) : "--";
         UsedBytesLabel.Text = FormatBytes(config.UsedBytes);
-        AvailableBytesLabel.Text = FormatBytes(config.AvailableBytes);
+        AvailableBytesLabel.Text = config.AvailableBytes > 0 ? FormatBytes(config.AvailableBytes) : "--";
         MaxSingleFileSizeLabel.Text = config.MaxSingleFileSize > 0
             ? FormatBytes(config.MaxSingleFileSize)
             : "未限制";
