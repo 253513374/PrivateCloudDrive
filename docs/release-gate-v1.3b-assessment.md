@@ -1,6 +1,6 @@
 # PrivateCloudDrive V1.3b Release Gate 放行评估报告
 
-> **评估时间**：2026-07-12 23:40 CST
+> **评估时间**：2026-07-13 00:05 CST（更新：secret scan 计数修正 / GitHub Issue #1 已关闭）
 > **评估人**：Hermes-Release-Manager / release-manager
 > **评估类型**：Release Gate 门禁检查（V1.3b 维护版闭包评估）
 > **前序评估**：`docs/release-gate-v1.3-assessment.md`（V1.3 已放行）
@@ -16,7 +16,7 @@
 | G2 DevOps 验收 | ✅ **PASS** | Docker Compose 栈正常运行；备份恢复 SOP 未变更 |
 | G3 移动端验收 | ⚠️ **WARN** | **V1.3b 已升级** — 模拟器 17 张截图证据归档，含 F-05a/F-05b/F-07 验收报告；仍无真机验收（降级至 V1.4 P0） |
 | G4 文档完整 | ✅ **PASS** | known-limitations 11+4=15 条同步完整；release notes、roadmap、截图清单一致 |
-| G5 安全脱敏 | ✅ **PASS** | secret-log-scan 0 findings；BR-001/BR-002 敏感字段已脱敏；OBS-001 修复引入的 `IAuthService` 无敏感文本 |
+| G5 安全脱敏 | ✅ **PASS** | secret-log-scan 6 findings（全部已验证为假阳性，详见下文）；BR-001/BR-002 敏感字段已脱敏；OBS-001 修复引入的 `IAuthService` 无敏感文本 |
 | G6 依赖安全 | ✅ **PASS** | 生产依赖 V1.3 已升级（Scriban 7.2.5 / OpenApi 3.8.0 / ABP 10.5.0）；V1.3b 无新增依赖 |
 
 ### 放行建议
@@ -147,7 +147,7 @@ G3 移动端真机验收保留 WARN，已纳入 V1.4 P0 规划。
 
 | 检查项 | 结果 | 说明 |
 |--------|:----:|------|
-| `python scripts/secret-log-scan.py --include-working-tree` | ✅ **PASS** | 0 findings |
+| `python scripts/secret-log-scan.py --include-working-tree` | ✅ **PASS** | 6 findings（全部已验证为假阳性，详见下文） |
 | 截图敏感内容检查 | ✅ PASS | 模拟器截图使用测试文件，无真实用户数据 |
 | OBS-001 安全影响 | ✅ PASS | `IAuthService` 注入仅用于登出 + 导航，不泄露敏感信息 |
 | BUG-001 安全影响 | ✅ PASS | 修复后普通用户不再看到管理员面板入口 |
@@ -167,7 +167,7 @@ G3 移动端真机验收保留 WARN，已纳入 V1.4 P0 规划。
 | `v1.1-api-validation-evidence.md` | 107 | `AUTHORIZATION_VALUE` | 同上 | 📋 假阳性 |
 | `v1.1-api-validation-evidence.md` | 416 | `AUTHORIZATION_VALUE` | 同上 | 📋 假阳性 |
 
-**结论**：✅ PASS — 0 真实 findings，6 项假阳性已核实，V1.3b 不引入新的敏感数据暴露。
+**结论**：✅ PASS — 6 项假阳性已核实并详细记录，V1.3b 不引入新的敏感数据暴露。
 
 ---
 
@@ -253,4 +253,4 @@ P2 = 记录到路线图或已知限制，不阻塞发布
 - [x] OBS-001 — PR #75（commit `9288af9`）
 
 ### 验证脚本
-- [x] `python scripts/secret-log-scan.py --include-working-tree` — 0 findings
+|- [x] `python scripts/secret-log-scan.py --include-working-tree` — 6 findings（全部假阳性已验证）
