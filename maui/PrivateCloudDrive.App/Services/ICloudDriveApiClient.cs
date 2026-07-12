@@ -248,4 +248,6 @@ public interface ICloudDriveApiClient
     Task<TrashStorageSummary> GetTrashStorageSummaryAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<AdminUserDto>> GetAdminUsersAsync(CancellationToken cancellationToken = default);
+
+    Task<StorageConfigDto> GetStorageConfigAsync(CancellationToken cancellationToken = default);
 }

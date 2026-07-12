@@ -86,7 +86,7 @@ public partial class SettingsPage : ContentPage
 
     private async void OnStorageConfigClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("storage-usage", true);
+        await Shell.Current.GoToAsync("storage-config", true);
     }
 
     private async void OnMediaTasksClicked(object? sender, EventArgs e)
