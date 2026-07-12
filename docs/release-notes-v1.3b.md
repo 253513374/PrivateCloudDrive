@@ -83,17 +83,22 @@ V1.3b 维持 V1.3 的 11 条已知限制不变，新增以下 V1.3b 维护版客
 
 ## 验收截图证据
 
-V1.3b 移动端验收截图存储在 `docs/validation/screenshots/v1.3b/`：
+V1.3b 移动端验收截图存储在 `docs/validation/screenshots/v1.3b/`，完整清单和验收报告见该目录的 [README.md](validation/screenshots/v1.3b/README.md)：
 
 | # | 页面 | 文件 |
 |:--:|------|------|
-| 1 | Settings 管理员视图 | `screenshots/v1.3b/settings-admin.png` |
-| 2 | Settings 普通用户视图 | `screenshots/v1.3b/settings-regular.png` |
-| 3 | ShareRiskPage | `screenshots/v1.3b/share-risk.png` |
-| 4 | TrashPage | `screenshots/v1.3b/trash.png` |
-| 5 | FaultDiagnosisPage | `screenshots/v1.3b/fault-diagnosis.png` |
-| 6 | StorageUsagePage | `screenshots/v1.3b/storage-usage.png` |
-| 7 | OperationLogsPage | `screenshots/v1.3b/operation-logs.png` |
+| 1 | Settings 管理员视图（8 项管理入口） | `screenshots/v1.3b/settings-admin.png` |
+| 2 | Settings 普通用户视图（管理区隐藏） | `screenshots/v1.3b/settings-regular.png` |
+| 3 | 登录页 | `screenshots/v1.3b/login_screen.png` |
+| 4 | 登录后仪表盘 | `screenshots/v1.3b/dashboard_after_login.png` |
+| 5 | TrashPage 空状态 | `screenshots/v1.3b/trash_empty.png` |
+| 6 | TrashPage 有内容 | `screenshots/v1.3b/trash_with_items.png` |
+| 7 | TrashPage 清空后 | `screenshots/v1.3b/trash_after_empty.png` |
+| 8 | HealthStatusDot 初始状态 | `screenshots/v1.3b/healthdot_initial.png` |
+| 9 | BUG-001 发现证据（管理员界面普通用户可见） | `screenshots/v1.3b/f05b_qa_admin_visible.png` |
+| 10 | 普通用户身份确认 | `screenshots/v1.3b/f05b_qa_profile_top.png` |
+
+> **注意**：ShareRiskPage、FaultDiagnosisPage、StorageUsagePage 和 OperationLogsPage 的独立截图未采集（模拟器环境限制），相关 UI 验证通过代码审查和 Docker API 日志覆盖。完整验收报告见 README.md。
 
 ---
 
