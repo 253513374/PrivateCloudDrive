@@ -250,4 +250,17 @@ public interface ICloudDriveApiClient
     Task<IReadOnlyList<AdminUserDto>> GetAdminUsersAsync(CancellationToken cancellationToken = default);
 
     Task<StorageConfigDto> GetStorageConfigAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 搜索文件，返回分页结果（含总数）。
+    /// </summary>
+    Task<(IReadOnlyList<CloudDriveItem> Items, long TotalCount)> SearchItemsAsync(
+        string keyword,
+        string? searchScope = null,
+        string? nodeType = null,
+        string? mediaType = null,
+        string? sorting = null,
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default);
 }

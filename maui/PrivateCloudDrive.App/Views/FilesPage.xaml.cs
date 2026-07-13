@@ -46,6 +46,17 @@ public partial class FilesPage : ContentPage
         : $"{Items.Count} 个项目";
 
     /// <summary>
+    /// 获取或查询当前是否处于搜索状态。
+    /// </summary>
+    public bool IsSearchActive => !string.IsNullOrWhiteSpace(FilesSearchBar?.Text);
+
+    private int _currentSkipCount;
+    private long _totalCount;
+    private bool _isLoadingMore;
+    private string? _previousSearchKeyword;
+    private CancellationTokenSource? _searchDebounceCts;
+
+    /// <summary>
     /// 初始化 <see cref="FilesPage"/> 的新实例，并注入完成业务处理所需的依赖。
     /// </summary>
     public FilesPage()
@@ -72,27 +83,64 @@ public partial class FilesPage : ContentPage
 
     private async void OnSearchPressed(object? sender, EventArgs e)
     {
+        CancelSearchDebounce();
         await LoadItemsAsync();
     }
 
     private async void OnSearchClicked(object? sender, EventArgs e)
     {
+        CancelSearchDebounce();
         await LoadItemsAsync();
     }
 
     private async void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.OldTextValue) || !string.IsNullOrWhiteSpace(e.NewTextValue))
+        CancelSearchDebounce();
+
+        var cts = new CancellationTokenSource();
+        _searchDebounceCts = cts;
+
+        try
+        {
+            await Task.Delay(400, cts.Token);
+
+            if (!cts.Token.IsCancellationRequested)
+            {
+                await LoadItemsAsync();
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // Debounce cancelled by new keystroke - expected
+        }
+    }
+
+    private void CancelSearchDebounce()
+    {
+        if (_searchDebounceCts is { IsCancellationRequested: false })
+        {
+            _searchDebounceCts.Cancel();
+            _searchDebounceCts.Dispose();
+            _searchDebounceCts = null;
+        }
+    }
+
+    private async void OnFilterChanged(object? sender, EventArgs e)
+    {
+        if (!_filtersInitialized)
         {
             return;
         }
 
+        _currentSkipCount = 0;
+        _previousSearchKeyword = null;
         await LoadItemsAsync();
     }
-
     private async void OnClearFiltersClicked(object? sender, EventArgs e)
     {
         _filtersInitialized = false;
+        _previousSearchKeyword = null;
+        _currentSkipCount = 0;
         FilesSearchBar.Text = string.Empty;
         SearchAllSwitch.IsToggled = false;
         _sortOption = 0;
@@ -488,6 +536,8 @@ public partial class FilesPage : ContentPage
 
         _path.RemoveAt(_path.Count - 1);
         _currentFolderId = _path[^1].Id;
+        _currentSkipCount = 0;
+        _previousSearchKeyword = null;
         NotifyNavigationChanged();
         await LoadItemsAsync();
     }
@@ -645,17 +695,53 @@ public partial class FilesPage : ContentPage
 
     private async Task LoadItemsAsync()
     {
+        if (_isLoadingMore)
+        {
+            await LoadMoreItemsAsync();
+            return;
+        }
+
         RefreshButton.IsEnabled = false;
-        SetFilesLoadingState(AppText.LoadingFiles);
+        _currentSkipCount = 0;
+        SetFilesLoadingState(IsSearchActive ? "正在搜索..." : AppText.LoadingFiles);
 
         try
         {
-            var items = await _apiClient.GetItemsAsync(_currentFolderId, options: CreateQueryOptions());
-            Items.Clear();
+            var keyword = FilesSearchBar.Text?.Trim();
 
-            foreach (var item in items)
+            if (IsSearchActive && !string.IsNullOrWhiteSpace(keyword))
             {
-                Items.Add(item);
+                var options = CreateQueryOptions();
+                var (items, totalCount) = await _apiClient.SearchItemsAsync(
+                    keyword,
+                    searchScope: options.SearchScope,
+                    nodeType: options.NodeType,
+                    mediaType: options.MediaType,
+                    sorting: options.Sorting,
+                    skipCount: 0,
+                    maxResultCount: 50);
+
+                _totalCount = totalCount;
+                _currentSkipCount = items.Count;
+                _previousSearchKeyword = keyword;
+
+                Items.Clear();
+                foreach (var item in items)
+                {
+                    Items.Add(item);
+                }
+            }
+            else
+            {
+                var items = await _apiClient.GetItemsAsync(_currentFolderId, options: CreateQueryOptions());
+                _currentSkipCount = items.Count;
+                _previousSearchKeyword = null;
+
+                Items.Clear();
+                foreach (var item in items)
+                {
+                    Items.Add(item);
+                }
             }
 
             OnPropertyChanged(nameof(ItemCountText));
@@ -678,6 +764,76 @@ public partial class FilesPage : ContentPage
         {
             RefreshButton.IsEnabled = true;
         }
+    }
+
+    private async Task LoadMoreItemsAsync()
+    {
+        try
+        {
+            var keyword = FilesSearchBar.Text?.Trim();
+
+            if (IsSearchActive && !string.IsNullOrWhiteSpace(keyword))
+            {
+                var options = CreateQueryOptions();
+                var (items, _) = await _apiClient.SearchItemsAsync(
+                    keyword,
+                    searchScope: options.SearchScope,
+                    nodeType: options.NodeType,
+                    mediaType: options.MediaType,
+                    sorting: options.Sorting,
+                    skipCount: _currentSkipCount,
+                    maxResultCount: 50);
+
+                foreach (var item in items)
+                {
+                    Items.Add(item);
+                }
+
+                _currentSkipCount += items.Count;
+            }
+            else
+            {
+                var items = await _apiClient.GetItemsAsync(
+                    _currentFolderId,
+                    skipCount: _currentSkipCount,
+                    maxResultCount: 50,
+                    options: CreateQueryOptions());
+
+                foreach (var item in items)
+                {
+                    Items.Add(item);
+                }
+
+                _currentSkipCount += items.Count;
+            }
+
+            OnPropertyChanged(nameof(ItemCountText));
+        }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
+        }
+        catch (Exception exception)
+        {
+            // Silently handle pagination error - user can scroll up and retry
+            System.Diagnostics.Debug.WriteLine($"Pagination failed: {exception.Message}");
+        }
+        finally
+        {
+            _isLoadingMore = false;
+        }
+    }
+
+    private async void OnRemainingItemsThresholdReached(object? sender, EventArgs e)
+    {
+        if (_isLoadingMore)
+        {
+            return;
+        }
+
+        _isLoadingMore = true;
+        await LoadItemsAsync();
     }
 
     private void SetFilesLoadingState(string message)
@@ -704,6 +860,74 @@ public partial class FilesPage : ContentPage
         FilesLoadingIndicator.IsRunning = false;
         FilesLoadingIndicator.IsVisible = false;
         FilesRetryButton.IsVisible = false;
+        UpdateEmptyView();
+    }
+
+    private void UpdateEmptyView()
+    {
+        if (IsSearchActive && Items.Count == 0)
+        {
+            FilesCollectionView.EmptyView = CreateSearchEmptyView();
+        }
+        else
+        {
+            // Restore default XAML-defined empty view
+            FilesCollectionView.EmptyView = null;
+        }
+    }
+
+    private static Border CreateSearchEmptyView()
+    {
+        return new Border
+        {
+            Padding = new Thickness(24),
+            VerticalOptions = LayoutOptions.Start,
+            HeightRequest = 230,
+            BackgroundColor = Colors.Transparent,
+            Stroke = Colors.Transparent,
+            Content = new VerticalStackLayout
+            {
+                Spacing = 12,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center,
+                Children =
+                {
+                    new Border
+                    {
+                        HeightRequest = 56,
+                        WidthRequest = 56,
+                        BackgroundColor = Colors.Transparent,
+                        Stroke = Colors.Gray,
+                        StrokeThickness = 1,
+                        HorizontalOptions = LayoutOptions.Center,
+                        StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 14 },
+                        Content = new Label
+                        {
+                            Text = "🔍",
+                            FontSize = 24,
+                            HorizontalOptions = LayoutOptions.Center,
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalTextAlignment = TextAlignment.Center,
+                            VerticalTextAlignment = TextAlignment.Center
+                        }
+                    },
+                    new Label
+                    {
+                        Text = AppText.NoSearchResults,
+                        FontSize = 16,
+                        FontAttributes = FontAttributes.Bold,
+                        HorizontalTextAlignment = TextAlignment.Center
+                    },
+                    new Label
+                    {
+                        Text = AppText.NoSearchResultsHelp,
+                        FontSize = 13,
+                        TextColor = Colors.Gray,
+                        HorizontalTextAlignment = TextAlignment.Center
+                    }
+                }
+            }
+        };
     }
 
     private void NotifyNavigationChanged()
