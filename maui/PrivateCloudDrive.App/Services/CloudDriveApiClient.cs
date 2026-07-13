@@ -64,6 +64,46 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 搜索文件/文件夹，返回分页结果（含总数）。
+    /// </summary>
+    public async Task<(IReadOnlyList<CloudDriveItem> Items, long TotalCount)> SearchItemsAsync(
+        string keyword,
+        string? searchScope = null,
+        string? nodeType = null,
+        string? mediaType = null,
+        string? sorting = null,
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var options = new CloudDriveQueryOptions
+        {
+            SearchKeyword = keyword,
+            SearchScope = searchScope ?? "CurrentFolder",
+            NodeType = nodeType,
+            MediaType = mediaType,
+            Sorting = sorting
+        };
+
+        var path = BuildFolderListPath(parentId: null, skipCount, maxResultCount, options);
+
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            path,
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<FileNodeDto>>(responseText, JsonOptions);
+        var items = result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
+        var totalCount = result?.TotalCount ?? 0L;
+        return (items, totalCount);
+    }
+
+    /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public async Task<IReadOnlyList<CloudDriveItem>> GetTrashItemsAsync(

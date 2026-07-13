@@ -227,6 +227,10 @@ public static class AppText
         [nameof(ActionFavoriteSet)] = new("收藏操作", "Favorite"),
         [nameof(ActionSecurity)] = new("安全操作", "Security"),
         [nameof(ActionAdminUser)] = new("用户管理", "User Admin"),
+
+        [nameof(NoSearchResults)] = new("未找到匹配文件", "No matching files found"),
+        [nameof(NoSearchResultsHelp)] = new("试试其他关键词或调整筛选条件。", "Try different keywords or adjust filters."),
+        [nameof(SearchResultsFor)] = new("搜索 \"{0}\" 的结果", "Search results for \"{0}\""),
     };
 
     /// <summary>
@@ -957,6 +961,18 @@ public static class AppText
     public static string ActionFavoriteSet => Get(nameof(ActionFavoriteSet));
     public static string ActionSecurity => Get(nameof(ActionSecurity));
     public static string ActionAdminUser => Get(nameof(ActionAdminUser));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string NoSearchResults => Get(nameof(NoSearchResults));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string NoSearchResultsHelp => Get(nameof(NoSearchResultsHelp));
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public static string SearchResultsFor => Get(nameof(SearchResultsFor));
 
     /// <summary>
     /// 执行UseDefaultCulture操作，封装该场景下的业务规则、异常处理和结果返回。
