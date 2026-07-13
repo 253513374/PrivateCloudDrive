@@ -9,7 +9,8 @@ public static class AppSettings
 {
     private const string CustomApiBaseUrlKey = "settings.apiBaseUrl";
     private const string AndroidEmulatorApiBaseUrl = "http://10.0.2.2:8080";
-    private const string AndroidDeviceApiBaseUrl = "http://192.168.1.94:8080";
+    // ⚠️ 占位地址：请通过「设置 → 自定义私有服务器」配置实际开发机局域网 IP
+    private const string AndroidDeviceApiBaseUrl = "http://192.168.1.100:8080";
     private const string DevelopmentWindowsApiBaseUrl = "http://localhost:8080";
     private const string ProductionApiBaseUrl = "https://privateclouddrive.example.com";
 

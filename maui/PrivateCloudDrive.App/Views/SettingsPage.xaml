@@ -193,6 +193,26 @@
                                  HeightRequest="8"
                                  ProgressColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                                  BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}" />
+                    <Label x:Name="StorageDetailLabel"
+                           Text=""
+                           FontSize="12"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                           LineBreakMode="WordWrap" />
+                    <Border x:Name="StorageWarningPanel"
+                            Padding="12,10"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}"
+                            StrokeThickness="0"
+                            IsVisible="False">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Label x:Name="StorageWarningLabel"
+                               Text="存储空间不足，请清理文件后重试"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="13"
+                               TextColor="{StaticResource Warning}"
+                               LineBreakMode="WordWrap" />
+                    </Border>
                 </VerticalStackLayout>
             </Border>
 
@@ -875,12 +895,15 @@
                             <Border x:Name="HealthStatusDot"
                                     HeightRequest="14"
                                     WidthRequest="14"
-                                    StrokeShape="RoundRectangle CornerRadius=7"
                                     StrokeThickness="0"
                                     BackgroundColor="{AppThemeBinding Light={StaticResource Success}, Dark={StaticResource Success}}"
                                     VerticalOptions="Start"
                                     HorizontalOptions="Center"
-                                    Margin="0,6,0,0" />
+                                    Margin="0,6,0,0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="7" />
+                                </Border.StrokeShape>
+                            </Border>
                             <VerticalStackLayout Spacing="3"
                                                   Grid.Column="1">
                                 <Label Text="系统健康"

@@ -10,6 +10,7 @@ namespace PrivateCloudDrive.App.Views;
 /// </summary>
 public partial class TrashPage : ContentPage
 {
+    private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
     private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
     private bool _isSelectionMode;
 
@@ -47,6 +48,11 @@ public partial class TrashPage : ContentPage
             await _apiClient.RestoreTrashItemAsync(item.Id);
             await LoadTrashAsync();
         }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
+        }
         catch (Exception exception)
         {
             await ShowErrorAsync(
@@ -76,6 +82,11 @@ public partial class TrashPage : ContentPage
         {
             await _apiClient.PermanentlyDeleteTrashItemAsync(item.Id);
             await LoadTrashAsync();
+        }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
         }
         catch (Exception exception)
         {
@@ -108,6 +119,11 @@ public partial class TrashPage : ContentPage
             SetSelectionMode(false);
             await LoadTrashAsync();
         }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
+        }
         catch (Exception exception)
         {
             await ShowErrorAsync(AppText.Format(nameof(AppText.UnableToEmptyTrash), exception.Message));
@@ -138,6 +154,11 @@ public partial class TrashPage : ContentPage
             await _apiClient.RestoreTrashItemsAsync(selectedItems.Select(item => item.Id).ToList());
             SetSelectionMode(false);
             await LoadTrashAsync();
+        }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
         }
         catch (Exception exception)
         {
@@ -171,6 +192,11 @@ public partial class TrashPage : ContentPage
             SetSelectionMode(false);
             await LoadTrashAsync();
         }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
+        }
         catch (Exception exception)
         {
             await ShowErrorAsync(exception.Message);
@@ -193,6 +219,12 @@ public partial class TrashPage : ContentPage
 
             SetIdleState();
             await LoadTrashStorageSummaryAsync();
+        }
+        catch (AuthSessionExpiredException)
+        {
+            TrashItems.Clear();
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
         }
         catch (Exception exception)
         {

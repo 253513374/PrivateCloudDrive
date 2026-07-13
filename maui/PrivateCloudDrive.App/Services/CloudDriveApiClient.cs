@@ -64,6 +64,46 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 搜索文件/文件夹，返回分页结果（含总数）。
+    /// </summary>
+    public async Task<(IReadOnlyList<CloudDriveItem> Items, long TotalCount)> SearchItemsAsync(
+        string keyword,
+        string? searchScope = null,
+        string? nodeType = null,
+        string? mediaType = null,
+        string? sorting = null,
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var options = new CloudDriveQueryOptions
+        {
+            SearchKeyword = keyword,
+            SearchScope = searchScope ?? "CurrentFolder",
+            NodeType = nodeType,
+            MediaType = mediaType,
+            Sorting = sorting
+        };
+
+        var path = BuildFolderListPath(parentId: null, skipCount, maxResultCount, options);
+
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            path,
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        EnsureSuccess(response, responseText);
+
+        var result = JsonSerializer.Deserialize<PagedResult<FileNodeDto>>(responseText, JsonOptions);
+        var items = result?.Items.Select(ToCloudDriveItem).ToList() ?? [];
+        var totalCount = result?.TotalCount ?? 0L;
+        return (items, totalCount);
+    }
+
+    /// <summary>
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public async Task<IReadOnlyList<CloudDriveItem>> GetTrashItemsAsync(
@@ -1199,6 +1239,32 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 查询当前私有备份服务器的存储配置（只读）。
+    /// </summary>
+    public async Task<StorageConfigDto> GetStorageConfigAsync(CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Get,
+            "/api/admin/storage-config",
+            cancellationToken);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        var dto = JsonSerializer.Deserialize<StorageConfigInternalDto>(responseText, JsonOptions)
+                  ?? throw new InvalidOperationException("Storage config response is invalid.");
+
+        return new StorageConfigDto(
+            dto.StorageProvider,
+            dto.StoragePath,
+            dto.TotalBytes,
+            dto.UsedBytes,
+            dto.AvailableBytes,
+            dto.MaxSingleFileSize);
+    }
+
+    /// <summary>
     /// 查询当前用户的分享风险摘要（无过期分享、公开分享、长期未使用分享的数量和文案）。
     /// </summary>
     public async Task<ShareRiskSummary> GetShareRiskSummaryAsync(CancellationToken cancellationToken = default)
@@ -1321,6 +1387,16 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             AddQuery(query, "NodeType", options.NodeType);
             AddQuery(query, "MediaType", options.MediaType);
             AddQuery(query, "Sorting", options.Sorting);
+
+            if (options.IsFavorite.HasValue)
+            {
+                AddQuery(query, "IsFavorite", options.IsFavorite.Value ? "true" : "false");
+            }
+
+            if (options.TagId.HasValue)
+            {
+                AddQuery(query, "TagId", options.TagId.Value.ToString("D"));
+            }
         }
 
         return "/api/app/file-center-folders?" + string.Join("&", query);
@@ -2389,5 +2465,20 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
 
         [JsonPropertyName("cleanupAdviceMessage")]
         public string CleanupSuggestion { get; init; } = string.Empty;
+    }
+
+    private sealed class StorageConfigInternalDto
+    {
+        public string StorageProvider { get; init; } = string.Empty;
+
+        public string StoragePath { get; init; } = string.Empty;
+
+        public long TotalBytes { get; init; }
+
+        public long UsedBytes { get; init; }
+
+        public long AvailableBytes { get; init; }
+
+        public long MaxSingleFileSize { get; init; }
     }
 }
