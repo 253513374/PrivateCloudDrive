@@ -40,6 +40,11 @@ public class AdminCreateUserInput
     /// 存储容量配额（字节）。不传或 0 表示使用默认配额。
     /// </summary>
     public long? StorageQuotaBytes { get; set; }
+
+    /// <summary>
+    /// 初始角色列表，例如 ["admin"] 或 ["user"]。不传默认为普通用户。
+    /// </summary>
+    public string[]? RoleNames { get; set; }
 }
 
 /// <summary>

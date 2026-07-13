@@ -18,6 +18,13 @@
                 </VerticalStackLayout>
             </Grid>
 
+            <Button Text="+ 创建用户"
+                    Style="{StaticResource SecondaryButton}"
+                    HeightRequest="44"
+                    Clicked="OnCreateUserClicked"
+                    HorizontalOptions="End"
+                    Padding="16,8" />
+
             <Border x:Name="StatePanel"
                     Padding="14"
                     IsVisible="False"
@@ -47,6 +54,11 @@
 详细增删改功能需登录 Web 管理面板完成。"
                    Style="{StaticResource MetaLabel}"
                    LineBreakMode="WordWrap" />
+            <Label Text="禁用用户后，access_token 缓存最长 5 分钟生效，之后该用户将无法访问系统。"
+                   Style="{StaticResource MetaLabel}"
+                   LineBreakMode="WordWrap"
+                   TextColor="{AppThemeBinding Light={StaticResource Warning}, Dark={StaticResource WarningDark}}"
+                   Padding="0,0,0,4" />
 
             <CollectionView ItemsSource="{Binding Users}"
                             SelectionMode="None">

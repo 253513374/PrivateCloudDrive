@@ -249,6 +249,16 @@ public interface ICloudDriveApiClient
 
     Task<IReadOnlyList<AdminUserDto>> GetAdminUsersAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// 管理员创建新用户，可指定初始角色。
+    /// </summary>
+    Task<AdminUserDto> CreateAdminUserAsync(
+        string userName,
+        string email,
+        string password,
+        string[]? roleNames = null,
+        CancellationToken cancellationToken = default);
+
     Task<StorageConfigDto> GetStorageConfigAsync(CancellationToken cancellationToken = default);
 
     /// <summary>

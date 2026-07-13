@@ -1239,6 +1239,44 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     }
 
     /// <summary>
+    /// 管理员创建新用户，可指定初始角色。
+    /// </summary>
+    public async Task<AdminUserDto> CreateAdminUserAsync(
+        string userName,
+        string email,
+        string password,
+        string[]? roleNames = null,
+        CancellationToken cancellationToken = default)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["userName"] = userName,
+            ["email"] = email,
+            ["password"] = password
+        };
+
+        if (roleNames is { Length: > 0 })
+        {
+            payload["roleNames"] = roleNames;
+        }
+
+        var json = JsonSerializer.Serialize(payload, JsonOptions);
+
+        using var request = await CreateAuthenticatedRequestAsync(
+            HttpMethod.Post,
+            "/api/admin/identity/users",
+            cancellationToken);
+
+        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseText);
+
+        return JsonSerializer.Deserialize<AdminUserDto>(responseText, JsonOptions);
+    }
+
+    /// <summary>
     /// 查询当前私有备份服务器的存储配置（只读）。
     /// </summary>
     public async Task<StorageConfigDto> GetStorageConfigAsync(CancellationToken cancellationToken = default)
