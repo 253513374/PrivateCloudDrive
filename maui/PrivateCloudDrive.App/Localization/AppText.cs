@@ -187,6 +187,26 @@ public static class AppText
         [nameof(Filter)] = new("筛选", "Filter"),
         [nameof(ApplyFilter)] = new("应用", "Apply"),
         [nameof(ResetFilter)] = new("重置", "Reset"),
+
+        [nameof(Sort)] = new("排序", "Sort"),
+        [nameof(SortNameAsc)] = new("名称 A-Z", "Name A-Z"),
+        [nameof(SortNameDesc)] = new("名称 Z-A", "Name Z-A"),
+        [nameof(SortTimeNew)] = new("时间 新→旧", "Newest First"),
+        [nameof(SortTimeOld)] = new("时间 旧→新", "Oldest First"),
+        [nameof(SortSizeDesc)] = new("大小 大→小", "Largest First"),
+        [nameof(SortSizeAsc)] = new("大小 小→大", "Smallest First"),
+        [nameof(SortByType)] = new("按类型分组", "Group by Type"),
+
+        [nameof(FilterAll)] = new("全部", "All"),
+        [nameof(FilterFilesOnly)] = new("仅文件", "Files Only"),
+        [nameof(FilterFoldersOnly)] = new("仅文件夹", "Folders Only"),
+        [nameof(FilterFavorites)] = new("仅收藏", "Favorites"),
+        [nameof(FilterTags)] = new("标签筛选", "Tag Filter"),
+
+        [nameof(AllTags)] = new("全部标签", "All Tags"),
+        [nameof(NoTagsAvailable)] = new("暂无标签", "No Tags Available"),
+        [nameof(FavoritesFilterLabel)] = new("收藏", "Favorites"),
+
         [nameof(ActionType)] = new("操作类型", "Action"),
         [nameof(UserNameLabel)] = new("用户名", "Username"),
         [nameof(StartTime)] = new("开始时间", "Start"),
@@ -897,6 +917,26 @@ public static class AppText
     public static string Filter => Get(nameof(Filter));
     public static string ApplyFilter => Get(nameof(ApplyFilter));
     public static string ResetFilter => Get(nameof(ResetFilter));
+
+    public static string Sort => Get(nameof(Sort));
+    public static string SortNameAsc => Get(nameof(SortNameAsc));
+    public static string SortNameDesc => Get(nameof(SortNameDesc));
+    public static string SortTimeNew => Get(nameof(SortTimeNew));
+    public static string SortTimeOld => Get(nameof(SortTimeOld));
+    public static string SortSizeDesc => Get(nameof(SortSizeDesc));
+    public static string SortSizeAsc => Get(nameof(SortSizeAsc));
+    public static string SortByType => Get(nameof(SortByType));
+
+    public static string FilterAll => Get(nameof(FilterAll));
+    public static string FilterFilesOnly => Get(nameof(FilterFilesOnly));
+    public static string FilterFoldersOnly => Get(nameof(FilterFoldersOnly));
+    public static string FilterFavorites => Get(nameof(FilterFavorites));
+    public static string FilterTags => Get(nameof(FilterTags));
+
+    public static string AllTags => Get(nameof(AllTags));
+    public static string NoTagsAvailable => Get(nameof(NoTagsAvailable));
+    public static string FavoritesFilterLabel => Get(nameof(FavoritesFilterLabel));
+
     public static string ActionType => Get(nameof(ActionType));
     public static string UserNameLabel => Get(nameof(UserNameLabel));
     public static string StartTime => Get(nameof(StartTime));

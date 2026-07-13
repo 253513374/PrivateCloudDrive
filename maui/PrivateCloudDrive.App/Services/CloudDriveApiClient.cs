@@ -1347,6 +1347,16 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             AddQuery(query, "NodeType", options.NodeType);
             AddQuery(query, "MediaType", options.MediaType);
             AddQuery(query, "Sorting", options.Sorting);
+
+            if (options.IsFavorite.HasValue)
+            {
+                AddQuery(query, "IsFavorite", options.IsFavorite.Value ? "true" : "false");
+            }
+
+            if (options.TagId.HasValue)
+            {
+                AddQuery(query, "TagId", options.TagId.Value.ToString("D"));
+            }
         }
 
         return "/api/app/file-center-folders?" + string.Join("&", query);

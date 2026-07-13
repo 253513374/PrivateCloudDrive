@@ -14,4 +14,14 @@ public sealed class CloudDriveQueryOptions
     public string? MediaType { get; init; }
 
     public string? Sorting { get; init; }
+
+    /// <summary>
+    /// 仅筛选已收藏项。
+    /// </summary>
+    public bool? IsFavorite { get; init; }
+
+    /// <summary>
+    /// 按指定标签筛选。
+    /// </summary>
+    public Guid? TagId { get; init; }
 }
