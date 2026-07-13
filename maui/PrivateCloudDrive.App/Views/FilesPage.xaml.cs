@@ -106,6 +106,15 @@ public partial class FilesPage : ContentPage
         {
             // Debounce cancelled by new keystroke - expected
         }
+        finally
+        {
+            // Dispose CTS on both normal completion and cancellation
+            if (cts == _searchDebounceCts)
+            {
+                _searchDebounceCts = null;
+                cts.Dispose();
+            }
+        }
     }
 
     private void CancelSearchDebounce()
@@ -679,7 +688,7 @@ public partial class FilesPage : ContentPage
 
         RefreshButton.IsEnabled = false;
         _currentSkipCount = 0;
-        SetFilesLoadingState(IsSearchActive ? "正在搜索..." : AppText.LoadingFiles);
+        SetFilesLoadingState(IsSearchActive ? AppText.SearchingFor : AppText.LoadingFiles);
 
         try
         {
@@ -689,6 +698,7 @@ public partial class FilesPage : ContentPage
             {
                 var options = CreateQueryOptions();
                 var (items, totalCount) = await _apiClient.SearchItemsAsync(
+                    _currentFolderId,
                     keyword,
                     searchScope: options.SearchScope,
                     nodeType: options.NodeType,
@@ -752,6 +762,7 @@ public partial class FilesPage : ContentPage
             {
                 var options = CreateQueryOptions();
                 var (items, _) = await _apiClient.SearchItemsAsync(
+                    _currentFolderId,
                     keyword,
                     searchScope: options.SearchScope,
                     nodeType: options.NodeType,
@@ -804,6 +815,12 @@ public partial class FilesPage : ContentPage
     private async void OnRemainingItemsThresholdReached(object? sender, EventArgs e)
     {
         if (_isLoadingMore)
+        {
+            return;
+        }
+
+        // Stop condition: no more pages to load
+        if (IsSearchActive && _totalCount > 0 && _currentSkipCount >= _totalCount)
         {
             return;
         }

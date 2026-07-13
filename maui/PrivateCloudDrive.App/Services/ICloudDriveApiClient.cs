@@ -255,6 +255,7 @@ public interface ICloudDriveApiClient
     /// 搜索文件，返回分页结果（含总数）。
     /// </summary>
     Task<(IReadOnlyList<CloudDriveItem> Items, long TotalCount)> SearchItemsAsync(
+        Guid? parentId,
         string keyword,
         string? searchScope = null,
         string? nodeType = null,

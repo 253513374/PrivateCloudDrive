@@ -72,6 +72,7 @@ public sealed class MockCloudDriveApiClient
     /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
     /// </summary>
     public Task<(IReadOnlyList<CloudDriveItem> Items, long TotalCount)> SearchItemsAsync(
+        Guid? parentId,
         string keyword,
         string? searchScope = null,
         string? nodeType = null,

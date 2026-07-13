@@ -67,6 +67,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
     /// 搜索文件/文件夹，返回分页结果（含总数）。
     /// </summary>
     public async Task<(IReadOnlyList<CloudDriveItem> Items, long TotalCount)> SearchItemsAsync(
+        Guid? parentId,
         string keyword,
         string? searchScope = null,
         string? nodeType = null,
@@ -85,7 +86,7 @@ public sealed class CloudDriveApiClient : ICloudDriveApiClient
             Sorting = sorting
         };
 
-        var path = BuildFolderListPath(parentId: null, skipCount, maxResultCount, options);
+        var path = BuildFolderListPath(parentId, skipCount, maxResultCount, options);
 
         using var request = await CreateAuthenticatedRequestAsync(
             HttpMethod.Get,

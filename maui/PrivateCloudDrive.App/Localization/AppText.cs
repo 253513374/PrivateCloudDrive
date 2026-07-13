@@ -211,6 +211,7 @@ public static class AppText
         [nameof(NoSearchResults)] = new("未找到匹配文件", "No matching files found"),
         [nameof(NoSearchResultsHelp)] = new("试试其他关键词或调整筛选条件。", "Try different keywords or adjust filters."),
         [nameof(SearchResultsFor)] = new("搜索 \"{0}\" 的结果", "Search results for \"{0}\""),
+        [nameof(SearchingFor)] = new("正在搜索...", "Searching..."),
     };
 
     /// <summary>
@@ -922,17 +923,21 @@ public static class AppText
     public static string ActionSecurity => Get(nameof(ActionSecurity));
     public static string ActionAdminUser => Get(nameof(ActionAdminUser));
     /// <summary>
-    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// 搜索结果为空时显示的提示文字。
     /// </summary>
     public static string NoSearchResults => Get(nameof(NoSearchResults));
     /// <summary>
-    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// 搜索结果为空时显示的建议提示文字。
     /// </summary>
     public static string NoSearchResultsHelp => Get(nameof(NoSearchResultsHelp));
     /// <summary>
-    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// 搜索结果标题，包含搜索关键词。"{0}" 会被替换为搜索词。
     /// </summary>
     public static string SearchResultsFor => Get(nameof(SearchResultsFor));
+    /// <summary>
+    /// 搜索进行时的加载状态提示文字。
+    /// </summary>
+    public static string SearchingFor => Get(nameof(SearchingFor));
 
     /// <summary>
     /// 执行UseDefaultCulture操作，封装该场景下的业务规则、异常处理和结果返回。
