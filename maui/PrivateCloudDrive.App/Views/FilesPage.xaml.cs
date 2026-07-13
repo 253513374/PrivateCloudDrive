@@ -1159,16 +1159,6 @@ public partial class FilesPage : ContentPage
         await LoadItemsAsync();
     }
 
-    private async void OnFilterChanged(object? sender, EventArgs e)
-    {
-        if (!_filtersInitialized)
-        {
-            return;
-        }
-
-        await LoadItemsAsync();
-    }
-
     /// <summary>
     /// 更新所有筛选Chip的视觉状态：标签文本 + 边框高亮。
     /// </summary>

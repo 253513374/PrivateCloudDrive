@@ -31,6 +31,11 @@ public partial class AdminUserManagementPage : ContentPage
         await Shell.Current.GoToAsync("..", true);
     }
 
+    private async void OnCreateUserClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("admin-user-create", true);
+    }
+
     private async void OnRefreshClicked(object? sender, EventArgs e)
     {
         await LoadUsersAsync();
