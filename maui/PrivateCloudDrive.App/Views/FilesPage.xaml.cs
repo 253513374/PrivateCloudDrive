@@ -24,6 +24,13 @@ public partial class FilesPage : ContentPage
     private bool _filtersInitialized;
     private bool _isSelectionMode;
 
+    // ---- 排序与筛选状态 ----
+    private int _sortOption;        // 0=名称A-Z, 1=名称Z-A, 2=时间新→旧, 3=时间旧→新, 4=大小大→小, 5=大小小→大, 6=按类型分组
+    private int _filterOption;      // 0=全部, 1=仅文件, 2=仅文件夹
+    private bool _isFavoriteFilter;
+    private Guid? _selectedTagId;
+    private IReadOnlyList<CloudDriveTag> _tagsCache = [];
+
     public ObservableCollection<CloudDriveItem> Items { get; } = [];
 
     public string ApiBaseUrl => AppSettings.ApiBaseUrl;
@@ -45,7 +52,7 @@ public partial class FilesPage : ContentPage
     {
         InitializeComponent();
         BindingContext = this;
-        InitializeFilterPickers();
+        InitializeFilterState();
         UploadItemsSubscribe();
         UpdateUploadTaskPanel();
     }
@@ -83,24 +90,16 @@ public partial class FilesPage : ContentPage
         await LoadItemsAsync();
     }
 
-    private async void OnFilterChanged(object? sender, EventArgs e)
-    {
-        if (!_filtersInitialized)
-        {
-            return;
-        }
-
-        await LoadItemsAsync();
-    }
-
     private async void OnClearFiltersClicked(object? sender, EventArgs e)
     {
         _filtersInitialized = false;
         FilesSearchBar.Text = string.Empty;
         SearchAllSwitch.IsToggled = false;
-        SortPicker.SelectedIndex = 0;
-        TypeFilterPicker.SelectedIndex = 0;
-        MediaFilterPicker.SelectedIndex = 0;
+        _sortOption = 0;
+        _filterOption = 0;
+        _isFavoriteFilter = false;
+        _selectedTagId = null;
+        UpdateChipVisualStates();
         _filtersInitialized = true;
         await LoadItemsAsync();
     }
@@ -808,56 +807,249 @@ public partial class FilesPage : ContentPage
             : $"{value:0.##} {units[unitIndex]}";
     }
 
-    private void InitializeFilterPickers()
+    private void InitializeFilterState()
     {
-        SortPicker.ItemsSource = new List<string>
-        {
-            "名称 A-Z",
-            "名称 Z-A",
-            "大小从小到大",
-            "大小从大到小",
-            "最新创建",
-            "最早创建",
-            "最近修改"
-        };
-        TypeFilterPicker.ItemsSource = new List<string> { "全部类型", "文件夹", "文件" };
-        MediaFilterPicker.ItemsSource = new List<string> { "全部媒体", "图片", "视频", "其他文件" };
-
-        SortPicker.SelectedIndex = 0;
-        TypeFilterPicker.SelectedIndex = 0;
-        MediaFilterPicker.SelectedIndex = 0;
+        _sortOption = 0;
+        _filterOption = 0;
+        _isFavoriteFilter = false;
+        _selectedTagId = null;
+        _tagsCache = [];
+        UpdateChipVisualStates();
         _filtersInitialized = true;
+    }
+
+    private async void OnSortChipTapped(object? sender, TappedEventArgs e)
+    {
+        var options = new[]
+        {
+            AppText.SortNameAsc,
+            AppText.SortNameDesc,
+            AppText.SortTimeNew,
+            AppText.SortTimeOld,
+            AppText.SortSizeDesc,
+            AppText.SortSizeAsc,
+            AppText.SortByType
+        };
+
+        var selected = await DisplayActionSheetAsync(AppText.Sort, AppText.Cancel, null, options);
+        if (string.IsNullOrEmpty(selected) || selected == AppText.Cancel)
+        {
+            return;
+        }
+
+        var newIndex = Array.IndexOf(options, selected);
+        if (newIndex < 0)
+        {
+            return;
+        }
+
+        _sortOption = newIndex;
+        UpdateChipVisualStates();
+        await LoadItemsAsync();
+    }
+
+    private async void OnFilterTypeChipTapped(object? sender, TappedEventArgs e)
+    {
+        var options = new[]
+        {
+            AppText.FilterAll,
+            AppText.FilterFilesOnly,
+            AppText.FilterFoldersOnly
+        };
+
+        var selected = await DisplayActionSheetAsync(AppText.Filter, AppText.Cancel, null, options);
+        if (string.IsNullOrEmpty(selected) || selected == AppText.Cancel)
+        {
+            return;
+        }
+
+        var newIndex = Array.IndexOf(options, selected);
+        if (newIndex < 0)
+        {
+            return;
+        }
+
+        _filterOption = newIndex;
+        UpdateChipVisualStates();
+        await LoadItemsAsync();
+    }
+
+    private async void OnFavChipTapped(object? sender, TappedEventArgs e)
+    {
+        _isFavoriteFilter = !_isFavoriteFilter;
+        if (_isFavoriteFilter)
+        {
+            _selectedTagId = null;
+        }
+
+        UpdateChipVisualStates();
+        await LoadItemsAsync();
+    }
+
+    private async void OnTagsChipTapped(object? sender, TappedEventArgs e)
+    {
+        // 确保标签缓存已加载
+        if (_tagsCache.Count == 0)
+        {
+            try
+            {
+                _tagsCache = await _apiClient.GetTagsAsync();
+            }
+            catch
+            {
+                // 静默失败，展示空列表
+            }
+        }
+
+        if (_tagsCache.Count == 0)
+        {
+            await DisplayAlertAsync(AppText.FilterTags, AppText.NoTagsAvailable, "OK");
+            return;
+        }
+
+        var options = new List<string> { AppText.AllTags };
+        options.AddRange(_tagsCache.Select(t => t.Name));
+
+        // 当前已选标签名称
+        var selected = await DisplayActionSheetAsync(AppText.FilterTags, AppText.Cancel, null, options.ToArray());
+        if (string.IsNullOrEmpty(selected) || selected == AppText.Cancel)
+        {
+            return;
+        }
+
+        if (selected == AppText.AllTags)
+        {
+            _selectedTagId = null;
+        }
+        else
+        {
+            var tag = _tagsCache.FirstOrDefault(t => t.Name == selected);
+            if (tag != null)
+            {
+                _selectedTagId = tag.Id;
+                _isFavoriteFilter = false; // 标签和收藏不同时启用
+            }
+        }
+
+        UpdateChipVisualStates();
+        await LoadItemsAsync();
+    }
+
+    private async void OnFilterChanged(object? sender, EventArgs e)
+    {
+        if (!_filtersInitialized)
+        {
+            return;
+        }
+
+        await LoadItemsAsync();
+    }
+
+    /// <summary>
+    /// 更新所有筛选Chip的视觉状态：标签文本 + 边框高亮。
+    /// </summary>
+    private void UpdateChipVisualStates()
+    {
+        // ---- 排序 Chip ----
+        var sortLabels = new[]
+        {
+            AppText.SortNameAsc,
+            AppText.SortNameDesc,
+            AppText.SortTimeNew,
+            AppText.SortTimeOld,
+            AppText.SortSizeDesc,
+            AppText.SortSizeAsc,
+            AppText.SortByType
+        };
+        var sortText = _sortOption >= 0 && _sortOption < sortLabels.Length
+            ? sortLabels[_sortOption]
+            : sortLabels[0];
+        SortChipLabel.Text = $"排序: {sortText}";
+        SetChipActive(SortChip, _sortOption != 0);
+
+        // ---- 筛选类型 Chip ----
+        var filterText = _filterOption switch
+        {
+            1 => AppText.FilterFilesOnly,
+            2 => AppText.FilterFoldersOnly,
+            _ => AppText.FilterAll
+        };
+        FilterTypeChipLabel.Text = $"筛选: {filterText}";
+        SetChipActive(FilterTypeChip, _filterOption != 0);
+
+        // ---- 收藏 Chip ----
+        if (_isFavoriteFilter)
+        {
+            FavChipIcon.Text = "★";
+            FavChipLabel.Text = AppText.FavoritesFilterLabel;
+            SetChipActive(FavChip, true);
+        }
+        else
+        {
+            FavChipIcon.Text = "☆";
+            FavChipLabel.Text = AppText.FavoritesFilterLabel;
+            SetChipActive(FavChip, false);
+        }
+
+        // ---- 标签 Chip ----
+        if (_selectedTagId.HasValue)
+        {
+            var tagName = _tagsCache.FirstOrDefault(t => t.Id == _selectedTagId.Value)?.Name ?? "标签";
+            TagsChipLabel.Text = tagName;
+            SetChipActive(TagsChip, true);
+        }
+        else
+        {
+            TagsChipLabel.Text = AppText.FilterTags;
+            SetChipActive(TagsChip, false);
+        }
+    }
+
+    /// <summary>
+    /// 设置单个Chip的高亮状态（边框颜色+字体权重）。
+    /// 激活时显示蓝色边框，非激活时恢复Style默认值以支持暗色模式切换。
+    /// </summary>
+    private static void SetChipActive(Border chip, bool active)
+    {
+        if (active)
+        {
+            chip.Stroke = new SolidColorBrush(Color.FromArgb("#2563EB"));
+            chip.StrokeThickness = 1.5;
+        }
+        else
+        {
+            chip.ClearValue(Border.StrokeProperty);
+            chip.ClearValue(Border.StrokeThicknessProperty);
+        }
     }
 
     private CloudDriveQueryOptions CreateQueryOptions()
     {
+        var sortString = _sortOption switch
+        {
+            1 => "name desc",
+            2 => "lastModificationTime desc",
+            3 => "lastModificationTime asc",
+            4 => "size desc",
+            5 => "size asc",
+            6 => "nodeType asc, name asc",
+            _ => null
+        };
+
         return new CloudDriveQueryOptions
         {
             SearchKeyword = string.IsNullOrWhiteSpace(FilesSearchBar.Text) ? null : FilesSearchBar.Text.Trim(),
             SearchScope = SearchAllSwitch.IsToggled ? "All" : "CurrentFolder",
-            NodeType = TypeFilterPicker.SelectedIndex switch
+            NodeType = _filterOption switch
             {
-                1 => "Folder",
-                2 => "File",
+                1 => "File",
+                2 => "Folder",
                 _ => null
             },
-            MediaType = MediaFilterPicker.SelectedIndex switch
-            {
-                1 => "Image",
-                2 => "Video",
-                3 => "Other",
-                _ => null
-            },
-            Sorting = SortPicker.SelectedIndex switch
-            {
-                1 => "name desc",
-                2 => "size asc",
-                3 => "size desc",
-                4 => "creationTime desc",
-                5 => "creationTime asc",
-                6 => "lastModificationTime desc",
-                _ => null
-            }
+            MediaType = null,
+            Sorting = sortString,
+            IsFavorite = _isFavoriteFilter ? true : null,
+            TagId = _selectedTagId
         };
     }
 

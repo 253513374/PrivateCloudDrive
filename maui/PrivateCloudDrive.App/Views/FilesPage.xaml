@@ -139,37 +139,107 @@
                             Orientation="Horizontal"
                             HorizontalScrollBarVisibility="Never">
                     <HorizontalStackLayout Spacing="8">
-                        <Border Style="{StaticResource FilesField}"
-                                WidthRequest="118">
+                        <!-- 排序 Chip -->
+                        <Border x:Name="SortChip"
+                                Style="{StaticResource FilesField}"
+                                MinimumWidthRequest="140">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-                            <Picker x:Name="TypeFilterPicker"
-                                    Title="类型"
-                                    HeightRequest="38"
-                                    SelectedIndexChanged="OnFilterChanged" />
+                            <HorizontalStackLayout Spacing="6"
+                                                   Padding="0,0,4,0"
+                                                   VerticalOptions="Center"
+                                                   HeightRequest="38">
+                                <Label x:Name="SortChipLabel"
+                                       Text="排序: 名称 A-Z"
+                                       FontSize="13"
+                                       VerticalOptions="Center"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="▼"
+                                       FontSize="9"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSortChipTapped" />
+                            </Border.GestureRecognizers>
                         </Border>
 
-                        <Border Style="{StaticResource FilesField}"
-                                WidthRequest="118">
+                        <!-- 筛选类型 Chip -->
+                        <Border x:Name="FilterTypeChip"
+                                Style="{StaticResource FilesField}"
+                                MinimumWidthRequest="120">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-                            <Picker x:Name="MediaFilterPicker"
-                                    Title="媒体"
-                                    HeightRequest="38"
-                                    SelectedIndexChanged="OnFilterChanged" />
+                            <HorizontalStackLayout Spacing="6"
+                                                   Padding="0,0,4,0"
+                                                   VerticalOptions="Center"
+                                                   HeightRequest="38">
+                                <Label x:Name="FilterTypeChipLabel"
+                                       Text="筛选: 全部"
+                                       FontSize="13"
+                                       VerticalOptions="Center"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="▼"
+                                       FontSize="9"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnFilterTypeChipTapped" />
+                            </Border.GestureRecognizers>
                         </Border>
 
-                        <Border Style="{StaticResource FilesField}"
-                                WidthRequest="142">
+                        <!-- 收藏 Toggle Chip -->
+                        <Border x:Name="FavChip"
+                                Style="{StaticResource FilesField}"
+                                MinimumWidthRequest="100">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-                            <Picker x:Name="SortPicker"
-                                    Title="排序"
-                                    HeightRequest="38"
-                                    SelectedIndexChanged="OnFilterChanged" />
+                            <HorizontalStackLayout Spacing="4"
+                                                   Padding="0,0,4,0"
+                                                   VerticalOptions="Center"
+                                                   HeightRequest="38">
+                                <Label x:Name="FavChipIcon"
+                                       Text="☆"
+                                       FontSize="16"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                <Label x:Name="FavChipLabel"
+                                       Text="收藏"
+                                       FontSize="13"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnFavChipTapped" />
+                            </Border.GestureRecognizers>
+                        </Border>
+
+                        <!-- 标签 Chip -->
+                        <Border x:Name="TagsChip"
+                                Style="{StaticResource FilesField}"
+                                MinimumWidthRequest="100">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <HorizontalStackLayout Spacing="4"
+                                                   Padding="0,0,4,0"
+                                                   VerticalOptions="Center"
+                                                   HeightRequest="38">
+                                <Label x:Name="TagsChipLabel"
+                                       Text="标签"
+                                       FontSize="13"
+                                       VerticalOptions="Center" />
+                                <Label Text="▼"
+                                       FontSize="9"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnTagsChipTapped" />
+                            </Border.GestureRecognizers>
                         </Border>
 
                         <Border Padding="10,0"
