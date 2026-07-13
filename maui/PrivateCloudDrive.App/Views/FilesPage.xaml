@@ -5,6 +5,7 @@
              xmlns:models="clr-namespace:PrivateCloudDrive.App.Models"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="PrivateCloudDrive.App.Views.FilesPage"
+             x:Name="PageRoot"
              Title="{x:Static loc:AppText.Files}"
              Shell.NavBarIsVisible="False">
     <ContentPage.Resources>
@@ -24,8 +25,9 @@
     </ContentPage.Resources>
 
     <Grid Padding="16,12,16,12"
-          RowDefinitions="Auto,Auto,Auto,*"
+          RowDefinitions="Auto,Auto,*"
           RowSpacing="8">
+        <!-- Row 0: Header -->
         <Grid ColumnDefinitions="*,Auto,Auto"
               ColumnSpacing="8">
             <VerticalStackLayout Spacing="2"
@@ -64,6 +66,7 @@
                     Clicked="OnToggleSelectionModeClicked" />
         </Grid>
 
+        <!-- Row 1: Filter panel -->
         <Border Grid.Row="1"
                 Style="{StaticResource FilesPanel}"
                 Padding="10">
@@ -139,107 +142,37 @@
                             Orientation="Horizontal"
                             HorizontalScrollBarVisibility="Never">
                     <HorizontalStackLayout Spacing="8">
-                        <!-- 排序 Chip -->
-                        <Border x:Name="SortChip"
-                                Style="{StaticResource FilesField}"
-                                MinimumWidthRequest="140">
+                        <Border Style="{StaticResource FilesField}"
+                                WidthRequest="118">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-                            <HorizontalStackLayout Spacing="6"
-                                                   Padding="0,0,4,0"
-                                                   VerticalOptions="Center"
-                                                   HeightRequest="38">
-                                <Label x:Name="SortChipLabel"
-                                       Text="排序: 名称 A-Z"
-                                       FontSize="13"
-                                       VerticalOptions="Center"
-                                       LineBreakMode="TailTruncation" />
-                                <Label Text="▼"
-                                       FontSize="9"
-                                       VerticalOptions="Center"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
-                            </HorizontalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnSortChipTapped" />
-                            </Border.GestureRecognizers>
+                            <Picker x:Name="TypeFilterPicker"
+                                    Title="类型"
+                                    HeightRequest="38"
+                                    SelectedIndexChanged="OnFilterChanged" />
                         </Border>
 
-                        <!-- 筛选类型 Chip -->
-                        <Border x:Name="FilterTypeChip"
-                                Style="{StaticResource FilesField}"
-                                MinimumWidthRequest="120">
+                        <Border Style="{StaticResource FilesField}"
+                                WidthRequest="118">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-                            <HorizontalStackLayout Spacing="6"
-                                                   Padding="0,0,4,0"
-                                                   VerticalOptions="Center"
-                                                   HeightRequest="38">
-                                <Label x:Name="FilterTypeChipLabel"
-                                       Text="筛选: 全部"
-                                       FontSize="13"
-                                       VerticalOptions="Center"
-                                       LineBreakMode="TailTruncation" />
-                                <Label Text="▼"
-                                       FontSize="9"
-                                       VerticalOptions="Center"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
-                            </HorizontalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnFilterTypeChipTapped" />
-                            </Border.GestureRecognizers>
+                            <Picker x:Name="MediaFilterPicker"
+                                    Title="媒体"
+                                    HeightRequest="38"
+                                    SelectedIndexChanged="OnFilterChanged" />
                         </Border>
 
-                        <!-- 收藏 Toggle Chip -->
-                        <Border x:Name="FavChip"
-                                Style="{StaticResource FilesField}"
-                                MinimumWidthRequest="100">
+                        <Border Style="{StaticResource FilesField}"
+                                WidthRequest="142">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-                            <HorizontalStackLayout Spacing="4"
-                                                   Padding="0,0,4,0"
-                                                   VerticalOptions="Center"
-                                                   HeightRequest="38">
-                                <Label x:Name="FavChipIcon"
-                                       Text="☆"
-                                       FontSize="16"
-                                       VerticalOptions="Center"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
-                                <Label x:Name="FavChipLabel"
-                                       Text="收藏"
-                                       FontSize="13"
-                                       VerticalOptions="Center" />
-                            </HorizontalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnFavChipTapped" />
-                            </Border.GestureRecognizers>
-                        </Border>
-
-                        <!-- 标签 Chip -->
-                        <Border x:Name="TagsChip"
-                                Style="{StaticResource FilesField}"
-                                MinimumWidthRequest="100">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="12" />
-                            </Border.StrokeShape>
-                            <HorizontalStackLayout Spacing="4"
-                                                   Padding="0,0,4,0"
-                                                   VerticalOptions="Center"
-                                                   HeightRequest="38">
-                                <Label x:Name="TagsChipLabel"
-                                       Text="标签"
-                                       FontSize="13"
-                                       VerticalOptions="Center" />
-                                <Label Text="▼"
-                                       FontSize="9"
-                                       VerticalOptions="Center"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
-                            </HorizontalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnTagsChipTapped" />
-                            </Border.GestureRecognizers>
+                            <Picker x:Name="SortPicker"
+                                    Title="排序"
+                                    HeightRequest="38"
+                                    SelectedIndexChanged="OnFilterChanged" />
                         </Border>
 
                         <Border Padding="10,0"
@@ -274,113 +207,68 @@
             </Grid>
         </Border>
 
-        <VerticalStackLayout Grid.Row="2"
-                             Spacing="7">
-            <Border Padding="14"
-                    BackgroundColor="{StaticResource SurfaceRaisedLight}"
-                    Stroke="{StaticResource BorderLight}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="22" />
-                </Border.StrokeShape>
-                <Grid RowDefinitions="Auto,Auto,Auto"
-                      RowSpacing="6">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <VerticalStackLayout Spacing="2">
-                            <Label Text="私有备份空间"
-                                   Style="{StaticResource BodyStrongLabel}" />
-                            <Label x:Name="FilesStorageSubLabel"
-                                   Text="备份到当前服务器 · 容量以设置页实时状态为准"
-                                   Style="{StaticResource MetaLabel}" />
-                        </VerticalStackLayout>
-                        <Label x:Name="FilesCapacityLabel"
-                               Grid.Column="1"
-                               Text="可信"
-                               FontFamily="OpenSansSemibold"
-                               FontSize="24"
-                               TextColor="{StaticResource Primary}" />
+        <!-- Row 2: Main content area with overlays -->
+        <Grid Grid.Row="2"
+              RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="7">
+            <!-- Upload / New Folder actions -->
+            <VerticalStackLayout Spacing="7">
+                <Border Padding="14"
+                        BackgroundColor="{StaticResource SurfaceRaisedLight}"
+                        Stroke="{StaticResource BorderLight}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="22" />
+                    </Border.StrokeShape>
+                    <Grid RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="私有备份空间"
+                                       Style="{StaticResource BodyStrongLabel}" />
+                                <Label x:Name="FilesStorageSubLabel"
+                                       Text="备份到当前服务器 · 容量以设置页实时状态为准"
+                                       Style="{StaticResource MetaLabel}" />
+                            </VerticalStackLayout>
+                            <Label x:Name="FilesCapacityLabel"
+                                   Grid.Column="1"
+                                   Text="可信"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="24"
+                                   TextColor="{StaticResource Primary}" />
+                        </Grid>
+                        <ProgressBar x:Name="FilesStorageProgressBar"
+                                     Grid.Row="1"
+                                     Progress="0"
+                                     HeightRequest="7" />
+                        <Label x:Name="FilesStorageDetailLabel"
+                               Grid.Row="2"
+                               Text=""
+                               Style="{StaticResource MetaLabel}"
+                               FontSize="12"
+                               LineBreakMode="WordWrap" />
                     </Grid>
-                    <ProgressBar x:Name="FilesStorageProgressBar"
-                                 Grid.Row="1"
-                                 Progress="0"
-                                 HeightRequest="7" />
-                    <Label x:Name="FilesStorageDetailLabel"
-                           Grid.Row="2"
-                           Text=""
-                           Style="{StaticResource MetaLabel}"
-                           FontSize="12"
-                           LineBreakMode="WordWrap" />
+                </Border>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="10">
+                    <Button Text="{x:Static loc:AppText.Upload}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="15"
+                            HeightRequest="42"
+                            Clicked="OnUploadClicked" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static loc:AppText.NewFolder}"
+                            Style="{StaticResource SecondaryButton}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="15"
+                            HeightRequest="42"
+                            Clicked="OnNewFolderClicked" />
                 </Grid>
-            </Border>
+            </VerticalStackLayout>
 
-            <Grid ColumnDefinitions="*,*"
-                  ColumnSpacing="10">
-                <Button Text="{x:Static loc:AppText.Upload}"
-                        FontFamily="OpenSansSemibold"
-                        FontSize="15"
-                        HeightRequest="42"
-                        Clicked="OnUploadClicked" />
-                <Button Grid.Column="1"
-                        Text="{x:Static loc:AppText.NewFolder}"
-                        Style="{StaticResource SecondaryButton}"
-                        FontFamily="OpenSansSemibold"
-                        FontSize="15"
-                        HeightRequest="42"
-                        Clicked="OnNewFolderClicked" />
-            </Grid>
-
-            <Border x:Name="BatchToolbar"
-                    Padding="10"
-                    IsVisible="False"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
-                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                    StrokeThickness="1">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12" />
-                </Border.StrokeShape>
-                <Grid RowDefinitions="Auto,Auto"
-                      RowSpacing="8">
-                    <Label x:Name="SelectedCountLabel"
-                           Style="{StaticResource SectionTitleLabel}"
-                           FontSize="17" />
-                    <ScrollView Grid.Row="1"
-                                Orientation="Horizontal"
-                                HorizontalScrollBarVisibility="Never">
-                        <HorizontalStackLayout Spacing="8">
-                            <Button x:Name="BatchMoveRootButton"
-                                    Text="移至根目录"
-                                    Style="{StaticResource SecondaryButton}"
-                                    FontFamily="OpenSansSemibold"
-                                    Padding="10,7"
-                                    FontSize="13"
-                                    MinimumHeightRequest="36"
-                                    Clicked="OnBatchMoveRootClicked" />
-                            <Button Text="收藏"
-                                    Style="{StaticResource SecondaryButton}"
-                                    FontFamily="OpenSansSemibold"
-                                    Padding="10,7"
-                                    FontSize="13"
-                                    MinimumHeightRequest="36"
-                                    Clicked="OnBatchFavoriteClicked" />
-                            <Button Text="取消收藏"
-                                    Style="{StaticResource SecondaryButton}"
-                                    FontFamily="OpenSansSemibold"
-                                    Padding="10,7"
-                                    FontSize="13"
-                                    MinimumHeightRequest="36"
-                                    Clicked="OnBatchUnfavoriteClicked" />
-                            <Button Text="移入回收站"
-                                    Style="{StaticResource DangerButton}"
-                                    FontFamily="OpenSansSemibold"
-                                    Padding="10,7"
-                                    FontSize="13"
-                                    MinimumHeightRequest="36"
-                                    Clicked="OnBatchDeleteClicked" />
-                        </HorizontalStackLayout>
-                    </ScrollView>
-                </Grid>
-            </Border>
-
+            <!-- Upload Status Panel -->
             <Border x:Name="UploadStatusPanel"
+                    Grid.Row="1"
                     Padding="10"
                     IsVisible="False"
                     BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
@@ -418,7 +306,9 @@
                 </Grid>
             </Border>
 
+            <!-- State Panel (loading/error) -->
             <Border x:Name="FilesStatePanel"
+                    Grid.Row="2"
                     Padding="10"
                     IsVisible="False"
                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
@@ -449,159 +339,328 @@
                             Clicked="OnRetryLoadClicked" />
                 </Grid>
             </Border>
-        </VerticalStackLayout>
 
-        <CollectionView x:Name="FilesCollectionView"
-                        Grid.Row="3"
-                        ItemsSource="{Binding Items}"
-                        SelectionMode="Single"
-                        SelectionChanged="OnFileSelected"
-                        RemainingItemsThreshold="5"
-                        RemainingItemsThresholdReached="OnRemainingItemsThresholdReached">
-            <CollectionView.EmptyView>
-                <Border Padding="24"
-                        VerticalOptions="Start"
-                        HeightRequest="230"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                        StrokeThickness="1">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="12" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="12"
-                                         HorizontalOptions="Center"
-                                         VerticalOptions="Center">
-                        <Border HeightRequest="56"
-                                WidthRequest="56"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
-                                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                                StrokeThickness="1"
-                                HorizontalOptions="Center">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="14" />
-                            </Border.StrokeShape>
-                            <shapes:Path Aspect="Uniform"
-                                         Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                         StrokeThickness="1"
-                                         StrokeLineCap="Round"
-                                         StrokeLineJoin="Round"
-                                         Data="M6,10 L12,10 L14,13 L24,13 L24,24 L6,24 Z"
-                                         HeightRequest="28"
-                                         WidthRequest="28"
-                                         HorizontalOptions="Center"
-                                         VerticalOptions="Center" />
-                        </Border>
-                        <Label Text="{x:Static loc:AppText.ThisFolderIsEmpty}"
-                               Style="{StaticResource SectionTitleLabel}"
-                               HorizontalTextAlignment="Center" />
-                        <Label Text="{x:Static loc:AppText.EmptyFolderHelp}"
-                               Style="{StaticResource MetaLabel}"
-                               HorizontalTextAlignment="Center"
-                               LineBreakMode="WordWrap" />
-                        <HorizontalStackLayout Spacing="10"
-                                               HorizontalOptions="Center">
-                            <Button Text="{x:Static loc:AppText.Upload}"
-                                    Clicked="OnUploadClicked" />
-                            <Button Text="{x:Static loc:AppText.NewFolder}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Clicked="OnNewFolderClicked" />
-                        </HorizontalStackLayout>
-                    </VerticalStackLayout>
-                </Border>
-            </CollectionView.EmptyView>
-
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical"
-                                   ItemSpacing="8" />
-            </CollectionView.ItemsLayout>
-
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:CloudDriveItem">
-                    <Border Padding="10,8"
+            <!-- File list -->
+            <CollectionView x:Name="FilesCollectionView"
+                            Grid.Row="3"
+                            SelectionMode="None"
+                            RemainingItemsThreshold="5"
+                            RemainingItemsThresholdReached="OnRemainingItemsThresholdReached">
+                <CollectionView.EmptyView>
+                    <Border Padding="24"
+                            VerticalOptions="Start"
+                            HeightRequest="230"
                             BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                             Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
                             StrokeThickness="1">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="12" />
                         </Border.StrokeShape>
-                        <Grid ColumnDefinitions="Auto,*,Auto"
-                              ColumnSpacing="12">
-                            <Border HeightRequest="40"
-                                    WidthRequest="40"
+                        <VerticalStackLayout Spacing="12"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center">
+                            <Border HeightRequest="56"
+                                    WidthRequest="56"
                                     BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
                                     Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
                                     StrokeThickness="1"
-                                    VerticalOptions="Center">
+                                    HorizontalOptions="Center">
                                 <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="12" />
+                                    <RoundRectangle CornerRadius="14" />
                                 </Border.StrokeShape>
-                                <Label Text="{Binding Badge}"
-                                       FontFamily="JetBrainsMono"
-                                       FontSize="10"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                       HorizontalTextAlignment="Center"
-                                       VerticalTextAlignment="Center"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                                <shapes:Path Aspect="Uniform"
+                                             Stroke="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                             StrokeThickness="1"
+                                             StrokeLineCap="Round"
+                                             StrokeLineJoin="Round"
+                                             Data="M6,10 L12,10 L14,13 L24,13 L24,24 L6,24 Z"
+                                             HeightRequest="28"
+                                             WidthRequest="28"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center" />
                             </Border>
-
-                            <VerticalStackLayout Grid.Column="1"
-                                                 Spacing="2"
-                                                 VerticalOptions="Center">
-                                <Grid ColumnDefinitions="*,Auto"
-                                      ColumnSpacing="6">
-                                    <Label Text="{Binding Name}"
-                                           FontFamily="OpenSansSemibold"
-                                           FontSize="16"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                           LineBreakMode="TailTruncation" />
-                                    <Label Grid.Column="1"
-                                           Text="收藏"
-                                           IsVisible="{Binding IsFavorite}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource Warning}"
-                                           VerticalTextAlignment="Center" />
-                                </Grid>
-                                <Label Text="{Binding DisplayKind}"
-                                       Style="{StaticResource MetaLabel}"
-                                       FontSize="13"
-                                       LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding ModifiedAt}"
-                                       Style="{StaticResource MetaLabel}"
-                                       FontSize="12"
-                                       LineBreakMode="TailTruncation" />
-                            </VerticalStackLayout>
-
-                            <VerticalStackLayout Grid.Column="2"
-                                                 Spacing="4"
-                                                 WidthRequest="74"
-                                                 VerticalOptions="Center">
-                                <Label Text="{Binding Size}"
-                                       Style="{StaticResource MonoMetaLabel}"
-                                       HorizontalTextAlignment="End"
-                                       LineBreakMode="TailTruncation" />
-                                <Button Text="详情"
-                                        CommandParameter="{Binding .}"
+                            <Label Text="{x:Static loc:AppText.ThisFolderIsEmpty}"
+                                   Style="{StaticResource SectionTitleLabel}"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="{x:Static loc:AppText.EmptyFolderHelp}"
+                                   Style="{StaticResource MetaLabel}"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap" />
+                            <HorizontalStackLayout Spacing="10"
+                                                   HorizontalOptions="Center">
+                                <Button Text="{x:Static loc:AppText.Upload}"
+                                        Clicked="OnUploadClicked" />
+                                <Button Text="{x:Static loc:AppText.NewFolder}"
                                         Style="{StaticResource SecondaryButton}"
-                                        FontFamily="OpenSansSemibold"
-                                        Padding="8,3"
-                                        FontSize="12"
-                                        MinimumHeightRequest="28"
-                                        Clicked="OnDetailsItemClicked" />
-                                <Button Text="删除"
-                                        CommandParameter="{Binding .}"
-                                        Style="{StaticResource DangerButton}"
-                                        FontFamily="OpenSansSemibold"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                        Padding="8,3"
-                                        FontSize="12"
-                                        MinimumHeightRequest="28"
-                                        Clicked="OnDeleteItemClicked" />
-                            </VerticalStackLayout>
-                        </Grid>
+                                        Clicked="OnNewFolderClicked" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
                     </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical"
+                                       ItemSpacing="8" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:SelectableCloudDriveItem">
+                        <Border Padding="10,8"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnFileItemTapped" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                  ColumnSpacing="12">
+                                <!-- Left column: Badge (normal) or selection checkbox (multi-select mode) -->
+                                <Grid WidthRequest="40"
+                                      HeightRequest="40"
+                                      VerticalOptions="Center">
+                                    <!-- Normal badge -->
+                                    <Border HeightRequest="40"
+                                            WidthRequest="40"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}"
+                                            Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                            StrokeThickness="1"
+                                            IsVisible="True"
+                                            x:Name="ItemBadgeBorder">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="12" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding Badge}"
+                                               FontFamily="JetBrainsMono"
+                                               FontSize="10"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                        <!-- Hide badge in selection mode -->
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding Source={x:Reference PageRoot}, Path=IsSelectionMode}"
+                                                         Value="True">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+
+                                    <!-- Selection checkbox -->
+                                    <Border HeightRequest="40"
+                                            WidthRequest="40"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                            Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                                            StrokeThickness="1.5"
+                                            IsVisible="False"
+                                            x:Name="ItemCheckboxBorder">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="12" />
+                                        </Border.StrokeShape>
+                                        <shapes:Path Aspect="Uniform"
+                                                     Stroke="{StaticResource Primary}"
+                                                     StrokeThickness="2.5"
+                                                     StrokeLineCap="Round"
+                                                     StrokeLineJoin="Round"
+                                                     Data="M10,20 L16,26 L30,12"
+                                                     HeightRequest="22"
+                                                     WidthRequest="22"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     Opacity="0" />
+                                        <!-- Show checkbox in selection mode -->
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding Source={x:Reference PageRoot}, Path=IsSelectionMode}"
+                                                         Value="True">
+                                                <Setter Property="IsVisible" Value="True" />
+                                            </DataTrigger>
+                                            <!-- Show checkmark when selected -->
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding IsSelected}"
+                                                         Value="True">
+                                                <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource PrimarySoftLight}, Dark={StaticResource PrimarySoftDark}}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <!-- Checkmark path opacity trigger -->
+                                        <shapes:Path.Triggers>
+                                            <DataTrigger TargetType="shapes:Path"
+                                                         Binding="{Binding IsSelected}"
+                                                         Value="True">
+                                                <Setter Property="Opacity" Value="1" />
+                                            </DataTrigger>
+                                        </shapes:Path.Triggers>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Middle column: Name and metadata -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="2"
+                                                     VerticalOptions="Center">
+                                    <Grid ColumnDefinitions="*,Auto"
+                                          ColumnSpacing="6">
+                                        <Label Text="{Binding Name}"
+                                               FontFamily="OpenSansSemibold"
+                                               FontSize="16"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label Grid.Column="1"
+                                               Text="收藏"
+                                               IsVisible="{Binding IsFavorite}"
+                                               FontSize="12"
+                                               TextColor="{StaticResource Warning}"
+                                               VerticalTextAlignment="Center" />
+                                    </Grid>
+                                    <Label Text="{Binding DisplayKind}"
+                                           Style="{StaticResource MetaLabel}"
+                                           FontSize="13"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding ModifiedAt}"
+                                           Style="{StaticResource MetaLabel}"
+                                           FontSize="12"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+
+                                <!-- Right column: Size and action buttons -->
+                                <VerticalStackLayout Grid.Column="2"
+                                                     Spacing="4"
+                                                     WidthRequest="74"
+                                                     VerticalOptions="Center">
+                                    <Label Text="{Binding Size}"
+                                           Style="{StaticResource MonoMetaLabel}"
+                                           HorizontalTextAlignment="End"
+                                           LineBreakMode="TailTruncation" />
+                                    <Button Text="详情"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource SecondaryButton}"
+                                            FontFamily="OpenSansSemibold"
+                                            Padding="8,3"
+                                            FontSize="12"
+                                            MinimumHeightRequest="28"
+                                            Clicked="OnDetailsItemClicked">
+                                        <!-- Hide detail button in selection mode -->
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button"
+                                                         Binding="{Binding Source={x:Reference PageRoot}, Path=IsSelectionMode}"
+                                                         Value="True">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                    <Button Text="删除"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource DangerButton}"
+                                            FontFamily="OpenSansSemibold"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                            Padding="8,3"
+                                            FontSize="12"
+                                            MinimumHeightRequest="28"
+                                            Clicked="OnDeleteItemClicked">
+                                        <!-- Hide delete button in selection mode -->
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button"
+                                                         Binding="{Binding Source={x:Reference PageRoot}, Path=IsSelectionMode}"
+                                                         Value="True">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Batch Operation Toolbar (bottom-anchored overlay) -->
+            <Border x:Name="BatchToolbar"
+                    Grid.Row="3"
+                    Padding="10,8"
+                    IsVisible="False"
+                    VerticalOptions="End"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Grid RowDefinitions="Auto,Auto,Auto"
+                      RowSpacing="6">
+                    <!-- Selection info and select all -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label x:Name="SelectedCountLabel"
+                               Style="{StaticResource SectionTitleLabel}"
+                               FontSize="15"
+                               VerticalOptions="Center" />
+                        <Button x:Name="SelectAllButton"
+                                Grid.Column="1"
+                                Text="全选"
+                                Style="{StaticResource SecondaryButton}"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="13"
+                                Padding="10,5"
+                                MinimumHeightRequest="34"
+                                Clicked="OnSelectAllClicked" />
+                    </Grid>
+
+                    <!-- Progress feedback -->
+                    <HorizontalStackLayout x:Name="BatchProgressPanel"
+                                            Grid.Row="1"
+                                            Spacing="8"
+                                            IsVisible="False">
+                        <ActivityIndicator WidthRequest="18"
+                                           HeightRequest="18"
+                                           IsRunning="True"
+                                           Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                        <Label x:Name="BatchProgressLabel"
+                               Text=""
+                               FontSize="13"
+                               VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    </HorizontalStackLayout>
+
+                    <!-- Action buttons -->
+                    <ScrollView Grid.Row="2"
+                                Orientation="Horizontal"
+                                HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="8">
+                            <Button Text="移至根目录"
+                                    Style="{StaticResource SecondaryButton}"
+                                    FontFamily="OpenSansSemibold"
+                                    Padding="10,7"
+                                    FontSize="13"
+                                    MinimumHeightRequest="36"
+                                    Clicked="OnBatchMoveRootClicked" />
+                            <Button Text="收藏"
+                                    Style="{StaticResource SecondaryButton}"
+                                    FontFamily="OpenSansSemibold"
+                                    Padding="10,7"
+                                    FontSize="13"
+                                    MinimumHeightRequest="36"
+                                    Clicked="OnBatchFavoriteClicked" />
+                            <Button Text="取消收藏"
+                                    Style="{StaticResource SecondaryButton}"
+                                    FontFamily="OpenSansSemibold"
+                                    Padding="10,7"
+                                    FontSize="13"
+                                    MinimumHeightRequest="36"
+                                    Clicked="OnBatchUnfavoriteClicked" />
+                            <Button Text="移入回收站"
+                                    Style="{StaticResource DangerButton}"
+                                    FontFamily="OpenSansSemibold"
+                                    Padding="10,7"
+                                    FontSize="13"
+                                    MinimumHeightRequest="36"
+                                    Clicked="OnBatchDeleteClicked" />
+                        </HorizontalStackLayout>
+                    </ScrollView>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>
