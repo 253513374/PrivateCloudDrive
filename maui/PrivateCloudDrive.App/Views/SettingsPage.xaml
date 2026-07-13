@@ -935,6 +935,11 @@
                                        Text="隐私边界：正在读取"
                                        Style="{StaticResource MetaLabel}"
                                        LineBreakMode="WordWrap" />
+                                <Label Text="数据缓存 30 秒，刷新以获取最新状态"
+                                       FontSize="11"
+                                       Padding="0,2,0,0"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}"
+                                       LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
                         </Grid>
                         <BoxView Margin="16,0"

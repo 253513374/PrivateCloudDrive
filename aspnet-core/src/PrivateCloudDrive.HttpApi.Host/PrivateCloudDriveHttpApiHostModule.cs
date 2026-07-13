@@ -55,6 +55,7 @@ namespace PrivateCloudDrive;
     typeof(PrivateCloudDriveHttpApiModule),
     typeof(AbpAutofacModule),
     typeof(AbpAspNetCoreMultiTenancyModule),
+    typeof(AbpAspNetCoreMvcModule),
     typeof(PrivateCloudDriveApplicationModule),
     typeof(PrivateCloudDriveEntityFrameworkCoreModule),
     typeof(AbpAspNetCoreMvcUiLeptonXLiteThemeModule),

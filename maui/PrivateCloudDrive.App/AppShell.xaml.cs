@@ -22,6 +22,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("trash", typeof(Views.TrashPage));
         Routing.RegisterRoute("storage-usage", typeof(Views.StorageUsagePage));
         Routing.RegisterRoute("admin-users", typeof(Views.AdminUserManagementPage));
+        Routing.RegisterRoute("admin-user-create", typeof(Views.AdminUserCreatePage));
         Routing.RegisterRoute("share-risk", typeof(Views.ShareRiskPage));
         Routing.RegisterRoute("storage-config", typeof(Views.StorageConfigPage));
     }

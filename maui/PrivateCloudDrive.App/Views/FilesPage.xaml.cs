@@ -12,6 +12,7 @@ namespace PrivateCloudDrive.App.Views;
 
 /// <summary>
 /// 表示FilesPage页面，承载移动端界面交互和页面级状态绑定。
+/// V1.4 UX-02: 新增多选模式、复选框、全选、批量操作进度反馈。
 /// </summary>
 public partial class FilesPage : ContentPage
 {
@@ -23,15 +24,9 @@ public partial class FilesPage : ContentPage
     private Guid? _currentFolderId;
     private bool _filtersInitialized;
     private bool _isSelectionMode;
+    private readonly HashSet<Guid> _selectedItemIds = [];
 
-    // ---- 排序与筛选状态 ----
-    private int _sortOption;        // 0=名称A-Z, 1=名称Z-A, 2=时间新→旧, 3=时间旧→新, 4=大小大→小, 5=大小小→大, 6=按类型分组
-    private int _filterOption;      // 0=全部, 1=仅文件, 2=仅文件夹
-    private bool _isFavoriteFilter;
-    private Guid? _selectedTagId;
-    private IReadOnlyList<CloudDriveTag> _tagsCache = [];
-
-    public ObservableCollection<CloudDriveItem> Items { get; } = [];
+    public ObservableCollection<SelectableCloudDriveItem> Items { get; } = [];
 
     public string ApiBaseUrl => AppSettings.ApiBaseUrl;
 
@@ -50,6 +45,21 @@ public partial class FilesPage : ContentPage
     /// </summary>
     public bool IsSearchActive => !string.IsNullOrWhiteSpace(FilesSearchBar?.Text);
 
+    /// <summary>
+    /// 绑定属性：是否处于多选模式。XAML 中通过 DataTrigger 控制复选框等 UI 元素。
+    /// </summary>
+    public bool IsSelectionMode
+    {
+        get => _isSelectionMode;
+        set
+        {
+            if (_isSelectionMode == value)
+                return;
+            _isSelectionMode = value;
+            OnPropertyChanged();
+        }
+    }
+
     private int _currentSkipCount;
     private long _totalCount;
     private bool _isLoadingMore;
@@ -63,7 +73,7 @@ public partial class FilesPage : ContentPage
     {
         InitializeComponent();
         BindingContext = this;
-        InitializeFilterState();
+        InitializeFilterPickers();
         UploadItemsSubscribe();
         UpdateUploadTaskPanel();
     }
@@ -113,6 +123,14 @@ public partial class FilesPage : ContentPage
         {
             // Debounce cancelled by new keystroke - expected
         }
+        finally
+        {
+            if (cts == _searchDebounceCts)
+            {
+                _searchDebounceCts = null;
+                cts.Dispose();
+            }
+        }
     }
 
     private void CancelSearchDebounce()
@@ -136,6 +154,7 @@ public partial class FilesPage : ContentPage
         _previousSearchKeyword = null;
         await LoadItemsAsync();
     }
+
     private async void OnClearFiltersClicked(object? sender, EventArgs e)
     {
         _filtersInitialized = false;
@@ -143,11 +162,9 @@ public partial class FilesPage : ContentPage
         _currentSkipCount = 0;
         FilesSearchBar.Text = string.Empty;
         SearchAllSwitch.IsToggled = false;
-        _sortOption = 0;
-        _filterOption = 0;
-        _isFavoriteFilter = false;
-        _selectedTagId = null;
-        UpdateChipVisualStates();
+        SortPicker.SelectedIndex = 0;
+        TypeFilterPicker.SelectedIndex = 0;
+        MediaFilterPicker.SelectedIndex = 0;
         _filtersInitialized = true;
         await LoadItemsAsync();
     }
@@ -156,17 +173,6 @@ public partial class FilesPage : ContentPage
     {
         try
         {
-            // 上传前容量检查
-            var usage = await _apiClient.GetStorageUsageAsync();
-            if (usage.IsQuotaConfigured && usage.RemainingBytes <= 0)
-            {
-                await DisplayAlertAsync(
-                    "存储空间不足",
-                    "存储空间不足，请清理文件后重试。",
-                    "知道了");
-                return;
-            }
-
             var files = await PickUploadFilesAsync();
             if (files.Count == 0)
             {
@@ -194,11 +200,6 @@ public partial class FilesPage : ContentPage
         }
         catch (OperationCanceledException)
         {
-        }
-        catch (AuthSessionExpiredException)
-        {
-            await _authService.SignOutAsync();
-            await Shell.Current.GoToAsync("//login", true);
         }
         catch (Exception exception)
         {
@@ -469,7 +470,7 @@ public partial class FilesPage : ContentPage
 
             public int MaxFileTitle;
 
-            public string? InitialDirectory;
+            public IntPtr InitialDirectory;
 
             public string? Title;
 
@@ -496,20 +497,30 @@ public partial class FilesPage : ContentPage
     }
 #endif
 
-    private async void OnFileSelected(object? sender, SelectionChangedEventArgs e)
+    /// <summary>
+    /// 处理文件项点击。多选模式下切换选中状态，正常模式下导航进入文件夹或文件详情。
+    /// </summary>
+    private async void OnFileItemTapped(object? sender, TappedEventArgs e)
     {
+        if (sender is not VisualElement { BindingContext: SelectableCloudDriveItem selectable })
+        {
+            return;
+        }
+
         if (_isSelectionMode)
         {
+            // Toggle selection
+            selectable.IsSelected = !selectable.IsSelected;
+            if (selectable.IsSelected)
+                _selectedItemIds.Add(selectable.Id);
+            else
+                _selectedItemIds.Remove(selectable.Id);
+
             UpdateSelectedItems();
             return;
         }
 
-        if (e.CurrentSelection.FirstOrDefault() is not CloudDriveItem item)
-        {
-            return;
-        }
-
-        FilesCollectionView.SelectedItem = null;
+        var item = selectable.Item;
 
         if (item.IsFolder)
         {
@@ -568,12 +579,26 @@ public partial class FilesPage : ContentPage
         }
     }
 
-    private async void OnDeleteItemClicked(object? sender, EventArgs e)
+    private async void OnDetailsItemClicked(object? sender, EventArgs e)
     {
-        if (sender is not Button { CommandParameter: CloudDriveItem item })
+        if (sender is not Button { CommandParameter: SelectableCloudDriveItem selectable })
         {
             return;
         }
+
+        var item = selectable.Item;
+        var route = $"file-details?id={item.Id}&name={Uri.EscapeDataString(item.Name)}&kind={Uri.EscapeDataString(item.Kind)}&size={Uri.EscapeDataString(item.Size)}&modified={Uri.EscapeDataString(item.ModifiedAt)}&favorite={item.IsFavorite}";
+        await Shell.Current.GoToAsync(route, true);
+    }
+
+    private async void OnDeleteItemClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button { CommandParameter: SelectableCloudDriveItem selectable })
+        {
+            return;
+        }
+
+        var item = selectable.Item;
 
         var confirmed = await DisplayAlertAsync(
             AppText.MoveToTrash,
@@ -602,6 +627,92 @@ public partial class FilesPage : ContentPage
         SetSelectionMode(!_isSelectionMode);
     }
 
+    /// <summary>
+    /// 进入或退出多选模式。
+    /// </summary>
+    private void SetSelectionMode(bool isSelectionMode)
+    {
+        if (!isSelectionMode)
+        {
+            // Exit selection mode: clear all selections
+            _selectedItemIds.Clear();
+            foreach (var item in Items)
+            {
+                item.IsSelected = false;
+            }
+        }
+
+        IsSelectionMode = isSelectionMode;
+        SelectionModeButton.Text = _isSelectionMode ? "完成" : "选择";
+        BatchToolbar.IsVisible = _isSelectionMode;
+        UpdateSelectedItems();
+    }
+
+    /// <summary>
+    /// 获取当前选中的 SelectableCloudDriveItem 列表。
+    /// </summary>
+    private IReadOnlyList<SelectableCloudDriveItem> GetSelectedItems()
+    {
+        return Items.Where(item => item.IsSelected).ToList();
+    }
+
+    /// <summary>
+    /// 更新选中计数和全选按钮文本。
+    /// </summary>
+    private void UpdateSelectedItems()
+    {
+        var count = _selectedItemIds.Count;
+        SelectedCountLabel.Text = $"已选择 {count} 项";
+
+        var allSelected = Items.Count > 0 && count == Items.Count;
+        SelectAllButton.Text = allSelected ? "取消全选" : "全选";
+    }
+
+    /// <summary>
+    /// 全选 / 取消全选。
+    /// </summary>
+    private void OnSelectAllClicked(object? sender, EventArgs e)
+    {
+        var allSelected = _selectedItemIds.Count == Items.Count;
+
+        foreach (var item in Items)
+        {
+            item.IsSelected = !allSelected;
+        }
+
+        _selectedItemIds.Clear();
+        if (!allSelected)
+        {
+            foreach (var item in Items)
+            {
+                _selectedItemIds.Add(item.Id);
+            }
+        }
+
+        UpdateSelectedItems();
+    }
+
+    /// <summary>
+    /// 显示批量操作进度指示器。
+    /// </summary>
+    private void ShowBatchProgress(string message)
+    {
+        BatchProgressPanel.IsVisible = true;
+        BatchProgressLabel.Text = message;
+    }
+
+    /// <summary>
+    /// 隐藏批量操作进度指示器。
+    /// </summary>
+    private void HideBatchProgress()
+    {
+        BatchProgressPanel.IsVisible = false;
+        BatchProgressLabel.Text = string.Empty;
+    }
+
+    /// <summary>
+    /// 批量删除（移入回收站）。
+    /// </summary>
     private async void OnBatchDeleteClicked(object? sender, EventArgs e)
     {
         var selectedItems = GetSelectedItems();
@@ -624,26 +735,80 @@ public partial class FilesPage : ContentPage
 
         try
         {
+            ShowBatchProgress($"正在移入回收站 ({selectedItems.Count} 项)...");
+            BatchToolbar.IsEnabled = false;
+
             await _apiClient.DeleteItemsAsync(selectedItems.Select(item => item.Id).ToList());
+
+            HideBatchProgress();
             SetSelectionMode(false);
             await LoadItemsAsync();
         }
         catch (Exception exception)
         {
+            HideBatchProgress();
             await DisplayAlertAsync(AppText.UnableToDelete, exception.Message, "OK");
+        }
+        finally
+        {
+            BatchToolbar.IsEnabled = true;
         }
     }
 
+    /// <summary>
+    /// 批量收藏。
+    /// </summary>
     private async void OnBatchFavoriteClicked(object? sender, EventArgs e)
     {
         await SetSelectedFavoriteAsync(isFavorite: true);
     }
 
+    /// <summary>
+    /// 批量取消收藏。
+    /// </summary>
     private async void OnBatchUnfavoriteClicked(object? sender, EventArgs e)
     {
         await SetSelectedFavoriteAsync(isFavorite: false);
     }
 
+    /// <summary>
+    /// 批量执行收藏/取消收藏。
+    /// </summary>
+    private async Task SetSelectedFavoriteAsync(bool isFavorite)
+    {
+        var selectedItems = GetSelectedItems();
+        if (selectedItems.Count == 0)
+        {
+            await DisplayAlertAsync("批量操作", "请先选择文件或文件夹。", "OK");
+            return;
+        }
+
+        try
+        {
+            var actionText = isFavorite ? "收藏" : "取消收藏";
+            ShowBatchProgress($"正在{actionText} ({selectedItems.Count} 项)...");
+            BatchToolbar.IsEnabled = false;
+
+            await _apiClient.SetFavoriteItemsAsync(selectedItems.Select(item => item.Id).ToList(), isFavorite);
+
+            HideBatchProgress();
+            SetSelectionMode(false);
+            await LoadItemsAsync();
+        }
+        catch (Exception exception)
+        {
+            HideBatchProgress();
+            await DisplayAlertAsync("无法更新收藏", exception.Message, "OK");
+        }
+        finally
+        {
+            BatchToolbar.IsEnabled = true;
+        }
+    }
+
+    /// <summary>
+    /// 批量移至根目录。
+    /// </summary>
     private async void OnBatchMoveRootClicked(object? sender, EventArgs e)
     {
         var selectedItems = GetSelectedItems();
@@ -666,31 +831,24 @@ public partial class FilesPage : ContentPage
 
         try
         {
+            ShowBatchProgress($"正在移动到根目录 ({selectedItems.Count} 项)...");
+            BatchToolbar.IsEnabled = false;
+
             await _apiClient.MoveItemsAsync(selectedItems.Select(item => item.Id).ToList(), parentId: null);
+
+            HideBatchProgress();
             SetSelectionMode(false);
             await LoadItemsAsync();
         }
         catch (Exception exception)
         {
+            HideBatchProgress();
             await DisplayAlertAsync("无法移动", exception.Message, "OK");
         }
-    }
-
-    private async void OnDetailsItemClicked(object? sender, EventArgs e)
-    {
-        if (sender is not Button { CommandParameter: CloudDriveItem item })
+        finally
         {
-            return;
+            BatchToolbar.IsEnabled = true;
         }
-
-        var route = $"file-details?id={item.Id}&name={Uri.EscapeDataString(item.Name)}&kind={Uri.EscapeDataString(item.Kind)}&size={Uri.EscapeDataString(item.Size)}&modified={Uri.EscapeDataString(item.ModifiedAt)}&favorite={item.IsFavorite}";
-        await Shell.Current.GoToAsync(route, true);
-    }
-
-    private async void OnLogoutClicked(object? sender, EventArgs e)
-    {
-        await _authService.SignOutAsync();
-        await Shell.Current.GoToAsync("//login", true);
     }
 
     private async Task LoadItemsAsync()
@@ -703,7 +861,7 @@ public partial class FilesPage : ContentPage
 
         RefreshButton.IsEnabled = false;
         _currentSkipCount = 0;
-        SetFilesLoadingState(IsSearchActive ? "正在搜索..." : AppText.LoadingFiles);
+        SetFilesLoadingState(IsSearchActive ? "搜索中..." : AppText.LoadingFiles);
 
         try
         {
@@ -725,11 +883,7 @@ public partial class FilesPage : ContentPage
                 _currentSkipCount = items.Count;
                 _previousSearchKeyword = keyword;
 
-                Items.Clear();
-                foreach (var item in items)
-                {
-                    Items.Add(item);
-                }
+                ReplaceItems(items);
             }
             else
             {
@@ -737,11 +891,7 @@ public partial class FilesPage : ContentPage
                 _currentSkipCount = items.Count;
                 _previousSearchKeyword = null;
 
-                Items.Clear();
-                foreach (var item in items)
-                {
-                    Items.Add(item);
-                }
+                ReplaceItems(items);
             }
 
             OnPropertyChanged(nameof(ItemCountText));
@@ -766,6 +916,28 @@ public partial class FilesPage : ContentPage
         }
     }
 
+    /// <summary>
+    /// 用 API 返回的 CloudDriveItem 列表替换当前 Items，自动包装为 SelectableCloudDriveItem。
+    /// 多选模式下恢复已有选中状态。
+    /// </summary>
+    private void ReplaceItems(IReadOnlyList<CloudDriveItem> newItems)
+    {
+        Items.Clear();
+
+        foreach (var item in newItems)
+        {
+            var selectable = new SelectableCloudDriveItem(item);
+            // Restore selection state if in multi-select mode
+            if (_isSelectionMode && _selectedItemIds.Contains(item.Id))
+            {
+                selectable.IsSelected = true;
+            }
+            Items.Add(selectable);
+        }
+
+        UpdateSelectedItems();
+    }
+
     private async Task LoadMoreItemsAsync()
     {
         try
@@ -786,7 +958,7 @@ public partial class FilesPage : ContentPage
 
                 foreach (var item in items)
                 {
-                    Items.Add(item);
+                    Items.Add(new SelectableCloudDriveItem(item));
                 }
 
                 _currentSkipCount += items.Count;
@@ -801,7 +973,7 @@ public partial class FilesPage : ContentPage
 
                 foreach (var item in items)
                 {
-                    Items.Add(item);
+                    Items.Add(new SelectableCloudDriveItem(item));
                 }
 
                 _currentSkipCount += items.Count;
@@ -828,6 +1000,12 @@ public partial class FilesPage : ContentPage
     private async void OnRemainingItemsThresholdReached(object? sender, EventArgs e)
     {
         if (_isLoadingMore)
+        {
+            return;
+        }
+
+        // Stop condition: no more pages to load
+        if (IsSearchActive && _totalCount > 0 && _currentSkipCount >= _totalCount)
         {
             return;
         }
@@ -1031,14 +1209,24 @@ public partial class FilesPage : ContentPage
             : $"{value:0.##} {units[unitIndex]}";
     }
 
-    private void InitializeFilterState()
+    private void InitializeFilterPickers()
     {
-        _sortOption = 0;
-        _filterOption = 0;
-        _isFavoriteFilter = false;
-        _selectedTagId = null;
-        _tagsCache = [];
-        UpdateChipVisualStates();
+        SortPicker.ItemsSource = new List<string>
+        {
+            "名称 A-Z",
+            "名称 Z-A",
+            "大小从小到大",
+            "大小从大到小",
+            "最新创建",
+            "最早创建",
+            "最近修改"
+        };
+        TypeFilterPicker.ItemsSource = new List<string> { "全部类型", "文件夹", "文件" };
+        MediaFilterPicker.ItemsSource = new List<string> { "全部媒体", "图片", "视频", "其他文件" };
+
+        SortPicker.SelectedIndex = 0;
+        TypeFilterPicker.SelectedIndex = 0;
+        MediaFilterPicker.SelectedIndex = 0;
         _filtersInitialized = true;
     }
 
@@ -1159,16 +1347,6 @@ public partial class FilesPage : ContentPage
         await LoadItemsAsync();
     }
 
-    private async void OnFilterChanged(object? sender, EventArgs e)
-    {
-        if (!_filtersInitialized)
-        {
-            return;
-        }
-
-        await LoadItemsAsync();
-    }
-
     /// <summary>
     /// 更新所有筛选Chip的视觉状态：标签文本 + 边框高亮。
     /// </summary>
@@ -1249,80 +1427,34 @@ public partial class FilesPage : ContentPage
 
     private CloudDriveQueryOptions CreateQueryOptions()
     {
-        var sortString = _sortOption switch
-        {
-            1 => "name desc",
-            2 => "lastModificationTime desc",
-            3 => "lastModificationTime asc",
-            4 => "size desc",
-            5 => "size asc",
-            6 => "nodeType asc, name asc",
-            _ => null
-        };
-
         return new CloudDriveQueryOptions
         {
             SearchKeyword = string.IsNullOrWhiteSpace(FilesSearchBar.Text) ? null : FilesSearchBar.Text.Trim(),
             SearchScope = SearchAllSwitch.IsToggled ? "All" : "CurrentFolder",
-            NodeType = _filterOption switch
+            NodeType = TypeFilterPicker.SelectedIndex switch
             {
-                1 => "File",
-                2 => "Folder",
+                1 => "Folder",
+                2 => "File",
                 _ => null
             },
-            MediaType = null,
-            Sorting = sortString,
-            IsFavorite = _isFavoriteFilter ? true : null,
-            TagId = _selectedTagId
+            MediaType = MediaFilterPicker.SelectedIndex switch
+            {
+                1 => "Image",
+                2 => "Video",
+                3 => "Other",
+                _ => null
+            },
+            Sorting = SortPicker.SelectedIndex switch
+            {
+                1 => "name desc",
+                2 => "size asc",
+                3 => "size desc",
+                4 => "creationTime desc",
+                5 => "creationTime asc",
+                6 => "lastModificationTime desc",
+                _ => null
+            }
         };
-    }
-
-    private async Task SetSelectedFavoriteAsync(bool isFavorite)
-    {
-        var selectedItems = GetSelectedItems();
-        if (selectedItems.Count == 0)
-        {
-            await DisplayAlertAsync("批量操作", "请先选择文件或文件夹。", "OK");
-            return;
-        }
-
-        try
-        {
-            await _apiClient.SetFavoriteItemsAsync(selectedItems.Select(item => item.Id).ToList(), isFavorite);
-            SetSelectionMode(false);
-            await LoadItemsAsync();
-        }
-        catch (Exception exception)
-        {
-            await DisplayAlertAsync("无法更新收藏", exception.Message, "OK");
-        }
-    }
-
-    private void SetSelectionMode(bool isSelectionMode)
-    {
-        _isSelectionMode = isSelectionMode;
-        SelectionModeButton.Text = _isSelectionMode ? "完成" : "选择";
-        BatchToolbar.IsVisible = _isSelectionMode;
-        FilesCollectionView.SelectionMode = _isSelectionMode
-            ? SelectionMode.Multiple
-            : SelectionMode.Single;
-
-        FilesCollectionView.SelectedItems.Clear();
-        UpdateSelectedItems();
-    }
-
-    private IReadOnlyList<CloudDriveItem> GetSelectedItems()
-    {
-        return FilesCollectionView.SelectedItems
-            .OfType<CloudDriveItem>()
-            .ToList();
-    }
-
-    private void UpdateSelectedItems()
-    {
-        var count = GetSelectedItems().Count;
-        SelectedCountLabel.Text = $"已选择 {count} 项";
-        BatchMoveRootButton.IsEnabled = count > 0 && _currentFolderId.HasValue;
     }
 
     private sealed record PathSegment(Guid? Id, string Name);
