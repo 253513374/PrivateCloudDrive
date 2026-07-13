@@ -243,6 +243,8 @@ public partial class SettingsPage : ContentPage
             StorageUsageLabel.Text = AppText.SignInRequired;
             StorageQuotaLabel.Text = string.Empty;
             StorageProgressBar.Progress = 0;
+            StorageDetailLabel.Text = string.Empty;
+            StorageWarningPanel.IsVisible = false;
             return;
         }
 
@@ -251,19 +253,40 @@ public partial class SettingsPage : ContentPage
             var usage = await _apiClient.GetStorageUsageAsync();
             AccountFilesStatLabel.Text = "在线";
             AccountMemoriesStatLabel.Text = "真实";
-            StorageUsageLabel.Text = $"{FormatBytes(usage.UsedBytes)} 已使用";
+            StorageWarningPanel.IsVisible = false;
 
             if (usage.IsQuotaConfigured)
             {
-                AccountCapacityStatLabel.Text = $"{usage.UsagePercent:0.#}%";
+                var percent = Math.Clamp((double)usage.UsagePercent, 0, 100);
+                AccountCapacityStatLabel.Text = $"{percent:0.#}%";
+                StorageUsageLabel.Text = $"已用 {FormatBytes(usage.UsedBytes)} / {FormatBytes(usage.QuotaBytes)}";
                 StorageQuotaLabel.Text = $"配额 {FormatBytes(usage.QuotaBytes)}，剩余 {FormatBytes(usage.RemainingBytes)}";
-                StorageProgressBar.Progress = Math.Clamp((double)usage.UsagePercent / 100, 0, 1);
+                StorageProgressBar.Progress = percent / 100;
+
+                var detailParts = new List<string>();
+                if (usage.MaxSingleFileSize > 0)
+                {
+                    detailParts.Add($"单文件上限 {FormatBytes(usage.MaxSingleFileSize)}");
+                }
+                StorageDetailLabel.Text = detailParts.Count > 0
+                    ? string.Join(" · ", detailParts)
+                    : string.Empty;
+
+                if (percent >= 100)
+                {
+                    StorageWarningPanel.IsVisible = true;
+                }
             }
             else
             {
                 AccountCapacityStatLabel.Text = "无限";
+                StorageUsageLabel.Text = $"{FormatBytes(usage.UsedBytes)} 已使用";
                 StorageQuotaLabel.Text = "未配置容量上限";
                 StorageProgressBar.Progress = 0;
+
+                StorageDetailLabel.Text = usage.MaxSingleFileSize > 0
+                    ? $"单文件上限 {FormatBytes(usage.MaxSingleFileSize)}"
+                    : string.Empty;
             }
         }
         catch (AuthSessionExpiredException)
@@ -279,6 +302,8 @@ public partial class SettingsPage : ContentPage
             StorageUsageLabel.Text = UserVisibleErrorSanitizer.ForStorage(exception);
             StorageQuotaLabel.Text = string.Empty;
             StorageProgressBar.Progress = 0;
+            StorageDetailLabel.Text = string.Empty;
+            StorageWarningPanel.IsVisible = false;
         }
     }
 

@@ -109,6 +109,17 @@ public partial class FilesPage : ContentPage
     {
         try
         {
+            // 上传前容量检查
+            var usage = await _apiClient.GetStorageUsageAsync();
+            if (usage.IsQuotaConfigured && usage.RemainingBytes <= 0)
+            {
+                await DisplayAlertAsync(
+                    "存储空间不足",
+                    "存储空间不足，请清理文件后重试。",
+                    "知道了");
+                return;
+            }
+
             var files = await PickUploadFilesAsync();
             if (files.Count == 0)
             {
@@ -136,6 +147,11 @@ public partial class FilesPage : ContentPage
         }
         catch (OperationCanceledException)
         {
+        }
+        catch (AuthSessionExpiredException)
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login", true);
         }
         catch (Exception exception)
         {
