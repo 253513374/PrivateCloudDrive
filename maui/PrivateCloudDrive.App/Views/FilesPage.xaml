@@ -385,7 +385,9 @@
                         Grid.Row="3"
                         ItemsSource="{Binding Items}"
                         SelectionMode="Single"
-                        SelectionChanged="OnFileSelected">
+                        SelectionChanged="OnFileSelected"
+                        RemainingItemsThreshold="5"
+                        RemainingItemsThresholdReached="OnRemainingItemsThresholdReached">
             <CollectionView.EmptyView>
                 <Border Padding="24"
                         VerticalOptions="Start"

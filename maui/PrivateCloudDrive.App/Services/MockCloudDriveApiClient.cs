@@ -67,4 +67,53 @@ public sealed class MockCloudDriveApiClient
 
         return Task.FromResult(items);
     }
+
+    /// <summary>
+    /// 查询指定资源或配置，并返回可被客户端消费的数据模型。
+    /// </summary>
+    public Task<(IReadOnlyList<CloudDriveItem> Items, long TotalCount)> SearchItemsAsync(
+        string keyword,
+        string? searchScope = null,
+        string? nodeType = null,
+        string? mediaType = null,
+        string? sorting = null,
+        int skipCount = 0,
+        int maxResultCount = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var filtered = GetFilteredMockItems(keyword, nodeType);
+        var total = filtered.Count;
+        var page = filtered.Skip(skipCount).Take(maxResultCount).ToList();
+        return Task.FromResult<(IReadOnlyList<CloudDriveItem>, long)>((page, total));
+    }
+
+    private static IReadOnlyList<CloudDriveItem> GetFilteredMockItems(string? keyword, string? nodeType)
+    {
+        var all = new List<CloudDriveItem>
+        {
+            new(Guid.NewGuid(), null, "Photos", "Folder", "12 items", "Today", "DIR", null),
+            new(Guid.NewGuid(), null, "Videos", "Folder", "5 items", "Yesterday", "DIR", null),
+            new(Guid.NewGuid(), null, "Contracts.pdf", "PDF", "1.8 MB", "May 4", "PDF", "application/pdf"),
+            new(Guid.NewGuid(), null, "Family-trip.jpg", "Image", "4.2 MB", "May 2", "IMG", "image/jpeg"),
+            new(Guid.NewGuid(), null, "Backup.zip", "Archive", "860 MB", "Apr 28", "ZIP", "application/zip")
+        };
+
+        var items = all.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            items = items.Where(i => i.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (nodeType is "Folder")
+        {
+            items = items.Where(i => i.IsFolder);
+        }
+        else if (nodeType is "File")
+        {
+            items = items.Where(i => !i.IsFolder);
+        }
+
+        return items.ToList();
+    }
 }
