@@ -26,6 +26,7 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
 
     private readonly IIdentityUserAppService _identityUserAppService;
     private readonly IdentityUserManager _userManager;
+    private readonly IdentityRoleManager _roleManager;
     private readonly IRepository<BlobObject, Guid> _blobObjectRepository;
     private readonly IAsyncQueryableExecuter _asyncExecuter;
     private readonly ISettingProvider _settingProvider;
@@ -34,6 +35,7 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
     public AdminIdentityUserAppService(
         IIdentityUserAppService identityUserAppService,
         IdentityUserManager userManager,
+        IdentityRoleManager roleManager,
         IRepository<BlobObject, Guid> blobObjectRepository,
         IAsyncQueryableExecuter asyncExecuter,
         ISettingProvider settingProvider,
@@ -41,6 +43,7 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
     {
         _identityUserAppService = identityUserAppService;
         _userManager = userManager;
+        _roleManager = roleManager;
         _blobObjectRepository = blobObjectRepository;
         _asyncExecuter = asyncExecuter;
         _settingProvider = settingProvider;
@@ -81,7 +84,7 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
     }
 
     /// <summary>
-    /// 创建新用户，支持指定容量配额。
+    /// 创建新用户，支持指定容量配额和初始角色。
     /// </summary>
     public virtual async Task<AdminIdentityUserDto> CreateAsync(AdminCreateUserInput input)
     {
@@ -94,6 +97,23 @@ public class AdminIdentityUserAppService : PrivateCloudDriveAppService, IAdminId
         };
 
         var createdUser = await _identityUserAppService.CreateAsync(createInput);
+
+        // 分配初始角色
+        if (input.RoleNames is { Length: > 0 })
+        {
+            var identityUser = await _userManager.FindByIdAsync(createdUser.Id.ToString());
+            if (identityUser != null)
+            {
+                foreach (var roleName in input.RoleNames)
+                {
+                    var role = await _roleManager.FindByNameAsync(roleName);
+                    if (role != null)
+                    {
+                        await _userManager.AddToRoleAsync(identityUser, roleName);
+                    }
+                }
+            }
+        }
 
         return new AdminIdentityUserDto
         {

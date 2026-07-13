@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrivateCloudDrive.App.Views.AdminUserCreatePage"
+             Title="创建用户"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource PageBackgroundDark}">
+    <ScrollView>
+        <VerticalStackLayout Padding="18,22,18,28" Spacing="16">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <Button Text="‹"
+                        Style="{StaticResource GhostButton}"
+                        WidthRequest="46"
+                        Clicked="OnBackClicked" />
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Text="创建用户" Style="{StaticResource PageTitleLabel}" />
+                    <Label Text="管理员 · 为私有备份服务器添加新用户" Style="{StaticResource MetaLabel}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border x:Name="StatePanel"
+                    Padding="14"
+                    IsVisible="False"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <ActivityIndicator x:Name="LoadingIndicator"
+                                       WidthRequest="20" HeightRequest="20"
+                                       Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                    <Label x:Name="StateLabel"
+                           Grid.Column="1" VerticalOptions="Center"
+                           FontSize="13" LineBreakMode="WordWrap" />
+                    <Button x:Name="RetryButton"
+                            Grid.Column="2" Text="重试"
+                            IsVisible="False"
+                            Style="{StaticResource SecondaryButton}"
+                            Padding="12,6" MinimumHeightRequest="36"
+                            Clicked="OnRetryClicked" />
+                </Grid>
+            </Border>
+
+            <Border Padding="18"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="16">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="用户名" FontFamily="OpenSansSemibold" FontSize="15"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Entry x:Name="UserNameEntry"
+                               Placeholder="输入用户名"
+                               ClearButtonVisibility="WhileEditing" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="邮箱" FontFamily="OpenSansSemibold" FontSize="15"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Entry x:Name="EmailEntry"
+                               Placeholder="输入邮箱地址"
+                               Keyboard="Email"
+                               ClearButtonVisibility="WhileEditing" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="密码" FontFamily="OpenSansSemibold" FontSize="15"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Entry x:Name="PasswordEntry"
+                               Placeholder="输入密码"
+                               IsPassword="True"
+                               ClearButtonVisibility="WhileEditing" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="角色" FontFamily="OpenSansSemibold" FontSize="15"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Picker x:Name="RolePicker"
+                                Title="选择角色"
+                                SelectedIndex="0"
+                                FontSize="15">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>普通用户</x:String>
+                                    <x:String>管理员</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                        <Label Text="选择&quot;管理员&quot;将授予该用户系统管理权限"
+                               Style="{StaticResource MetaLabel}"
+                               LineBreakMode="WordWrap"
+                               FontSize="12" />
+                    </VerticalStackLayout>
+
+                    <Button x:Name="CreateButton"
+                            Text="创建用户"
+                            Clicked="OnCreateClicked"
+                            HeightRequest="48" />
+
+                    <Label x:Name="CreateResultLabel"
+                           IsVisible="False"
+                           FontSize="13"
+                           LineBreakMode="WordWrap"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="创建用户后，access_token 缓存最长 5 分钟生效，之后该用户可登录系统。"
+                   Style="{StaticResource MetaLabel}"
+                   LineBreakMode="WordWrap"
+                   FontSize="12"
+                   TextColor="{AppThemeBinding Light={StaticResource TextTertiaryLight}, Dark={StaticResource TextTertiaryDark}}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
