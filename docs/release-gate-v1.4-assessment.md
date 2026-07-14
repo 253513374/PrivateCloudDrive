@@ -11,9 +11,9 @@
 
 | 闸门 | 状态 | 说明 |
 |:----:|:----:|------|
-|| G0 范围冻结 | ✅ **PASS** | UX-02（PR #86 / `174ca49`）和 KN-01~03（PR #85 / `809e9a7`）均已合并到 origin/main；7 项 P0 全部完成 |
-|| G1 MAUI 编译 | ✅ **PASS** | PR #88 已合并到 main，`dotnet build -f net10.0-android` 0 errors |
-|| G2 后端回归 | ✅ **PASS** | 后端构建 0 errors；270 测试通过（Domain 21 + Application 22 + EF 227） |
+| G0 范围冻结 | ✅ **PASS** | UX-02（PR #86 / `174ca49`）和 KN-01~03（PR #85 / `809e9a7`）均已合并到 origin/main；7 项 P0 全部完成 |
+| G1 MAUI 编译 | ✅ **PASS** | PR #88 已合并到 main，`dotnet build -f net10.0-android` 0 errors |
+| G2 后端回归 | ✅ **PASS** | 后端构建 0 errors；270 测试通过（Domain 21 + Application 22 + EF 227） |
 | G3 Docker 栈 | ⚠️ **WARN** | 未复验本轮（无后端架构变更，V1.3 封印维持） |
 | G4 真机验收 | ⚠️ **WARN** | API 级 17/19 PASS + 2 WARN（MAUI 平台限制）；截图证据待补 |
 | G5 搜索隔离 | ⚠️ **WARN** | 未显式验证跨用户搜索隔离（需 PostgreSQL ILIKE 确认） |
