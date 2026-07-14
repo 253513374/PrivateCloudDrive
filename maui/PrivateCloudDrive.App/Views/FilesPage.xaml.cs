@@ -25,6 +25,7 @@ public partial class FilesPage : ContentPage
     private bool _filtersInitialized;
     private bool _isSelectionMode;
     private readonly HashSet<Guid> _selectedItemIds = [];
+    private StorageUsage? _currentUsage;
 
     public ObservableCollection<SelectableCloudDriveItem> Items { get; } = [];
 
@@ -179,6 +180,11 @@ public partial class FilesPage : ContentPage
                 return;
             }
 
+            if (!await CheckQuotaBeforeUploadAsync(files))
+            {
+                return;
+            }
+
             UploadStatusPanel.IsVisible = true;
             UpdateUploadTaskPanel();
 
@@ -209,6 +215,69 @@ public partial class FilesPage : ContentPage
         {
             UpdateUploadTaskPanel();
         }
+    }
+
+
+
+    /// <summary>
+    /// 检查所选文件总大小是否超出剩余配额。
+    /// </summary>
+    private async Task<bool> CheckQuotaBeforeUploadAsync(IReadOnlyList<FileResult> files)
+    {
+        if (_currentUsage is null || !_currentUsage.IsQuotaConfigured)
+        {
+            return true;
+        }
+
+        var totalBytes = await GetTotalFileSizeAsync(files);
+        if (totalBytes <= 0)
+        {
+            return true;
+        }
+
+        if (totalBytes > _currentUsage.RemainingBytes)
+        {
+            var totalText = FormatBytes(totalBytes);
+            var remainingText = FormatBytes(_currentUsage.RemainingBytes);
+            await DisplayAlertAsync(
+                "容量不足",
+                "" + totalText + "、但剩余容量仅 " + remainingText + "。\n请删除部分文件后再试，或联系管理员增加配额。",
+                "知道了");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static async Task<long> GetTotalFileSizeAsync(IReadOnlyList<FileResult> files)
+    {
+        long total = 0;
+        foreach (var file in files)
+        {
+            var size = await GetFileSizeAsync(file);
+            if (size <= 0) { return 0; }
+            total += size;
+        }
+        return total;
+    }
+
+    private static async Task<long> GetFileSizeAsync(FileResult file)
+    {
+        if (!string.IsNullOrEmpty(file.FullPath))
+        {
+            try
+            {
+                var fileInfo = new FileInfo(file.FullPath);
+                if (fileInfo.Exists) { return fileInfo.Length; }
+            }
+            catch { }
+        }
+        try
+        {
+            using var stream = await file.OpenReadAsync();
+            return stream.Length;
+        }
+        catch { return 0; }
     }
 
     private async void OnOpenUploadsClicked(object? sender, EventArgs e)
@@ -1142,6 +1211,7 @@ public partial class FilesPage : ContentPage
 
     private void SetFilesStorageUsageState(StorageUsage usage)
     {
+        _currentUsage = usage;
         if (usage.IsQuotaConfigured)
         {
             var percent = Math.Clamp((double)usage.UsagePercent, 0, 100);
