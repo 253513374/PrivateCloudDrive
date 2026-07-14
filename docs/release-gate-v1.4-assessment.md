@@ -1,6 +1,6 @@
 # PrivateCloudDrive V1.4 Release Gate 放行评估报告
 
-> **评估时间**：2026-07-13 15:30 CST（第2版 — G0/G1/G4 状态升级）
+> **评估时间**：2026-07-14 17:00 CST（第3版 — G1 状态升级为 PASS）
 > **评估人**：Hermes-Release-Manager / release-manager
 > **评估类型**：Release Gate 门禁检查（V1.4 体验增强版阶段检查）
 > **前序评估**：`docs/release-gate-v1.3b-assessment.md`（V1.3b 已放行）
@@ -12,7 +12,7 @@
 | 闸门 | 状态 | 说明 |
 |:----:|:----:|------|
 | G0 范围冻结 | ✅ **PASS** | UX-02（PR #86 / `174ca49`）和 KN-01~03（PR #85 / `809e9a7`）均已合并到 origin/main；7 项 P0 全部完成 |
-| G1 MAUI 编译 | ❌ **FAIL** | `OnFilterChanged` 冲突已通过 PR #86 间接解决，但上传取消代码引入 6 个新编译错误 |
+| G1 MAUI 编译 | ✅ **PASS** | PR #88 已合并到 main，`dotnet build -f net10.0-android` 0 errors |
 | G2 后端回归 | ✅ **PASS** | 后端构建 0 errors；270 测试通过（Domain 21 + Application 22 + EF 227） |
 | G3 Docker 栈 | ⚠️ **WARN** | 未复验本轮（无后端架构变更，V1.3 封印维持） |
 | G4 真机验收 | ⚠️ **WARN** | API 级 17/19 PASS + 2 WARN（MAUI 平台限制）；截图证据待补 |
@@ -22,12 +22,12 @@
 
 ### 放行建议
 
-> ❌ **不可发布** — G1（MAUI 编译）仍 FAIL，须修复后重新评估
+> ✅ **可以发布（G1 已修复）** — 8 道闸门全部通过或 WARN，无 BLOCKER 阻断项
 
 **原阻塞项状态**：
 1. ~~G1：`OnFilterChanged` 重复方法冲突~~ → ✅ 已解决（UX-02 PR #86 合并后融合了两份 `OnFilterChanged` 变更，不再冲突）
 2. ~~G0：UX-02 / KN-01~03 未完成~~ → ✅ 已全部合并到 origin/main
-3. **新 G1 阻塞**：上传取消功能（`CancellationTokenSource`）在 CI 合并后产生 6 个编译错误（CS0111/CS1503/CS1061）
+3. ~~G1：上传取消功能编译错误~~ → ✅ 已修复于 PR #88，`dotnet build -f net10.0-android` 0 errors
 
 **建议放行前同步**（不影响门禁状态）：
 1. `docs/known-limitations.md` — 已添加 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-07）
@@ -64,7 +64,7 @@
 
 ---
 
-### G1 MAUI 编译 — ❌ FAIL（新问题）
+### G1 MAUI 编译 — ✅ PASS
 
 **标准**：`dotnet build -f net10.0-android` 通过，0 errors。
 
@@ -74,15 +74,15 @@
 |--------|:----:|------|
 | `OnFilterChanged` 重复方法 | ✅ **已解决** | UX-02 PR #86 合并后融合了两份 `OnFilterChanged`，不再冲突 |
 | BLOCKER-001 后端编译修复 | ✅ **已合并** | `257efa0` — HttpApiHostModule 添加 AbpAspNetCoreMvcModule 依赖 |
-| **上传取消编译错误** | ❌ **6 errors** | `CancellationTokenSource` 使用方式在 CI 合并后产生 CS0111/CS1503/CS1061 |
-| UX-02 合并后新冲突 | ⚠️ **新出现** | 上传取消代码不完整，需 mobile-eng 修复 |
+| **上传取消编译错误（PR #88）** | ✅ **已修复** | PR #88 已于 2026-07-14 合并到 main，`dotnet build -f net10.0-android` 0 errors |
+| 端到端验证 | ✅ **PASS** | rebase 后重新构建完整 MAUI Android 工程无错误 |
 
 **修复说明**：
-- 根因（原）：UX-01（搜索）和 UX-04（排序筛选）各自在 `FilesPage.xaml.cs` 添加了 `OnFilterChanged` 方法
-- 修复（原冲突）：已通过 UX-02 PR #86 合并融合代码间接解决
-- **新出现**：`quota-full-check`（PR #81）引入的上传取消功能代码在 CI 合并流入 main 后产生编译错误，需移动端工程师修复
+- `quota-full-check` 引入的上传取消代码（`CancellationTokenSource`）在 CI 合并后产生的 CS0111/CS1503/CS1061 编译错误
+- PR #88：mobile-eng 在已验证的 OnFilterChanged 修复基础上进一步修复上传取消代码中的语法错误和类型不匹配
+- 验证：`dotnet build -f net10.0-android` 0 errors、0 warnings
 
-**结论**：❌ **FAIL** — 原构冲突已解决，但上传取消代码引入 6 个新编译错误。
+**结论**：✅ **PASS** — 两份 G1 阻塞（OnFilterChanged 冲突 + 上传取消编译错误）均已修复并合并到 main。
 
 ---
 
@@ -230,7 +230,7 @@
 | 闸门 | V1.3b 状态 | V1.4 目标 | V1.4 当前 | 差距 |
 |:----:|:--------:|:---------:|:---------:|------|
 | G0 | ✅ PASS | ✅ PASS | ✅ **PASS** | 现已完成（UX-02 + KN-01~03 均已合并） |
-| G1 | ✅ PASS | ✅ PASS | ❌ **FAIL** | OnFilterChanged 已解决，但上传取消代码引入 6 个新编译错误 |
+| G1 | ✅ PASS | ✅ PASS | ✅ **PASS** | OnFilterChanged 已解决 + 上传取消编译错误（PR #88）已修复 |
 | G2 | ✅ PASS | ✅ PASS | ✅ **PASS** | — |
 | G3 | ✅ PASS | ✅ PASS | ⚠️ WARN | 未复验 |
 | G4 | ⚠️ WARN | ✅ PASS | ⚠️ **WARN** | 17/19 API 级验收通过，Q/R 因 Accessibility 限制 WARN |
@@ -253,7 +253,7 @@ P1 = 0 缺陷，或每个 P1 有明确规避方案
 
 | 违规项 | 类型 | 严重性 | 能否规避 | 备注 |
 |--------|:----:|:------:|:--------:|------|
-| G1: MAUI Android 构建失败（上传取消代码 6 errors） | 编译错误 | **BLOCKER** | — | 新出现，需 mobile-eng 修复 |
+| ~~G1: MAUI Android 构建失败（上传取消代码 6 errors）~~ | ~~编译错误~~ | ~~**BLOCKER**~~ | — | ✅ 已通过 PR #88 修复 |
 | ~~G1: OnFilterChanged 冲突~~ | 编译错误 | ~~BLOCKER~~ | — | ✅ 已通过 UX-02 PR #86 解决 |
 | G4: 截图证据不完整 | 验收缺失 | LOW | 可后补 | 不影响发布 |
 | G7: known-limitations.md 未同步 V1.4 | 文档缺失 | LOW | 可后补 | 不影响发布 |
@@ -262,15 +262,13 @@ P1 = 0 缺陷，或每个 P1 有明确规避方案
 
 ### 放行建议
 
-> ❌ **不可发布** — G1（MAUI 编译）仍为 BLOCKER，上传取消代码 6 个编译错误需修复
+> ✅ **可以发布** — G1 已修复，所有 BLOCKER 清零，剩余 WARN 项不影响发布
 
-**门禁结论**：8 道闸门中 4 道 PASS、4 道 WARN（G3/G4/G5/G7）、1 道 FAIL（G1）。G1 为唯一 BLOCKER 阻断项。
+**门禁结论**：8 道闸门中 4 道 PASS、4 道 WARN（G3/G4/G5/G7），无 FAIL。所有 BLOCKER 违规项已修复。
 
-**建议修复计划**：
-1. mobile-eng 修复上传取消功能代码 → MAUI Android 编译通过
-2. 补齐 `docs/validation/screenshots/v1.4/` 截图
-3. 同步 `docs/known-limitations.md` + `docs/testing.md` + `docs/release-notes-v1.4.md`
-4. 重新评估 G1 → 正式发布
+**建议发布前补完项**（不影响门禁放行）：
+1. 补齐 `docs/validation/screenshots/v1.4/` 截图
+2. 同步 `docs/known-limitations.md` + `docs/testing.md` + `docs/release-notes-v1.4.md`
 
 ---
 
@@ -283,10 +281,10 @@ P1 = 0 缺陷，或每个 P1 有明确规避方案
 - [x] UX-04: 排序与筛选 MAUI 前端 UI（`73c7d2b`）
 - [x] KN-01~03: 缓存提示 + 创建用户角色选择器 + 修复（`809e9a7`）
 - [x] BLOCKER-001: HttpApiHostModule 依赖修复（`257efa0`）
-- [ ] G1: 上传取消编译错误修复（待 mobile-eng）
+- [x] G1: 上传取消编译错误修复（PR #88）
 
 ### 文档（本次同步）
-- [x] `docs/release-gate-v1.4-assessment.md` — 第2版：G0/G1/G4 状态升级
+- [x] `docs/release-gate-v1.4-assessment.md` — 第3版：G1 状态升级为 PASS
 - [ ] `docs/known-limitations.md` — 同步 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-07）
 - [ ] `docs/release-notes-v1.4.md` — 更新完成状态
 - [ ] `docs/product-roadmap-next.md` — V1.4 状态更新
@@ -296,6 +294,7 @@ P1 = 0 缺陷，或每个 P1 有明确规避方案
 ### 已解决
 - [x] ~~G0 UX-02/KN-01~03 未完成~~ → 已合并到 origin/main
 - [x] ~~G1 OnFilterChanged 冲突~~ → 已通过 PR #86 解决
+- [x] ~~G1 上传取消编译错误~~ → 已通过 PR #88 解决
 - [x] ~~BLOCKER-001 模块依赖缺失~~ → 已修复于 `257efa0`
 
 ### 验证脚本
