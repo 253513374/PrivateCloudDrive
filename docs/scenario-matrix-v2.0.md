@@ -687,8 +687,8 @@ V2.0 MVP 仅支持 Active → Deleted 的删除操作。归档（Archived）和�
 | MediaAsset | +SpaceId (Guid?, FK) | 媒体文件归属空间 |
 | MediaAlbum | +SpaceId (Guid?, FK) | 相册归属空间 |
 | FileShare | +SpaceId (Guid?, FK) | 分享链接关联空间 |
-| FileTag | 不变（可跨空间使用） | 标签是全局限定还是空间限定待 ADR |
-| BlobObject | 不变 | Blob 存储层不感知空间，由 FileNode 映射 |
+| FileTag | 增加 SpaceId | 标签是全局限定还是空间限定：V2.0 MVP 先做全局限定（按 SpaceId 过滤隔离），空间内标签策略留 V2.1 ADR |
+| BlobObject | 增加 SpaceId（元数据层） | Blob 存储层路径不变，元数据层记录 SpaceId 用于隔离查询和审计 |
 | UploadSession | +SpaceId (Guid?, FK) | 上传会话关联空间 |
 | OperationLog | +SpaceId (Guid?, FK) | 操作日志记录空间上下文 |
 

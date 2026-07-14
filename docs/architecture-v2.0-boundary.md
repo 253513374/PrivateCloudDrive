@@ -218,8 +218,8 @@ V2.0 MVP = Space 数据底座 + 成员管理 + 最小权限模型 + 空间配额
 
 1. 新增 `SpacePermissionService`（注入 `ISpaceMemberRepository` + `ICurrentUser`）
    - `GetUserAccessibleSpaces()` — 返回用户可访问的 SpaceId 列表
-   - `AuthorizeSpaceAction(sapceId, requiredRole)` — 校验当前用户在空间内是否 >= 指定角色
-   - `ResolveDefaultSpace()` — 若用户未传 sapceId 则返回默认个人空间
+   - `AuthorizeSpaceAction(spaceId, requiredRole)` — 校验当前用户在空间内是否 >= 指定角色
+   - `ResolveDefaultSpace()` — 若用户未传 spaceId 则返回默认个人空间
 2. 修改 `IFileNodeRepository`：
    - `GetFolderChildrenAsync()` 增加 `spaceId` 参数 + `SpaceId IN accessibleSpaces` 过滤
    - `GetNodeAsync()` / `FindNodeAsync()` 增加空间范围过滤
@@ -229,7 +229,7 @@ V2.0 MVP = Space 数据底座 + 成员管理 + 最小权限模型 + 空间配额
    - 方法开头调用 `AuthorizeSpaceAction()` 校验
    - 上传时写入 `FileNode.SpaceId` + `BlobObject.SpaceId` + `UploadSession.SpaceId`
 4. 修改 `FileShare` 管理：
-   - 创建分享需要 `AuthorizeSpaceAction(sapceId, Member)`
+   - 创建分享需要 `AuthorizeSpaceAction(spaceId, Member)`
    - 取消分享/查看分享列表按空间隔离
 5. 修改搜索（`GetFolderChildrenInput.SearchKeyword`）：
    - 在当前用户可见空间的范围内搜索

@@ -236,7 +236,7 @@ V2.0 不是"所有 V1.x 没做的功能合集"，而是把 PrivateCloudDrive 从
 
 ```mermaid
 flowchart LR
-    A[V2.0-0: 决策与ADRA] --> B[V2.0-1: Space数据底座]
+    A[V2.0-0: 决策与ADR] --> B[V2.0-1: Space数据底座]
     B --> C[V2.0-2: 文件主链路接入Space]
     C --> D[V2.0-3: 成员与权限]
     D --> E[V2.0-4: 空间配额与审计]
