@@ -138,6 +138,7 @@ public partial class CreateActionPage : ContentPage
                 var totalText = FormatBytes(totalBytes);
                 var remainingText = FormatBytes(usage.RemainingBytes);
                 await DisplayAlertAsync(
+                    "剩余容量不足",
                     totalText + "、但剩余容量仅 " + remainingText + "。\n请删除部分文件后再试，或联系管理员增加配额。",
                     "知道了");
                 return false;
@@ -224,5 +225,22 @@ public partial class CreateActionPage : ContentPage
     private async void OnComingSoonClicked(object? sender, EventArgs e)
     {
         await DisplayAlertAsync("即将推出", "这个 Open Design 动作正在探索中。", "知道了");
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)Math.Max(bytes, 0);
+        var unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? $"{value:0} {units[unitIndex]}"
+            : $"{value:0.##} {units[unitIndex]}";
     }
 }
