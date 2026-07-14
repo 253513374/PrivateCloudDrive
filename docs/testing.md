@@ -722,7 +722,7 @@ dotnet test .\PrivateCloudDrive.slnx --no-build
 
 ## V1.4 验收记录（体验增强版）
 
-| 验收日期 | 2026-07-13 |
+| 验收日期 | 2026-07-14 |
 |----------|------------|
 | 负责人 | 齐 QA (qa-eng) + 产品总监 (pm) |
 | 发布范围 | `docs/release-plan-v1.4.md` §2.2 |
@@ -761,7 +761,7 @@ dotnet test .\PrivateCloudDrive.slnx --no-build
 |--------|:----:|:--:|
 | `dotnet build aspnet-core/PrivateCloudDrive.slnx --no-restore` | ✅ **PASS** | 0 errors |
 | `dotnet test` 后端 | ✅ **PASS** | 270 passed, 0 failed |
-| MAUI Android 构建 | ❌ **FAIL** | 上传取消代码 6 errors（CS0111/CS1503/CS1061） |
+| MAUI Android 构建 | ✅ **PASS** | 上传取消编译错误已修复（PR #88），0 errors |
 | secret-log-scan | ✅ **PASS** | 6 findings（全部假阳性） |
 
 ### QA-03 搜索隔离验证
@@ -777,9 +777,9 @@ dotnet test .\PrivateCloudDrive.slnx --no-build
 | KN-V1.4-01 | 搜索使用 ILIKE 非全文索引 | ✅ |
 | KN-V1.4-02 | 批量操作 100 文件上限 | ✅ |
 | KN-V1.4-03 | 容量可视化非实时推送 | ✅ |
-| KN-V1.4-04 | G1 MAUI 编译阻塞（上传取消代码） | ⚠️ 待修复 |
+| KN-V1.4-04 | G1 MAUI 编译已修复（PR #88） | ✅ 已修复 |
 | KN-V1.4-05 | 真机验收 P/S 项因 MAUI 限制 WARN | ⚠️ 有条件已确认 |
 | KN-V1.4-06 | 排序筛选状态切换后可能丢失 | ⚠️ 待 V1.5 确认 |
 | KN-V1.4-07 | iOS 不在 V1.4 范围 | ✅ 延续 |
 
-**汇总**：**19 AC 验证：17 PASS / 2 WARN（MAUI 平台限制）**
+**汇总**：**19 AC 验证：17 PASS / 2 WARN（MAUI 平台限制）+ QA-02 G1 PASS**
