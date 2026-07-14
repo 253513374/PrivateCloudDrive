@@ -1,9 +1,9 @@
 # PrivateCloudDrive V1.4 发布说明
 
 > **版本**：V1.4 — 体验增强版（UX Polish & Known Limitations Fix）
-> **发布日期**：**未发布** — 发布阻塞，详见门禁评估
+> **发布日期**：**2026-07-14**（第 3 版门禁评估「可以发布」）
 > **前置版本**：V1.3b（移动端验收收口维护版）
-> **发布时间状态**：🚧 开发中（MAUI 构建阻塞）
+> **发布时间状态**：✅ **已发布**
 
 ---
 
@@ -31,12 +31,12 @@ V1.4 的目标是补齐文件管理日常体验缺口（搜索、批量、容量
 | KN-02 | 健康缓存说明文案 | ✅ **已合并** | `809e9a7` (PR #85) | 健康页缓存说明已添加 |
 | KN-03 | 创建用户角色选择器 | ✅ **已合并** | `809e9a7` (PR #85) | 管理员创建用户页角色选择器已添加 |
 
-### P0 — 尚未完成
+### P0 — 全部完成
 
-| # | 模块 | 状态 | 原因 |
+| # | 模块 | 状态 | 说明 |
 |---|------|:----:|------|
 | QA-01 | Android 真机主链路验收 | ⚠️ **有条件 PASS** | API 级 17/19 PASS + 2 WARN（MAUI 平台限制）；MAUI UI 截图待人工补采 |
-| G1 | MAUI Android 编译 | ❌ **FAIL** | 上传取消功能代码不完整导致 6 个编译错误；需 mobile-eng 修复 |
+| G1 | MAUI Android 编译 | ✅ **已修复** | PR #88 已合并到 main，`dotnet build -f net10.0-android` 0 errors |
 
 ### P1 — V1.4 已降级（不做）
 
@@ -49,23 +49,6 @@ V1.4 的目标是补齐文件管理日常体验缺口（搜索、批量、容量
 
 ---
 
-## 发布阻塞项
-
-### MAUI Android 构建失败（G1 门禁 FAIL）
-
-```
-maui/PrivateCloudDrive.App/Views/FilesPage.xaml.cs: error CS0111/CS1503/CS1061
-上传取消功能代码不完整导致 6 个编译错误
-```
-
-**原因**：UX-01（搜索）和 UX-04（排序筛选）的 `OnFilterChanged` 冲突已通过 PR #86（批量操作合并）间接解决，但上传取消功能（`CancellationTokenSource` 使用方式）在 CI 合并后产生新的 6 个编译错误。
-
-**影响范围**：仅 MAUI Android 前端，后端不受影响。
-
-**建议**：需 mobile-eng 修复上传取消功能代码并验证 `dotnet build -f net10.0-android` 通过。
-
----
-
 ## 已知限制状态
 
 ### V1.4 新增的已知限制
@@ -75,7 +58,7 @@ maui/PrivateCloudDrive.App/Views/FilesPage.xaml.cs: error CS0111/CS1503/CS1061
 | KN-V1.4-01 | 搜索使用 PostgreSQL ILIKE 非全文搜索引擎（10 万+文件未实测） | ✅ **已确认** |
 | KN-V1.4-02 | 批量操作最多 100 文件，不支持跨目录多选 | ✅ **已确认** |
 | KN-V1.4-03 | 容量可视化数据来自 API 调用，非实时推送更新 | ✅ **已确认** |
-| KN-V1.4-04 | MAUI Android 编译 G1 阻塞（上传取消代码不完整） | ⚠️ **待修复** |
+| KN-V1.4-04 | MAUI Android 编译 G1 已修复（PR #88） | ✅ **已修复** |
 | KN-V1.4-05 | 真机验收 P/S 项因 MAUI 平台限制标 WARN | ⚠️ **有条件通过** |
 | KN-V1.4-06 | 排序与筛选状态页面切换后可能丢失 | ⚠️ **待确认** |
 | KN-V1.4-07 | iOS 客户端不在 V1.4 范围 | ✅ **延续** |
@@ -104,17 +87,15 @@ maui/PrivateCloudDrive.App/Views/FilesPage.xaml.cs: error CS0111/CS1503/CS1061
 | 闸门 | 状态 | 说明 |
 |:----:|:----:|------|
 | G0 范围冻结 | ✅ **PASS** | 7 项 P0 全部完成并合并（UX-01~04 + KN-01~03） |
-| G1 MAUI 编译 | ❌ **FAIL** | 上传取消功能代码不完整导致 6 个编译错误；需 mobile-eng 修复 |
+| G1 MAUI 编译 | ✅ **PASS** | 上传取消编译错误已修复（PR #88），`dotnet build -f net10.0-android` 0 errors |
 | G2 后端回归 | ✅ PASS | 0 错误，270 测试通过 |
-| G3 Docker 栈 | ✅ PASS | 无基础设施变更，V1.3b 封印维持 |
+| G3 Docker 栈 | ⚠️ **WARN** | 未复验本轮（无后端架构变更，V1.3 封印维持） |
 | G4 真机验收 | ⚠️ **有条件 PASS** | 17/19 PASS + 2 WARN（MAUI 平台限制）；QA-01 证据已入库 |
-| G5 搜索隔离 | ✅ PASS | 后端 API 已隔离（ILIKE + CurrentUser），QA-03 已验证 |
+| G5 搜索隔离 | ⚠️ **WARN** | 未显式验证跨用户搜索隔离（需 PostgreSQL ILIKE 确认） |
 | G6 安全脱敏 | ✅ PASS | 6 项假阳性（与 V1.3b 相同） |
 | G7 文档完整 | ⚠️ WARN | 本文档、known-limitations.md 和 testing.md 已同步 |
 
-**结论**：❌ **不可发布** — G1（MAUI 编译）FAIL，须修复后重新评估。
-
-详见 [release-gate-v1.4-assessment.md](release-gate-v1.4-assessment.md)。
+**结论**：✅ **可以发布** — 8 道闸门全部 PASS 或 WARN，无 BLOCKER 阻断项（详见 [release-gate-v1.4-assessment.md](release-gate-v1.4-assessment.md)）
 
 ---
 
@@ -133,10 +114,9 @@ maui/PrivateCloudDrive.App/Views/FilesPage.xaml.cs: error CS0111/CS1503/CS1061
 
 ## 后续建议
 
-1. **修复 G1 阻塞**：修复上传取消功能代码的 6 个编译错误 → MAUI Android 编译通过
-2. **补齐 MAUI UI 截图**：人工补采 settings-admin/settings-regular/health-page/fault-diagnosis 截图存入 `docs/validation/screenshots/v1.4/`
-3. **合并 PR #81**：UX-03 上传前配额全量检查（已提交，待审核合并）
-4. **V1.4 发布闭包**：G1 修复 + G4 截图补齐 → 重新评估门禁 → 正式发布
+1. **补齐 MAUI UI 截图**：人工补采 settings-admin/settings-regular/health-page/fault-diagnosis 截图存入 `docs/validation/screenshots/v1.4/`
+2. **V1.5 规划启动**：将本次降级的 P1 项（UX-05~08）及技术债务（TD-01~06）纳入 V1.5 规划
+3. **回归验证**：建议在 Visual Studio 2026 或 CI 中完成一次完整的 `dotnet test` + `scripts/verify-maui-build.ps1` 回归
 
 ---
 
