@@ -15,10 +15,10 @@
 | G1 MAUI 编译 | ✅ **PASS** | PR #88 已合并到 main，`dotnet build -f net10.0-android` 0 errors |
 | G2 后端回归 | ✅ **PASS** | 后端构建 0 errors；270 测试通过（Domain 21 + Application 22 + EF 227） |
 | G3 Docker 栈 | ⚠️ **WARN** | 未复验本轮（无后端架构变更，V1.3 封印维持） |
-| G4 真机验收 | ⚠️ **WARN** | API 级 17/19 PASS + 2 WARN（MAUI 平台限制）；截图证据待补 |
+| G4 真机验收 | ⚠️ **WARN** | API 级 17/19 PASS + 2 WARN（MAUI 平台限制）；截图目录 docs/validation/screenshots/v1.4/ 待补采（TD-G4） |
 | G5 搜索隔离 | ⚠️ **WARN** | 未显式验证跨用户搜索隔离（需 PostgreSQL ILIKE 确认） |
 | G6 安全脱敏 | ✅ **PASS** | secret-log-scan 6 findings（全部已验证为假阳性，同 V1.3b） |
-| G7 文档完整 | ⚠️ **WARN** | 本评估报告 + release-notes + known-limitations + testing.md 需同步 V1.4 内容 |
+| G7 文档完整 | ✅ **PASS** | 本评估报告 + release-notes + known-limitations + testing.md 全部同步完成（tech-debt-v1.4.md 跟踪） |
 
 ### 放行建议
 
@@ -29,11 +29,15 @@
 2. ~~G0：UX-02 / KN-01~03 未完成~~ → ✅ 已全部合并到 origin/main
 3. ~~G1：上传取消功能编译错误~~ → ✅ 已修复于 PR #88，`dotnet build -f net10.0-android` 0 errors
 
-**建议放行前同步**（不影响门禁状态）：
-1. `docs/known-limitations.md` — 已添加 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-07）
-2. `docs/testing.md` — 合并 QA-01 V1.4 真机验收记录
-3. `docs/release-notes-v1.4.md` — 更新 UX-02/KN-01~03/G1 状态
-4. `docs/product-roadmap-next.md` — V1.4 状态从「开发中-发布阻塞」更新
+**放行前已同步**（已在 commit `1e74443` 完成）：
+1. ✅ `docs/known-limitations.md` — 已添加 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-07）
+2. ✅ `docs/testing.md` — 已合并 QA-01 V1.4 真机验收记录（17 PASS / 2 WARN）
+3. ✅ `docs/release-notes-v1.4.md` — 已更新发布状态、G1→PASS、移除阻塞章节
+4. ✅ `docs/product-roadmap-next.md` — V1.4 已标注「已发布」
+
+**剩余技术债**（见 `docs/tech-debt-v1.4.md`）：
+- 🔲 G4: 截图证据不完整 — `docs/validation/screenshots/v1.4/`
+- 🔲 G5: 搜索隔离未显式验证跨用户搜索隔离
 
 ---
 
@@ -206,7 +210,7 @@
 
 ---
 
-### G7 文档完整 — ⚠️ WARN
+### G7 文档完整 — ✅ PASS
 
 **标准**：Release Notes + known-limitations 同步 + Roadmap 更新。
 
@@ -214,14 +218,13 @@
 
 | 文档 | 结果 | 说明 |
 |------|:----:|------|
-| `docs/release-notes-v1.4.md` | ⚠️ **待更新** | 内容仍显示 UX-02/KN-01~03 未完成 + MAUI 阻塞，需同步当前状态 |
-| `docs/release-gate-v1.4-assessment.md` | ✅ **已更新（第2版）** | **本文件** — G0/G1/G4 状态已升级 |
-| `docs/product-roadmap-next.md` | ⚠️ 待更新 | V1.4 状态从「开发中-发布阻塞」更新 |
-| `docs/known-limitations.md` | ❌ **未同步** | 未增加 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-05） |
-| `docs/testing.md` | ❌ **未同步** | 未合并 QA-01 V1.4 真机验收记录 |
-| `docs/validation/screenshots/v1.4/` | ❌ **不完整** | 需要 19 项全链路截图 |
+| `docs/release-notes-v1.4.md` | ✅ **已同步** | 已标注「已发布」，阻塞章节移除，G1→PASS |
+| `docs/release-gate-v1.4-assessment.md` | ✅ **已更新（第3版）** | **本文件** — G1 状态升级为 PASS |
+| `docs/product-roadmap-next.md` | ✅ **已同步** | V1.4 状态已标注「已发布」 |
+| `docs/known-limitations.md` | ✅ **已同步** | 已增加 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-07） |
+| `docs/testing.md` | ✅ **已同步** | 已合并 QA-01 V1.4 验收记录（17 PASS / 2 WARN） |
 
-**结论**：⚠️ WARN — 核心发布文档已创建，但 known-limitations.md 和 testing.md 未同步，截图证据不完整。
+**结论**：✅ **PASS** — V1.4 核心发布文档（release-notes / known-limitations / testing.md / roadmap）已全部同步。截图证据（TD-G4）和搜索隔离验证（TD-G5）在 tech-debt-v1.4.md 中跟踪。
 
 ---
 
@@ -236,7 +239,7 @@
 | G4 | ⚠️ WARN | ✅ PASS | ⚠️ **WARN** | 17/19 API 级验收通过，Q/R 因 Accessibility 限制 WARN |
 | G5 | ✅ PASS | ✅ PASS | ⚠️ WARN | 未显式验证 |
 | G6 | ✅ PASS | ✅ PASS | ✅ **PASS** | — |
-| G7 | ✅ PASS | ✅ PASS | ⚠️ WARN | known-limitations/testing.md/release-notes 待更新 |
+| G7 | ✅ PASS | ✅ PASS | ✅ **PASS** | 文档全部同步完成（tech-debt-v1.4.md 跟踪） |
 
 ---
 
@@ -256,15 +259,15 @@ P1 = 0 缺陷，或每个 P1 有明确规避方案
 | ~~G1: MAUI Android 构建失败（上传取消代码 6 errors）~~ | ~~编译错误~~ | ~~**BLOCKER**~~ | — | ✅ 已通过 PR #88 修复 |
 | ~~G1: OnFilterChanged 冲突~~ | 编译错误 | ~~BLOCKER~~ | — | ✅ 已通过 UX-02 PR #86 解决 |
 | G4: 截图证据不完整 | 验收缺失 | LOW | 可后补 | 不影响发布 |
-| G7: known-limitations.md 未同步 V1.4 | 文档缺失 | LOW | 可后补 | 不影响发布 |
-| G7: testing.md 未合并 V1.4 验收记录 | 文档缺失 | LOW | 可后补 | 不影响发布 |
-| G7: release-notes-v1.4.md 状态未同步 | 文档不一致 | LOW | 可后补 | 不影响发布 |
+| G7: known-limitations.md 同步 | ✅ 已同步（PR #94） | LOW | 已完成 | 不影响发布 |
+| G7: testing.md 合并 V1.4 验收记录 | ✅ 已合并 | LOW | 已完成 | 不影响发布 |
+| G7: release-notes-v1.4.md 状态同步 | ✅ 已同步 | LOW | 已完成 | 不影响发布 |
 
 ### 放行建议
 
 > ✅ **可以发布** — G1 已修复，所有 BLOCKER 清零，剩余 WARN 项不影响发布
 
-**门禁结论**：8 道闸门中 4 道 PASS、4 道 WARN（G3/G4/G5/G7），无 FAIL。所有 BLOCKER 违规项已修复。
+**门禁结论**：8 道闸门中 5 道 PASS、3 道 WARN（G3/G4/G5），无 FAIL。所有 BLOCKER 违规项已修复。
 
 **建议发布前补完项**（不影响门禁放行）：
 1. 补齐 `docs/validation/screenshots/v1.4/` 截图
@@ -283,13 +286,13 @@ P1 = 0 缺陷，或每个 P1 有明确规避方案
 - [x] BLOCKER-001: HttpApiHostModule 依赖修复（`257efa0`）
 - [x] G1: 上传取消编译错误修复（PR #88）
 
-### 文档（本次同步）
+### 文档（本轮巡检已确认同步）
 - [x] `docs/release-gate-v1.4-assessment.md` — 第3版：G1 状态升级为 PASS
-- [ ] `docs/known-limitations.md` — 同步 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-07）
-- [ ] `docs/release-notes-v1.4.md` — 更新完成状态
-- [ ] `docs/product-roadmap-next.md` — V1.4 状态更新
-- [ ] `docs/testing.md` — QA-01 验收记录合并
-- [ ] `docs/validation/screenshots/v1.4/` — 全链路截图
+- [x] `docs/known-limitations.md` — 同步 V1.4 已知限制（KN-V1.4-01 ~ KN-V1.4-07）
+- [x] `docs/release-notes-v1.4.md` — 更新完成状态
+- [x] `docs/product-roadmap-next.md` — V1.4 状态更新
+- [x] `docs/testing.md` — QA-01 验收记录合并
+- [ ] `docs/validation/screenshots/v1.4/` — 全链路截图（技术债：TD-G4）
 
 ### 已解决
 - [x] ~~G0 UX-02/KN-01~03 未完成~~ → 已合并到 origin/main
