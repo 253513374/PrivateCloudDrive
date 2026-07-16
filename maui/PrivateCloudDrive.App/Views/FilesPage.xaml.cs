@@ -25,6 +25,7 @@ public partial class FilesPage : ContentPage
     private bool _filtersInitialized;
     private bool _isSelectionMode;
     private readonly HashSet<Guid> _selectedItemIds = [];
+    private StorageUsage? _currentUsage;
 
     public ObservableCollection<SelectableCloudDriveItem> Items { get; } = [];
 
@@ -179,6 +180,11 @@ public partial class FilesPage : ContentPage
                 return;
             }
 
+            if (!await CheckQuotaBeforeUploadAsync(files))
+            {
+                return;
+            }
+
             UploadStatusPanel.IsVisible = true;
             UpdateUploadTaskPanel();
 
@@ -209,6 +215,69 @@ public partial class FilesPage : ContentPage
         {
             UpdateUploadTaskPanel();
         }
+    }
+
+
+
+    /// <summary>
+    /// 检查所选文件总大小是否超出剩余配额。
+    /// </summary>
+    private async Task<bool> CheckQuotaBeforeUploadAsync(IReadOnlyList<FileResult> files)
+    {
+        if (_currentUsage is null || !_currentUsage.IsQuotaConfigured)
+        {
+            return true;
+        }
+
+        var totalBytes = await GetTotalFileSizeAsync(files);
+        if (totalBytes <= 0)
+        {
+            return true;
+        }
+
+        if (totalBytes > _currentUsage.RemainingBytes)
+        {
+            var totalText = FormatBytes(totalBytes);
+            var remainingText = FormatBytes(_currentUsage.RemainingBytes);
+            await DisplayAlertAsync(
+                "容量不足",
+                "" + totalText + "、但剩余容量仅 " + remainingText + "。\n请删除部分文件后再试，或联系管理员增加配额。",
+                "知道了");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static async Task<long> GetTotalFileSizeAsync(IReadOnlyList<FileResult> files)
+    {
+        long total = 0;
+        foreach (var file in files)
+        {
+            var size = await GetFileSizeAsync(file);
+            if (size <= 0) { return 0; }
+            total += size;
+        }
+        return total;
+    }
+
+    private static async Task<long> GetFileSizeAsync(FileResult file)
+    {
+        if (!string.IsNullOrEmpty(file.FullPath))
+        {
+            try
+            {
+                var fileInfo = new FileInfo(file.FullPath);
+                if (fileInfo.Exists) { return fileInfo.Length; }
+            }
+            catch { }
+        }
+        try
+        {
+            using var stream = await file.OpenReadAsync();
+            return stream.Length;
+        }
+        catch { return 0; }
     }
 
     private async void OnOpenUploadsClicked(object? sender, EventArgs e)
@@ -1142,6 +1211,7 @@ public partial class FilesPage : ContentPage
 
     private void SetFilesStorageUsageState(StorageUsage usage)
     {
+        _currentUsage = usage;
         if (usage.IsQuotaConfigured)
         {
             var percent = Math.Clamp((double)usage.UsagePercent, 0, 100);
@@ -1228,201 +1298,6 @@ public partial class FilesPage : ContentPage
         TypeFilterPicker.SelectedIndex = 0;
         MediaFilterPicker.SelectedIndex = 0;
         _filtersInitialized = true;
-    }
-
-    private async void OnSortChipTapped(object? sender, TappedEventArgs e)
-    {
-        var options = new[]
-        {
-            AppText.SortNameAsc,
-            AppText.SortNameDesc,
-            AppText.SortTimeNew,
-            AppText.SortTimeOld,
-            AppText.SortSizeDesc,
-            AppText.SortSizeAsc,
-            AppText.SortByType
-        };
-
-        var selected = await DisplayActionSheetAsync(AppText.Sort, AppText.Cancel, null, options);
-        if (string.IsNullOrEmpty(selected) || selected == AppText.Cancel)
-        {
-            return;
-        }
-
-        var newIndex = Array.IndexOf(options, selected);
-        if (newIndex < 0)
-        {
-            return;
-        }
-
-        _sortOption = newIndex;
-        UpdateChipVisualStates();
-        await LoadItemsAsync();
-    }
-
-    private async void OnFilterTypeChipTapped(object? sender, TappedEventArgs e)
-    {
-        var options = new[]
-        {
-            AppText.FilterAll,
-            AppText.FilterFilesOnly,
-            AppText.FilterFoldersOnly
-        };
-
-        var selected = await DisplayActionSheetAsync(AppText.Filter, AppText.Cancel, null, options);
-        if (string.IsNullOrEmpty(selected) || selected == AppText.Cancel)
-        {
-            return;
-        }
-
-        var newIndex = Array.IndexOf(options, selected);
-        if (newIndex < 0)
-        {
-            return;
-        }
-
-        _filterOption = newIndex;
-        UpdateChipVisualStates();
-        await LoadItemsAsync();
-    }
-
-    private async void OnFavChipTapped(object? sender, TappedEventArgs e)
-    {
-        _isFavoriteFilter = !_isFavoriteFilter;
-        if (_isFavoriteFilter)
-        {
-            _selectedTagId = null;
-        }
-
-        UpdateChipVisualStates();
-        await LoadItemsAsync();
-    }
-
-    private async void OnTagsChipTapped(object? sender, TappedEventArgs e)
-    {
-        // 确保标签缓存已加载
-        if (_tagsCache.Count == 0)
-        {
-            try
-            {
-                _tagsCache = await _apiClient.GetTagsAsync();
-            }
-            catch
-            {
-                // 静默失败，展示空列表
-            }
-        }
-
-        if (_tagsCache.Count == 0)
-        {
-            await DisplayAlertAsync(AppText.FilterTags, AppText.NoTagsAvailable, "OK");
-            return;
-        }
-
-        var options = new List<string> { AppText.AllTags };
-        options.AddRange(_tagsCache.Select(t => t.Name));
-
-        // 当前已选标签名称
-        var selected = await DisplayActionSheetAsync(AppText.FilterTags, AppText.Cancel, null, options.ToArray());
-        if (string.IsNullOrEmpty(selected) || selected == AppText.Cancel)
-        {
-            return;
-        }
-
-        if (selected == AppText.AllTags)
-        {
-            _selectedTagId = null;
-        }
-        else
-        {
-            var tag = _tagsCache.FirstOrDefault(t => t.Name == selected);
-            if (tag != null)
-            {
-                _selectedTagId = tag.Id;
-                _isFavoriteFilter = false; // 标签和收藏不同时启用
-            }
-        }
-
-        UpdateChipVisualStates();
-        await LoadItemsAsync();
-    }
-
-    /// <summary>
-    /// 更新所有筛选Chip的视觉状态：标签文本 + 边框高亮。
-    /// </summary>
-    private void UpdateChipVisualStates()
-    {
-        // ---- 排序 Chip ----
-        var sortLabels = new[]
-        {
-            AppText.SortNameAsc,
-            AppText.SortNameDesc,
-            AppText.SortTimeNew,
-            AppText.SortTimeOld,
-            AppText.SortSizeDesc,
-            AppText.SortSizeAsc,
-            AppText.SortByType
-        };
-        var sortText = _sortOption >= 0 && _sortOption < sortLabels.Length
-            ? sortLabels[_sortOption]
-            : sortLabels[0];
-        SortChipLabel.Text = $"排序: {sortText}";
-        SetChipActive(SortChip, _sortOption != 0);
-
-        // ---- 筛选类型 Chip ----
-        var filterText = _filterOption switch
-        {
-            1 => AppText.FilterFilesOnly,
-            2 => AppText.FilterFoldersOnly,
-            _ => AppText.FilterAll
-        };
-        FilterTypeChipLabel.Text = $"筛选: {filterText}";
-        SetChipActive(FilterTypeChip, _filterOption != 0);
-
-        // ---- 收藏 Chip ----
-        if (_isFavoriteFilter)
-        {
-            FavChipIcon.Text = "★";
-            FavChipLabel.Text = AppText.FavoritesFilterLabel;
-            SetChipActive(FavChip, true);
-        }
-        else
-        {
-            FavChipIcon.Text = "☆";
-            FavChipLabel.Text = AppText.FavoritesFilterLabel;
-            SetChipActive(FavChip, false);
-        }
-
-        // ---- 标签 Chip ----
-        if (_selectedTagId.HasValue)
-        {
-            var tagName = _tagsCache.FirstOrDefault(t => t.Id == _selectedTagId.Value)?.Name ?? "标签";
-            TagsChipLabel.Text = tagName;
-            SetChipActive(TagsChip, true);
-        }
-        else
-        {
-            TagsChipLabel.Text = AppText.FilterTags;
-            SetChipActive(TagsChip, false);
-        }
-    }
-
-    /// <summary>
-    /// 设置单个Chip的高亮状态（边框颜色+字体权重）。
-    /// 激活时显示蓝色边框，非激活时恢复Style默认值以支持暗色模式切换。
-    /// </summary>
-    private static void SetChipActive(Border chip, bool active)
-    {
-        if (active)
-        {
-            chip.Stroke = new SolidColorBrush(Color.FromArgb("#2563EB"));
-            chip.StrokeThickness = 1.5;
-        }
-        else
-        {
-            chip.ClearValue(Border.StrokeProperty);
-            chip.ClearValue(Border.StrokeThicknessProperty);
-        }
     }
 
     private CloudDriveQueryOptions CreateQueryOptions()

@@ -1,6 +1,7 @@
 using Microsoft.Maui.Storage;
 using PrivateCloudDrive.App.Localization;
 using PrivateCloudDrive.App.Services;
+using PrivateCloudDrive.App.Models;
 
 namespace PrivateCloudDrive.App.Views;
 
@@ -11,6 +12,7 @@ public partial class CreateActionPage : ContentPage
 {
     private readonly IBackupTransferService _backupTransferService = AppServices.GetRequiredService<IBackupTransferService>();
     private readonly IAuthService _authService = AppServices.GetRequiredService<IAuthService>();
+    private readonly ICloudDriveApiClient _apiClient = AppServices.GetRequiredService<ICloudDriveApiClient>();
 
     public CreateActionPage()
     {
@@ -76,6 +78,11 @@ public partial class CreateActionPage : ContentPage
                 return;
             }
 
+            if (!await CheckCreateQuotaBeforeUploadAsync(files))
+            {
+                return;
+            }
+
             var queueItems = await _backupTransferService.BackupFilesAsync(
                 targetFolderId: null,
                 targetPath: "文件 / 根目录",
@@ -103,6 +110,76 @@ public partial class CreateActionPage : ContentPage
         {
             await DisplayAlertAsync(AppText.UploadFailed, exception.Message, "OK");
         }
+    }
+
+
+
+    /// <summary>
+    /// 检查所选文件总大小是否超出剩余配额。
+    /// </summary>
+    private async Task<bool> CheckCreateQuotaBeforeUploadAsync(IReadOnlyList<FileResult> files)
+    {
+        try
+        {
+            var usage = await _apiClient.GetStorageUsageAsync();
+            if (!usage.IsQuotaConfigured)
+            {
+                return true;
+            }
+
+            var totalBytes = await GetCreateFileSizeAsync(files);
+            if (totalBytes <= 0)
+            {
+                return true;
+            }
+
+            if (totalBytes > usage.RemainingBytes)
+            {
+                var totalText = FormatBytes(totalBytes);
+                var remainingText = FormatBytes(usage.RemainingBytes);
+                await DisplayAlertAsync(
+                    "剩余容量不足",
+                    totalText + "、但剩余容量仅 " + remainingText + "。\n请删除部分文件后再试，或联系管理员增加配额。",
+                    "知道了");
+                return false;
+            }
+        }
+        catch
+        {
+        }
+
+        return true;
+    }
+
+    private static async Task<long> GetCreateFileSizeAsync(IReadOnlyList<FileResult> files)
+    {
+        long total = 0;
+        foreach (var file in files)
+        {
+            var size = await GetCreateSingleFileSizeAsync(file);
+            if (size <= 0) { return 0; }
+            total += size;
+        }
+        return total;
+    }
+
+    private static async Task<long> GetCreateSingleFileSizeAsync(FileResult file)
+    {
+        if (!string.IsNullOrEmpty(file.FullPath))
+        {
+            try
+            {
+                var fileInfo = new FileInfo(file.FullPath);
+                if (fileInfo.Exists) { return fileInfo.Length; }
+            }
+            catch { }
+        }
+        try
+        {
+            using var stream = await file.OpenReadAsync();
+            return stream.Length;
+        }
+        catch { return 0; }
     }
 
     private async Task RedirectToLoginAsync()
@@ -148,5 +225,22 @@ public partial class CreateActionPage : ContentPage
     private async void OnComingSoonClicked(object? sender, EventArgs e)
     {
         await DisplayAlertAsync("即将推出", "这个 Open Design 动作正在探索中。", "知道了");
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)Math.Max(bytes, 0);
+        var unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? $"{value:0} {units[unitIndex]}"
+            : $"{value:0.##} {units[unitIndex]}";
     }
 }
