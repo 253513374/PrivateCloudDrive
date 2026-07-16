@@ -590,10 +590,10 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> Active: 创建成功
-    Active --> Archived: Owner 归档(未来版本)
+    Active --> Archived: Owner 归档（⚠️ V2.x 候选）
     Active --> Deleted: Owner 删除空间
-    Deleted --> [*]: 30 天保留期后永久清理
-    Active --> [*]: 直接硬删除(管理员)
+    Deleted --> [*]: 30 天保留期后永久清理（⚠️ V2.x 候选）
+    Active --> [*]: 管理员直接硬删除（⚠️ V2.x 候选）
 ```
 
 V2.0 MVP 仅支持 Active → Deleted 的删除操作。归档（Archived）和保留期（SoftDelete）为 V2.x 候选。
